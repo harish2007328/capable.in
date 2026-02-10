@@ -24,6 +24,11 @@ export const ProjectStorage = {
         const idea = localStorage.getItem('userIdea');
         if (idea && !localStorage.getItem(STORAGE_KEY)) {
             const legacyId = 'p-' + Date.now();
+
+            // Scavenge chats and progress for this legacy project
+            const legacyChats = JSON.parse(localStorage.getItem(`mentor_sessions_${legacyId}`) || 'null');
+            const legacyProgress = JSON.parse(localStorage.getItem(`capable_progress_${legacyId}`) || 'null');
+
             const projects = {
                 [legacyId]: {
                     id: legacyId,
@@ -35,6 +40,8 @@ export const ProjectStorage = {
                         report: JSON.parse(localStorage.getItem('analysisReport') || 'null'),
                         plan: JSON.parse(localStorage.getItem('actionPlan') || 'null'),
                         webSignals: JSON.parse(localStorage.getItem('webSignals') || 'null'),
+                        chats: legacyChats,
+                        progress: legacyProgress
                     },
                     createdAt: new Date().toISOString()
                 }
@@ -64,7 +71,7 @@ export const ProjectStorage = {
 
     getById: async (id) => {
         const { data: { session } } = await supabase.auth.getSession();
-        if (session && isNaN(id) && id.includes('-')) { // Simple check if it's a UUID vs local p-timestamp
+        if (session && String(id).includes('-')) { // UUID check
             try {
                 const p = await Database.getProjectById(id);
                 return p ? { id: p.id, title: p.title, data: p.data, createdAt: p.created_at } : null;
@@ -78,7 +85,7 @@ export const ProjectStorage = {
     create: async (idea, title = 'New Project') => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-            const project = await Database.createProject(session.user.id, title, { idea });
+            const project = await Database.createProject(session.user.id, title, { idea, chats: null, progress: {} });
             localStorage.setItem(ACTIVE_PROJECT_ID, project.id);
             return project.id;
         }
@@ -88,7 +95,7 @@ export const ProjectStorage = {
         projects[id] = {
             id,
             title: title || idea.split(' ').slice(0, 2).join(' '),
-            data: { idea },
+            data: { idea, chats: null, progress: {} },
             createdAt: new Date().toISOString()
         };
         saveLocalProjects(projects);
@@ -98,19 +105,17 @@ export const ProjectStorage = {
 
     updateData: async (id, updates) => {
         const { data: { session } } = await supabase.auth.getSession();
-
-        // Handle title updates in the object
         const titleUpdate = updates.projectTitle || updates.project_name;
 
-        if (session && id.length > 10) { // Primitive check for UUID
-            const dbUpdates = { data: updates };
-            if (titleUpdate) dbUpdates.title = titleUpdate;
+        // Fetch current state to perform deep merge
+        const current = await ProjectStorage.getById(id);
+        if (!current) return;
 
-            // We need to merge existing data first since Supabase update is shallow for jsonb if not careful
-            // For now, let's assume 'data' is the whole object we want to update
-            const { data: existing } = await supabase.from('projects').select('data').eq('id', id).single();
+        const newData = { ...current.data, ...updates };
+
+        if (session && String(id).includes('-')) {
             await Database.updateProject(id, {
-                data: { ...existing.data, ...updates },
+                data: newData,
                 ...(titleUpdate && { title: titleUpdate })
             });
             return;
@@ -118,7 +123,7 @@ export const ProjectStorage = {
 
         const projects = getLocalProjects();
         if (projects[id]) {
-            projects[id].data = { ...projects[id].data, ...updates };
+            projects[id].data = newData;
             if (titleUpdate) projects[id].title = titleUpdate;
             saveLocalProjects(projects);
         }

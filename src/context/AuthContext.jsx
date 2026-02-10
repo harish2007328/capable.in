@@ -47,6 +47,17 @@ export const AuthProvider = ({ children }) => {
         if (error) throw error;
     };
 
+    const loginWithOAuth = async (provider) => {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: window.location.origin,
+            },
+        });
+        if (error) throw error;
+        return data;
+    };
+
     const updateUser = async (attributes) => {
         const { data, error } = await supabase.auth.updateUser(attributes);
         if (error) throw error;
@@ -58,6 +69,7 @@ export const AuthProvider = ({ children }) => {
         login,
         signup,
         logout,
+        loginWithOAuth,
         updateUser,
         loading
     };

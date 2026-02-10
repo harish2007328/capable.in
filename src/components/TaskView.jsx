@@ -14,6 +14,7 @@ import {
     MessageSquare
 } from 'lucide-react';
 import MentorChat from './MentorChat';
+import { ProjectStorage } from '../services/projectStorage';
 
 const DEFAULT_PHASES = [
     { id: 'p1', title: 'Research' },
@@ -35,8 +36,7 @@ const TaskView = ({ plan, projectId }) => {
     const [selectedDayData, setSelectedDayData] = useState(null);
     const [completionStatuses, setCompletionStatuses] = useState({});
     const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
-
-    const progressKey = `capable_progress_${projectId}`;
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     // Helper to get phases safely
     const displayPhases = (plan?.phases && plan.phases.length > 0) ? plan.phases : DEFAULT_PHASES;
@@ -44,17 +44,16 @@ const TaskView = ({ plan, projectId }) => {
     useEffect(() => {
         if (!plan || !plan.days || !projectId) return;
 
-        const savedProgress = localStorage.getItem(progressKey);
-        let parsedProgress = {};
-        if (savedProgress) {
-            try {
-                parsedProgress = JSON.parse(savedProgress);
-                setCompletionStatuses(parsedProgress);
-            } catch (e) { }
-        }
+        const load = async () => {
+            const project = await ProjectStorage.getById(projectId);
+            const savedProgress = project?.data?.progress || {};
+            setCompletionStatuses(savedProgress);
 
-        const firstIncomplete = plan.days.find(day => !parsedProgress[day.id]);
-        setSelectedDayData(firstIncomplete || plan.days[0]);
+            const firstIncomplete = plan.days.find(day => !savedProgress[day.id]);
+            setSelectedDayData(firstIncomplete || plan.days[0]);
+            setIsInitialLoad(false);
+        };
+        load();
     }, [plan, projectId]);
 
     // Scroll selected task into view in the Roadmap
@@ -67,13 +66,12 @@ const TaskView = ({ plan, projectId }) => {
         }
     }, [selectedDayData]);
 
-    const toggleCompletion = (dayId) => {
+    const toggleCompletion = async (dayId) => {
         const isComplete = !completionStatuses[dayId];
-        setCompletionStatuses(prev => {
-            const next = { ...prev, [dayId]: isComplete };
-            localStorage.setItem(progressKey, JSON.stringify(next));
-            return next;
-        });
+        const next = { ...completionStatuses, [dayId]: isComplete };
+
+        setCompletionStatuses(next);
+        await ProjectStorage.updateData(projectId, { progress: next });
 
         // Auto-advance to next task if marking as complete
         if (isComplete) {

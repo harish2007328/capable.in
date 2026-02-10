@@ -56,36 +56,67 @@ const Header = () => {
 
                 {/* Action Buttons */}
                 <div className="hidden md:flex items-center gap-4">
-                    <Link to="/dashboard" className="px-8 py-2.5 rounded-md bg-[#0066CC] text-white text-sm font-semibold hover:bg-[#0055AA] transition-colors font-sans">
-                        Launch
-                    </Link>
-                    {user && (
-                        <div className="relative" ref={userMenuRef}>
-                            <button
-                                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                className="flex items-center justify-center w-10 h-10 bg-blue-50 border border-blue-100 rounded-full text-[#0066CC] hover:bg-blue-100 transition-all shadow-sm active:scale-95"
-                            >
-                                <User size={18} />
-                            </button>
+                    {!user ? (
+                        <>
+                            <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-[#0066CC] transition-colors px-4">
+                                Sign In
+                            </Link>
+                            <Link to="/project" className="px-8 py-2.5 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-[#0066CC] shadow-xl shadow-blue-500/10 transition-all hover:-translate-y-0.5 active:translate-y-0">
+                                Launch Agent
+                            </Link>
+                        </>
+                    ) : (
+                        <div className="flex items-center gap-4">
+                            <Link to="/dashboard" className="px-6 py-2.5 rounded-full border border-blue-100 bg-blue-50/50 text-[#0066CC] text-sm font-bold hover:bg-blue-100 transition-all">
+                                Dashboard
+                            </Link>
+                            <div className="relative" ref={userMenuRef}>
+                                <button
+                                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                    className="flex items-center justify-center w-11 h-11 bg-white border border-slate-100 rounded-2xl text-slate-900 hover:border-[#0066CC] hover:text-[#0066CC] transition-all shadow-sm active:scale-95 group overflow-hidden"
+                                >
+                                    {user.user_metadata?.name ? (
+                                        <span className="font-bold text-xs uppercase tracking-tighter">
+                                            {user.user_metadata.name.split(' ').map(n => n[0]).join('')}
+                                        </span>
+                                    ) : (
+                                        <User size={20} className="group-hover:scale-110 transition-transform" />
+                                    )}
+                                </button>
 
-                            <AnimatePresence>
-                                {userMenuOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                        className="absolute -right-6 top-full mt-4 w-52 bg-white/70 backdrop-blur-md border border-[#BBDDFF]/50 rounded-lg shadow-xl overflow-hidden p-1 font-sans transform origin-top-right z-50"
-                                    >
-                                        <Link to="/settings" className="flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
-                                            <Settings size={16} /> Settings
-                                        </Link>
-                                        <button onClick={logout} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left">
-                                            <LogOut size={16} /> Sign Out
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                <AnimatePresence>
+                                    {userMenuOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                            className="absolute -right-2 top-full mt-4 w-64 bg-white/90 backdrop-blur-2xl border border-blue-50 rounded-[2rem] shadow-2xl shadow-blue-500/10 overflow-hidden p-2 z-50"
+                                        >
+                                            <div className="px-4 py-4 mb-2 border-b border-slate-50">
+                                                <p className="text-[10px] font-black text-[#0066CC] uppercase tracking-widest mb-1 opacity-60">Success Profile</p>
+                                                <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.name || 'Venture Founder'}</p>
+                                                <p className="text-[10px] text-slate-400 font-medium truncate">{user.email}</p>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[#0066CC] rounded-xl transition-all group">
+                                                    <Settings size={18} className="text-slate-300 group-hover:text-[#0066CC] transition-colors" /> Settings
+                                                </Link>
+                                                <button
+                                                    onClick={() => {
+                                                        logout();
+                                                        setUserMenuOpen(false);
+                                                    }}
+                                                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-bold text-red-400 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all group text-left"
+                                                >
+                                                    <LogOut size={18} className="text-red-200 group-hover:text-red-600 transition-colors" /> Sign Out
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
                         </div>
                     )}
                 </div>

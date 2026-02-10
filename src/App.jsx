@@ -39,30 +39,16 @@ function App() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/login" element={<LoginPage />} />
 
-            {/* Unified Venture Route */}
-            <Route
-              path="/project"
-              element={
-                <ProtectedRoute>
-                  <VenturePage />
-                </ProtectedRoute>
-              }
-            />
-            {/* Handle specific project ID if needed */}
-            <Route
-              path="/project/:projectId"
-              element={
-                <ProtectedRoute>
-                  <VenturePage />
-                </ProtectedRoute>
-              }
-            />
+            {/* Unified Venture Route - Public (Handles guests via localStorage) */}
+            <Route path="/project" element={<VenturePage />} />
+            <Route path="/project/:projectId" element={<VenturePage />} />
 
             {/* Redirects for legacy routes */}
             <Route path="/wizard" element={<Navigate to="/project" replace />} />
             <Route path="/report" element={<Navigate to="/project" replace />} />
             <Route path="/task/:id" element={<Navigate to="/project" replace />} />
 
+            {/* Protected Routes - Only for registered users */}
             <Route
               path="/dashboard"
               element={

@@ -3,29 +3,41 @@ import { mentorChat } from '../services/ai';
 import { Send, Sparkles, Menu, Edit, Pin, MessageSquare, Zap, X, Trash2, Target } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ProjectStorage } from '../services/projectStorage';
 
 const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTask, projectId }) => {
-    const storageKey = `mentor_sessions_${projectId}`;
-
     // Session Management State
-    const [sessions, setSessions] = useState(() => {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) return JSON.parse(saved);
+    const [sessions, setSessions] = useState([]);
+    const [activeSessionId, setActiveSessionId] = useState(null);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-        // Initial default session
-        const initialId = Date.now().toString();
-        return [{
-            id: initialId,
-            title: idea || "Initial Strategy",
-            messages: [{ role: 'assistant', type: 'text', content: "I'm ready to help you execute. Which task should we tackle first?" }],
-            isPinned: false,
-            timestamp: Date.now()
-        }];
-    });
+    // Load initial data from ProjectStorage
+    useEffect(() => {
+        const load = async () => {
+            if (!projectId) return;
+            const project = await ProjectStorage.getById(projectId);
+            const savedChats = project?.data?.chats;
 
-    const [activeSessionId, setActiveSessionId] = useState(() => {
-        return sessions[0]?.id || Date.now().toString();
-    });
+            if (savedChats && savedChats.length > 0) {
+                setSessions(savedChats);
+                setActiveSessionId(savedChats[0].id);
+            } else {
+                // Initial default session
+                const initialId = Date.now().toString();
+                const initialSession = {
+                    id: initialId,
+                    title: idea || "Initial Strategy",
+                    messages: [{ role: 'assistant', type: 'text', content: "I'm ready to help you execute. Which task should we tackle first?" }],
+                    isPinned: false,
+                    timestamp: Date.now()
+                };
+                setSessions([initialSession]);
+                setActiveSessionId(initialId);
+            }
+            setIsInitialLoad(false);
+        };
+        load();
+    }, [projectId, idea]);
 
     const [input, setInput] = useState('');
     const [mentions, setMentions] = useState([]);
@@ -54,10 +66,13 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
+    // Save to ProjectStorage instead of direct localStorage
     useEffect(() => {
-        scrollToBottom();
-        localStorage.setItem(storageKey, JSON.stringify(sessions));
-    }, [sessions, storageKey]);
+        if (!isInitialLoad && projectId && sessions.length > 0) {
+            scrollToBottom();
+            ProjectStorage.updateData(projectId, { chats: sessions });
+        }
+    }, [sessions, projectId, isInitialLoad]);
 
     const handleCreateSession = () => {
         const newId = Date.now().toString();
@@ -180,88 +195,95 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
 
                 {/* Messages Container */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar scroll-smooth">
-                    {activeSession.messages.map((m, i) => (
-                        <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            {m.type === 'action' ? (
-                                <div className="max-w-[85%] w-full">
-                                    {m.actionType === 'edit' && (
-                                        <div className="bg-white border border-emerald-100 rounded-xl shadow-sm p-4 flex flex-col gap-2">
-                                            <div className="flex items-center gap-2 text-emerald-600 font-bold text-[10px] uppercase tracking-wider">
-                                                <Zap size={12} fill="currentColor" />
-                                                Strategy Update
+                    {isInitialLoad ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-4 opacity-30">
+                            <Sparkles size={24} className="animate-pulse text-[#0066CC]" />
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Strategy...</p>
+                        </div>
+                    ) : (
+                        activeSession?.messages?.map((m, i) => (
+                            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                {m.type === 'action' ? (
+                                    <div className="max-w-[85%] w-full">
+                                        {m.actionType === 'edit' && (
+                                            <div className="bg-white border border-emerald-100 rounded-xl shadow-sm p-4 flex flex-col gap-2">
+                                                <div className="flex items-center gap-2 text-emerald-600 font-bold text-[10px] uppercase tracking-wider">
+                                                    <Zap size={12} fill="currentColor" />
+                                                    Strategy Update
+                                                </div>
+                                                <div className="text-sm font-semibold text-slate-800">{m.data.newTask}</div>
                                             </div>
-                                            <div className="text-sm font-semibold text-slate-800">{m.data.newTask}</div>
-                                        </div>
-                                    )}
-                                    {m.actionType === 'add' && (
-                                        <div className="bg-white border border-blue-100 rounded-xl shadow-sm p-4 flex flex-col gap-2">
-                                            <div className="flex items-center gap-2 text-blue-600 font-bold text-[10px] uppercase tracking-wider">
-                                                <Sparkles size={12} fill="currentColor" />
-                                                Refining Plan
+                                        )}
+                                        {m.actionType === 'add' && (
+                                            <div className="bg-white border border-blue-100 rounded-xl shadow-sm p-4 flex flex-col gap-2">
+                                                <div className="flex items-center gap-2 text-blue-600 font-bold text-[10px] uppercase tracking-wider">
+                                                    <Sparkles size={12} fill="currentColor" />
+                                                    Refining Plan
+                                                </div>
+                                                <div className="text-xs text-slate-500">{m.data.tasks.length} insights added.</div>
                                             </div>
-                                            <div className="text-xs text-slate-500">{m.data.tasks.length} insights added.</div>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className={`
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className={`
                                     max-w-[88%] p-4 text-sm leading-relaxed shadow-sm
                                     ${m.role === 'user'
-                                        ? 'bg-[#0066CC] text-white rounded-2xl rounded-tr-sm'
-                                        : 'bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-tl-sm'
-                                    }
+                                            ? 'bg-[#0066CC] text-white rounded-2xl rounded-tr-sm'
+                                            : 'bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-tl-sm'
+                                        }
                                 `}>
-                                    <div className="markdown-content prose prose-slate prose-sm max-w-none">
-                                        <ReactMarkdown
-                                            remarkPlugins={[remarkGfm]}
-                                            components={{
-                                                a: ({ node, ...props }) => {
-                                                    if (props.href && props.href.startsWith('task:')) {
-                                                        const taskId = props.href.split(':')[1];
+                                        <div className="markdown-content prose prose-slate prose-sm max-w-none">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                components={{
+                                                    a: ({ node, ...props }) => {
+                                                        if (props.href && props.href.startsWith('task:')) {
+                                                            const taskId = props.href.split(':')[1];
+                                                            return (
+                                                                <button
+                                                                    onClick={() => onSelectTask && onSelectTask(taskId)}
+                                                                    className="text-[#0066CC] font-bold hover:underline underline-offset-2 transition-colors"
+                                                                >
+                                                                    {props.children}
+                                                                </button>
+                                                            );
+                                                        }
                                                         return (
-                                                            <button
-                                                                onClick={() => onSelectTask && onSelectTask(taskId)}
-                                                                className="text-[#0066CC] font-bold hover:underline underline-offset-2 transition-colors"
-                                                            >
-                                                                {props.children}
-                                                            </button>
+                                                            <a
+                                                                {...props}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-[#0066CC] font-bold hover:underline decoration-blue-200"
+                                                            />
                                                         );
-                                                    }
-                                                    return (
-                                                        <a
-                                                            {...props}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-[#0066CC] font-bold hover:underline decoration-blue-200"
-                                                        />
-                                                    );
-                                                },
-                                                table: ({ node, ...props }) => (
-                                                    <div className="my-4 overflow-x-auto border border-slate-100 rounded-xl bg-white shadow-sm custom-scrollbar">
-                                                        <table className="w-full text-left border-collapse min-w-[300px]" {...props} />
-                                                    </div>
-                                                ),
-                                                thead: ({ node, ...props }) => (
-                                                    <thead className="bg-slate-50/50 border-b border-slate-100" {...props} />
-                                                ),
-                                                th: ({ node, ...props }) => (
-                                                    <th className="px-4 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap" {...props} />
-                                                ),
-                                                td: ({ node, ...props }) => (
-                                                    <td className="px-4 py-2.5 text-xs text-slate-600 border-b border-slate-50/50 last:border-0" {...props} />
-                                                )
-                                            }}
-                                        >
-                                            {m.content
-                                                .replace(/@(\d+)/g, '[Task $1](task:$1)')
-                                                .replace(/(?<!\[)(Task|Step|Day)\s+(\d+)/gi, '[$1 $2](task:$2)')
-                                            }
-                                        </ReactMarkdown>
+                                                    },
+                                                    table: ({ node, ...props }) => (
+                                                        <div className="my-4 overflow-x-auto border border-slate-100 rounded-xl bg-white shadow-sm custom-scrollbar">
+                                                            <table className="w-full text-left border-collapse min-w-[300px]" {...props} />
+                                                        </div>
+                                                    ),
+                                                    thead: ({ node, ...props }) => (
+                                                        <thead className="bg-slate-50/50 border-b border-slate-100" {...props} />
+                                                    ),
+                                                    th: ({ node, ...props }) => (
+                                                        <th className="px-4 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap" {...props} />
+                                                    ),
+                                                    td: ({ node, ...props }) => (
+                                                        <td className="px-4 py-2.5 text-xs text-slate-600 border-b border-slate-50/50 last:border-0" {...props} />
+                                                    )
+                                                }}
+                                            >
+                                                {m.content
+                                                    .replace(/@(\d+)/g, '[Task $1](task:$1)')
+                                                    .replace(/(?<!\[)(Task|Step|Day)\s+(\d+)/gi, '[$1 $2](task:$2)')
+                                                }
+                                            </ReactMarkdown>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                                )}
+                            </div>
+                        ))
+                    )}
                     {loading && (
                         <div className="flex justify-start">
                             <div className="bg-white px-4 py-2.5 rounded-2xl border border-slate-100 shadow-sm flex gap-2 items-center">
@@ -277,24 +299,26 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                 {/* Input Area */}
                 <div className="p-4 bg-white border-t border-slate-100 shrink-0">
                     {/* Mention Chips */}
-                    {mentions.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
-                            {mentions.map(m => (
-                                <div key={m.id} className="flex items-center gap-1.5 px-2 py-1 bg-[#0066CC]/5 border border-[#0066CC]/10 rounded-lg text-[#0066CC] animate-in zoom-in-95 duration-150">
-                                    <Target size={10} />
-                                    <span className="text-[10px] font-black uppercase tracking-tighter">Day {m.id}</span>
-                                    <button
-                                        onClick={() => setMentions(prev => prev.filter(item => item.id !== m.id))}
-                                        className="hover:bg-[#0066CC]/10 rounded-full p-0.5 transition-colors"
-                                    >
-                                        <X size={10} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    {
+                        mentions.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                {mentions.map(m => (
+                                    <div key={m.id} className="flex items-center gap-1.5 px-2 py-1 bg-[#0066CC]/5 border border-[#0066CC]/10 rounded-lg text-[#0066CC] animate-in zoom-in-95 duration-150">
+                                        <Target size={10} />
+                                        <span className="text-[10px] font-black uppercase tracking-tighter">Day {m.id}</span>
+                                        <button
+                                            onClick={() => setMentions(prev => prev.filter(item => item.id !== m.id))}
+                                            className="hover:bg-[#0066CC]/10 rounded-full p-0.5 transition-colors"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )
+                    }
 
-                    <form onSubmit={handleSend} className="relative flex items-center bg-white shadow-sm border border-slate-200 rounded-2xl focus-within:ring-2 focus-within:ring-[#0066CC]/10 transition-all">
+                    < form onSubmit={handleSend} className="relative flex items-center bg-white shadow-sm border border-slate-200 rounded-2xl focus-within:ring-2 focus-within:ring-[#0066CC]/10 transition-all" >
                         <input
                             type="text"
                             id="mentor-chat-input"
@@ -319,92 +343,94 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
             </div>
 
             {/* MODERN SIDEBAR DRAWER (Light Theme) */}
-            {isOpen && (
-                <>
-                    <div className="absolute inset-0 z-40 bg-slate-900/5 backdrop-blur-sm transition-all animate-in fade-in duration-150" onClick={() => setIsOpen(false)} />
+            {
+                isOpen && (
+                    <>
+                        <div className="absolute inset-0 z-40 bg-slate-900/5 backdrop-blur-sm transition-all animate-in fade-in duration-150" onClick={() => setIsOpen(false)} />
 
-                    <div className="absolute top-0 right-0 h-full w-[280px] bg-white z-50 shadow-2xl animate-in slide-in-from-right duration-200 flex flex-col select-none">
-                        {/* Sidebar Header */}
-                        <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white z-20 shrink-0">
-                            <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <Sparkles size={14} className="text-[#0066CC]" /> Sessions
-                                </span>
+                        <div className="absolute top-0 right-0 h-full w-[280px] bg-white z-50 shadow-2xl animate-in slide-in-from-right duration-200 flex flex-col select-none">
+                            {/* Sidebar Header */}
+                            <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white z-20 shrink-0">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Sparkles size={14} className="text-[#0066CC]" /> Sessions
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="p-1.5 hover:bg-slate-50 rounded-lg transition-colors text-slate-400 group"
+                                    title="Close"
+                                >
+                                    <X size={18} className="group-hover:text-slate-600" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => setIsOpen(false)}
-                                className="p-1.5 hover:bg-slate-50 rounded-lg transition-colors text-slate-400 group"
-                                title="Close"
-                            >
-                                <X size={18} className="group-hover:text-slate-600" />
-                            </button>
-                        </div>
 
-                        {/* Sidebar Content */}
-                        <div className="flex-1 overflow-y-auto px-2 pb-6 space-y-6 custom-scrollbar">
-                            {/* New Chat Button */}
-                            <button
-                                onClick={handleCreateSession}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-700 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all font-medium text-sm group"
-                            >
-                                <Edit size={16} className="text-slate-400 group-hover:text-[#0066CC]" />
-                                New chat
-                            </button>
+                            {/* Sidebar Content */}
+                            <div className="flex-1 overflow-y-auto px-2 pb-6 space-y-6 custom-scrollbar">
+                                {/* New Chat Button */}
+                                <button
+                                    onClick={handleCreateSession}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-700 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all font-medium text-sm group"
+                                >
+                                    <Edit size={16} className="text-slate-400 group-hover:text-[#0066CC]" />
+                                    New chat
+                                </button>
 
-                            {/* Chats Section */}
-                            <section className="space-y-1">
-                                <h4 className="px-3 pb-2 text-[10px] font-bold text-slate-300 uppercase tracking-widest">Recent Chats</h4>
-                                <div className="space-y-1">
-                                    {sortedSessions.map(session => (
-                                        <div
-                                            key={session.id}
-                                            onClick={() => { setActiveSessionId(session.id); setIsOpen(false); }}
-                                            className={`
+                                {/* Chats Section */}
+                                <section className="space-y-1">
+                                    <h4 className="px-3 pb-2 text-[10px] font-bold text-slate-300 uppercase tracking-widest">Recent Chats</h4>
+                                    <div className="space-y-1">
+                                        {sortedSessions.map(session => (
+                                            <div
+                                                key={session.id}
+                                                onClick={() => { setActiveSessionId(session.id); setIsOpen(false); }}
+                                                className={`
                                                 group relative px-3 py-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between
                                                 ${activeSessionId === session.id
-                                                    ? 'bg-blue-50/50 border-blue-100 text-[#0066CC]'
-                                                    : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-100'}
+                                                        ? 'bg-blue-50/50 border-blue-100 text-[#0066CC]'
+                                                        : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-100'}
                                             `}
-                                        >
-                                            <div className="flex items-center gap-3 min-w-0 flex-1">
-                                                <MessageSquare size={14} className={activeSessionId === session.id ? 'text-[#0066CC]' : 'text-slate-400'} />
-                                                <span className="text-sm font-medium truncate leading-tight">
-                                                    {session.title}
-                                                </span>
-                                            </div>
+                                            >
+                                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                    <MessageSquare size={14} className={activeSessionId === session.id ? 'text-[#0066CC]' : 'text-slate-400'} />
+                                                    <span className="text-sm font-medium truncate leading-tight">
+                                                        {session.title}
+                                                    </span>
+                                                </div>
 
-                                            {/* Action Accessibility Bits */}
-                                            <div className={`flex items-center gap-1.5 transition-opacity ${activeSessionId === session.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                                                <button
-                                                    onClick={(e) => handleTogglePin(e, session.id)}
-                                                    className={`p-1 rounded-md transition-colors ${session.isPinned ? 'text-[#0066CC] bg-blue-100' : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'}`}
-                                                    title={session.isPinned ? "Unpin chat" : "Pin chat"}
-                                                >
-                                                    <Pin size={12} fill={session.isPinned ? "currentColor" : "none"} />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => handleDeleteSession(e, session.id)}
-                                                    className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
-                                                    title="Delete chat"
-                                                >
-                                                    <Trash2 size={12} />
-                                                </button>
+                                                {/* Action Accessibility Bits */}
+                                                <div className={`flex items-center gap-1.5 transition-opacity ${activeSessionId === session.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                                    <button
+                                                        onClick={(e) => handleTogglePin(e, session.id)}
+                                                        className={`p-1 rounded-md transition-colors ${session.isPinned ? 'text-[#0066CC] bg-blue-100' : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'}`}
+                                                        title={session.isPinned ? "Unpin chat" : "Pin chat"}
+                                                    >
+                                                        <Pin size={12} fill={session.isPinned ? "currentColor" : "none"} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleDeleteSession(e, session.id)}
+                                                        className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                                                        title="Delete chat"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            </div>
 
-                        {/* Footer Info */}
-                        <div className="p-4 border-t border-slate-50 flex items-center gap-2 text-slate-200">
-                            <Zap size={10} fill="currentColor" />
-                            <span className="text-[10px] font-black uppercase tracking-widest italic">Operations Intelligence</span>
+                            {/* Footer Info */}
+                            <div className="p-4 border-t border-slate-50 flex items-center gap-2 text-slate-200">
+                                <Zap size={10} fill="currentColor" />
+                                <span className="text-[10px] font-black uppercase tracking-widest italic">Operations Intelligence</span>
+                            </div>
                         </div>
-                    </div>
-                </>
-            )}
-        </div>
+                    </>
+                )
+            }
+        </div >
     );
 };
 
