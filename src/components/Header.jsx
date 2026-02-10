@@ -75,7 +75,13 @@ const Header = () => {
                                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                                     className="flex items-center justify-center w-11 h-11 bg-white border border-slate-100 rounded-2xl text-slate-900 hover:border-[#0066CC] hover:text-[#0066CC] transition-all shadow-sm active:scale-95 group overflow-hidden"
                                 >
-                                    {user.user_metadata?.name ? (
+                                    {user.user_metadata?.avatar_url ? (
+                                        <img
+                                            src={user.user_metadata.avatar_url}
+                                            alt="Profile"
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                                        />
+                                    ) : user.user_metadata?.name ? (
                                         <span className="font-bold text-xs uppercase tracking-tighter">
                                             {user.user_metadata.name.split(' ').map(n => n[0]).join('')}
                                         </span>
@@ -91,15 +97,18 @@ const Header = () => {
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 15, scale: 0.95 }}
                                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                            className="absolute -right-2 top-full mt-4 w-64 bg-white/90 backdrop-blur-2xl border border-blue-50 rounded-[2rem] shadow-2xl shadow-blue-500/10 overflow-hidden p-2 z-50"
+                                            className="absolute -right-2 top-full mt-4 w-64 bg-white/60 backdrop-blur-2xl border border-blue-50 rounded-[2rem] shadow-2xl shadow-blue-500/10 overflow-hidden p-2 z-50"
                                         >
                                             <div className="px-4 py-4 mb-2 border-b border-slate-50">
-                                                <p className="text-[10px] font-black text-[#0066CC] uppercase tracking-widest mb-1 opacity-60">Success Profile</p>
+                                                <p className="text-[10px] font-black text-[#0066CC] uppercase tracking-widest mb-1 opacity-60">Founder Profile</p>
                                                 <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.name || 'Venture Founder'}</p>
                                                 <p className="text-[10px] text-slate-400 font-medium truncate">{user.email}</p>
                                             </div>
 
                                             <div className="space-y-1">
+                                                <Link to="/dashboard" className="flex md:hidden items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[#0066CC] rounded-xl transition-all group">
+                                                    <User size={18} className="text-slate-300 group-hover:text-[#0066CC] transition-colors" /> Dashboard
+                                                </Link>
                                                 <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[#0066CC] rounded-xl transition-all group">
                                                     <Settings size={18} className="text-slate-300 group-hover:text-[#0066CC] transition-colors" /> Settings
                                                 </Link>
