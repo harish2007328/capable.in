@@ -15,11 +15,11 @@ const HomePage = () => {
     const [idea, setIdea] = useState('');
     const [isEnhancing, setIsEnhancing] = useState(false);
 
-    const handleGenerate = () => {
+    const handleGenerate = async () => {
         if (!idea.trim() || isEnhancing) return;
 
-        ProjectStorage.init();
-        const newId = ProjectStorage.create(idea);
+        await ProjectStorage.init();
+        const newId = await ProjectStorage.create(idea);
         navigate(`/project/${newId}`);
     };
 

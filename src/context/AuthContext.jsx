@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../services/supabase';
 
 const AuthContext = createContext();
 
@@ -11,35 +12,51 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('capable_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        // Check active sessions and sets the user
+        const getSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
+            setLoading(false);
+        };
+
+        getSession();
+
+        // Listen for changes on auth state (logged in, signed out, etc.)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    const login = (userData) => {
-        setUser(userData);
-        localStorage.setItem('capable_user', JSON.stringify(userData));
+    const login = async (email, password) => {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        return data;
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('capable_user');
-        // Optional: clear other data if needed, or keep it.
-        // For now, let's keep project data so they don't lose it accidentally, 
-        // or we could offer a "Delete Account" in settings.
+    const signup = async (email, password) => {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        return data;
     };
 
-    const updateUser = (updates) => {
-        const newUser = { ...user, ...updates };
-        setUser(newUser);
-        localStorage.setItem('capable_user', JSON.stringify(newUser));
+    const logout = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+    };
+
+    const updateUser = async (attributes) => {
+        const { data, error } = await supabase.auth.updateUser(attributes);
+        if (error) throw error;
+        return data;
     };
 
     const value = {
         user,
         login,
+        signup,
         logout,
         updateUser,
         loading

@@ -32,8 +32,12 @@ const DashboardPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        ProjectStorage.init();
-        setProjects(ProjectStorage.getAll());
+        const load = async () => {
+            await ProjectStorage.init();
+            const allProjects = await ProjectStorage.getAll();
+            setProjects(allProjects);
+        };
+        load();
 
         // Handle hash-based navigation
         const hash = location.hash.replace('#', '');
@@ -58,11 +62,12 @@ const DashboardPage = () => {
         { id: 'settings', label: 'Settings', icon: SettingsIcon },
     ];
 
-    const handleDeleteProject = (e, id) => {
+    const handleDeleteProject = async (e, id) => {
         e.stopPropagation();
         if (confirm('Are you sure you want to delete this project? All progress and chat history will be lost.')) {
-            ProjectStorage.delete(id);
-            setProjects(ProjectStorage.getAll());
+            await ProjectStorage.delete(id);
+            const allProjects = await ProjectStorage.getAll();
+            setProjects(allProjects);
         }
     };
 

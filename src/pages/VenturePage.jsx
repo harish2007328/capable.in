@@ -64,7 +64,7 @@ const VenturePage = () => {
         }
 
         const loadProjectData = async () => {
-            const p = ProjectStorage.getById(currentId);
+            const p = await ProjectStorage.getById(currentId);
             if (!p) {
                 navigate('/dashboard#projects');
                 return;
@@ -111,14 +111,15 @@ const VenturePage = () => {
             try {
                 const result = await generateAnalysisQuestions(idea);
                 if (result?.questions && isMounted.current) {
-                    ProjectStorage.updateData(currentId, {
+                    await ProjectStorage.updateData(currentId, {
                         questions: result.questions,
                         projectTitle: result.projectTitle || p?.title,
                         projectDescription: result.projectDescription
                     });
                     setQuestions(result.questions);
                     // Refresh project state to show new title/desc
-                    setProject(ProjectStorage.getById(currentId));
+                    const updatedProject = await ProjectStorage.getById(currentId);
+                    setProject(updatedProject);
                 }
             } catch (e) {
                 console.error("Discovery failed", e);
@@ -161,7 +162,7 @@ const VenturePage = () => {
             const rep = await generateAnalysisReport(idea, contextString);
             if (isMounted.current) {
                 setReport(rep);
-                ProjectStorage.updateData(currentId, { report: rep });
+                await ProjectStorage.updateData(currentId, { report: rep });
             }
         } catch (e) {
             console.error("Strategy generation failed", e);
@@ -170,8 +171,8 @@ const VenturePage = () => {
         }
     };
 
-    const handleWizardComplete = (answers) => {
-        ProjectStorage.updateData(currentId, { answers });
+    const handleWizardComplete = async (answers) => {
+        await ProjectStorage.updateData(currentId, { answers });
         setCompletedAnswers(answers);
         setShowSummary(true);
         setActiveTab('strategy');
@@ -191,7 +192,7 @@ const VenturePage = () => {
             const result = await generateActionPlan(idea, JSON.stringify(report), answers);
 
             const normalized = normalizePlan(result);
-            ProjectStorage.updateData(currentId, { plan: normalized });
+            await ProjectStorage.updateData(currentId, { plan: normalized });
             setActionPlan(normalized);
             setHasPlan(true);
             setActiveTab('plan');
