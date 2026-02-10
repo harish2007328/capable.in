@@ -23,12 +23,11 @@ export const AuthProvider = ({ children }) => {
             // If we have an access token in the hash, we need to clean it up
             // but only after Supabase has had a chance to set the session.
             if (session && (window.location.hash || window.location.search.includes('access_token'))) {
-                const url = new URL(window.location.href);
-                // Clear the hash and OAuth specific query params
-                url.hash = '';
-                const params = ['access_token', 'refresh_token', 'expires_at', 'expires_in', 'token_type', 'type'];
-                params.forEach(p => url.searchParams.delete(p));
-                window.history.replaceState(null, '', url.pathname + url.search);
+                // Remove hash and OAuth parameters from the URL without leaving a '#'
+                const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]access_token=[^&]+/, '').replace(/[?&]refresh_token=[^&]+/, '').replace(/[?&]expires_at=[^&]+/, '').replace(/[?&]expires_in=[^&]+/, '').replace(/[?&]token_type=[^&]+/, '').replace(/[?&]type=[^&]+/, '');
+
+                // Use replaceState to update the URL without the hash
+                window.history.replaceState(null, '', cleanUrl);
             }
         };
 
