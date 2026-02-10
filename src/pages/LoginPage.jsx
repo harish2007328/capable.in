@@ -11,9 +11,16 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const { login, signup, loginWithOAuth } = useAuth();
+    const { login, signup, loginWithOAuth, user, loading } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    // Auto-redirect if already logged in
+    React.useEffect(() => {
+        if (!loading && user) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [user, loading, navigate]);
 
     const from = location.state?.from?.pathname || '/dashboard';
 

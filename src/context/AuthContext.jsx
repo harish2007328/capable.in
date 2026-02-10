@@ -22,8 +22,16 @@ export const AuthProvider = ({ children }) => {
         getSession();
 
         // Listen for changes on auth state (logged in, signed out, etc.)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                setUser(session?.user ?? null);
+                // Clean up URL if it contains OAuth tokens
+                if (window.location.hash || window.location.search.includes('access_token')) {
+                    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                }
+            } else if (event === 'SIGNED_OUT') {
+                setUser(null);
+            }
             setLoading(false);
         });
 
