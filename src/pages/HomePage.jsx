@@ -16,13 +16,6 @@ const HomePage = () => {
     const [idea, setIdea] = useState('');
     const [isEnhancing, setIsEnhancing] = useState(false);
 
-    // Auto-redirect if already logged in
-    useEffect(() => {
-        if (!loading && user) {
-            navigate('/dashboard', { replace: true });
-        }
-    }, [user, loading, navigate]);
-
     const handleGenerate = async () => {
         if (!idea.trim() || isEnhancing) return;
 
