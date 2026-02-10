@@ -12,30 +12,40 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check active sessions and sets the user
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+        let isMounted = true;
+
+        const handleAuth = (event, session) => {
+            if (!isMounted) return;
+
             setUser(session?.user ?? null);
             setLoading(false);
+
+            // If we have an access token in the hash, we need to clean it up
+            // but only after Supabase has had a chance to set the session.
+            if (session && (window.location.hash || window.location.search.includes('access_token'))) {
+                const url = new URL(window.location.href);
+                // Clear the hash and OAuth specific query params
+                url.hash = '';
+                const params = ['access_token', 'refresh_token', 'expires_at', 'expires_in', 'token_type', 'type'];
+                params.forEach(p => url.searchParams.delete(p));
+                window.history.replaceState(null, '', url.pathname + url.search);
+            }
         };
 
-        getSession();
-
-        // Listen for changes on auth state (logged in, signed out, etc.)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-                setUser(session?.user ?? null);
-                // Clean up URL if it contains OAuth tokens
-                if (window.location.hash || window.location.search.includes('access_token')) {
-                    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-                }
-            } else if (event === 'SIGNED_OUT') {
-                setUser(null);
-            }
-            setLoading(false);
+        // Initial session check
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            handleAuth('INITIAL_SESSION', session);
         });
 
-        return () => subscription.unsubscribe();
+        // Listen for changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            handleAuth(event, session);
+        });
+
+        return () => {
+            isMounted = false;
+            subscription.unsubscribe();
+        };
     }, []);
 
     const login = async (email, password) => {
