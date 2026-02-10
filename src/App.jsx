@@ -1,0 +1,97 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+import FeaturesPage from './pages/FeaturesPage';
+import UseCasesPage from './pages/UseCasesPage';
+import PricingPage from './pages/PricingPage';
+import VenturePage from './pages/VenturePage';
+import DashboardPage from './pages/DashboardPage';
+import LoginPage from './pages/LoginPage';
+import SettingsPage from './pages/SettingsPage';
+import MetricsPage from './pages/MetricsPage';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import './index.css';
+
+// Protected Route Wrapper
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) return null; // Or a loading spinner
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/features" element={<FeaturesPage />} />
+            <Route path="/use-cases" element={<UseCasesPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+
+            {/* Unified Venture Route */}
+            <Route
+              path="/project"
+              element={
+                <ProtectedRoute>
+                  <VenturePage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Handle specific project ID if needed */}
+            <Route
+              path="/project/:projectId"
+              element={
+                <ProtectedRoute>
+                  <VenturePage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Redirects for legacy routes */}
+            <Route path="/wizard" element={<Navigate to="/project" replace />} />
+            <Route path="/report" element={<Navigate to="/project" replace />} />
+            <Route path="/task/:id" element={<Navigate to="/project" replace />} />
+
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/metrics"
+              element={
+                <ProtectedRoute>
+                  <MetricsPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Layout>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;

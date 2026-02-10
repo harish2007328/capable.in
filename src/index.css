@@ -1,0 +1,229 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-white text-gray-900 font-sans antialiased selection:bg-brand-blue/20 selection:text-brand-blue overflow-x-hidden;
+    scrollbar-gutter: stable;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-bold tracking-tight text-brand-black;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-dark-blue;
+  }
+
+  /* Glass Theme Utilities */
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-blue-100 shadow-lg rounded-2xl transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply shadow-xl;
+  }
+
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-blue-100 shadow-lg rounded-2xl;
+  }
+
+  .glass-input {
+    @apply bg-white/70 backdrop-blur-sm border border-blue-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 focus:border-[#0066CC] transition-all duration-200;
+  }
+
+  /* Sidebar Gradient */
+  .sidebar-gradient {
+    background: linear-gradient(180deg, #0066CC 0%, #0052a3 50%, #073B99 100%);
+  }
+
+  /* Enhanced Glass Cards */
+  .glass-card-light {
+    @apply bg-white/50 backdrop-blur-sm border border-gray-100/50 shadow-sm rounded-2xl;
+  }
+
+  .glass-card-medium {
+    @apply bg-white/70 backdrop-blur-md border border-gray-100 shadow-md rounded-2xl;
+  }
+
+  .glass-card-strong {
+    @apply bg-white/80 backdrop-blur-lg border border-gray-200 shadow-lg rounded-2xl;
+  }
+
+  /* Scrollbar Styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thumb-white\/20::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+  }
+
+  .scrollbar-track-transparent::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Premium card without transform animation */
+  .premium-card {
+    @apply bg-white border border-gray-100 shadow-card rounded-card transition-all duration-300;
+  }
+
+  .premium-card:hover {
+    @apply shadow-lg;
+  }
+
+  /* Calm button styles - no scale or translate */
+  .btn-primary {
+    @apply bg-brand-black text-white px-6 py-3 rounded-button font-sans font-medium hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-brand-black border border-gray-200 px-6 py-3 rounded-button font-sans font-medium hover:bg-gray-50 transition-colors duration-200;
+  }
+
+  .btn-glass {
+    @apply bg-white/70 backdrop-blur-md text-brand-black border border-blue-100 px-6 py-3 rounded-button font-sans font-medium hover:bg-white/90 hover:border-blue-200 transition-all duration-200 flex items-center justify-center gap-2 shadow-md;
+  }
+
+  .input-primary {
+    @apply w-full bg-gray-50 border border-gray-200 px-4 py-4 rounded-input text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all duration-200 font-sans;
+  }
+
+  /* Animated Border & Line Flow */
+  .animate-border-rotate {
+    animation: border-rotate 4s linear infinite;
+  }
+
+  .animate-line-flow {
+    background-size: 200% 200%;
+    animation: line-flow 2s linear infinite;
+  }
+
+  @keyframes border-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease-in-out infinite;
+  }
+
+  @keyframes gradient-shift {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes line-flow {
+    0% {
+      background-position: 0% 0%;
+    }
+
+    100% {
+      background-position: 0% 100%;
+      /* Vertical flow */
+    }
+  }
+
+  @keyframes line-flow-x {
+    0% {
+      background-position: 0% 0%;
+    }
+
+    100% {
+      background-position: 100% 0%;
+      /* Horizontal flow */
+    }
+  }
+
+  .animate-line-flow-x {
+    background-size: 200% 200%;
+    animation: line-flow-x 2s linear infinite;
+  }
+}
+
+/* Custom Scrollbar - Minimal & Light */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-300;
+}
+
+/* Specific class for ultra-minimalist scrollbars (used in tables/drawers) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-300;
+}
+
+.animate-svg-flow {
+  stroke-dasharray: 10 10;
+  animation: svg-flow 2s linear infinite;
+}
+
+@keyframes svg-flow {
+  from {
+    stroke-dashoffset: 20;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100vh);
+  }
+
+  100% {
+    transform: translateY(100vh);
+  }
+}
