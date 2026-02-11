@@ -170,9 +170,21 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                 <div className="relative" ref={userMenuRef}>
                     <button
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                        className="w-10 h-10 bg-rose-500 text-white flex items-center justify-center text-sm font-bold rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200 hover:ring-[#0066CC]/30 transition-all overflow-hidden"
+                        className="w-10 h-10 bg-rose-500 text-white flex items-center justify-center text-sm font-bold rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200 hover:ring-[#0066CC]/30 transition-all overflow-hidden group"
                     >
-                        {user?.name?.charAt(0) || user?.email?.charAt(0) || 'H'}
+                        {user?.user_metadata?.avatar_url ? (
+                            <img
+                                src={user.user_metadata.avatar_url}
+                                alt="Profile"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                        ) : user?.user_metadata?.name ? (
+                            <span className="font-bold text-xs uppercase tracking-tighter">
+                                {user.user_metadata.name.split(' ').map(n => n[0]).join('')}
+                            </span>
+                        ) : (
+                            user?.email?.charAt(0).toUpperCase() || 'H'
+                        )}
                     </button>
 
                     <AnimatePresence>
@@ -185,7 +197,9 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                             >
                                 <div className="px-4 pb-3 mb-2 border-b border-slate-50">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account</p>
-                                    <p className="text-sm font-bold text-slate-900 truncate">{user?.name || 'Guest User'}</p>
+                                    <p className="text-sm font-bold text-slate-900 truncate">
+                                        {user?.user_metadata?.full_name || user?.user_metadata?.name || 'Venture Founder'}
+                                    </p>
                                     <p className="text-[10px] text-slate-500 truncate">{user?.email || 'No email'}</p>
                                 </div>
 

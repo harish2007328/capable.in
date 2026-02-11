@@ -228,15 +228,29 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
             <h2 className="text-2xl font-bold text-gray-900 mb-8" style={{ fontFamily: "'Syne', sans-serif" }}>Profile Settings</h2>
             <div className="flex flex-col md:flex-row items-center gap-10 mb-10">
                 <div className="relative group">
-                    <div className="w-24 h-24 bg-gradient-to-br from-rose-400 to-rose-600 text-white flex items-center justify-center text-3xl font-bold rounded-[2rem] border-4 border-white shadow-xl rotate-3 group-hover:rotate-0 transition-transform">
-                        {user?.name?.charAt(0) || user?.email?.charAt(0) || 'H'}
+                    <div className="w-24 h-24 bg-gradient-to-br from-rose-400 to-rose-600 text-white flex items-center justify-center text-3xl font-bold rounded-[2rem] border-4 border-white shadow-xl rotate-3 group-hover:rotate-0 transition-transform overflow-hidden">
+                        {user?.user_metadata?.avatar_url ? (
+                            <img
+                                src={user.user_metadata.avatar_url}
+                                alt="Profile"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : user?.user_metadata?.name ? (
+                            <span className="font-bold text-2xl uppercase tracking-tighter">
+                                {user.user_metadata.name.split(' ').map(n => n[0]).join('')}
+                            </span>
+                        ) : (
+                            user?.email?.charAt(0).toUpperCase() || 'H'
+                        )}
                     </div>
-                    <button className="absolute -bottom-2 -right-2 p-2 bg-white rounded-full shadow-lg border border-slate-100 text-[#0066CC] hover:scale-110 transition-transform">
+                    <button className="absolute -bottom-2 -right-2 p-2 bg-white rounded-full shadow-lg border border-slate-100 text-[#0066CC] hover:scale-110 transition-transform z-10">
                         <Plus size={16} />
                     </button>
                 </div>
                 <div className="flex-1 space-y-1 text-center md:text-left">
-                    <h3 className="text-2xl font-bold text-gray-900">{user?.name || 'Guest User'}</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                        {user?.user_metadata?.full_name || user?.user_metadata?.name || 'Venture Founder'}
+                    </h3>
                     <p className="text-slate-500 font-medium">{user?.email}</p>
                     <div className="flex gap-2 mt-4 justify-center md:justify-start">
                         <span className="px-3 py-1 bg-blue-50 text-[#0066CC] text-[10px] font-bold rounded-full border border-blue-100">Founder Account</span>

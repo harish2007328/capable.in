@@ -317,37 +317,32 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md"
+                        className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-[2px]"
                     >
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            initial={{ scale: 0.95, opacity: 0, y: 5 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="w-full max-w-lg bg-white rounded-3xl p-10 shadow-2xl text-center relative overflow-hidden"
+                            exit={{ scale: 0.95, opacity: 0, y: 5 }}
+                            className="w-full max-w-sm bg-white/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-8 shadow-2xl shadow-blue-500/10 text-center relative overflow-hidden"
+                            style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
                         >
-                            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#0066CC] to-blue-400"></div>
-
-                            <div className="w-16 h-16 bg-blue-50 text-[#0066CC] rounded-2xl flex items-center justify-center mx-auto mb-8">
-                                <Wand2 size={28} />
-                            </div>
-
-                            <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Intelligence Synthesis Ready</h3>
-                            <p className="text-slate-500 mb-10 text-sm leading-relaxed max-w-xs mx-auto">
-                                We've captured your strategic context. The analysis engine is primed to generate your execution protocol.
+                            <h3 className="text-xl font-bold text-slate-900 mb-2 tracking-tight">Analysis Ready</h3>
+                            <p className="text-slate-500 mb-8 text-sm leading-relaxed max-w-[280px] mx-auto font-medium">
+                                Discovery complete. Generating your tactical execution protocol.
                             </p>
 
-                            <div className="flex flex-col gap-3">
-                                <button
-                                    onClick={handleFinalSubmit}
-                                    className="w-full py-4 bg-[#0066CC] text-white font-bold rounded-xl shadow-xl shadow-blue-500/20 hover:bg-[#0052a3] transition-all text-[10px] uppercase tracking-widest"
-                                >
-                                    GENERATE PROTOCOL REPORT
-                                </button>
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setShowFinalCta(false)}
-                                    className="w-full py-3 text-slate-400 font-bold hover:text-slate-600 transition-colors text-[10px] uppercase tracking-widest"
+                                    className="flex-1 py-3 text-slate-400 font-bold hover:text-slate-600 transition-colors text-[10px] uppercase tracking-widest border border-slate-100 rounded-xl hover:bg-slate-50"
                                 >
-                                    REVIEW INPUTS
+                                    Review
+                                </button>
+                                <button
+                                    onClick={handleFinalSubmit}
+                                    className="flex-[2] py-3 bg-[#0066CC] text-white font-bold rounded-xl shadow-lg shadow-blue-500/10 hover:bg-[#0052a3] transition-all text-[10px] uppercase tracking-widest active:scale-95"
+                                >
+                                    Generate Report
                                 </button>
                             </div>
                         </motion.div>
