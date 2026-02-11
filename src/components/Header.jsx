@@ -43,7 +43,7 @@ const Header = () => {
         <motion.header
             className="fixed top-0 left-0 right-0 z-50 pt-4 px-4 md:px-8"
         >
-            <div className={`max-w-5xl mx-auto px-6 py-4 flex items-center justify-between bg-white/70 backdrop-blur-md border border-white/20 rounded-xl shadow-sm transition-all duration-300 ${scrolled ? 'shadow-md border-slate-200/50' : ''}`}>
+            <div className={`max-w-5xl mx-auto px-6 py-4 flex items-center justify-between bg-white/70 backdrop-blur-md border border-white/20 rounded-lg shadow-sm transition-all duration-300 ${scrolled ? 'shadow-md border-slate-200/50' : ''}`}>
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">
@@ -58,7 +58,7 @@ const Header = () => {
                 </nav>
 
                 {/* Action Buttons */}
-                <div className="hidden md:flex items-center gap-6">
+                <div className="hidden md:flex items-center gap-6 h-[42px]">
                     {!user ? (
                         <>
                             <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[#0066CC] transition-colors px-2">
@@ -69,7 +69,7 @@ const Header = () => {
                             </Link>
                         </>
                     ) : (
-                        <div className="flex items-center gap-6 h-[42px]">
+                        <>
                             <Link to="/dashboard" className={btnClassName}>
                                 Dashboard
                             </Link>
@@ -100,11 +100,10 @@ const Header = () => {
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                            className="absolute -right-0 top-full mt-6 w-64 bg-white/70 backdrop-blur-2xl border border-white/20 rounded-xl shadow-2xl shadow-blue-500/10 overflow-hidden p-2 z-50 transition-all"
+                                            className="absolute -right-6 top-full mt-6 w-64 bg-white/100 backdrop-blur-2xl border border-white/20 rounded-lg shadow-2xl shadow-blue-500/10 overflow-hidden p-2 z-50 transition-all"
                                             style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
                                         >
                                             <div className="px-4 py-4 mb-2 border-b border-slate-50 text-left">
-                                                <p className="text-[10px] font-black text-[#0066CC] uppercase tracking-widest mb-1 opacity-60">Founder Profile</p>
                                                 <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.name || 'Venture Founder'}</p>
                                                 <p className="text-[10px] text-slate-400 font-medium truncate">{user.email}</p>
                                             </div>
@@ -127,7 +126,7 @@ const Header = () => {
                                     )}
                                 </AnimatePresence>
                             </div>
-                        </div>
+                        </>
                     )}
                 </div>
 
