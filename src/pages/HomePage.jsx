@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Wand2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
@@ -12,12 +12,31 @@ gsap.registerPlugin(ScrollTrigger);
 
 const HomePage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, loading } = useAuth();
-    const [idea, setIdea] = useState('');
+    const [idea, setIdea] = useState(location.state?.idea || '');
     const [isEnhancing, setIsEnhancing] = useState(false);
+
+    // Sync idea from location state if it changes
+    useEffect(() => {
+        if (location.state?.idea) {
+            setIdea(location.state.idea);
+        }
+    }, [location.state?.idea]);
 
     const handleGenerate = async () => {
         if (!idea.trim() || isEnhancing) return;
+
+        // Redirect to login if not authenticated
+        if (!user) {
+            navigate('/login', {
+                state: {
+                    from: { pathname: '/' },
+                    idea: idea // Pass the idea so we can potentially restore it
+                }
+            });
+            return;
+        }
 
         await ProjectStorage.init();
         const newId = await ProjectStorage.create(idea);
