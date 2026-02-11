@@ -36,11 +36,14 @@ const Header = () => {
         setUserMenuOpen(false);
     }, [location]);
 
+    // Reusable Gradient Button Style
+    const btnClassName = "bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white px-8 py-2.5 rounded-md font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center whitespace-nowrap";
+
     return (
         <motion.header
             className="fixed top-0 left-0 right-0 z-50 pt-4 px-4 md:px-8"
         >
-            <div className={`max-w-5xl mx-auto px-6 py-3 flex items-center justify-between bg-white/60 backdrop-blur-md border border-[#BBDDFF]/50 rounded-lg shadow-sm transition-all duration-300 ${scrolled ? 'shadow-md' : ''}`}>
+            <div className={`max-w-5xl mx-auto px-6 py-4 flex items-center justify-between bg-white/70 backdrop-blur-md border border-white/20 rounded-xl shadow-sm transition-all duration-300 ${scrolled ? 'shadow-md border-slate-200/50' : ''}`}>
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">
@@ -48,67 +51,65 @@ const Header = () => {
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="hidden md:flex items-center gap-8">
+                <nav className="hidden lg:flex items-center gap-8">
                     <Link to="/features" className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors font-sans">Features</Link>
                     <Link to="/use-cases" className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors font-sans">Use Cases</Link>
                     <Link to="/pricing" className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors font-sans">Pricing</Link>
                 </nav>
 
                 {/* Action Buttons */}
-                <div className="hidden md:flex items-center gap-4">
+                <div className="hidden md:flex items-center gap-6">
                     {!user ? (
                         <>
-                            <Link to="/login" className="text-sm font-semibold text-slate-600 hover:text-[#0066CC] transition-colors px-4">
+                            <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[#0066CC] transition-colors px-2">
                                 Sign In
                             </Link>
-                            <Link to="/project" className="px-8 py-2.5 rounded-full bg-slate-900 text-white text-sm font-bold hover:bg-[#0066CC] shadow-xl shadow-blue-500/10 transition-all hover:-translate-y-0.5 active:translate-y-0">
-                                Launch Agent
+                            <Link to="/login" state={{ mode: 'signup' }} className={btnClassName}>
+                                Sign Up
                             </Link>
                         </>
                     ) : (
-                        <div className="flex items-center gap-4">
-                            <Link to="/dashboard" className="px-6 py-2.5 rounded-full border border-blue-100 bg-blue-50/50 text-[#0066CC] text-sm font-bold hover:bg-blue-100 transition-all">
+                        <div className="flex items-center gap-6 h-[42px]">
+                            <Link to="/dashboard" className={btnClassName}>
                                 Dashboard
                             </Link>
-                            <div className="relative" ref={userMenuRef}>
+                            <div className="relative h-full flex items-center" ref={userMenuRef}>
                                 <button
                                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                    className="flex items-center justify-center w-11 h-11 bg-white border border-slate-100 rounded-2xl text-slate-900 hover:border-[#0066CC] hover:text-[#0066CC] transition-all shadow-sm active:scale-95 group overflow-hidden"
+                                    className="flex items-center justify-center w-[35px] h-[35px] bg-white border border-slate-100 rounded-full text-slate-900 hover:border-[#0066CC] hover:text-[#0066CC] shadow-sm active:scale-95 group overflow-hidden transition-all"
                                 >
                                     {user.user_metadata?.avatar_url ? (
                                         <img
                                             src={user.user_metadata.avatar_url}
                                             alt="Profile"
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                                            className="w-full h-full object-cover group-hover:scale-102 transition-transform"
                                         />
                                     ) : user.user_metadata?.name ? (
                                         <span className="font-bold text-xs uppercase tracking-tighter">
                                             {user.user_metadata.name.split(' ').map(n => n[0]).join('')}
                                         </span>
                                     ) : (
-                                        <User size={20} className="group-hover:scale-110 transition-transform" />
+                                        <User size={18} className="transition-transform" />
                                     )}
                                 </button>
 
                                 <AnimatePresence>
                                     {userMenuOpen && (
                                         <motion.div
-                                            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                            className="absolute -right-2 top-full mt-4 w-64 bg-white/60 backdrop-blur-2xl border border-blue-50 rounded-[2rem] shadow-2xl shadow-blue-500/10 overflow-hidden p-2 z-50"
+                                            className="absolute -right-0 top-full mt-6 w-64 bg-white/70 backdrop-blur-2xl border border-white/20 rounded-xl shadow-2xl shadow-blue-500/10 overflow-hidden p-2 z-50 transition-all"
+                                            style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
                                         >
-                                            <div className="px-4 py-4 mb-2 border-b border-slate-50">
+                                            <div className="px-4 py-4 mb-2 border-b border-slate-50 text-left">
                                                 <p className="text-[10px] font-black text-[#0066CC] uppercase tracking-widest mb-1 opacity-60">Founder Profile</p>
                                                 <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.name || 'Venture Founder'}</p>
                                                 <p className="text-[10px] text-slate-400 font-medium truncate">{user.email}</p>
                                             </div>
 
                                             <div className="space-y-1">
-                                                <Link to="/dashboard" className="flex md:hidden items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[#0066CC] rounded-xl transition-all group">
-                                                    <User size={18} className="text-slate-300 group-hover:text-[#0066CC] transition-colors" /> Dashboard
-                                                </Link>
                                                 <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[#0066CC] rounded-xl transition-all group">
                                                     <Settings size={18} className="text-slate-300 group-hover:text-[#0066CC] transition-colors" /> Settings
                                                 </Link>
@@ -159,8 +160,25 @@ const Header = () => {
                         </nav>
 
                         <div className="mt-auto flex flex-col gap-4">
-                            <Link to="/dashboard" className="w-full py-4 rounded-full bg-brand-black text-white text-center font-medium">Launch</Link>
-                            <Link to="/login" className="w-full py-4 rounded-full border border-gray-200 text-center font-medium text-brand-black">Log In</Link>
+                            {user ? (
+                                <>
+                                    <Link to="/dashboard" className={btnClassName}>Dashboard</Link>
+                                    <button
+                                        onClick={() => {
+                                            logout();
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        className="w-full py-3.5 rounded-md border border-red-100 text-center font-bold text-sm text-red-400 hover:bg-red-50 transition-all"
+                                    >
+                                        Sign Out
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to="/login" state={{ mode: 'signup' }} className={btnClassName}>Sign Up</Link>
+                                    <Link to="/login" className="w-full py-3.5 rounded-md border border-slate-200 text-center font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Sign In</Link>
+                                </>
+                            )}
                         </div>
                     </motion.div>
                 )}

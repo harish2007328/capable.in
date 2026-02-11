@@ -22,6 +22,13 @@ const LoginPage = () => {
         }
     }, [user, loading, navigate]);
 
+    // Handle initial mode from navigation state
+    React.useEffect(() => {
+        if (location.state?.mode) {
+            setMode(location.state.mode);
+        }
+    }, [location.state]);
+
     const from = location.state?.from?.pathname || '/dashboard';
 
     const handleSubmit = async (e) => {
