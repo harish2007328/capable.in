@@ -31,6 +31,16 @@ const DashboardPage = () => {
     const [projects, setProjects] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Settings state
+    const [settingsState, setSettingsState] = useState({
+        name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+        title: user?.user_metadata?.title || '',
+        bio: user?.user_metadata?.bio || '',
+        website: user?.user_metadata?.website || '',
+        twitter: user?.user_metadata?.twitter || '',
+        isSaving: false
+    });
+
     useEffect(() => {
         const load = async () => {
             await ProjectStorage.init();
@@ -39,12 +49,51 @@ const DashboardPage = () => {
         };
         load();
 
+        if (user) {
+            setSettingsState({
+                name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+                title: user?.user_metadata?.title || '',
+                bio: user?.user_metadata?.bio || '',
+                website: user?.user_metadata?.website || '',
+                twitter: user?.user_metadata?.twitter || '',
+                isSaving: false
+            });
+        }
+
         // Handle hash-based navigation
         const hash = location.hash.replace('#', '');
         if (['projects', 'metrics', 'settings'].includes(hash)) {
             setActiveSection(hash);
         }
-    }, [location.hash]);
+    }, [location.hash, user]);
+
+    const handleSaveSettings = async () => {
+        setSettingsState(s => ({ ...s, isSaving: true }));
+        try {
+            await updateUser({
+                data: {
+                    full_name: settingsState.name,
+                    title: settingsState.title,
+                    bio: settingsState.bio,
+                    website: settingsState.website,
+                    twitter: settingsState.twitter
+                }
+            });
+            alert('Settings saved to database!');
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            alert('Error saving settings. Please try again.');
+        } finally {
+            setSettingsState(s => ({ ...s, isSaving: false }));
+        }
+    };
+
+    const handleClearData = async () => {
+        if (confirm('Are you sure? This will delete all projects from the SERVER and this browser PERMANENTLY.')) {
+            await ProjectStorage.clearAll();
+            window.location.reload();
+        }
+    };
 
     const filteredProjects = projects.filter(p =>
         (p.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -91,6 +140,23 @@ const DashboardPage = () => {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 focus:border-[#0066CC] bg-white/80 shadow-sm backdrop-blur-sm transition-all"
                                 />
+                            </div>
+
+                            {/* Projects Grid Header */}
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>Your Ventures</h2>
+                                    <p className="text-sm text-slate-500 font-medium">Manage and track your active execution plans.</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => navigate('/')}
+                                        className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all shadow-sm"
+                                    >
+                                        <Plus size={18} />
+                                        New Project
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Projects Grid */}
@@ -149,7 +215,17 @@ const DashboardPage = () => {
                     )}
 
                     {activeSection === 'metrics' && <MetricsView />}
-                    {activeSection === 'settings' && <SettingsView user={user} logout={logout} updateUser={updateUser} navigate={navigate} />}
+                    {activeSection === 'settings' && (
+                        <SettingsView
+                            user={user}
+                            logout={logout}
+                            navigate={navigate}
+                            state={settingsState}
+                            setState={setSettingsState}
+                            onSave={handleSaveSettings}
+                            onClear={handleClearData}
+                        />
+                    )}
                 </div>
             </div>
         </div>
@@ -222,7 +298,7 @@ const MetricsView = () => (
     </div>
 );
 
-const SettingsView = ({ user, logout, updateUser, navigate }) => (
+const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear }) => (
     <div className="max-w-4xl space-y-8 pb-32">
         <section className="bg-white/70 backdrop-blur-md border border-gray-200 p-8 rounded-[2rem] shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900 mb-8" style={{ fontFamily: "'Syne', sans-serif" }}>Profile Settings</h2>
@@ -243,9 +319,6 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                             user?.email?.charAt(0).toUpperCase() || 'H'
                         )}
                     </div>
-                    <button className="absolute -bottom-2 -right-2 p-2 bg-white rounded-full shadow-lg border border-slate-100 text-[#0066CC] hover:scale-110 transition-transform z-10">
-                        <Plus size={16} />
-                    </button>
                 </div>
                 <div className="flex-1 space-y-1 text-center md:text-left">
                     <h3 className="text-2xl font-bold text-gray-900">
@@ -264,9 +337,9 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                     <input
                         type="text"
-                        defaultValue={user?.name}
+                        value={state.name}
+                        onChange={(e) => setState({ ...state, name: e.target.value })}
                         placeholder="e.g. Jane Doe"
-                        onChange={(e) => updateUser({ name: e.target.value })}
                         className="w-full px-5 py-3 bg-white/50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066CC] transition-all font-medium"
                     />
                 </div>
@@ -274,6 +347,8 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Professional Title</label>
                     <input
                         type="text"
+                        value={state.title}
+                        onChange={(e) => setState({ ...state, title: e.target.value })}
                         placeholder="e.g. Full Stack Founder"
                         className="w-full px-5 py-3 bg-white/50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066CC] transition-all font-medium"
                     />
@@ -282,6 +357,8 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Professional Bio</label>
                     <textarea
                         rows={3}
+                        value={state.bio}
+                        onChange={(e) => setState({ ...state, bio: e.target.value })}
                         placeholder="Tell us about your venture journey..."
                         className="w-full px-5 py-3 bg-white/50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066CC] transition-all font-medium resize-none"
                     />
@@ -290,6 +367,8 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Website</label>
                     <input
                         type="url"
+                        value={state.website}
+                        onChange={(e) => setState({ ...state, website: e.target.value })}
                         placeholder="https://yourventure.com"
                         className="w-full px-5 py-3 bg-white/50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066CC] transition-all font-medium"
                     />
@@ -298,6 +377,8 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Twitter / X</label>
                     <input
                         type="text"
+                        value={state.twitter}
+                        onChange={(e) => setState({ ...state, twitter: e.target.value })}
                         placeholder="@username"
                         className="w-full px-5 py-3 bg-white/50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066CC] transition-all font-medium"
                     />
@@ -305,8 +386,12 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
             </div>
 
             <div className="mt-10 pt-8 border-t border-slate-100 flex justify-end">
-                <button className="px-8 py-3 bg-[#0066CC] text-white rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-[#0052a3] transition-all">
-                    Save Changes
+                <button
+                    onClick={onSave}
+                    disabled={state.isSaving}
+                    className="px-8 py-3 bg-[#0066CC] text-white rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 hover:bg-[#0052a3] transition-all disabled:opacity-50"
+                >
+                    {state.isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
             </div>
         </section>
@@ -328,12 +413,7 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                 </button>
 
                 <button
-                    onClick={() => {
-                        if (confirm('Clear all local project data?')) {
-                            localStorage.removeItem('capable_projects');
-                            window.location.reload();
-                        }
-                    }}
+                    onClick={onClear}
                     className="flex items-center justify-between p-5 bg-red-50/30 rounded-2xl border border-red-50 hover:bg-red-50 transition-all group"
                 >
                     <div className="flex items-center gap-4">
@@ -341,8 +421,8 @@ const SettingsView = ({ user, logout, updateUser, navigate }) => (
                             <Trash2 size={20} />
                         </div>
                         <div className="text-left">
-                            <p className="font-bold text-red-900">Clear Local Data</p>
-                            <p className="text-xs text-red-500">Permanently delete all projects from this browser</p>
+                            <p className="font-bold text-red-900">Clear All Data (Server + Local)</p>
+                            <p className="text-xs text-red-500">Permanently delete everything from server and browser</p>
                         </div>
                     </div>
                 </button>

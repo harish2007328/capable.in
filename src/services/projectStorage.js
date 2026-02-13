@@ -153,5 +153,20 @@ export const ProjectStorage = {
 
     setActiveId: (id) => {
         localStorage.setItem(ACTIVE_PROJECT_ID, id);
+    },
+
+    clearAll: async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            await Database.deleteAllProjects(session.user.id);
+        }
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(ACTIVE_PROJECT_ID);
+        // Clear all matching keys for progress and chats
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('capable_progress_') || key.startsWith('mentor_sessions_')) {
+                localStorage.removeItem(key);
+            }
+        });
     }
 };

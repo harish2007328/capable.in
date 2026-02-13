@@ -55,5 +55,14 @@ export const Database = {
             .eq('id', id);
 
         if (error) throw error;
+    },
+
+    deleteAllProjects: async (userId) => {
+        const { error } = await supabase
+            .from('projects')
+            .delete()
+            .eq('user_id', userId);
+
+        if (error) throw error;
     }
 };
