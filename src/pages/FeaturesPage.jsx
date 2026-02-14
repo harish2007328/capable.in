@@ -9,7 +9,7 @@ const FeaturesPage = () => {
             {/* Background Gradient Orbs */}
             <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#073B99]/100 rounded-full blur-[220px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0BAAFF]/100 rounded-full blur-[220px] translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
-            <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-[#0066CC]/50 rounded-full blur-[180px] pointer-events-none"></div>
+            <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-[var(--brand-accent)]/50 rounded-full blur-[180px] pointer-events-none"></div>
 
             {/* Hero Section */}
             <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-40">
@@ -17,17 +17,17 @@ const FeaturesPage = () => {
                     {/* Badge */}
                     <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">Platform Features</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Platform Features</span>
                     </div>
 
                     {/* Hero Headings */}
                     <h1 className="text-5xl md:text-7xl font-display font-bold text-[#000000] tracking-tight leading-tight mb-6">
                         Everything You Need to
                         <br />
-                        <span className="text-[#0066CC]">Launch Fast</span>
+                        <span className="text-[var(--brand-accent)]">Launch Fast</span>
                     </h1>
 
                     <p className="text-base md:text-lg text-[#333333] max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
@@ -39,7 +39,7 @@ const FeaturesPage = () => {
                 <div className="w-full max-w-6xl mx-auto mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-32">
                     <FeatureCard
                         icon={<Brain className="w-8 h-8 text-white" />}
-                        gradient="from-[#073B99] via-[#0066CC] to-[#0BAAFF]"
+                        gradient="from-[#073B99] via-[var(--brand-accent)] to-[#0BAAFF]"
                         title="Adaptive AI Wizard"
                         description="Context-aware interview that adapts to your idea—no generic templates. Location detection and smart follow-ups included."
                         highlights={[
@@ -51,7 +51,7 @@ const FeaturesPage = () => {
 
                     <FeatureCard
                         icon={<Zap className="w-8 h-8 text-white" />}
-                        gradient="from-[#0BAAFF] via-[#0066CC] to-[#073B99]"
+                        gradient="from-[#0BAAFF] via-[var(--brand-accent)] to-[#073B99]"
                         title="Real-Time Market Signals"
                         description="Live web scraping of search results and social discussions. Get instant insights into market demand and competition."
                         highlights={[
@@ -63,7 +63,7 @@ const FeaturesPage = () => {
 
                     <FeatureCard
                         icon={<Target className="w-8 h-8 text-white" />}
-                        gradient="from-[#0066CC] to-[#0BAAFF]"
+                        gradient="from-[var(--brand-accent)] to-[#0BAAFF]"
                         title="Strategic Scoring"
                         description="1-10 demand scoring with detailed feasibility analysis, differentiation tactics, and comprehensive risk assessment."
                         highlights={[
@@ -75,7 +75,7 @@ const FeaturesPage = () => {
 
                     <FeatureCard
                         icon={<Sparkles className="w-8 h-8 text-white" />}
-                        gradient="from-[#073B99] to-[#0066CC]"
+                        gradient="from-[#073B99] to-[var(--brand-accent)]"
                         title="60-Day Action Plan"
                         description="Every single day has unique, specific tasks—not generic advice. Phased by objective with measurable deliverables."
                         highlights={[
@@ -99,7 +99,7 @@ const FeaturesPage = () => {
 
                     <FeatureCard
                         icon={<TrendingUp className="w-8 h-8 text-white" />}
-                        gradient="from-[#0066CC] via-[#0BAAFF] to-[#073B99]"
+                        gradient="from-[var(--brand-accent)] via-[#0BAAFF] to-[#073B99]"
                         title="Contextual AI Mentor"
                         description="AI chat that understands your idea, plan, progress, and current task. Get execution guidance, not generic advice."
                         highlights={[
@@ -116,7 +116,7 @@ const FeaturesPage = () => {
                 {/* CTA Section */}
                 <section className="w-full relative overflow-hidden mb-24">
                     <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
-                        <div className="relative bg-gradient-to-br from-[#073B99] via-[#0066CC] to-[#0BAAFF] rounded-2xl p-10 md:p-16 overflow-hidden">
+                        <div className="relative bg-gradient-to-br from-[#073B99] via-[var(--brand-accent)] to-[#0BAAFF] rounded-2xl p-10 md:p-16 overflow-hidden">
                             <div className="absolute inset-0">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
                                 <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0BAAFF]/20 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
@@ -132,7 +132,7 @@ const FeaturesPage = () => {
                                 </p>
 
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                                    <Link to="/dashboard" className="bg-white text-[#0066CC] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
+                                    <Link to="/dashboard" className="bg-white text-[var(--brand-accent)] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
                                         Start Free Today
                                     </Link>
                                     <Link to="/pricing" className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">
@@ -154,10 +154,10 @@ const FeaturesPage = () => {
 const FeatureCard = ({ icon, gradient, title, description, highlights }) => (
     <div className="feature-card group relative">
         {/* Animated Gradient Border */}
-        <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#0066CC] via-[#0BAAFF] to-[#0066CC] opacity-50 pointer-events-none"></div>
+        <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[var(--brand-accent)] via-[#0BAAFF] to-[var(--brand-accent)] opacity-50 pointer-events-none"></div>
 
         {/* Glow Effect */}
-        <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#0066CC] to-[#0BAAFF] opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30"></div>
+        <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30"></div>
 
         {/* Glass Card Content */}
         <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 m-[1px] h-full flex flex-col shadow-lg transition-all duration-500 group-hover:bg-white/90 group-hover:shadow-2xl">
@@ -178,7 +178,7 @@ const FeatureCard = ({ icon, gradient, title, description, highlights }) => (
             <ul className="relative space-y-2.5">
                 {highlights.map((highlight, idx) => (
                     <li key={idx} className="flex items-center gap-2.5 text-xs text-gray-700">
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-[#0066CC] to-[#0BAAFF] flex items-center justify-center shadow-sm">
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-[var(--brand-accent)] to-[#0BAAFF] flex items-center justify-center shadow-sm">
                             <Check className="w-3 h-3 text-white" />
                         </div>
                         <span className="font-medium">{highlight}</span>
@@ -220,13 +220,13 @@ const DeepFeatureSection = () => {
                 <div className="text-center max-w-4xl mx-auto mb-20">
                     <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">Deep Dive</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Deep Dive</span>
                     </div>
                     <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-gray-900 leading-tight tracking-tight mb-5">
-                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#0066CC] to-[#0BAAFF]">Speed</span>
+                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Speed</span>
                     </h2>
                     <p className="text-xl md:text-2xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto">
                         Every feature designed to help you move faster without sacrificing quality.
@@ -238,10 +238,10 @@ const DeepFeatureSection = () => {
                     {features.map((feature, idx) => (
                         <div key={idx} className="feature-card group relative">
                             {/* Border */}
-                            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-br from-[#0066CC]/30 via-[#0BAAFF]/30 to-transparent opacity-50 pointer-events-none"></div>
+                            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-br from-[var(--brand-accent)]/30 via-[#0BAAFF]/30 to-transparent opacity-50 pointer-events-none"></div>
 
                             {/* Glow */}
-                            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#0066CC] to-[#0BAAFF] opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-20"></div>
+                            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-20"></div>
 
                             <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl border-[1px] m-[1px] overflow-hidden transition-all duration-500 group-hover:bg-white/90 shadow-lg group-hover:shadow-2xl">
                                 {feature.image && (

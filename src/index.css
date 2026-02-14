@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand-accent: #0066CC;
+  --brand-accent-hover: #0052a3;
+  --brand-radius: 1rem;
+  --brand-blur: 12px;
+}
+
 @layer base {
   body {
     @apply bg-brand-white text-gray-900 font-sans antialiased selection:bg-brand-blue/20 selection:text-brand-blue overflow-x-hidden;
@@ -16,33 +23,59 @@
   h6 {
     @apply font-display font-bold tracking-tight text-brand-black;
   }
+
+  /* Global Radius override for all lg elements */
+  .rounded-2xl,
+  .rounded-xl {
+    border-radius: var(--brand-radius) !important;
+  }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-dark-blue;
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, var(--brand-accent), #073B99);
   }
 
   /* Glass Theme Utilities */
   .glass-card {
-    @apply bg-white/70 backdrop-blur-md border border-blue-100 shadow-lg rounded-2xl transition-all duration-300;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(var(--brand-blur));
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: var(--brand-radius);
+    transition: all 0.3s;
   }
 
   .glass-card:hover {
-    @apply shadow-xl;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md border border-blue-100 shadow-lg rounded-2xl;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(var(--brand-blur));
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: var(--brand-radius);
   }
 
   .glass-input {
-    @apply bg-white/70 backdrop-blur-sm border border-blue-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066CC]/20 focus:border-[#0066CC] transition-all duration-200;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    border-radius: 0.5rem;
+    transition: all 0.2s;
   }
 
-  /* Sidebar Gradient */
+  .glass-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    border-color: var(--brand-accent);
+  }
+
+  /* Sidebar Gradient using Fixed Brand Blue */
   .sidebar-gradient {
-    background: linear-gradient(180deg, #0066CC 0%, #0052a3 50%, #073B99 100%);
+    background: linear-gradient(180deg, #0066CC 0%, #0052a3 100%);
   }
 
   /* Enhanced Glass Cards */

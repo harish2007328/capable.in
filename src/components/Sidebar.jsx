@@ -35,7 +35,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     return (
         <aside className={`
-            w-64 h-screen fixed left-0 top-0 flex flex-col z-50 bg-[#0066CC]/100 backdrop-blur-md border-r border-white/10
+            w-64 h-screen fixed left-0 top-0 flex flex-col z-50 sidebar-gradient backdrop-blur-md border-r border-white/10
             transition-all duration-300 ease-in-out
             ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             ${isModalOpen ? 'blur-[2px] opacity-80 pointer-events-none' : ''}
@@ -101,7 +101,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     </div>
                     <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1.5">Go Unlimited</p>
                     <p className="text-[9px] text-white/60 font-bold mb-4 leading-relaxed">Unlock advanced market analysis and AI depth.</p>
-                    <button className="w-full py-2 bg-white text-[#0066CC] rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-lg shadow-blue-900/10">
+                    <button className="w-full py-2 bg-white text-[var(--brand-accent)] rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-lg shadow-blue-900/10">
                         Upgrade to Pro
                     </button>
                 </div>

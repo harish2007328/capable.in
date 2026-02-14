@@ -36,10 +36,10 @@ const GlassCard = ({
         return (
             <div className={`relative group ${clickableClasses} ${className}`} onClick={onClick}>
                 {/* Gradient Border */}
-                <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[#0066CC] via-[#0BAAFF] to-[#0066CC] pointer-events-none" />
+                <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] via-[#0BAAFF] to-[var(--brand-accent)] pointer-events-none" />
 
                 {/* Glow Effect */}
-                <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[#0066CC] to-[#0BAAFF] opacity-20 blur-lg pointer-events-none" />
+                <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-20 blur-lg pointer-events-none" />
 
                 {/* Card Content */}
                 <div className={`relative ${intensityClasses[intensity]} border rounded-[14px] ${hoverClasses} m-[2px]`}>

@@ -105,8 +105,8 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                         </span>
                     </div>
                     <div className="bg-blue-50/50 rounded-lg px-3 py-1 border border-blue-100/50 flex items-center gap-2">
-                        <Lock size={10} className="text-[#0066CC]" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-[#0066CC]">Ideas are encrypted & safe</span>
+                        <Lock size={10} className="text-[var(--brand-accent)]" />
+                        <span className="text-[9px] font-black uppercase tracking-widest text-[var(--brand-accent)]">Ideas are encrypted & safe</span>
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                     {/* Subtle Background Glow & Scan line effect */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-50/30 rounded-full blur-[120px] pointer-events-none -z-10 animate-pulse"></div>
                     <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
-                        <div className="w-full h-[1px] bg-[#0066CC] animate-[scan_4s_linear_infinite]"></div>
+                        <div className="w-full h-[1px] bg-[var(--brand-accent)] animate-[scan_4s_linear_infinite]"></div>
                     </div>
 
 
@@ -136,7 +136,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                                 {isLocationQuestion ? (
                                     <>
                                         {/* Specialized Location Inputs */}
-                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[#0066CC] transition-colors">
+                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
                                             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Country</span>
                                             <input
                                                 type="text"
@@ -146,7 +146,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                                                 className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
                                             />
                                         </div>
-                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[#0066CC] transition-colors">
+                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
                                             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">State / Region</span>
                                             <input
                                                 type="text"
@@ -156,7 +156,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                                                 className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
                                             />
                                         </div>
-                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[#0066CC] transition-colors">
+                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
                                             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">District / City</span>
                                             <input
                                                 type="text"
@@ -230,7 +230,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                                                     value={typeof currentAnswer === 'string' ? currentAnswer : ''}
                                                     onChange={(e) => handleManualSubmit(e.target.value)}
                                                     placeholder="Specify your own answer..."
-                                                    className="w-full h-full min-h-[58px] p-4 rounded-xl bg-white border-2 border-[#0066CC] text-xs font-bold uppercase tracking-wider text-slate-800 focus:outline-none transition-all placeholder:text-slate-400"
+                                                    className="w-full h-full min-h-[58px] p-4 rounded-xl bg-white border-2 border-[var(--brand-accent)] text-xs font-bold uppercase tracking-wider text-slate-800 focus:outline-none transition-all placeholder:text-slate-400"
                                                     autoFocus
                                                 />
                                             ) : (
@@ -275,7 +275,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                         className={`
                             group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest shadow-lg
                             ${hasValidAnswer && !isReadonly
-                                ? 'bg-[#0066CC] text-white hover:bg-[#0052a3] shadow-blue-500/20 active:scale-95'
+                                ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-blue-500/20 active:scale-95'
                                 : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'
                             }
                         `}
@@ -288,7 +288,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
 
             {/* Right Panel - Illustration (2/5 = 40%) */}
             <div className="hidden md:flex md:w-[40%] h-full bg-[#FAFBFF] items-center justify-center p-0 overflow-hidden relative border-none">
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#0066CC_1px,transparent_1px)] [background-size:20px_20px]"></div>
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(var(--brand-accent)_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
                 <div className="relative z-10 w-full h-full">
                     <img
@@ -340,7 +340,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                                 </button>
                                 <button
                                     onClick={handleFinalSubmit}
-                                    className="flex-[2] py-3 bg-[#0066CC] text-white font-bold rounded-xl shadow-lg shadow-blue-500/10 hover:bg-[#0052a3] transition-all text-[10px] uppercase tracking-widest active:scale-95"
+                                    className="flex-[2] py-3 bg-[var(--brand-accent)] text-white font-bold rounded-xl shadow-lg shadow-blue-500/10 hover:bg-[var(--brand-accent-hover)] transition-all text-[10px] uppercase tracking-widest active:scale-95"
                                 >
                                     Generate Report
                                 </button>

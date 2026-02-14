@@ -65,9 +65,9 @@ const OnboardSummary = ({ questions, answers, onProceed, isReadonly = false }) =
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <div className="p-1.5 bg-blue-50 rounded-md">
-                                <FileText size={16} className="text-[#0066CC]" />
+                                <FileText size={16} className="text-[var(--brand-accent)]" />
                             </div>
-                            <span className="text-xs font-bold text-[#0066CC] uppercase tracking-widest">
+                            <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-widest">
                                 Project Brief
                             </span>
                         </div>
@@ -84,7 +84,7 @@ const OnboardSummary = ({ questions, answers, onProceed, isReadonly = false }) =
                     {!isReadonly && (
                         <button
                             onClick={onProceed}
-                            className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white rounded-lg font-bold hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+                            className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-lg font-bold hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
                         >
                             <span className="text-sm">Initialize Strategy</span>
                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
@@ -109,10 +109,10 @@ const OnboardSummary = ({ questions, answers, onProceed, isReadonly = false }) =
                             <motion.div
                                 key={index}
                                 variants={itemVariants}
-                                className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-md hover:border-[#0066CC]/30 transition-all group flex flex-col h-full"
+                                className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-md hover:border-[var(--brand-accent)]/30 transition-all group flex flex-col h-full"
                             >
                                 <div className="flex items-center gap-2 mb-3">
-                                    <span className="w-1.5 h-1.5 bg-[#0066CC] rounded-full"></span>
+                                    <span className="w-1.5 h-1.5 bg-[var(--brand-accent)] rounded-full"></span>
                                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                                         {theme}
                                     </span>
@@ -123,7 +123,7 @@ const OnboardSummary = ({ questions, answers, onProceed, isReadonly = false }) =
                                 </h3>
 
                                 <div className="mt-auto pt-4 border-t border-gray-50">
-                                    <p className="text-sm md:text-base font-medium text-gray-900 leading-relaxed selection:bg-blue-50 selection:text-[#0066CC] line-clamp-4 hover:line-clamp-none transition-all">
+                                    <p className="text-sm md:text-base font-medium text-gray-900 leading-relaxed selection:bg-blue-50 selection:text-[var(--brand-accent)] line-clamp-4 hover:line-clamp-none transition-all">
                                         {answerText}
                                     </p>
                                 </div>
@@ -154,7 +154,7 @@ const OnboardSummary = ({ questions, answers, onProceed, isReadonly = false }) =
                             Reset Data
                         </button>
 
-                        <div className="flex items-center gap-2 text-[#0066CC] bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                        <div className="flex items-center gap-2 text-[var(--brand-accent)] bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
                             <ShieldCheck size={14} />
                             <span className="text-xs font-bold uppercase tracking-wide">Secure Context</span>
                         </div>

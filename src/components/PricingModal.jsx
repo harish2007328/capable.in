@@ -12,7 +12,7 @@ const PricingModal = ({ isOpen, onClose }) => {
             name: "Starter",
             price: 0,
             icon: Zap,
-            color: "text-[#0066CC]",
+            color: "text-[var(--brand-accent)]",
             features: ["1 project", "Basic market research", "30-day action plan", "AI mentor chat (limited)"]
         },
         {
@@ -65,7 +65,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                                 <button
                                     key={cycle}
                                     onClick={() => setBillingCycle(cycle)}
-                                    className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${billingCycle === cycle ? 'bg-white text-[#0066CC] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${billingCycle === cycle ? 'bg-white text-[var(--brand-accent)] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                                 >
                                     {cycle === 'monthly' ? 'Monthly' : 'Annual (-20%)'}
                                 </button>
@@ -80,15 +80,15 @@ const PricingModal = ({ isOpen, onClose }) => {
                             return (
                                 <div
                                     key={plan.name}
-                                    className={`relative p-8 rounded-[2rem] border-2 transition-all duration-300 flex flex-col ${plan.featured ? 'border-[#0066CC] bg-blue-50/30 ring-4 ring-blue-50' : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'}`}
+                                    className={`relative p-8 rounded-[2rem] border-2 transition-all duration-300 flex flex-col ${plan.featured ? 'border-[var(--brand-accent)] bg-blue-50/30 ring-4 ring-blue-50' : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'}`}
                                 >
                                     {plan.featured && (
-                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#0066CC] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--brand-accent)] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                                             Recommended
                                         </div>
                                     )}
 
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${plan.featured ? 'bg-[#0066CC] text-white' : 'bg-blue-50 text-[#0066CC]'}`}>
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${plan.featured ? 'bg-[var(--brand-accent)] text-white' : 'bg-blue-50 text-[var(--brand-accent)]'}`}>
                                         <Icon size={24} />
                                     </div>
 
@@ -101,7 +101,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                                     <ul className="space-y-3 mb-8 flex-grow">
                                         {plan.features.map(f => (
                                             <li key={f} className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                                                <div className="w-5 h-5 rounded-full bg-blue-50 text-[#0066CC] flex items-center justify-center scale-90">
+                                                <div className="w-5 h-5 rounded-full bg-blue-50 text-[var(--brand-accent)] flex items-center justify-center scale-90">
                                                     <Check size={12} strokeWidth={3} />
                                                 </div>
                                                 {f}
@@ -109,7 +109,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                                         ))}
                                     </ul>
 
-                                    <button className={`w-full py-4 rounded-2xl font-bold text-sm transition-all ${plan.featured ? 'bg-[#0066CC] text-white hover:bg-[#0052a3] shadow-lg shadow-blue-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>
+                                    <button className={`w-full py-4 rounded-2xl font-bold text-sm transition-all ${plan.featured ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-lg shadow-blue-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>
                                         {plan.name === 'Enterprise' ? 'Contact Us' : 'Get Started'}
                                     </button>
                                 </div>

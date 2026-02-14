@@ -8,7 +8,7 @@ const ProblemCard = ({ title, category, description, className = '', onClick }) 
             className={`group bg-white/70 backdrop-blur-md p-8 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-blue-100 relative overflow-hidden flex flex-col justify-between min-h-[320px] ${className}`}
         >
             <div className="space-y-6">
-                <span className="inline-block px-4 py-1.5 bg-blue-50 text-[#0066CC] text-xs font-bold uppercase tracking-widest rounded-full border border-blue-100">
+                <span className="inline-block px-4 py-1.5 bg-blue-50 text-[var(--brand-accent)] text-xs font-bold uppercase tracking-widest rounded-full border border-blue-100">
                     {category}
                 </span>
 
@@ -24,7 +24,7 @@ const ProblemCard = ({ title, category, description, className = '', onClick }) 
             </div>
 
             <div className="mt-8 flex justify-end">
-                <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0066CC] group-hover:bg-gradient-to-br group-hover:from-[#0066CC] group-hover:to-[#0052a3] group-hover:text-white group-hover:border-transparent transition-all duration-300">
+                <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-[var(--brand-accent)] group-hover:bg-gradient-to-br group-hover:from-[var(--brand-accent)] group-hover:to-[var(--brand-accent-hover)] group-hover:text-white group-hover:border-transparent transition-all duration-300">
                     <ArrowUpRight size={24} />
                 </div>
             </div>

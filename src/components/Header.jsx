@@ -37,7 +37,7 @@ const Header = () => {
     }, [location]);
 
     // Reusable Gradient Button Style
-    const btnClassName = "bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white px-8 py-2.5 rounded-md font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center whitespace-nowrap";
+    const btnClassName = "bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-2.5 rounded-md font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center whitespace-nowrap";
 
     return (
         <motion.header
@@ -52,16 +52,16 @@ const Header = () => {
 
                 {/* Desktop Nav */}
                 <nav className="hidden lg:flex items-center gap-8">
-                    <Link to="/features" className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors font-sans">Features</Link>
-                    <Link to="/use-cases" className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors font-sans">Use Cases</Link>
-                    <Link to="/pricing" className="text-sm font-medium text-gray-600 hover:text-[#0066CC] transition-colors font-sans">Pricing</Link>
+                    <Link to="/features" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Features</Link>
+                    <Link to="/use-cases" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Use Cases</Link>
+                    <Link to="/pricing" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Pricing</Link>
                 </nav>
 
                 {/* Action Buttons */}
                 <div className="hidden md:flex items-center gap-6 h-[42px]">
                     {!user ? (
                         <>
-                            <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[#0066CC] transition-colors px-2">
+                            <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-[var(--brand-accent)] transition-colors px-2">
                                 Sign In
                             </Link>
                             <Link to="/login" state={{ mode: 'signup' }} className={btnClassName}>
@@ -76,7 +76,7 @@ const Header = () => {
                             <div className="relative h-full flex items-center" ref={userMenuRef}>
                                 <button
                                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                                    className="flex items-center justify-center w-[35px] h-[35px] bg-white border border-slate-100 rounded-full text-slate-900 hover:border-[#0066CC] hover:text-[#0066CC] shadow-sm active:scale-95 group overflow-hidden transition-all"
+                                    className="flex items-center justify-center w-[35px] h-[35px] bg-white border border-slate-100 rounded-full text-slate-900 hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] shadow-sm active:scale-95 group overflow-hidden transition-all"
                                 >
                                     {user.user_metadata?.avatar_url ? (
                                         <img
@@ -109,8 +109,8 @@ const Header = () => {
                                             </div>
 
                                             <div className="space-y-1">
-                                                <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[#0066CC] rounded-xl transition-all group">
-                                                    <Settings size={18} className="text-slate-300 group-hover:text-[#0066CC] transition-colors" /> Settings
+                                                <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[var(--brand-accent)] rounded-xl transition-all group">
+                                                    <Settings size={18} className="text-slate-300 group-hover:text-[var(--brand-accent)] transition-colors" /> Settings
                                                 </Link>
                                                 <button
                                                     onClick={() => {

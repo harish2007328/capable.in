@@ -9,21 +9,21 @@ const UseCasesPage = () => {
             {/* Background Gradient Orbs */}
             <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#073B99]/100 rounded-full blur-[220px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0BAAFF]/100 rounded-full blur-[220px] translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
-            <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-[#0066CC]/50 rounded-full blur-[180px] pointer-events-none"></div>
+            <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-[var(--brand-accent)]/50 rounded-full blur-[180px] pointer-events-none"></div>
 
             {/* Hero Section */}
             <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-40">
                 <div className="usecase-hero text-center max-w-5xl">
                     <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">Real World Applications</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Real World Applications</span>
                     </div>
 
                     <h1 className="text-5xl md:text-7xl font-display font-bold text-[#000000] tracking-tight leading-tight mb-6">
-                        Built for Every<br /><span className="text-[#0066CC]">Type of Founder</span>
+                        Built for Every<br /><span className="text-[var(--brand-accent)]">Type of Founder</span>
                     </h1>
 
                     <p className="text-base md:text-lg text-[#333333] max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
@@ -36,7 +36,7 @@ const UseCasesPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
                         <UseCaseCard
                             icon={<Store className="w-8 h-8 text-white" />}
-                            gradient="from-[#073B99] via-[#0066CC] to-[#0BAAFF]"
+                            gradient="from-[#073B99] via-[var(--brand-accent)] to-[#0BAAFF]"
                             title="Local Business"
                             description="Coffee shop, retail store, or service business"
                             features={["Location-specific market analysis", "Local competition mapping", "Foot traffic optimization", "Community engagement tactics"]}
@@ -45,7 +45,7 @@ const UseCasesPage = () => {
 
                         <UseCaseCard
                             icon={<Laptop className="w-8 h-8 text-white" />}
-                            gradient="from-[#0BAAFF] via-[#0066CC] to-[#073B99]"
+                            gradient="from-[#0BAAFF] via-[var(--brand-accent)] to-[#073B99]"
                             title="SaaS Product"
                             description="B2B software or web application"
                             features={["Global market sizing", "Product-market fit validation", "Pricing strategy analysis", "Go-to-market roadmap"]}
@@ -54,7 +54,7 @@ const UseCasesPage = () => {
 
                         <UseCaseCard
                             icon={<Globe className="w-8 h-8 text-white" />}
-                            gradient="from-[#0066CC] to-[#0BAAFF]"
+                            gradient="from-[var(--brand-accent)] to-[#0BAAFF]"
                             title="E-Commerce"
                             description="Online store or marketplace"
                             features={["Niche demand validation", "Platform selection guidance", "Supply chain considerations", "Digital marketing strategy"]}
@@ -63,7 +63,7 @@ const UseCasesPage = () => {
 
                         <UseCaseCard
                             icon={<Users className="w-8 h-8 text-white" />}
-                            gradient="from-[#073B99] to-[#0066CC]"
+                            gradient="from-[#073B99] to-[var(--brand-accent)]"
                             title="Consulting Service"
                             description="Coaching, advisory, or professional services"
                             features={["Target audience profiling", "Service package design", "Pricing model analysis", "Authority building tactics"]}
@@ -81,7 +81,7 @@ const UseCasesPage = () => {
 
                         <UseCaseCard
                             icon={<Briefcase className="w-8 h-8 text-white" />}
-                            gradient="from-[#0066CC] via-[#0BAAFF] to-[#073B99]"
+                            gradient="from-[var(--brand-accent)] via-[#0BAAFF] to-[#073B99]"
                             title="Side Project"
                             description="Passion project or side hustle"
                             features={["Time-constrained planning", "Low-budget validation", "Scalability assessment", "Work-life balance tactics"]}
@@ -108,10 +108,10 @@ const UseCaseCard = ({ icon, gradient, title, description, features, example }) 
     return (
         <div className="usecase-card group relative">
             {/* Animated Border */}
-            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#0066CC] via-[#0BAAFF] to-[#0066CC] opacity-50 pointer-events-none"></div>
+            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[var(--brand-accent)] via-[#0BAAFF] to-[var(--brand-accent)] opacity-50 pointer-events-none"></div>
 
             {/* Glow Effect */}
-            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[#0066CC] to-[#0BAAFF] opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30"></div>
+            <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-30"></div>
 
             {/* Glass Card */}
             <div className="relative bg-white/80 backdrop-blur-xl rounded-3xl p-8 m-[1px] h-full flex flex-col shadow-lg transition-all duration-500 group-hover:bg-white/90 group-hover:shadow-2xl">
@@ -130,7 +130,7 @@ const UseCaseCard = ({ icon, gradient, title, description, features, example }) 
                 <ul className="relative space-y-2.5 mb-6 flex-grow">
                     {features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2.5 text-sm text-gray-700">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-[#0066CC] to-[#0BAAFF] flex items-center justify-center mt-0.5 shadow-sm">
+                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br from-[var(--brand-accent)] to-[#0BAAFF] flex items-center justify-center mt-0.5 shadow-sm">
                                 <div className="w-2 h-2 rounded-full bg-white"></div>
                             </div>
                             <span className="font-medium leading-relaxed">{feature}</span>
@@ -138,7 +138,7 @@ const UseCaseCard = ({ icon, gradient, title, description, features, example }) 
                     ))}
                 </ul>
 
-                <button onClick={() => setIsExpanded(!isExpanded)} className="relative text-[#0066CC] text-sm font-bold hover:text-[#0052a3] text-left transition-all duration-300 flex items-center gap-1.5">
+                <button onClick={() => setIsExpanded(!isExpanded)} className="relative text-[var(--brand-accent)] text-sm font-bold hover:text-[var(--brand-accent-hover)] text-left transition-all duration-300 flex items-center gap-1.5">
                     {isExpanded ? 'Hide Example' : 'See Example'}
                     <span className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>→</span>
                 </button>
@@ -155,8 +155,8 @@ const UseCaseCard = ({ icon, gradient, title, description, features, example }) 
 
 const SuccessStoriesSection = () => {
     const stories = [
-        { quote: "Capable helped me validate my coffee shop idea in Austin and gave me a hyperlocal launch plan with actual vendor recommendations.", author: "Sarah M.", role: "Local Business Owner", gradient: "from-[#073B99] to-[#0066CC]" },
-        { quote: "The 60-day plan for my SaaS product was incredibly specific. Every task was unique and actionable—no generic advice.", author: "James K.", role: "SaaS Founder", gradient: "from-[#0066CC] to-[#0BAAFF]" },
+        { quote: "Capable helped me validate my coffee shop idea in Austin and gave me a hyperlocal launch plan with actual vendor recommendations.", author: "Sarah M.", role: "Local Business Owner", gradient: "from-[#073B99] to-[var(--brand-accent)]" },
+        { quote: "The 60-day plan for my SaaS product was incredibly specific. Every task was unique and actionable—no generic advice.", author: "James K.", role: "SaaS Founder", gradient: "from-[var(--brand-accent)] to-[#0BAAFF]" },
         { quote: "As a side-project creator, the time-constrained planning was perfect. I launched my newsletter in 8 weeks while working full-time.", author: "Maya R.", role: "Content Creator", gradient: "from-[#0BAAFF] to-[#073B99]" }
     ];
 
@@ -165,13 +165,13 @@ const SuccessStoriesSection = () => {
             <div className="text-center max-w-4xl mx-auto mb-16">
                 <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                     <span className="flex h-2 w-2 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                     </span>
-                    <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">Success Stories</span>
+                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Success Stories</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-gray-900 leading-tight tracking-tight mb-5">
-                    Real Founders, <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#0066CC] to-[#0BAAFF]">Real Results</span>
+                    Real Founders, <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Real Results</span>
                 </h2>
             </div>
 
@@ -201,7 +201,7 @@ const SuccessStoriesSection = () => {
 const CTASection = () => (
     <section className="w-full relative overflow-hidden mb-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
-            <div className="relative bg-gradient-to-br from-[#073B99] via-[#0066CC] to-[#0BAAFF] rounded-2xl p-10 md:p-16 overflow-hidden">
+            <div className="relative bg-gradient-to-br from-[#073B99] via-[var(--brand-accent)] to-[#0BAAFF] rounded-2xl p-10 md:p-16 overflow-hidden">
                 <div className="absolute inset-0">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0BAAFF]/20 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
@@ -217,7 +217,7 @@ const CTASection = () => (
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <Link to="/dashboard" className="bg-white text-[#0066CC] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
+                        <Link to="/dashboard" className="bg-white text-[var(--brand-accent)] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
                             Validate Your Idea Now
                         </Link>
                         <Link to="/pricing" className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">

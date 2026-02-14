@@ -96,7 +96,7 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                 >
                     <div>
                         <div className="flex items-center gap-2 mb-1.5">
-                            <div className="p-1 px-1.5 bg-blue-50 rounded text-[9px] font-black text-[#0066CC] uppercase tracking-[0.2em] border border-blue-100">
+                            <div className="p-1 px-1.5 bg-blue-50 rounded text-[9px] font-black text-[var(--brand-accent)] uppercase tracking-[0.2em] border border-blue-100">
                                 Intelligence Hub
                             </div>
                         </div>
@@ -134,8 +134,8 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                                 <MetricCard
                                     score={report.market_demand?.score || 0}
                                     label="Demand"
-                                    color="#0066CC"
-                                    gradientFrom="#0066CC"
+                                    color="var(--brand-accent)"
+                                    gradientFrom="var(--brand-accent)"
                                     gradientTo="#06b6d4"
                                     icon={TrendingUp}
                                 />
@@ -180,7 +180,7 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                                         </p>
                                         <div className="mt-auto pt-4 border-t border-slate-50">
                                             <div className="p-4 bg-blue-50/40 rounded-lg border border-blue-50/50 group-hover:border-blue-100">
-                                                <span className="text-[9px] font-black text-[#0066CC] uppercase tracking-widest block mb-2">Gap Opportunity</span>
+                                                <span className="text-[9px] font-black text-[var(--brand-accent)] uppercase tracking-widest block mb-2">Gap Opportunity</span>
                                                 <p className="text-[12px] text-blue-800 font-bold leading-relaxed">{comp.weaknesses}</p>
                                             </div>
                                         </div>
@@ -238,14 +238,14 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                         {/* Execution Directives - 3 Step Layout */}
                         <motion.section variants={itemVariants} className="lg:col-span-6 space-y-4">
                             <div className="flex items-center gap-3 px-1">
-                                <div className="p-1 px-2.5 bg-blue-50 text-[#0066CC] rounded text-[10px] font-black uppercase tracking-widest border border-blue-100">
+                                <div className="p-1 px-2.5 bg-blue-50 text-[var(--brand-accent)] rounded text-[10px] font-black uppercase tracking-widest border border-blue-100">
                                     Directives
                                 </div>
                             </div>
                             <div className="relative pl-6 border-l-2 border-slate-200/50 space-y-4">
                                 {report.next_steps?.immediate.slice(0, 3).map((step, idx) => (
                                     <div key={idx} className="relative group">
-                                        <div className="absolute -left-[31px] top-[14px] w-4 h-4 rounded-full bg-white border-[3px] border-slate-200 group-hover:border-[#0066CC] transition-all z-10 shadow-sm" />
+                                        <div className="absolute -left-[31px] top-[14px] w-4 h-4 rounded-full bg-white border-[3px] border-slate-200 group-hover:border-[var(--brand-accent)] transition-all z-10 shadow-sm" />
                                         <div className="bg-white p-5 rounded-xl border border-slate-100 group-hover:shadow-md transition-all hover:border-blue-100">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <span className="text-[9px] font-black text-slate-300">STEP 0{idx + 1}</span>
@@ -290,7 +290,7 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                         <button
                             onClick={onAccept}
                             disabled={planLoading}
-                            className="group flex items-center gap-2 px-6 py-2.5 bg-[#0066CC] text-white rounded-xl font-bold hover:bg-[#0052a3] transition-all active:scale-95 disabled:opacity-70 text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30"
+                            className="group flex items-center gap-2 px-6 py-2.5 bg-[var(--brand-accent)] text-white rounded-xl font-bold hover:bg-[var(--brand-accent-hover)] transition-all active:scale-95 disabled:opacity-70 text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30"
                         >
                             {planLoading ? (
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

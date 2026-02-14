@@ -31,8 +31,8 @@ const LocationForm = ({ onSubmit }) => {
                 {/* Header */}
                 <div className="text-center mb-10 relative z-10">
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 mb-6">
-                        <Globe2 size={14} className="text-[#0066CC]" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">
+                        <Globe2 size={14} className="text-[var(--brand-accent)]" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--brand-accent)]">
                             Context Layer
                         </span>
                     </div>
@@ -89,7 +89,7 @@ const LocationForm = ({ onSubmit }) => {
                         className={`
                             w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 text-sm uppercase tracking-widest transition-all duration-300
                             ${isValid
-                                ? 'bg-[#0066CC] text-white shadow-xl shadow-blue-500/20 hover:bg-[#0052a3] hover:shadow-blue-500/30 hover:-translate-y-0.5'
+                                ? 'bg-[var(--brand-accent)] text-white shadow-xl shadow-blue-500/20 hover:bg-[var(--brand-accent-hover)] hover:shadow-blue-500/30 hover:-translate-y-0.5'
                                 : 'bg-slate-100 text-slate-300 cursor-not-allowed'
                             }
                         `}

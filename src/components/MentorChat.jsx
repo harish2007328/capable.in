@@ -180,7 +180,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                 <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white z-20 shrink-0">
                     <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <Sparkles size={14} className="text-[#0066CC]" /> AI Mentor
+                            <Sparkles size={14} className="text-[var(--brand-accent)]" /> AI Mentor
                         </span>
                     </div>
 
@@ -197,7 +197,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                 <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar scroll-smooth">
                     {isInitialLoad ? (
                         <div className="flex flex-col items-center justify-center h-full gap-4 opacity-30">
-                            <Sparkles size={24} className="animate-pulse text-[#0066CC]" />
+                            <Sparkles size={24} className="animate-pulse text-[var(--brand-accent)]" />
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Strategy...</p>
                         </div>
                     ) : (
@@ -228,7 +228,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                                     <div className={`
                                     max-w-[88%] p-4 text-sm leading-relaxed shadow-sm
                                     ${m.role === 'user'
-                                            ? 'bg-[#0066CC] text-white rounded-2xl rounded-tr-sm'
+                                            ? 'bg-[var(--brand-accent)] text-white rounded-2xl rounded-tr-sm'
                                             : 'bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-tl-sm'
                                         }
                                 `}>
@@ -242,7 +242,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                                                             return (
                                                                 <button
                                                                     onClick={() => onSelectTask && onSelectTask(taskId)}
-                                                                    className="text-[#0066CC] font-bold hover:underline underline-offset-2 transition-colors"
+                                                                    className="text-[var(--brand-accent)] font-bold hover:underline underline-offset-2 transition-colors"
                                                                 >
                                                                     {props.children}
                                                                 </button>
@@ -253,7 +253,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                                                                 {...props}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="text-[#0066CC] font-bold hover:underline decoration-blue-200"
+                                                                className="text-[var(--brand-accent)] font-bold hover:underline decoration-blue-200"
                                                             />
                                                         );
                                                     },
@@ -287,9 +287,9 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                     {loading && (
                         <div className="flex justify-start">
                             <div className="bg-white px-4 py-2.5 rounded-2xl border border-slate-100 shadow-sm flex gap-2 items-center">
-                                <span className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce" />
-                                <span className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce [animation-delay:0.2s]" />
-                                <span className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce [animation-delay:0.4s]" />
+                                <span className="w-1.5 h-1.5 bg-[var(--brand-accent)] rounded-full animate-bounce" />
+                                <span className="w-1.5 h-1.5 bg-[var(--brand-accent)] rounded-full animate-bounce [animation-delay:0.2s]" />
+                                <span className="w-1.5 h-1.5 bg-[var(--brand-accent)] rounded-full animate-bounce [animation-delay:0.4s]" />
                             </div>
                         </div>
                     )}
@@ -303,12 +303,12 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                         mentions.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
                                 {mentions.map(m => (
-                                    <div key={m.id} className="flex items-center gap-1.5 px-2 py-1 bg-[#0066CC]/5 border border-[#0066CC]/10 rounded-lg text-[#0066CC] animate-in zoom-in-95 duration-150">
+                                    <div key={m.id} className="flex items-center gap-1.5 px-2 py-1 bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 rounded-lg text-[var(--brand-accent)] animate-in zoom-in-95 duration-150">
                                         <Target size={10} />
                                         <span className="text-[10px] font-black uppercase tracking-tighter">Day {m.id}</span>
                                         <button
                                             onClick={() => setMentions(prev => prev.filter(item => item.id !== m.id))}
-                                            className="hover:bg-[#0066CC]/10 rounded-full p-0.5 transition-colors"
+                                            className="hover:bg-[var(--brand-accent)]/10 rounded-full p-0.5 transition-colors"
                                         >
                                             <X size={10} />
                                         </button>
@@ -318,7 +318,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                         )
                     }
 
-                    < form onSubmit={handleSend} className="relative flex items-center bg-white shadow-sm border border-slate-200 rounded-2xl focus-within:ring-2 focus-within:ring-[#0066CC]/10 transition-all" >
+                    < form onSubmit={handleSend} className="relative flex items-center bg-white shadow-sm border border-slate-200 rounded-2xl focus-within:ring-2 focus-within:ring-[var(--brand-accent)]/10 transition-all" >
                         <input
                             type="text"
                             id="mentor-chat-input"
@@ -334,7 +334,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                         <button
                             type="submit"
                             disabled={(!input.trim() && mentions.length === 0) || loading}
-                            className="absolute right-2 p-1.5 bg-[#0066CC] text-white rounded-xl hover:bg-[#0052a3] shadow-md shadow-blue-500/10 disabled:opacity-20 transition-all font-bold"
+                            className="absolute right-2 p-1.5 bg-[var(--brand-accent)] text-white rounded-xl hover:bg-[var(--brand-accent-hover)] shadow-md shadow-blue-500/10 disabled:opacity-20 transition-all font-bold"
                         >
                             <Send size={14} />
                         </button>
@@ -353,7 +353,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                             <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white z-20 shrink-0">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Sparkles size={14} className="text-[#0066CC]" /> Sessions
+                                        <Sparkles size={14} className="text-[var(--brand-accent)]" /> Sessions
                                     </span>
                                 </div>
                                 <button
@@ -372,7 +372,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                                     onClick={handleCreateSession}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-700 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all font-medium text-sm group"
                                 >
-                                    <Edit size={16} className="text-slate-400 group-hover:text-[#0066CC]" />
+                                    <Edit size={16} className="text-slate-400 group-hover:text-[var(--brand-accent)]" />
                                     New chat
                                 </button>
 
@@ -387,12 +387,12 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                                                 className={`
                                                 group relative px-3 py-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between
                                                 ${activeSessionId === session.id
-                                                        ? 'bg-blue-50/50 border-blue-100 text-[#0066CC]'
+                                                        ? 'bg-blue-50/50 border-blue-100 text-[var(--brand-accent)]'
                                                         : 'bg-white border-transparent text-slate-600 hover:bg-slate-50 hover:border-slate-100'}
                                             `}
                                             >
                                                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                                                    <MessageSquare size={14} className={activeSessionId === session.id ? 'text-[#0066CC]' : 'text-slate-400'} />
+                                                    <MessageSquare size={14} className={activeSessionId === session.id ? 'text-[var(--brand-accent)]' : 'text-slate-400'} />
                                                     <span className="text-sm font-medium truncate leading-tight">
                                                         {session.title}
                                                     </span>
@@ -402,7 +402,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                                                 <div className={`flex items-center gap-1.5 transition-opacity ${activeSessionId === session.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                                     <button
                                                         onClick={(e) => handleTogglePin(e, session.id)}
-                                                        className={`p-1 rounded-md transition-colors ${session.isPinned ? 'text-[#0066CC] bg-blue-100' : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'}`}
+                                                        className={`p-1 rounded-md transition-colors ${session.isPinned ? 'text-[var(--brand-accent)] bg-blue-100' : 'text-slate-300 hover:bg-slate-100 hover:text-slate-500'}`}
                                                         title={session.isPinned ? "Unpin chat" : "Pin chat"}
                                                     >
                                                         <Pin size={12} fill={session.isPinned ? "currentColor" : "none"} />

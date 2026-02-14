@@ -1,4 +1,4 @@
-ï»¿import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Wand2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -117,7 +117,7 @@ const HomePage = () => {
                     <GlassCard
                         quote="Now or never."
                         sub="Execution is everything."
-                        gradient="from-[#0066CC]/90 to-[#0BAAFF]/90"
+                        gradient="from-[var(--brand-accent)]/90 to-[#0BAAFF]/90"
                         textColor="text-white"
                     />
                 </div>
@@ -138,7 +138,7 @@ const HomePage = () => {
                     <GlassCard
                         quote="No limits."
                         sub="Scale infinitely."
-                        gradient="from-[#073B99]/90 to-[#0066CC]/90"
+                        gradient="from-[#073B99]/90 to-[var(--brand-accent)]/90"
                         textColor="text-white"
                     />
                 </div>
@@ -161,7 +161,7 @@ const HomePage = () => {
                     <GlassCard
                         quote="Launch Fast."
                         sub="Weeks to seconds."
-                        gradient="from-[#0BAAFF]/90 to-[#0066CC]/90"
+                        gradient="from-[#0BAAFF]/90 to-[var(--brand-accent)]/90"
                         textColor="text-white"
                     />
                 </div>
@@ -174,7 +174,7 @@ const HomePage = () => {
                         gradient="from-blue-50/90 to-white/90"
                         textColor="text-[#073B99]"
                         light={true}
-                        border="border-[#0066CC]/20"
+                        border="border-[var(--brand-accent)]/20"
                     />
                 </div>
             </div>
@@ -183,10 +183,10 @@ const HomePage = () => {
                 {/* Badge */}
                 <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                     <span className="flex h-2 w-2 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                     </span>
-                    <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">Intelligent Idea Architect</span>
+                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Intelligent Idea Architect</span>
                 </div>
 
                 {/* Hero Headings */}
@@ -195,7 +195,7 @@ const HomePage = () => {
                         Transform Your Idea
                     </h1>
                     <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tight leading-tight">
-                        to a <span className="text-[#0066CC]">Business</span>
+                        to a <span className="text-[var(--brand-accent)]">Business</span>
                     </h1>
                 </div>
 
@@ -210,10 +210,10 @@ const HomePage = () => {
                     {/* 1. INPUT BOX WRAPPER */}
                     <div className="relative w-full max-w-2xl group mb-0 z-10">
                         {/* Gradient Border */}
-                        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[#0066CC] via-[#0BAAFF] to-[#0066CC] pointer-events-none"></div>
+                        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] via-[#0BAAFF] to-[var(--brand-accent)] pointer-events-none"></div>
 
                         {/* Glow Effect */}
-                        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[#0066CC] to-[#0BAAFF] opacity-20 blur-lg transition-opacity duration-500 group-hover:opacity-40"></div>
+                        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-20 blur-lg transition-opacity duration-500 group-hover:opacity-40"></div>
 
                         {/* Input Content */}
                         <div className="relative bg-white rounded-[14px] flex flex-col p-2 h-full m-[2px]">
@@ -281,7 +281,7 @@ const HomePage = () => {
                                         <div className="flex items-center gap-3 w-full">
                                             <button
                                                 onClick={() => { setContentWarning(''); setIdea(''); }}
-                                                className="flex-1 px-5 py-3 bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+                                                className="flex-1 px-5 py-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
                                             >
                                                 Try a New Idea
                                             </button>
@@ -308,7 +308,7 @@ const HomePage = () => {
                             <div className="flex justify-between items-center px-4 pb-3 mt-4">
                                 <div className="relative group/enhance">
                                     <button
-                                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${isEnhancing ? 'text-[#0066CC] bg-blue-50 cursor-not-allowed' : 'text-gray-400 hover:text-[#0066CC] hover:bg-blue-50'}`}
+                                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${isEnhancing ? 'text-[var(--brand-accent)] bg-blue-50 cursor-not-allowed' : 'text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50'}`}
                                         onClick={handleEnhance}
                                         disabled={isEnhancing}
                                     >
@@ -323,7 +323,7 @@ const HomePage = () => {
 
                                 <button
                                     onClick={handleGenerate}
-                                    className="bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#0066CC]/25 hover:shadow-[#0066CC]/40"
+                                    className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[var(--brand-accent)]/25 hover:shadow-[var(--brand-accent)]/40"
                                 >
                                     <span>Generate</span>
                                 </button>
@@ -379,40 +379,40 @@ const HomePage = () => {
                                 fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
                             {/* Left Branch - Particle Trail */}
                             <path d="M 400 0 L 400 50 Q 400 70 380 70 L 133 70 Q 113 70 113 90 L 113 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
                             <path d="M 400 0 L 400 50 Q 400 70 380 70 L 133 70 Q 113 70 113 90 L 113 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
                             <path d="M 400 0 L 400 50 Q 400 70 380 70 L 133 70 Q 113 70 113 90 L 113 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
 
                             {/* Center Branch - Base */}
                             <path d="M 400 0 L 400 160"
                                 fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
                             {/* Center Branch - Particle Trail */}
                             <path d="M 400 0 L 400 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
                             <path d="M 400 0 L 400 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
                             <path d="M 400 0 L 400 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
 
                             {/* Right Branch - Base */}
                             <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
                                 fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
                             {/* Right Branch - Particle Trail */}
                             <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
                             <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
                             <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
-                                fill="none" stroke="#0066CC" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
                         </svg>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6">
                             <StepBox
                                 label="Context"
                                 title="Smart Interview"
-                                description="Dynamic question wizard that adapts to your ideaâ€”no generic templates. Location-aware for hyperlocal businesses."
+                                description="Dynamic question wizard that adapts to your idea—no generic templates. Location-aware for hyperlocal businesses."
                                 delay="0"
                                 image="/market_analysis_vector.png"
                             />
@@ -452,13 +452,13 @@ const HomePage = () => {
                                 Empowering the next generation of entrepreneurs with AI-driven business intelligence and strategy.
                             </p>
                             <div className="flex items-center gap-4">
-                                <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#0066CC] hover:bg-blue-50 transition-all">
+                                <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50 transition-all">
                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" /></svg>
                                 </a>
-                                <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#0066CC] hover:bg-blue-50 transition-all">
+                                <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50 transition-all">
                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
                                 </a>
-                                <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#0066CC] hover:bg-blue-50 transition-all">
+                                <a href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50 transition-all">
                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /></svg>
                                 </a>
                             </div>
@@ -468,10 +468,10 @@ const HomePage = () => {
                         <div>
                             <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Product</h4>
                             <ul className="space-y-4">
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">Features</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">Case Studies</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">Pricing</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">Updates</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Features</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Case Studies</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Pricing</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Updates</a></li>
                             </ul>
                         </div>
 
@@ -479,10 +479,10 @@ const HomePage = () => {
                         <div>
                             <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Company</h4>
                             <ul className="space-y-4">
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">About Us</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">Careers</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">Privacy Policy</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[#0066CC] transition-colors font-sans font-medium text-sm">Terms of Service</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">About Us</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Careers</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Privacy Policy</a></li>
+                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Terms of Service</a></li>
                             </ul>
                         </div>
 
@@ -496,9 +496,9 @@ const HomePage = () => {
                                 <input
                                     type="email"
                                     placeholder="Enter your email"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#0066CC]/10 focus:border-[#0066CC]/30 transition-all placeholder:text-gray-400 group-hover/input:border-gray-200"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]/10 focus:border-[var(--brand-accent)]/30 transition-all placeholder:text-gray-400 group-hover/input:border-gray-200"
                                 />
-                                <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-gray-900 text-white px-4 rounded-md text-xs font-bold hover:bg-[#0066CC] transition-all">
+                                <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-gray-900 text-white px-4 rounded-md text-xs font-bold hover:bg-[var(--brand-accent)] transition-all">
                                     Join
                                 </button>
                             </div>
@@ -534,7 +534,7 @@ const DeepDiveSection = () => {
             phase: "02",
             title: "Context-Aware Questions",
             subtitle: "Phase: Refinement",
-            description: "AI-powered wizard generates questions dynamically based on your ideaâ€”global or local, B2B or B2C. No duplicate questions, ever.",
+            description: "AI-powered wizard generates questions dynamically based on your idea—global or local, B2B or B2C. No duplicate questions, ever.",
             icon: <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>,
             span: "lg:col-span-1"
         },
@@ -551,7 +551,7 @@ const DeepDiveSection = () => {
             title: "Execution Calendar",
             subtitle: "Phase: Action",
             description: "60 unique daily tasks grouped into strategic phases. Location-specific recommendations included. Mentor chat provides execution support in context.",
-            icon: <div className="w-1.5 h-1.5 rounded-full bg-[#0066CC]"></div>,
+            icon: <div className="w-1.5 h-1.5 rounded-full bg-[var(--brand-accent)]"></div>,
             span: "lg:col-span-2"
         }
     ];
@@ -564,16 +564,16 @@ const DeepDiveSection = () => {
                 <div className="deep-dive-header text-center max-w-4xl mx-auto mb-20">
                     <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">The Process</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">The Process</span>
                     </div>
                     <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-gray-900 leading-tight tracking-tight mb-5 text-center">
-                        How It <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#0066CC] to-[#0BAAFF]">Works</span>
+                        How It <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Works</span>
                     </h1>
                     <p className="mt-8 text-xl md:text-2xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto text-center">
-                        From initial idea to actionable roadmapâ€”four strategic phases powered by real-time data and AI analysis.
+                        From initial idea to actionable roadmap—four strategic phases powered by real-time data and AI analysis.
                     </p>
                 </div>
 
@@ -582,7 +582,7 @@ const DeepDiveSection = () => {
                     {steps.map((step, idx) => (
                         <div
                             key={idx}
-                            className={`bento-card ${step.span} bg-gradient-to-br from-[#073B99] via-[#0066CC] to-[#0BAAFF] rounded-2xl p-6 md:p-8 border border-white/10 transition-all duration-500 group relative overflow-hidden flex flex-col min-h-[280px]`}
+                            className={`bento-card ${step.span} bg-gradient-to-br from-[#073B99] via-[var(--brand-accent)] to-[#0BAAFF] rounded-2xl p-6 md:p-8 border border-white/10 transition-all duration-500 group relative overflow-hidden flex flex-col min-h-[280px]`}
                         >
                             <div className="relative z-10 h-full flex flex-col pointer-events-none">
                                 <div className="flex justify-between items-start mb-12">
@@ -685,18 +685,18 @@ const FeatureCard = ({ icon, title, description }) => (
 const StepBox = ({ label, title, description, delay, image }) => (
     <div className="relative w-full" style={{ animationDelay: `${delay}ms` }}>
         {/* Gradient Border */}
-        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[#0066CC] via-[#0BAAFF] to-[#0066CC] pointer-events-none"></div>
+        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] via-[#0BAAFF] to-[var(--brand-accent)] pointer-events-none"></div>
 
         {/* Glow Effect */}
-        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[#0066CC] to-[#0BAAFF] opacity-20 blur-lg pointer-events-none"></div>
+        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-20 blur-lg pointer-events-none"></div>
 
         {/* Card Content */}
         <div className="relative bg-white rounded-[14px] flex flex-col transition-all duration-300 cursor-default z-10 overflow-hidden m-[2px]">
             {/* Content Container */}
             <div className="p-8 pb-0 flex flex-col items-center text-center flex-grow">
                 {/* Label Badge */}
-                <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-[#0BAAFF]/10 to-[#0066CC]/10 border border-[#0BAAFF]/20 text-xs font-bold uppercase tracking-wider mb-4 text-[#0066CC]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#0066CC] mr-2 animate-pulse"></span>
+                <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-[#0BAAFF]/10 to-[var(--brand-accent)]/10 border border-[#0BAAFF]/20 text-xs font-bold uppercase tracking-wider mb-4 text-[var(--brand-accent)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-accent)] mr-2 animate-pulse"></span>
                     {label}
                 </span>
 
@@ -755,12 +755,12 @@ const WhyCapableSection = () => {
         },
         {
             title: "Privacy First",
-            description: "Your data is secured with enterprise-grade encryption. No external serversâ€”your ideas stay completely private.",
+            description: "Your data is secured with enterprise-grade encryption. No external servers—your ideas stay completely private.",
             image: "/feature_validation.png"
         },
         {
             title: "No Repeated Tasks",
-            description: "Every day in your 60-day plan has unique, specific activitiesâ€”not generic advice.",
+            description: "Every day in your 60-day plan has unique, specific activities—not generic advice.",
             image: "/feature_roadmaps.png"
         },
         {
@@ -812,13 +812,13 @@ const WhyCapableSection = () => {
                 <div className="text-center max-w-4xl mx-auto mb-10 md:mb-16">
                     <div className="mb-6 md:mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">Why Capable</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Why Capable</span>
                     </div>
                     <h2 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-gray-900 leading-[0.9] tracking-tighter mb-4 md:mb-6">
-                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#0066CC] to-[#0BAAFF]">Founders</span>
+                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Founders</span>
                     </h2>
                     <p className="text-lg md:text-xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto px-4">
                         Everything you need to validate, plan, and launch your business idea with confidence.
@@ -881,7 +881,7 @@ const WhyCapableSection = () => {
                             disabled={slideIndex === 0}
                             className={`w-11 h-11 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${slideIndex === 0
                                 ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                                : 'border-gray-300 text-gray-600 hover:border-[#0066CC] hover:text-[#0066CC] hover:bg-blue-50 active:scale-95'
+                                : 'border-gray-300 text-gray-600 hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] hover:bg-blue-50 active:scale-95'
                                 }`}
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -893,7 +893,7 @@ const WhyCapableSection = () => {
                             disabled={slideIndex >= maxSlide}
                             className={`w-11 h-11 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${slideIndex >= maxSlide
                                 ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50'
-                                : 'border-gray-300 text-gray-600 hover:border-[#0066CC] hover:text-[#0066CC] hover:bg-blue-50 active:scale-95'
+                                : 'border-gray-300 text-gray-600 hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] hover:bg-blue-50 active:scale-95'
                                 }`}
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -909,7 +909,7 @@ const WhyCapableSection = () => {
                                 key={idx}
                                 onClick={() => setSlideIndex(idx)}
                                 className={`h-2 rounded-full transition-all duration-300 ${slideIndex === idx
-                                    ? 'bg-[#0066CC] w-6'
+                                    ? 'bg-[var(--brand-accent)] w-6'
                                     : 'bg-gray-300 hover:bg-gray-400 w-2'
                                     }`}
                             />
@@ -927,7 +927,7 @@ const CTASection = () => {
         <section className="w-full relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
                 {/* Main CTA Card */}
-                <div className="relative bg-gradient-to-br from-[#073B99] via-[#0066CC] to-[#0BAAFF] rounded-2xl p-10 md:p-16 overflow-hidden">
+                <div className="relative bg-gradient-to-br from-[#073B99] via-[var(--brand-accent)] to-[#0BAAFF] rounded-2xl p-10 md:p-16 overflow-hidden">
                     {/* Decorative orbs inside card */}
                     <div className="absolute inset-0">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
@@ -953,13 +953,13 @@ const CTASection = () => {
 
                         {/* Subtitle */}
                         <p className="text-base md:text-lg text-white/80 font-sans font-medium leading-relaxed max-w-xl mx-auto mb-10">
-                            Type your idea. Get market research, strategic analysis, and a 60-day action planâ€”all powered by AI and real-time data.
+                            Type your idea. Get market research, strategic analysis, and a 60-day action plan—all powered by AI and real-time data.
                         </p>
 
                         {/* CTA Buttons - matching hero button style */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                            <Link to="/dashboard" className="bg-white text-[#0066CC] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
-                                Start Building â€” It's Free
+                            <Link to="/dashboard" className="bg-white text-[var(--brand-accent)] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
+                                Start Building — It's Free
                             </Link>
                             <button className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">
                                 Watch Demo
@@ -1009,23 +1009,23 @@ const FAQSection = () => {
                     <div className="lg:sticky lg:top-8 lg:self-start">
                         <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
                             <span className="flex h-2 w-2 relative">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0066CC] opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0066CC]"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                             </span>
-                            <span className="text-xs font-bold text-[#0066CC] uppercase tracking-wider">FAQ</span>
+                            <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">FAQ</span>
                         </div>
 
                         <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-gray-900 tracking-tight mb-6 leading-[1.1]">
                             Got
                             <br />
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#0066CC] to-[#0BAAFF]">Questions?</span>
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Questions?</span>
                         </h2>
 
                         <p className="text-gray-500 font-sans text-base md:text-lg max-w-md font-medium mb-8 leading-relaxed">
                             Everything you need to know about Capable. Can't find what you're looking for? Reach out to our team.
                         </p>
 
-                        <button className="bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white px-6 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#0066CC]/25">
+                        <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-6 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[var(--brand-accent)]/25">
                             Contact Support
                         </button>
                     </div>
@@ -1044,7 +1044,7 @@ const FAQSection = () => {
                                 >
                                     {/* Question Text */}
                                     <div className="flex-1 min-w-0">
-                                        <span className={`font-semibold text-lg md:text-xl block transition-colors duration-300 ${openIndex === idx ? 'text-[#0066CC]' : 'text-gray-900 group-hover:text-gray-700'
+                                        <span className={`font-semibold text-lg md:text-xl block transition-colors duration-300 ${openIndex === idx ? 'text-[var(--brand-accent)]' : 'text-gray-900 group-hover:text-gray-700'
                                             }`}>
                                             {faq.question}
                                         </span>
@@ -1052,11 +1052,11 @@ const FAQSection = () => {
 
                                     {/* Toggle Button */}
                                     <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openIndex === idx
-                                        ? 'bg-[#0066CC] rotate-180'
+                                        ? 'bg-[var(--brand-accent)] rotate-180'
                                         : 'bg-gray-100 group-hover:bg-blue-50'
                                         }`}>
                                         <svg
-                                            className={`w-5 h-5 transition-colors duration-300 ${openIndex === idx ? 'text-white' : 'text-gray-500 group-hover:text-[#0066CC]'
+                                            className={`w-5 h-5 transition-colors duration-300 ${openIndex === idx ? 'text-white' : 'text-gray-500 group-hover:text-[var(--brand-accent)]'
                                                 }`}
                                             fill="none"
                                             viewBox="0 0 24 24"
@@ -1072,7 +1072,7 @@ const FAQSection = () => {
                                 <div className={`overflow-hidden transition-all duration-300 ease-out ${openIndex === idx ? 'max-h-64 opacity-100 pb-6' : 'max-h-0 opacity-0'
                                     }`}>
                                     <div className="pl-0 pr-14">
-                                        <div className="bg-gradient-to-r from-blue-50 to-transparent rounded-xl p-5 border-l-4 border-[#0066CC]">
+                                        <div className="bg-gradient-to-r from-blue-50 to-transparent rounded-xl p-5 border-l-4 border-[var(--brand-accent)]">
                                             <p className="text-gray-600 leading-relaxed font-sans">
                                                 {faq.answer}
                                             </p>

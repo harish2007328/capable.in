@@ -30,6 +30,8 @@ const DashboardPage = () => {
     const [projects, setProjects] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteTargetId, setDeleteTargetId] = useState(null);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [notification, setNotification] = useState({ message: '', type: 'success', visible: false });
 
     // Settings state
     const [settingsState, setSettingsState] = useState({
@@ -39,7 +41,12 @@ const DashboardPage = () => {
         website: user?.user_metadata?.website || '',
         twitter: user?.user_metadata?.twitter || '',
         researchDepth: user?.user_metadata?.researchDepth || 'Deep',
-        autoResearch: user?.user_metadata?.autoResearch !== false, // Default to true
+        autoResearch: user?.user_metadata?.autoResearch !== false,
+        bannerGradient: user?.user_metadata?.bannerGradient || 'midnight',
+        bannerPattern: user?.user_metadata?.bannerPattern || 'none',
+        accentColor: user?.user_metadata?.accentColor || 'var(--brand-accent)',
+        borderRadius: user?.user_metadata?.borderRadius || '16px',
+        glassIntensity: user?.user_metadata?.glassIntensity || '12px',
         isSaving: false
     });
 
@@ -60,6 +67,11 @@ const DashboardPage = () => {
                 twitter: user?.user_metadata?.twitter || '',
                 researchDepth: user?.user_metadata?.researchDepth || 'Deep',
                 autoResearch: user?.user_metadata?.autoResearch !== false,
+                bannerGradient: user?.user_metadata?.bannerGradient || 'midnight',
+                bannerPattern: user?.user_metadata?.bannerPattern || 'none',
+                accentColor: user?.user_metadata?.accentColor || '#0066CC',
+                borderRadius: user?.user_metadata?.borderRadius || '16px',
+                glassIntensity: user?.user_metadata?.glassIntensity || '12px',
                 isSaving: false
             });
         }
@@ -69,6 +81,17 @@ const DashboardPage = () => {
             setActiveSection(hash);
         }
     }, [location.hash, user]);
+
+    // Inject Theme Variables
+    useEffect(() => {
+        const root = document.documentElement;
+        root.style.setProperty('--brand-accent', settingsState.accentColor);
+        // Helper for hover state (approx 20% darker)
+        const darker = settingsState.accentColor === 'var(--brand-accent)' ? 'var(--brand-accent-hover)' : settingsState.accentColor;
+        root.style.setProperty('--brand-accent-hover', darker);
+        root.style.setProperty('--brand-radius', settingsState.borderRadius);
+        root.style.setProperty('--brand-blur', settingsState.glassIntensity);
+    }, [settingsState.accentColor, settingsState.borderRadius, settingsState.glassIntensity]);
 
     const handleSaveSettings = async () => {
         setSettingsState(s => ({ ...s, isSaving: true }));
@@ -81,23 +104,32 @@ const DashboardPage = () => {
                     website: settingsState.website,
                     twitter: settingsState.twitter,
                     researchDepth: settingsState.researchDepth,
-                    autoResearch: settingsState.autoResearch
+                    autoResearch: settingsState.autoResearch,
+                    bannerGradient: settingsState.bannerGradient,
+                    bannerPattern: settingsState.bannerPattern,
+                    accentColor: settingsState.accentColor,
+                    borderRadius: settingsState.borderRadius,
+                    glassIntensity: settingsState.glassIntensity
                 }
             });
-            alert('Settings saved to database!');
+            setNotification({ message: 'Success! Profile updated', type: 'success', visible: true });
+            setTimeout(() => setNotification(n => ({ ...n, visible: false })), 3000);
         } catch (error) {
             console.error('Failed to save settings:', error);
-            alert('Error saving settings. Please try again.');
+            setNotification({ message: 'Error saving settings', type: 'error', visible: true });
+            setTimeout(() => setNotification(n => ({ ...n, visible: false })), 3000);
         } finally {
             setSettingsState(s => ({ ...s, isSaving: false }));
         }
     };
 
-    const handleClearData = async () => {
-        if (confirm('Are you sure? This will delete all projects from the SERVER and this browser PERMANENTLY.')) {
-            await ProjectStorage.clearAll();
-            window.location.reload();
-        }
+    const handleClearData = () => {
+        setShowClearConfirm(true);
+    };
+
+    const confirmClearAll = async () => {
+        await ProjectStorage.clearAll();
+        window.location.reload();
     };
 
     const filteredProjects = projects.filter(p =>
@@ -173,18 +205,18 @@ const DashboardPage = () => {
 
                                 <div className="flex flex-col sm:flex-row items-center gap-4">
                                     <div className="relative w-full sm:w-72 group">
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#0066CC] transition-colors" size={18} />
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-accent transition-colors" size={18} />
                                         <input
                                             type="text"
                                             placeholder="Search ventures..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-lg text-xs font-bold uppercase tracking-wider focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-[#0066CC] transition-all placeholder:text-slate-300 shadow-sm"
+                                            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-lg text-xs font-bold uppercase tracking-wider focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-brand-accent transition-all placeholder:text-slate-300 shadow-sm"
                                         />
                                     </div>
                                     <button
                                         onClick={() => navigate('/')}
-                                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-[#0066CC] text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[#0052a3] transition-all shadow-lg shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98]"
+                                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-brand-accent text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[var(--brand-accent-hover)] transition-all shadow-lg shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98]"
                                     >
                                         <Plus size={18} />
                                         New Venture
@@ -201,7 +233,7 @@ const DashboardPage = () => {
                                     >
                                         <div
                                             onClick={() => handleProjectClick(project.id)}
-                                            className="p-8 h-full flex flex-col relative overflow-hidden group cursor-pointer border border-slate-100 bg-white hover:border-[#0066CC]/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all rounded-lg"
+                                            className="p-8 h-full flex flex-col relative overflow-hidden group cursor-pointer border border-slate-100 bg-white hover:border-brand-accent/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all rounded-lg"
                                         >
                                             <div className="mb-4 h-6 flex items-center justify-between">
                                                 {/* Phase badge */}
@@ -217,7 +249,7 @@ const DashboardPage = () => {
                                                         bg = 'bg-emerald-50 border-emerald-100'; text = 'text-emerald-600';
                                                     } else if (d.report) {
                                                         label = 'Strategy';
-                                                        bg = 'bg-blue-50 border-blue-100'; text = 'text-[#0066CC]';
+                                                        bg = 'bg-blue-50 border-blue-100'; text = 'text-brand-accent';
                                                     } else if (d.questions?.length > 0) {
                                                         label = 'Discovery';
                                                         bg = 'bg-amber-50 border-amber-100'; text = 'text-amber-600';
@@ -253,7 +285,7 @@ const DashboardPage = () => {
                                                 <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">
                                                     {project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Recently'}
                                                 </span>
-                                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#0066CC] transition-colors">
+                                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-accent transition-colors">
                                                     Open Venture
                                                 </div>
                                             </div>
@@ -267,7 +299,7 @@ const DashboardPage = () => {
                                         <p className="text-slate-400 text-xs font-medium mb-8">Start your journey by creating a new execution plan.</p>
                                         <button
                                             onClick={() => navigate('/')}
-                                            className="px-10 py-4 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#0066CC] transition-all shadow-xl shadow-slate-200"
+                                            className="px-10 py-4 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-[0.2em] hover:bg-brand-accent transition-all shadow-xl shadow-slate-200"
                                         >
                                             Start Your First Venture
                                         </button>
@@ -327,6 +359,74 @@ const DashboardPage = () => {
                                 </button>
                             </div>
                         </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Clear All Data Modal */}
+            <AnimatePresence>
+                {showClearConfirm && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[101] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+                        onClick={() => setShowClearConfirm(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.98, opacity: 0, y: 10 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.98, opacity: 0, y: 10 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-xl shadow-2xl border border-slate-100 p-6 max-w-[280px] w-full text-center"
+                        >
+                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Shield size={24} className="text-red-500" />
+                            </div>
+                            <h3 className="text-sm font-black text-slate-900 mb-1">Wipe All Data?</h3>
+                            <p className="text-slate-400 text-[10px] mb-6 font-medium leading-relaxed">
+                                This will erase everything from the server and this browser permanently.
+                            </p>
+                            <div className="flex flex-col gap-2">
+                                <button
+                                    onClick={confirmClearAll}
+                                    className="w-full py-2.5 bg-red-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-600 transition-all active:scale-[0.98]"
+                                >
+                                    Confirm Wipe
+                                </button>
+                                <button
+                                    onClick={() => setShowClearConfirm(false)}
+                                    className="w-full py-2.5 text-slate-400 hover:text-slate-600 text-[9px] font-black uppercase tracking-widest transition-all"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Notification Toast */}
+            <AnimatePresence>
+                {notification.visible && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20, x: '-50%' }}
+                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                        exit={{ opacity: 0, y: 20, x: '-50%' }}
+                        className="fixed bottom-8 left-1/2 z-[150] px-6 py-3 bg-white/90 backdrop-blur-md border border-slate-100 rounded-full shadow-2xl flex items-center gap-3"
+                    >
+                        {notification.type === 'success' ? (
+                            <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                                <CheckCircle size={12} className="text-white" />
+                            </div>
+                        ) : (
+                            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                                < Shield size={12} className="text-white" />
+                            </div>
+                        )}
+                        <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
+                            {notification.message}
+                        </span>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -509,7 +609,7 @@ const MetricsView = ({ projects }) => {
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Completion</p>
                     <div className="flex items-baseline gap-1">
-                        <span className={`text-lg font-black ${completionRate >= 80 ? 'text-emerald-600' : completionRate >= 40 ? 'text-[#0066CC]' : 'text-slate-900'}`}>{completionRate}%</span>
+                        <span className={`text-lg font-black ${completionRate >= 80 ? 'text-emerald-600' : completionRate >= 40 ? 'text-brand-accent' : 'text-slate-900'}`}>{completionRate}%</span>
                     </div>
                 </div>
 
@@ -555,8 +655,8 @@ const MetricsView = ({ projects }) => {
                             <div
                                 key={i}
                                 className={`h-7 flex items-center justify-center rounded text-[9px] font-bold relative ${!cell ? '' :
-                                    cell.isToday ? 'bg-[#0066CC] text-white' :
-                                        cell.count > 0 ? 'bg-blue-50 text-[#0066CC]' :
+                                    cell.isToday ? 'bg-brand-accent text-white' :
+                                        cell.count > 0 ? 'bg-blue-50 text-brand-accent' :
                                             'text-slate-400 hover:bg-slate-50'
                                     }`}
                                 title={cell && cell.count > 0 ? `${cell.count} venture${cell.count !== 1 ? 's' : ''}` : ''}
@@ -565,7 +665,7 @@ const MetricsView = ({ projects }) => {
                                     <>
                                         {cell.day}
                                         {cell.count > 0 && (
-                                            <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full ${cell.isToday ? 'bg-white' : 'bg-[#0066CC]'}`}></span>
+                                            <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full ${cell.isToday ? 'bg-white' : 'bg-brand-accent'}`}></span>
                                         )}
                                     </>
                                 )}
@@ -602,7 +702,7 @@ const MetricsView = ({ projects }) => {
                                                 animate={{ width: `${pct}%` }}
                                                 transition={{ duration: 0.8, ease: 'easeOut' }}
                                                 className={`h-full rounded-full ${pct >= 80 ? 'bg-emerald-500' :
-                                                    pct >= 50 ? 'bg-[#0066CC]' :
+                                                    pct >= 50 ? 'bg-brand-accent' :
                                                         pct >= 25 ? 'bg-amber-500' : 'bg-slate-300'
                                                     }`}
                                             />
@@ -661,7 +761,7 @@ const MetricsView = ({ projects }) => {
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${pct}%` }}
                                                 transition={{ duration: 1, ease: 'easeOut' }}
-                                                className={`h-full flex items-center justify-end pr-1.5 text-[8px] font-black text-white ${pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-[#0066CC]' : pct > 0 ? 'bg-amber-500' : ''}`}
+                                                className={`h-full flex items-center justify-end pr-1.5 text-[8px] font-black text-white ${pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-brand-accent' : pct > 0 ? 'bg-amber-500' : ''}`}
                                             >
                                                 {pct > 15 && `${pct}%`}
                                             </motion.div>
@@ -700,7 +800,7 @@ const MetricsView = ({ projects }) => {
                                                 <div className="absolute left-[6px] top-[20px] w-px h-[calc(100%-8px)] bg-slate-100"></div>
                                             )}
                                             <div className={`w-3 h-3 rounded-full border-[1.5px] mt-0.5 shrink-0 ${pct >= 80 ? 'border-emerald-500 bg-emerald-50' :
-                                                pct >= 50 ? 'border-[#0066CC] bg-blue-50' :
+                                                pct >= 50 ? 'border-brand-accent bg-blue-50' :
                                                     'border-slate-200 bg-slate-50'
                                                 }`}></div>
                                             <div className="min-w-0 flex-1">
@@ -708,7 +808,7 @@ const MetricsView = ({ projects }) => {
                                                 <p className="text-[8px] text-slate-400 font-medium mt-0.5">
                                                     {project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'No date'}
                                                     <span className="mx-1">·</span>
-                                                    <span className={`${pct >= 80 ? 'text-emerald-500' : pct >= 50 ? 'text-[#0066CC]' : 'text-slate-400'}`}>{milestone}</span>
+                                                    <span className={`${pct >= 80 ? 'text-emerald-500' : pct >= 50 ? 'text-brand-accent' : 'text-slate-400'}`}>{milestone}</span>
                                                     <span className="mx-1">·</span>
                                                     {pct}%
                                                 </p>
@@ -727,7 +827,7 @@ const MetricsView = ({ projects }) => {
                         {[
                             { label: 'Just Started', range: [0, 24], color: 'bg-slate-300', dotColor: 'bg-slate-300' },
                             { label: 'In Progress', range: [25, 49], color: 'bg-amber-500', dotColor: 'bg-amber-500' },
-                            { label: 'Almost There', range: [50, 79], color: 'bg-[#0066CC]', dotColor: 'bg-[#0066CC]' },
+                            { label: 'Almost There', range: [50, 79], color: 'bg-brand-accent', dotColor: 'bg-brand-accent' },
                             { label: 'Completed', range: [80, 100], color: 'bg-emerald-500', dotColor: 'bg-emerald-500' },
                         ].map(bucket => {
                             const count = projects.filter(p => {
@@ -760,7 +860,7 @@ const MetricsView = ({ projects }) => {
                                         <p className="text-[8px] text-slate-400 font-medium">{bestDone}/{bestTasks} tasks</p>
                                     )}
                                 </div>
-                                <span className={`text-sm font-black ${bestPct >= 80 ? 'text-emerald-600' : 'text-[#0066CC]'}`}>{bestPct}%</span>
+                                <span className={`text-sm font-black ${bestPct >= 80 ? 'text-emerald-600' : 'text-brand-accent'}`}>{bestPct}%</span>
                             </div>
                         );
                     })()}
@@ -770,195 +870,254 @@ const MetricsView = ({ projects }) => {
     );
 };
 
-const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear }) => (
-    <div className="max-w-4xl space-y-12 pb-32">
-        <section className="bg-white border border-slate-100 p-6 md:p-8 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-black text-slate-900 mb-10 tracking-tight">Profile Settings</h2>
+const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear }) => {
+    const bannerPresets = {
+        gradients: {
+            midnight: 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
+            ocean: 'bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-700',
+            sunset: 'bg-gradient-to-br from-rose-500 via-orange-400 to-amber-500',
+            royal: 'bg-gradient-to-br from-purple-700 via-violet-600 to-fuchsia-700',
+            emerald: 'bg-gradient-to-br from-emerald-600 via-teal-500 to-cyan-600'
+        },
+        patterns: {
+            none: '',
+            polka: 'opacity-20 [background-image:radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]',
+            grid: 'opacity-10 [background-image:linear-gradient(#ffffff_1px,transparent_1px),linear-gradient(90deg,#ffffff_1px,transparent_1px)] [background-size:40px_40px]',
+            lines: 'opacity-10 [background-image:repeating-linear-gradient(45deg,transparent,transparent_20px,#ffffff_20px,#ffffff_22px)]',
+            waves: 'opacity-20 [background-image:radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] [background-size:24px_24px]'
+        }
+    };
 
-            <div className="flex flex-col md:flex-row items-center gap-10 mb-12">
-                <div className="w-24 h-24 bg-gradient-to-br from-rose-400 to-rose-600 text-white flex items-center justify-center text-3xl font-bold rounded-full border-4 border-white shadow-xl overflow-hidden">
-                    {user?.user_metadata?.avatar_url ? (
-                        <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                        user?.user_metadata?.name?.charAt(0) || user?.email?.charAt(0).toUpperCase()
-                    )}
-                </div>
-                <div className="flex-1 space-y-1.5 text-center md:text-left">
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                        {user?.user_metadata?.full_name || user?.user_metadata?.name || 'Venture Founder'}
-                    </h3>
-                    <p className="text-slate-500 font-medium">{user?.email}</p>
-                    <div className="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
-                        <span className="px-3 py-1 bg-blue-50 text-[#0066CC] text-[9px] font-black rounded-lg border border-blue-100 uppercase tracking-[0.2em]">Founder Account</span>
+    return (
+        <div className="max-w-6xl mx-auto space-y-8 pb-32 focus-within:outline-none px-4 md:px-0">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-8 items-start">
+                {/* Desktop Sticky Customizer (Hidden on Mobile) */}
+                <aside className="lg:sticky lg:top-24 space-y-6 order-1 lg:order-2 hidden lg:block">
+                    <div className="bg-white border border-slate-100 rounded-lg shadow-sm p-5 space-y-8">
+                        <div>
+                            <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] mb-4">Quick Stylist</h4>
+
+                            <div className="space-y-6">
+                                {/* Banner Selection */}
+                                <div>
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Banner Gradient</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {Object.entries(bannerPresets.gradients).map(([name, classes]) => (
+                                            <button
+                                                key={name}
+                                                onClick={() => setState({ ...state, bannerGradient: name })}
+                                                className={`h-7 rounded border-2 transition-all ${classes} ${state.bannerGradient === name ? 'border-slate-900 shadow-sm scale-105' : 'border-slate-50 hover:border-slate-200'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Banner Pattern</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {Object.entries(bannerPresets.patterns).map(([name, classes]) => (
+                                            <button
+                                                key={name}
+                                                onClick={() => setState({ ...state, bannerPattern: name })}
+                                                className={`h-7 rounded bg-slate-100 relative overflow-hidden border-2 transition-all ${state.bannerPattern === name ? 'border-slate-900 shadow-sm scale-105' : 'border-slate-100 hover:border-slate-200'}`}
+                                            >
+                                                <div className={`absolute inset-0 bg-slate-600 ${classes}`}></div>
+                                                <span className="absolute inset-0 flex items-center justify-center text-[7px] font-black uppercase text-white drop-shadow-sm">{name === 'none' ? 'None' : name.slice(0, 3)}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </aside>
+
+                <div className="space-y-8 order-2 lg:order-1">
+                    {/* Mobile Stylist Notice */}
+                    <div className="lg:hidden bg-slate-50 border border-slate-100 rounded-lg p-4 flex items-center justify-between gap-4">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Advanced Appearance Settings</p>
+                        <span className="text-[8px] font-bold text-slate-500 bg-white border border-slate-100 px-2 py-1 rounded">PC ONLY</span>
+                    </div>
+
+                    <section className="bg-white border border-slate-100 rounded-lg shadow-sm overflow-hidden">
+                        {/* Banner Preview */}
+                        <div className={`h-48 relative ${bannerPresets.gradients[state.bannerGradient] || bannerPresets.gradients.midnight}`}>
+                            <div className={`absolute inset-0 ${bannerPresets.patterns[state.bannerPattern] || ''}`}></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                        </div>
+
+                        <div className="p-6 md:p-10 -mt-16 relative">
+                            <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
+                                <div className="w-32 h-32 bg-white text-slate-300 flex items-center justify-center rounded-2xl border-4 border-white shadow-xl overflow-hidden shrink-0">
+                                    {user?.user_metadata?.avatar_url ? (
+                                        <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                                            <User size={48} className="text-slate-200" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 space-y-1 pb-2">
+                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                                        {state.name || 'Setup Profile'}
+                                    </h3>
+                                    <p className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.2em]">{state.title || "Venture Scout"}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                <div className="space-y-2.5">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        value={state.name}
+                                        onChange={(e) => setState({ ...state, name: e.target.value })}
+                                        placeholder="e.g. Jane Doe"
+                                        className="w-full px-6 py-4 bg-slate-50/50 border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-brand-accent focus:bg-white transition-all font-bold text-[11px]"
+                                    />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Professional Title</label>
+                                    <input
+                                        type="text"
+                                        value={state.title}
+                                        onChange={(e) => setState({ ...state, title: e.target.value })}
+                                        placeholder="e.g. Full Stack Founder"
+                                        className="w-full px-6 py-4 bg-slate-50/50 border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-brand-accent focus:bg-white transition-all font-bold text-[11px]"
+                                    />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Website</label>
+                                    <input
+                                        type="text"
+                                        value={state.website}
+                                        onChange={(e) => setState({ ...state, website: e.target.value })}
+                                        placeholder="e.g. yoursite.com"
+                                        className="w-full px-6 py-4 bg-slate-50/50 border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-brand-accent focus:bg-white transition-all font-bold text-[11px]"
+                                    />
+                                </div>
+                                <div className="space-y-2.5">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Twitter / X</label>
+                                    <input
+                                        type="text"
+                                        value={state.twitter}
+                                        onChange={(e) => setState({ ...state, twitter: e.target.value })}
+                                        placeholder="e.g. @username"
+                                        className="w-full px-6 py-4 bg-slate-50/50 border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-brand-accent focus:bg-white transition-all font-bold text-[11px]"
+                                    />
+                                </div>
+                                <div className="md:col-span-2 space-y-2.5">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Professional Bio</label>
+                                    <textarea
+                                        rows={4}
+                                        value={state.bio}
+                                        onChange={(e) => setState({ ...state, bio: e.target.value })}
+                                        placeholder="Tell us about your venture journey..."
+                                        className="w-full px-6 py-4 bg-slate-50/50 border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-brand-accent focus:bg-white transition-all font-medium text-xs resize-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-12 pt-8 border-t border-slate-100 flex justify-end">
+                                <button
+                                    onClick={onSave}
+                                    disabled={state.isSaving}
+                                    className="w-full sm:w-auto px-10 py-4 bg-brand-accent text-white rounded-lg font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-brand-accent-hover transition-all disabled:opacity-50"
+                                >
+                                    {state.isSaving ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="bg-white border border-slate-100 p-6 md:p-10 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-black text-slate-900 mb-8 tracking-tight">AI & Research Preferences</h2>
+                        <div className="grid gap-6">
+                            <div className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/30 rounded-lg border border-slate-100 group gap-6">
+                                <div className="flex items-center gap-4 w-full">
+                                    <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-300 group-hover:text-brand-accent transition-colors">
+                                        <Cpu size={20} />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-bold text-sm text-slate-900">Research Depth</p>
+                                        <p className="text-[10px] text-slate-500">Fine-tune how deep the AI dives into market analysis.</p>
+                                    </div>
+                                </div>
+                                <div className="flex p-1 bg-white rounded-lg border border-slate-100 w-full sm:w-auto">
+                                    {['Standard', 'Deep', 'Ultra'].map((level) => (
+                                        <button
+                                            key={level}
+                                            onClick={() => setState({ ...state, researchDepth: level })}
+                                            className={`flex-1 sm:flex-none px-6 py-2 text-[9px] font-black uppercase tracking-widest rounded transition-all ${state.researchDepth === level ? 'bg-brand-accent text-white shadow-md' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                                        >
+                                            {level}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/30 rounded-lg border border-slate-100 group gap-6">
+                                <div className="flex items-center gap-4 w-full">
+                                    <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-300 group-hover:text-brand-accent transition-colors">
+                                        <Globe size={20} />
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-bold text-sm text-slate-900">Auto-Research Sources</p>
+                                        <p className="text-[10px] text-slate-500">Include global databases and news archives.</p>
+                                    </div>
+                                </div>
+                                <div className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={state.autoResearch}
+                                        onChange={(e) => setState({ ...state, autoResearch: e.target.checked })}
+                                    />
+                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-accent"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
-                    <input
-                        type="text"
-                        value={state.name}
-                        onChange={(e) => setState({ ...state, name: e.target.value })}
-                        placeholder="e.g. Jane Doe"
-                        className="w-full px-6 py-4 bg-white border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-[#0066CC] transition-all font-bold text-[11px] uppercase tracking-wider"
-                    />
+            {/* Redesigned Danger Zone (Mobile-First) */}
+            <div className="pt-20 mt-12 border-t border-slate-100">
+                <div className="bg-white border border-rose-100 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="bg-rose-50/50 p-8 md:p-10 border-b border-rose-50 flex flex-col items-center text-center">
+                        <div className="w-16 h-16 bg-white rounded-2xl shadow-xl shadow-rose-100 flex items-center justify-center text-rose-500 mb-6 border border-rose-50">
+                            <Trash2 size={28} />
+                        </div>
+                        <h3 className="text-xl font-black text-rose-900 tracking-tight mb-3">Permanent Data Clearing</h3>
+                        <p className="text-sm text-rose-700/60 font-medium leading-relaxed max-w-lg">
+                            This action will permanently delete all your projects, session data, and accounts settings from this device. <span className="font-black text-rose-800">This process is irreversible.</span>
+                        </p>
+                    </div>
+
+                    <div className="p-4 md:p-6 bg-white flex flex-col md:flex-row gap-4">
+                        <button
+                            onClick={onClear}
+                            className="flex-1 py-4 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-rose-200 flex items-center justify-center gap-3"
+                        >
+                            Confirm & Wipe All Data
+                        </button>
+                        <button
+                            onClick={() => { logout(); navigate('/'); }}
+                            className="flex-1 py-4 bg-white border border-slate-100 text-slate-500 rounded-xl hover:border-slate-300 hover:text-slate-900 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-sm flex items-center justify-center gap-3"
+                        >
+                            <LogOut size={16} />
+                            Sign Out Account
+                        </button>
+                    </div>
                 </div>
-                <div className="space-y-2.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Professional Title</label>
-                    <input
-                        type="text"
-                        value={state.title}
-                        onChange={(e) => setState({ ...state, title: e.target.value })}
-                        placeholder="e.g. Full Stack Founder"
-                        className="w-full px-6 py-4 bg-white border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-[#0066CC] transition-all font-bold text-[11px] uppercase tracking-wider"
-                    />
-                </div>
-                <div className="space-y-2.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Website</label>
-                    <input
-                        type="text"
-                        value={state.website}
-                        onChange={(e) => setState({ ...state, website: e.target.value })}
-                        placeholder="e.g. yoursite.com"
-                        className="w-full px-6 py-4 bg-white border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-[#0066CC] transition-all font-bold text-[11px]"
-                    />
-                </div>
-                <div className="space-y-2.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Twitter / X</label>
-                    <input
-                        type="text"
-                        value={state.twitter}
-                        onChange={(e) => setState({ ...state, twitter: e.target.value })}
-                        placeholder="e.g. @username"
-                        className="w-full px-6 py-4 bg-white border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-[#0066CC] transition-all font-bold text-[11px]"
-                    />
-                </div>
-                <div className="md:col-span-2 space-y-2.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Professional Bio</label>
-                    <textarea
-                        rows={4}
-                        value={state.bio}
-                        onChange={(e) => setState({ ...state, bio: e.target.value })}
-                        placeholder="Tell us about your venture journey..."
-                        className="w-full px-6 py-4 bg-white border border-slate-100 rounded-lg outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-[#0066CC] transition-all font-medium text-xs resize-none"
-                    />
-                </div>
+
+                <p className="text-center mt-8 text-[8px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                    Venture Scout Governance Policy v1.0
+                </p>
             </div>
-
-            <div className="mt-12 pt-8 border-t border-slate-100 flex justify-end">
-                <button
-                    onClick={onSave}
-                    disabled={state.isSaving}
-                    className="w-full sm:w-auto px-10 py-4 bg-[#0066CC] text-white rounded-lg font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-[#0052a3] transition-all disabled:opacity-50"
-                >
-                    {state.isSaving ? 'Saving...' : 'Save Changes'}
-                </button>
-            </div>
-        </section>
-
-        {/* AI & Research Preferences */}
-        <section className="bg-white border border-slate-100 p-6 md:p-8 rounded-lg shadow-sm">
-            <h2 className="text-xl font-black text-slate-900 mb-8 tracking-tight">AI & Research Preferences</h2>
-            <div className="grid gap-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/50 rounded-lg border border-slate-100 group gap-6">
-                    <div className="flex items-center gap-4 w-full">
-                        <div className="p-3 bg-white rounded-lg shadow-sm text-slate-400 group-hover:text-[#0066CC] transition-colors">
-                            <Cpu size={24} />
-                        </div>
-                        <div className="text-left">
-                            <p className="font-bold text-slate-900">Research Depth</p>
-                            <p className="text-xs text-slate-500">Fine-tune how deep the AI dives into market analysis.</p>
-                        </div>
-                    </div>
-                    <div className="flex p-1 bg-white rounded-lg border border-slate-100 w-full sm:w-auto">
-                        {['Standard', 'Deep', 'Ultra'].map((level) => (
-                            <button
-                                key={level}
-                                onClick={() => setState({ ...state, researchDepth: level })}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-md transition-all ${state.researchDepth === level ? 'bg-[#0066CC] text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
-                            >
-                                {level}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/50 rounded-lg border border-slate-100 group gap-6">
-                    <div className="flex items-center gap-4 w-full">
-                        <div className="p-3 bg-white rounded-lg shadow-sm text-slate-400 group-hover:text-[#0066CC] transition-colors">
-                            <Globe size={24} />
-                        </div>
-                        <div className="text-left">
-                            <p className="font-bold text-slate-900">Auto-Research Sources</p>
-                            <p className="text-xs text-slate-500">Include global databases and news archives.</p>
-                        </div>
-                    </div>
-                    <div className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={state.autoResearch}
-                            onChange={(e) => setState({ ...state, autoResearch: e.target.checked })}
-                        />
-                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0066CC]"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section className="bg-white border border-slate-100 p-6 md:p-8 rounded-lg shadow-sm">
-            <h2 className="text-xl font-black text-slate-900 mb-8 tracking-tight">Security & Preferences</h2>
-            <div className="grid gap-4">
-                <div className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/50 rounded-lg border border-slate-100 hover:bg-white transition-all group gap-4">
-                    <div className="flex items-center gap-4 w-full">
-                        <div className="p-3 bg-white rounded-lg shadow-sm text-slate-400 group-hover:text-[#0066CC] transition-colors">
-                            <Shield size={24} />
-                        </div>
-                        <div className="text-left">
-                            <p className="font-bold text-slate-900">Two-Factor Authentication</p>
-                            <p className="text-xs text-slate-500">Add an extra layer of security to your account.</p>
-                        </div>
-                    </div>
-                    <div className="px-4 py-1.5 bg-slate-200 text-slate-500 text-[9px] font-black rounded-lg uppercase tracking-widest w-full sm:w-auto text-center">Off</div>
-                </div>
-
-                <button
-                    onClick={onClear}
-                    className="flex flex-col sm:flex-row items-center justify-between p-6 bg-red-50/30 rounded-lg border border-red-50 hover:bg-red-50 transition-all group gap-4"
-                >
-                    <div className="flex items-center gap-4 w-full">
-                        <div className="p-3 bg-white rounded-lg shadow-sm text-red-300 group-hover:text-red-500 transition-colors">
-                            <Trash2 size={24} />
-                        </div>
-                        <div className="text-left">
-                            <p className="font-bold text-red-900">Clear All Data</p>
-                            <p className="text-xs text-red-500">Permanently delete everything from server and browser</p>
-                        </div>
-                    </div>
-                    <div className="px-4 py-1.5 bg-red-100 text-red-600 text-[9px] font-black rounded-lg uppercase tracking-widest w-full sm:w-auto text-center">Danger</div>
-                </button>
-
-                <button
-                    onClick={() => { logout(); navigate('/'); }}
-                    className="flex flex-col sm:flex-row items-center justify-between p-6 bg-slate-50/50 rounded-lg border border-slate-100 hover:bg-slate-100 transition-all group gap-4"
-                >
-                    <div className="flex items-center gap-4 w-full">
-                        <div className="p-3 bg-white rounded-lg shadow-sm text-slate-400 group-hover:text-slate-900 transition-colors">
-                            <LogOut size={24} />
-                        </div>
-                        <div className="text-left">
-                            <p className="font-bold text-slate-900">Sign Out</p>
-                            <p className="text-xs text-slate-500">Terminate your current session</p>
-                        </div>
-                    </div>
-                    <div className="px-4 py-1.5 bg-white text-slate-400 text-[9px] font-black rounded-lg border border-slate-100 uppercase tracking-widest w-full sm:w-auto text-center">Logout</div>
-                </button>
-            </div>
-        </section>
-    </div>
-);
+        </div>
+    );
+};
 
 
 

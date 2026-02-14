@@ -74,7 +74,7 @@ const LoginPage = () => {
                         <Logo color="dark" showText={true} className="scale-110" />
                     </Link>
 
-                    <Link to="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-[#0066CC] transition-colors group">
+                    <Link to="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--brand-accent)] transition-colors group">
                         <ChevronLeft size={16} className="transition-transform group-hover:-translate-x-1" />
                         Back to Home
                     </Link>
@@ -114,10 +114,10 @@ const LoginPage = () => {
 
                                 <div className="grid grid-cols-1 gap-4">
                                     {/* Email Input */}
-                                    <div className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[#0066CC] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group">
+                                    <div className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[var(--brand-accent)] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[#0066CC]">Email</span>
-                                            <Mail size={12} className="text-slate-300 group-focus-within:text-[#0066CC] transition-colors" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[var(--brand-accent)]">Email</span>
+                                            <Mail size={12} className="text-slate-300 group-focus-within:text-[var(--brand-accent)] transition-colors" />
                                         </div>
                                         <input
                                             type="email"
@@ -130,10 +130,10 @@ const LoginPage = () => {
                                     </div>
 
                                     {/* Password Input */}
-                                    <div className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[#0066CC] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group relative">
+                                    <div className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[var(--brand-accent)] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group relative">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[#0066CC]">Password</span>
-                                            <Lock size={12} className="text-slate-300 group-focus-within:text-[#0066CC] transition-colors" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[var(--brand-accent)]">Password</span>
+                                            <Lock size={12} className="text-slate-300 group-focus-within:text-[var(--brand-accent)] transition-colors" />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <input
@@ -147,7 +147,7 @@ const LoginPage = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="text-slate-400 hover:text-[#0066CC] transition-colors"
+                                                className="text-slate-400 hover:text-[var(--brand-accent)] transition-colors"
                                             >
                                                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                             </button>
@@ -159,11 +159,11 @@ const LoginPage = () => {
                                         <motion.div
                                             initial={{ opacity: 0, height: 0 }}
                                             animate={{ opacity: 1, height: 'auto' }}
-                                            className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[#0066CC] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group relative"
+                                            className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[var(--brand-accent)] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group relative"
                                         >
                                             <div className="flex items-center justify-between">
-                                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[#0066CC]">Confirm Password</span>
-                                                <Lock size={12} className="text-slate-300 group-focus-within:text-[#0066CC] transition-colors" />
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[var(--brand-accent)]">Confirm Password</span>
+                                                <Lock size={12} className="text-slate-300 group-focus-within:text-[var(--brand-accent)] transition-colors" />
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <input
@@ -177,7 +177,7 @@ const LoginPage = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                    className="text-slate-400 hover:text-[#0066CC] transition-colors"
+                                                    className="text-slate-400 hover:text-[var(--brand-accent)] transition-colors"
                                                 >
                                                     {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                                 </button>
@@ -189,7 +189,7 @@ const LoginPage = () => {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-4 px-6 bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-2"
+                                    className="w-full py-4 px-6 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-2"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="animate-spin" size={18} />
@@ -239,7 +239,7 @@ const LoginPage = () => {
                                 {mode === 'login' ? "New here?" : "Already have an account?"}{' '}
                                 <button
                                     onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                                    className="text-[#0066CC] hover:underline"
+                                    className="text-[var(--brand-accent)] hover:underline"
                                 >
                                     {mode === 'login' ? 'Sign up' : 'Sign in'}
                                 </button>
@@ -251,7 +251,7 @@ const LoginPage = () => {
 
             {/* Right Panel - Visual Branding (45%) */}
             <div className="hidden lg:flex lg:w-[45%] h-full bg-[#FAFBFF] items-center justify-center p-0 overflow-hidden relative border-l border-slate-50">
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#0066CC_1px,transparent_1px)] [background-size:24px_24px]"></div>
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(var(--brand-accent)_1px,transparent_1px)] [background-size:24px_24px]"></div>
 
                 <div className="relative z-10 w-full h-full">
                     <img
@@ -263,7 +263,7 @@ const LoginPage = () => {
                         }}
                     />
                     {/* Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#0066CC]/60 via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[var(--brand-accent)]/60 via-transparent to-transparent"></div>
                     <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay"></div>
                 </div>
 

@@ -98,7 +98,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-[#0066CC] uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded">Project</span>
+                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded">Project</span>
                     {isTitleLoading ? (
                         <div className="h-4 w-24 md:w-32 bg-slate-100 rounded animate-pulse" />
                     ) : (
@@ -123,7 +123,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                             className={`
                                 flex items-center justify-center px-6 py-2 rounded-lg text-sm font-bold transition-all
                                 ${isActive
-                                    ? 'bg-white text-[#0066CC] shadow-sm'
+                                    ? 'bg-white text-[var(--brand-accent)] shadow-sm'
                                     : isDisabled
                                         ? 'text-slate-300 cursor-not-allowed'
                                         : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}
@@ -139,7 +139,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
             <div className="flex items-center gap-3 md:gap-4">
                 <button
                     onClick={() => setIsPricingOpen(true)}
-                    className="flex items-center gap-2 px-5 py-2 bg-[#0066CC] text-white rounded-lg text-xs font-bold hover:bg-[#0052a3] transition-all shadow-md shadow-blue-100"
+                    className="flex items-center gap-2 px-5 py-2 bg-[var(--brand-accent)] text-white rounded-lg text-xs font-bold hover:bg-[var(--brand-accent-hover)] transition-all shadow-md shadow-blue-100"
                 >
                     Upgrade
                 </button>
@@ -147,7 +147,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                 <div className="relative">
                     <button
                         onClick={triggerComingSoon}
-                        className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white rounded-lg text-xs font-bold hover:shadow-lg transition-all"
+                        className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-lg text-xs font-bold hover:shadow-lg transition-all"
                     >
                         <Share2 size={14} />
                         Invite & earn
@@ -170,7 +170,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                 <div className="relative" ref={userMenuRef}>
                     <button
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                        className="w-10 h-10 bg-rose-500 text-white flex items-center justify-center text-sm font-bold rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200 hover:ring-[#0066CC]/30 transition-all overflow-hidden group"
+                        className="w-10 h-10 bg-rose-500 text-white flex items-center justify-center text-sm font-bold rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200 hover:ring-[var(--brand-accent)]/30 transition-all overflow-hidden group"
                     >
                         {user?.user_metadata?.avatar_url ? (
                             <img

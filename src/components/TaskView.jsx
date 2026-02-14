@@ -128,11 +128,11 @@ const TaskView = ({ plan, projectId }) => {
                                     <Target size={14} /> Task Details
                                 </span>
                                 <div className="flex items-center gap-2">
-                                    <span className="px-2 py-0.5 bg-blue-50 text-[#0066CC] text-[10px] font-bold rounded-full uppercase tracking-wide border border-blue-100">
+                                    <span className="px-2 py-0.5 bg-blue-50 text-[var(--brand-accent)] text-[10px] font-bold rounded-full uppercase tracking-wide border border-blue-100">
                                         Day {selectedDayData.day_number}
                                     </span>
                                     {completionStatuses[selectedDayData.id] && (
-                                        <span className="flex items-center gap-1 text-[#0066CC] text-[10px] font-bold bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                        <span className="flex items-center gap-1 text-[var(--brand-accent)] text-[10px] font-bold bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-wide">
                                             <CheckCircle2 size={12} />
                                         </span>
                                     )}
@@ -159,7 +159,7 @@ const TaskView = ({ plan, projectId }) => {
                                     <div className="space-y-3">
                                         {selectedDayData.details?.map((detail, idx) => (
                                             <div key={idx} className="flex gap-3 text-sm text-slate-600 leading-relaxed group">
-                                                <div className="flex-none w-5 h-5 rounded-full bg-slate-50 border border-slate-200 text-slate-400 flex items-center justify-center text-[10px] font-bold group-hover:border-[#0066CC]/30 group-hover:bg-blue-50 group-hover:text-[#0066CC] transition-colors">
+                                                <div className="flex-none w-5 h-5 rounded-full bg-slate-50 border border-slate-200 text-slate-400 flex items-center justify-center text-[10px] font-bold group-hover:border-[var(--brand-accent)]/30 group-hover:bg-blue-50 group-hover:text-[var(--brand-accent)] transition-colors">
                                                     {idx + 1}
                                                 </div>
                                                 <span className="pt-0.5 text-xs font-medium">{detail}</span>
@@ -170,10 +170,10 @@ const TaskView = ({ plan, projectId }) => {
 
                                 {selectedDayData.deliverable && (
                                     <section className="bg-blue-50/50 rounded-lg p-4 border border-blue-100/50">
-                                        <h3 className="text-[10px] font-bold text-[#0066CC]/70 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                        <h3 className="text-[10px] font-bold text-[var(--brand-accent)]/70 uppercase tracking-wider mb-1 flex items-center gap-2">
                                             <Target size={12} /> Key Deliverable
                                         </h3>
-                                        <p className="text-sm font-bold text-[#0066CC]">
+                                        <p className="text-sm font-bold text-[var(--brand-accent)]">
                                             {selectedDayData.deliverable}
                                         </p>
                                     </section>
@@ -187,7 +187,7 @@ const TaskView = ({ plan, projectId }) => {
                                     <button
                                         onClick={handlePrev}
                                         disabled={plan.days.findIndex(d => d.id === selectedDayData.id) === 0}
-                                        className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#0066CC] text-white hover:bg-[#0052a3] shadow-sm shadow-blue-200 transition-all disabled:opacity-30 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
+                                        className="w-9 h-9 rounded-lg flex items-center justify-center bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-sm shadow-blue-200 transition-all disabled:opacity-30 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
                                         title="Previous Task"
                                     >
                                         <ChevronRight size={16} className="rotate-180" />
@@ -195,7 +195,7 @@ const TaskView = ({ plan, projectId }) => {
                                     <button
                                         onClick={handleNext}
                                         disabled={plan.days.findIndex(d => d.id === selectedDayData.id) === plan.days.length - 1}
-                                        className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#0066CC] text-white hover:bg-[#0052a3] shadow-sm shadow-blue-200 transition-all disabled:opacity-30 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
+                                        className="w-9 h-9 rounded-lg flex items-center justify-center bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-sm shadow-blue-200 transition-all disabled:opacity-30 disabled:bg-slate-100 disabled:text-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
                                         title="Next Task"
                                     >
                                         <ChevronRight size={16} />
@@ -219,8 +219,8 @@ const TaskView = ({ plan, projectId }) => {
                                     <button
                                         onClick={() => toggleCompletion(selectedDayData.id)}
                                         className={`px-5 h-9 rounded-lg flex items-center gap-2 text-xs font-bold uppercase tracking-wide transition-all ${completionStatuses[selectedDayData.id]
-                                            ? 'bg-white border border-[#0066CC] text-[#0066CC] hover:bg-blue-50'
-                                            : 'bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white hover:shadow-lg hover:shadow-blue-500/20 active:scale-95'}`}
+                                            ? 'bg-white border border-[var(--brand-accent)] text-[var(--brand-accent)] hover:bg-blue-50'
+                                            : 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white hover:shadow-lg hover:shadow-blue-500/20 active:scale-95'}`}
                                     >
                                         {completionStatuses[selectedDayData.id] ? (
                                             <>Completed</>

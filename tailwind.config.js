@@ -19,6 +19,8 @@ export default {
                 'gray-300': '#D1D5DB',
                 'gray-800': '#1F2937',
                 'gray-900': '#111827',
+                'brand-accent': 'var(--brand-accent)',
+                'brand-accent-hover': 'var(--brand-accent-hover)',
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],

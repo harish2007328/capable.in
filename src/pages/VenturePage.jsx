@@ -265,7 +265,7 @@ const VenturePage = () => {
                                                     <div className="flex items-center gap-3 w-full">
                                                         <button
                                                             onClick={() => navigate('/')}
-                                                            className="flex-1 px-5 py-3 bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+                                                            className="flex-1 px-5 py-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
                                                         >
                                                             Try a New Idea
                                                         </button>
