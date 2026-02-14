@@ -8,8 +8,7 @@ import PricingPage from './pages/PricingPage';
 import VenturePage from './pages/VenturePage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
-import SettingsPage from './pages/SettingsPage';
-import MetricsPage from './pages/MetricsPage';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
 
@@ -57,22 +56,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <SettingsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/metrics"
-              element={
-                <ProtectedRoute>
-                  <MetricsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/settings" element={<Navigate to="/dashboard#settings" replace />} />
+            <Route path="/metrics" element={<Navigate to="/dashboard#metrics" replace />} />
           </Routes>
         </Layout>
       </Router>

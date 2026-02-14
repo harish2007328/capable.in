@@ -113,11 +113,119 @@ async function withRetry(fn, retries = 2, delay = 1000) {
     }
 }
 
+// --- CONTENT MODERATION ---
+
+const BLOCKED_KEYWORDS = [
+    // Drugs & illegal substances
+    'drug dealing', 'drug trafficking', 'sell drugs', 'selling drugs', 'meth lab', 'cocaine',
+    'heroin', 'fentanyl', 'illegal drugs', 'drug cartel', 'narcotics trafficking',
+    // Weapons & violence
+    'illegal weapons', 'gun trafficking', 'bomb making', 'explosives', 'sell guns illegally',
+    'arms dealing', 'child exploitation', 'human trafficking', 'sex trafficking',
+    // Fraud & financial crimes
+    'money laundering', 'ponzi scheme', 'pyramid scheme', 'counterfeit money', 'counterfeit currency',
+    'identity theft', 'credit card fraud', 'bank fraud', 'tax evasion scheme', 'wire fraud',
+    'insurance fraud',
+    // Cybercrime
+    'hacking service', 'ransomware', 'phishing', 'sell stolen data', 'ddos attack',
+    'malware', 'spyware', 'keylogger service', 'dark web marketplace',
+    // Gambling & illegal betting (unlicensed)
+    'illegal gambling', 'match fixing', 'rigged betting',
+    // Other illegal activities
+    'prostitution ring', 'illegal organ', 'poaching', 'ivory trading',
+    'child labor', 'sweatshop', 'slave labor', 'terrorism', 'terrorist',
+    'assassination', 'hitman', 'contract killing',
+    // Explicit harmful content
+    'deepfake porn', 'revenge porn', 'child porn', 'csam'
+];
+
+/**
+ * Content Moderation Gate
+ * Checks if an idea involves illegal or harmful activities.
+ * Returns { blocked: boolean, reason: string }
+ */
+async function moderateContent(idea) {
+    const normalized = idea.toLowerCase().trim();
+
+    // Level 1: Instant keyword check (fast, no API call)
+    for (const keyword of BLOCKED_KEYWORDS) {
+        if (normalized.includes(keyword)) {
+            console.log(`⛔ BLOCKED by keyword: "${keyword}" in idea: "${idea.substring(0, 50)}..."`);
+            return {
+                blocked: true,
+                reason: "This idea involves activities that may be illegal or harmful. We can't assist with this."
+            };
+        }
+    }
+
+    // Level 2: AI-powered safety check for ambiguous cases
+    try {
+        const groq = getGroqClient();
+        const check = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a content safety classifier. Your ONLY job is to determine if a business idea involves CLEARLY ILLEGAL or HARMFUL activities.
+
+BLOCK these categories:
+- Drug manufacturing/trafficking/dealing
+- Weapons trafficking or manufacturing illegal weapons
+- Human trafficking, exploitation, or slavery
+- Financial fraud, scams, Ponzi/pyramid schemes
+- Cybercrime (hacking, ransomware, phishing, stolen data)
+- Terrorism or violence
+- Child exploitation of any kind
+- Counterfeit goods or currency
+- Any activity that is clearly illegal in most jurisdictions
+
+DO NOT BLOCK:
+- Legal businesses even if controversial (alcohol, tobacco, gambling where legal, adult entertainment where legal)
+- Competitive intelligence, market research, or business strategy
+- Legitimate security services (penetration testing, cybersecurity)
+- Ideas that are unusual but legal
+- Ideas that mention regulated industries (cannabis where legal, firearms dealers where legal)
+
+Respond with ONLY valid JSON: {"safe": true} or {"safe": false, "category": "brief reason"}`
+                },
+                {
+                    role: "user",
+                    content: `Business idea: "${idea}"`
+                }
+            ],
+            model: MODEL,
+            response_format: { type: "json_object" },
+            max_tokens: 50,
+        });
+
+        const result = JSON.parse(check.choices[0].message.content);
+
+        if (!result.safe) {
+            console.log(`⛔ BLOCKED by AI: category="${result.category}" idea="${idea.substring(0, 50)}..."`);
+            return {
+                blocked: true,
+                reason: "This idea involves activities that may be illegal or harmful. We can't assist with this."
+            };
+        }
+    } catch (err) {
+        // If safety check fails, allow through (fail-open for legitimate users)
+        // The keyword check above already caught obvious cases
+        console.warn("Safety check API call failed, allowing through:", err.message);
+    }
+
+    return { blocked: false };
+}
+
 // --- API ENDPOINTS ---
 
 app.post('/api/enhance-idea', async (req, res) => {
     const { idea } = req.body;
     try {
+        // Content moderation gate
+        const moderation = await moderateContent(idea);
+        if (moderation.blocked) {
+            return res.status(403).json({ error: moderation.reason, blocked: true });
+        }
+
         const prompt = `
             ROLE: Expert Business Consultant.
             INPUT IDEA: "${idea}"
@@ -150,6 +258,12 @@ app.post('/api/enhance-idea', async (req, res) => {
 app.post('/api/research', async (req, res) => {
     const { idea, location } = req.body;
     try {
+        // Content moderation gate
+        const moderation = await moderateContent(idea);
+        if (moderation.blocked) {
+            return res.status(403).json({ error: moderation.reason, blocked: true });
+        }
+
         const webSignals = await collectMarketSignals(idea);
 
         // Strip all descriptions/text to stay under Rate Limits
@@ -174,6 +288,10 @@ app.post('/api/research', async (req, res) => {
       IDEA: "${idea}"${locationContext}
       RESEARCH DATA: ${JSON.stringify(optimizedSignals)}
 
+      SAFETY GUARDRAIL:
+      If the idea involves ANY illegal activity (drug dealing, weapons trafficking, fraud, scams, hacking, human trafficking, terrorism, etc.),
+      DO NOT generate questions. Instead return: { "blocked": true, "reason": "This idea involves illegal activities." }
+
       TASK:
       You are a friendly, down-to-earth Co-founder helping a new entrepreneur.
       Your goal is to understand their idea fully so we can build a business plan.
@@ -190,6 +308,10 @@ app.post('/api/research', async (req, res) => {
       5. Location: Ask "Where are you initially focusing?". (This is mandatory)
       6. Contextual: One dynamic question specific to their domain/idea.
 
+      QUESTION ANALYSIS:
+      For each question, include a brief "why" field explaining why you're asking this question.
+      This helps the user understand the reasoning behind each question.
+
       STRICT RULES:
       - Total questions: Give BETWEEN 5 and 10 questions. Never always give exactly 5.
       - Question Format: Return EXACTLY the question text alone. NEVER add tags, prefixes, or headers like "Specific milk problem: " or "Topic: ".
@@ -204,14 +326,14 @@ app.post('/api/research', async (req, res) => {
         "project_title": "Two Words",
         "project_description": "One sentence description.",
         "questions": [
-          { "text": "Question text?", "options": ["Option 1", "Option 2", "Option 3"], "theme": "Theme Name" }
+          { "text": "Question text?", "options": ["Option 1", "Option 2", "Option 3"], "theme": "Theme Name", "why": "Brief reason why this question matters" }
         ]
       }
     `;
 
         const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
             messages: [
-                { role: "system", content: "You are a startup scout focusing on operations and market fit. Output valid JSON." },
+                { role: "system", content: "You are a startup scout focusing on operations and market fit. Output valid JSON. IMPORTANT: If the idea involves any illegal or harmful activity, return {\"blocked\": true, \"reason\": \"explanation\"}. Never assist with illegal business ideas." },
                 { role: "user", content: prompt }
             ],
             model: MODEL,
@@ -221,6 +343,15 @@ app.post('/api/research', async (req, res) => {
         const content = completion.choices[0].message.content;
         console.log("Research AI Answered Successfully.");
         const parsed = JSON.parse(content);
+
+        // Check if AI flagged the idea
+        if (parsed.blocked) {
+            return res.status(403).json({
+                error: parsed.reason || "This idea involves activities that cannot be supported.",
+                blocked: true
+            });
+        }
+
         res.json({
             webSignals,
             questions: parsed.questions,
@@ -239,6 +370,16 @@ app.post('/api/research', async (req, res) => {
 app.post('/api/analyze', async (req, res) => {
     const { idea, webSignals, answers } = req.body;
     console.log(`\n--- FINAL ANALYSIS REQUEST ---`);
+
+    // Content moderation gate (post-questions check)
+    try {
+        const moderation = await moderateContent(idea);
+        if (moderation.blocked) {
+            return res.status(403).json({ error: moderation.reason, blocked: true });
+        }
+    } catch (e) {
+        console.warn('Moderation check failed at analysis stage:', e.message);
+    }
 
     try {
         const prompt = `
@@ -481,6 +622,9 @@ ${webContext}
 
 OFF-TOPIC REJECTION:
 If unrelated to "${idea}", reply ONLY: "🎯 Let's stay focused on **${idea}**! Ask me about tasks, competitors, or next steps."
+
+ILLEGAL CONTENT REJECTION:
+If the user asks about illegal activities (drugs, weapons, fraud, hacking, trafficking, etc.), reply ONLY: "⚠️ I can't assist with activities that may be illegal. Let's keep building something great with **${idea}**!"
 
 EXCEPTION: Warmly greet "hello/hi" and then pivot back.
 

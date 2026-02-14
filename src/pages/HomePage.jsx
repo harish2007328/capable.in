@@ -10,12 +10,36 @@ import { ProjectStorage } from '../services/projectStorage';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Client-side blocked terms (quick pre-check before hitting the server)
+const CLIENT_BLOCKED_TERMS = [
+    'drug dealing', 'drug trafficking', 'sell drugs', 'meth lab', 'cocaine', 'heroin',
+    'illegal weapons', 'gun trafficking', 'bomb making', 'human trafficking',
+    'money laundering', 'ponzi scheme', 'pyramid scheme', 'counterfeit',
+    'identity theft', 'credit card fraud', 'hacking service', 'ransomware',
+    'dark web', 'child exploitation', 'terrorism', 'hitman', 'contract killing',
+    'sex trafficking', 'slave labor', 'child labor', 'phishing'
+];
+
 const HomePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, loading } = useAuth();
     const [idea, setIdea] = useState(location.state?.idea || '');
     const [isEnhancing, setIsEnhancing] = useState(false);
+    const [contentWarning, setContentWarning] = useState('');
+
+    // Quick client-side check (server has the full check)
+    const checkContent = (text) => {
+        const normalized = text.toLowerCase().trim();
+        for (const term of CLIENT_BLOCKED_TERMS) {
+            if (normalized.includes(term)) {
+                setContentWarning("This idea involves activities that may be illegal or harmful. We can't assist with this.");
+                return false;
+            }
+        }
+        setContentWarning('');
+        return true;
+    };
 
     // Sync idea from location state if it changes
     useEffect(() => {
@@ -26,6 +50,9 @@ const HomePage = () => {
 
     const handleGenerate = async () => {
         if (!idea.trim() || isEnhancing) return;
+
+        // Content moderation check (client-side quick check)
+        if (!checkContent(idea)) return;
 
         // Redirect to login if not authenticated
         if (!user) {
@@ -45,6 +72,10 @@ const HomePage = () => {
 
     const handleEnhance = async () => {
         if (!idea.trim() || isEnhancing) return;
+
+        // Content moderation check (client-side quick check)
+        if (!checkContent(idea)) return;
+
         setIsEnhancing(true);
         try {
             const res = await fetch('/api/enhance-idea', {
@@ -53,6 +84,11 @@ const HomePage = () => {
                 body: JSON.stringify({ idea })
             });
             const data = await res.json();
+            // Handle server-side blocked response
+            if (res.status === 403 && data.blocked) {
+                setContentWarning(data.error);
+                return;
+            }
             if (data.enhancedIdea) {
                 setIdea(data.enhancedIdea);
             }
@@ -187,7 +223,7 @@ const HomePage = () => {
                                     className={`w-full h-28 p-6 text-xl text-[#111111] placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed tracking-tight rounded-md transition-opacity duration-300 ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
                                     placeholder="Describe your business idea in a sentence..."
                                     value={idea}
-                                    onChange={(e) => setIdea(e.target.value)}
+                                    onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(''); }}
                                     disabled={isEnhancing}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -206,6 +242,68 @@ const HomePage = () => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Content Moderation Warning - Modal Popup (matches OnboardSummary style) */}
+                            {contentWarning && (
+                                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+                                    onClick={() => setContentWarning('')}
+                                >
+                                    <div
+                                        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 flex flex-col items-center text-center animate-in fade-in zoom-in duration-200"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        {/* Badge */}
+                                        <div className="flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
+                                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                                            <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Content Blocked</span>
+                                        </div>
+
+                                        {/* Icon */}
+                                        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-5">
+                                            <svg className="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                                <line x1="9" y1="9" x2="15" y2="15" />
+                                                <line x1="15" y1="9" x2="9" y2="15" />
+                                            </svg>
+                                        </div>
+
+                                        {/* Title */}
+                                        <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
+                                            We Can't Process This
+                                        </h3>
+
+                                        {/* Message */}
+                                        <p className="text-gray-500 text-sm leading-relaxed max-w-xs mb-8">
+                                            {contentWarning}
+                                        </p>
+
+                                        {/* Actions */}
+                                        <div className="flex items-center gap-3 w-full">
+                                            <button
+                                                onClick={() => { setContentWarning(''); setIdea(''); }}
+                                                className="flex-1 px-5 py-3 bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+                                            >
+                                                Try a New Idea
+                                            </button>
+                                            <button
+                                                onClick={() => setContentWarning('')}
+                                                className="flex-1 px-5 py-3 bg-gray-50 text-gray-600 rounded-lg font-bold text-sm hover:bg-gray-100 transition-all active:scale-95 border border-gray-200"
+                                            >
+                                                Go Back
+                                            </button>
+                                        </div>
+
+                                        {/* Footer badge */}
+                                        <div className="flex items-center gap-2 text-gray-400 mt-6">
+                                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                                <polyline points="9 12 12 15 22 5" />
+                                            </svg>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Safety Filter Active</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex justify-between items-center px-4 pb-3 mt-4">
                                 <div className="relative group/enhance">

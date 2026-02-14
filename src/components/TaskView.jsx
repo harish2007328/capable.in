@@ -67,14 +67,14 @@ const TaskView = ({ plan, projectId }) => {
     }, [selectedDayData]);
 
     const toggleCompletion = async (dayId) => {
-        const isComplete = !completionStatuses[dayId];
-        const next = { ...completionStatuses, [dayId]: isComplete };
+        const isCurrentlyDone = !!completionStatuses[dayId];
+        const next = { ...completionStatuses, [dayId]: isCurrentlyDone ? false : new Date().toISOString() };
 
         setCompletionStatuses(next);
         await ProjectStorage.updateData(projectId, { progress: next });
 
         // Auto-advance to next task if marking as complete
-        if (isComplete) {
+        if (!isCurrentlyDone) {
             const currentIndex = plan.days.findIndex(d => d.id === dayId);
             if (currentIndex !== -1 && currentIndex < plan.days.length - 1) {
                 // Small delay to allow the user to see the checkmark animation

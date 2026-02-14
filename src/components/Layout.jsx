@@ -5,6 +5,14 @@ import { useLocation } from 'react-router-dom';
 
 const Layout = ({ children }) => {
     const location = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
+    // Listen for toggle-sidebar events from page headers
+    React.useEffect(() => {
+        const handler = () => setIsSidebarOpen(prev => !prev);
+        window.addEventListener('toggle-sidebar', handler);
+        return () => window.removeEventListener('toggle-sidebar', handler);
+    }, []);
 
     // Define "App" routes that should use the Sidebar layout
     const appRoutes = ['/dashboard', '/settings', '/metrics'];
@@ -29,10 +37,20 @@ const Layout = ({ children }) => {
             {isAppPage ? (
                 // --- APP LAYOUT (Sidebar) ---
                 <div className="flex min-h-screen">
-                    <Sidebar />
-                    <main className="flex-1 ml-64 p-8 relative z-10">
+                    <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+
+                    <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'blur-sm lg:blur-none' : ''} lg:ml-64 relative z-10`}>
                         {children}
                     </main>
+
+                    {/* Mobile Overlay */}
+                    {isSidebarOpen && (
+                        <div
+                            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+                            onClick={() => setIsSidebarOpen(false)}
+                        />
+                    )}
                 </div>
             ) : (
                 // --- LANDING LAYOUT (Header) ---

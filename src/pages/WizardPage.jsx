@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Questionnaire from '../components/Questionnaire';
 import LocationForm from '../components/LocationForm';
 import { generateAnalysisQuestions } from '../services/ai';
-import { Loader } from 'lucide-react';
+import { Loader, ShieldAlert } from 'lucide-react';
 import ProjectHeader from '../components/ProjectHeader';
 import SkeletonWizard from '../components/SkeletonWizard';
 import OnboardSummary from '../components/OnboardSummary';
@@ -15,6 +15,7 @@ const WizardPage = () => {
     const [showSummary, setShowSummary] = useState(false);
     const [completedAnswers, setCompletedAnswers] = useState(null);
     const [locationConfirmed, setLocationConfirmed] = useState(false);
+    const [blockedMessage, setBlockedMessage] = useState('');
 
     // Initial Check
     useEffect(() => {
@@ -66,8 +67,14 @@ const WizardPage = () => {
                 setLoading(false);
             } catch (error) {
                 console.error("Failed to generate questions", error);
-                setQuestions('error');
-                setLoading(false);
+                // Check if this is a content moderation block
+                if (error.response?.status === 403 && error.response?.data?.blocked) {
+                    setBlockedMessage(error.response.data.error || "This idea has been flagged and cannot be processed.");
+                    setLoading(false);
+                } else {
+                    setQuestions('error');
+                    setLoading(false);
+                }
             }
         };
 
@@ -85,6 +92,38 @@ const WizardPage = () => {
         localStorage.setItem('userLocation', JSON.stringify(loc));
         setLocationConfirmed(true);
     };
+
+    if (blockedMessage) {
+        return (
+            <div className="min-h-screen bg-slate-50">
+                <ProjectHeader activeStep="onboard" onBack={() => navigate('/')} />
+                <div className="w-full h-[60vh] flex flex-col items-center justify-center text-center px-4">
+                    <div className="space-y-6">
+                        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto">
+                            <ShieldAlert className="text-red-500" size={28} />
+                        </div>
+
+                        <h3 className="text-2xl font-bold text-slate-900">
+                            Content Blocked
+                        </h3>
+
+                        <p className="text-slate-500 text-sm max-w-md mx-auto">
+                            {blockedMessage}
+                        </p>
+
+                        <div className="flex justify-center gap-4 pt-4">
+                            <button
+                                onClick={() => navigate('/')}
+                                className="px-6 py-3 bg-slate-900 text-white rounded-full text-sm font-medium hover:bg-slate-800 transition-colors"
+                            >
+                                Go Back
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (questions === 'error') {
         return (

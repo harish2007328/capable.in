@@ -33,6 +33,7 @@ const VenturePage = () => {
     const [hasPlan, setHasPlan] = useState(false);
     const [actionPlan, setActionPlan] = useState(null);
     const [planLoading, setPlanLoading] = useState(false);
+    const [blockedMessage, setBlockedMessage] = useState('');
 
     // Operational Refs
     const isMounted = useRef(true);
@@ -123,6 +124,10 @@ const VenturePage = () => {
                 }
             } catch (e) {
                 console.error("Discovery failed", e);
+                // Check if this is a content moderation block
+                if (e.response?.status === 403 && e.response?.data?.blocked) {
+                    setBlockedMessage(e.response.data.error || "This idea has been flagged and cannot be processed.");
+                }
             } finally {
                 if (isMounted.current) {
                     setWizardLoading(false);
@@ -227,13 +232,70 @@ const VenturePage = () => {
                             <div className={`w-full h-full ${(!wizardLoading && questions.length > 0 && !showSummary) ? '' : 'animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both'}`}>
                                 {wizardLoading ? <SkeletonWizard /> : (
                                     questions.length === 0 ? (
-                                        <div className="max-w-md mx-auto text-center py-20 glass-card bg-white/80 p-10 border border-slate-200">
-                                            <h3 className="text-xl font-bold text-slate-900 mb-4 uppercase tracking-tighter">Connection Interrupted</h3>
-                                            <p className="text-slate-500 mb-8">The strategy core is taking longer than expected.</p>
-                                            <button onClick={() => window.location.reload()} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 uppercase tracking-widest text-xs">
-                                                Restart Core
-                                            </button>
-                                        </div>
+                                        blockedMessage ? (
+                                            /* Content Blocked Popup - matches OnboardSummary style */
+                                            <div className="max-w-md mx-auto text-center py-12">
+                                                <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 flex flex-col items-center">
+                                                    {/* Badge */}
+                                                    <div className="flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
+                                                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                                                        <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Content Blocked</span>
+                                                    </div>
+
+                                                    {/* Icon */}
+                                                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-5">
+                                                        <svg className="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                                            <line x1="9" y1="9" x2="15" y2="15" />
+                                                            <line x1="15" y1="9" x2="9" y2="15" />
+                                                        </svg>
+                                                    </div>
+
+                                                    {/* Title */}
+                                                    <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
+                                                        We Can't Process This
+                                                    </h3>
+
+                                                    {/* Message */}
+                                                    <p className="text-gray-500 text-sm leading-relaxed max-w-xs mb-8">
+                                                        {blockedMessage}
+                                                    </p>
+
+                                                    {/* Actions */}
+                                                    <div className="flex items-center gap-3 w-full">
+                                                        <button
+                                                            onClick={() => navigate('/')}
+                                                            className="flex-1 px-5 py-3 bg-gradient-to-r from-[#0066CC] to-[#0052a3] text-white rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+                                                        >
+                                                            Try a New Idea
+                                                        </button>
+                                                        <button
+                                                            onClick={() => navigate('/dashboard')}
+                                                            className="flex-1 px-5 py-3 bg-gray-50 text-gray-600 rounded-lg font-bold text-sm hover:bg-gray-100 transition-all active:scale-95 border border-gray-200"
+                                                        >
+                                                            Dashboard
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Footer badge */}
+                                                    <div className="flex items-center gap-2 text-gray-400 mt-6">
+                                                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                                            <polyline points="9 12 12 15 22 5" />
+                                                        </svg>
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider">Safety Filter Active</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="max-w-md mx-auto text-center py-20 glass-card bg-white/80 p-10 border border-slate-200">
+                                                <h3 className="text-xl font-bold text-slate-900 mb-4 uppercase tracking-tighter">Connection Interrupted</h3>
+                                                <p className="text-slate-500 mb-8">The strategy core is taking longer than expected.</p>
+                                                <button onClick={() => window.location.reload()} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 uppercase tracking-widest text-xs">
+                                                    Restart Core
+                                                </button>
+                                            </div>
+                                        )
                                     ) : showSummary ? (
                                         <OnboardSummary
                                             questions={questions}
