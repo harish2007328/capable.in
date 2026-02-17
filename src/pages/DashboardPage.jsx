@@ -1078,42 +1078,38 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                             </div>
                         </div>
                     </section>
-                </div>
-            </div>
-
-            {/* Redesigned Danger Zone (Mobile-First) */}
-            <div className="pt-20 mt-12 border-t border-slate-100">
-                <div className="bg-white border border-rose-100 rounded-2xl overflow-hidden shadow-sm">
-                    <div className="bg-rose-50/50 p-8 md:p-10 border-b border-rose-50 flex flex-col items-center text-center">
-                        <div className="w-16 h-16 bg-white rounded-2xl shadow-xl shadow-rose-100 flex items-center justify-center text-rose-500 mb-6 border border-rose-50">
-                            <Trash2 size={28} />
+                    <section className="bg-white border border-rose-100 rounded-xl overflow-hidden shadow-sm">
+                        <div className="bg-rose-50/30 p-6 md:p-10 border-b border-rose-50 flex flex-col items-center text-center">
+                            <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-rose-500 mb-4 border border-rose-50">
+                                <Trash2 size={20} />
+                            </div>
+                            <h3 className="text-base font-black text-rose-900 tracking-tight mb-2">Permanent Data Clearing</h3>
+                            <p className="text-[11px] text-rose-700/60 font-medium leading-relaxed max-w-md">
+                                Warning: <span className="font-black text-rose-800">Flush Local Data</span> will permanently delete all projects and chat histories from the database. <span className="underline decoration-rose-100 underline-offset-4">This cannot be undone.</span>
+                            </p>
                         </div>
-                        <h3 className="text-xl font-black text-rose-900 tracking-tight mb-3">Permanent Data Clearing</h3>
-                        <p className="text-sm text-rose-700/60 font-medium leading-relaxed max-w-lg">
-                            This action will permanently delete all your projects, session data, and accounts settings from this device. <span className="font-black text-rose-800">This process is irreversible.</span>
-                        </p>
-                    </div>
 
-                    <div className="p-4 md:p-6 bg-white flex flex-col md:flex-row gap-4">
-                        <button
-                            onClick={onClear}
-                            className="flex-1 py-4 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-rose-200 flex items-center justify-center gap-3"
-                        >
-                            Confirm & Wipe All Data
-                        </button>
-                        <button
-                            onClick={() => { logout(); navigate('/'); }}
-                            className="flex-1 py-4 bg-white border border-slate-100 text-slate-500 rounded-xl hover:border-slate-300 hover:text-slate-900 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-sm flex items-center justify-center gap-3"
-                        >
-                            <LogOut size={16} />
-                            Sign Out Account
-                        </button>
-                    </div>
+                        <div className="p-4 md:p-6 bg-white flex flex-col sm:flex-row gap-3">
+                            <button
+                                onClick={onClear}
+                                className="flex-1 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-all font-black text-[9px] uppercase tracking-[0.2em] shadow-lg shadow-rose-200 flex items-center justify-center gap-2"
+                            >
+                                Confirm & Wipe Data
+                            </button>
+                            <button
+                                onClick={() => { logout(); navigate('/'); }}
+                                className="flex-1 py-3 bg-white border border-slate-100 text-slate-400 rounded-lg hover:border-slate-300 hover:text-slate-900 transition-all font-black text-[9px] uppercase tracking-[0.2em] shadow-sm flex items-center justify-center gap-2"
+                            >
+                                <LogOut size={14} />
+                                Sign Out Account
+                            </button>
+                        </div>
+                    </section>
+
+                    <p className="text-center mt-6 text-[7px] font-black text-slate-300 uppercase tracking-[0.4em]">
+                        Venture Scout Governance v1.0
+                    </p>
                 </div>
-
-                <p className="text-center mt-8 text-[8px] font-black text-slate-300 uppercase tracking-[0.3em]">
-                    Venture Scout Governance Policy v1.0
-                </p>
             </div>
         </div>
     );
