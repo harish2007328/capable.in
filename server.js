@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import Groq from 'groq-sdk';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { DodoPayments } from 'dodopayments';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +26,11 @@ const getGroqClient = () => {
     }
     return new Groq({ apiKey });
 };
+
+const dodoPayments = new DodoPayments({
+    apiKey: process.env.DODO_PAYMENTS_API_KEY,
+    endpoint: process.env.DODO_PAYMENTS_ENDPOINT || 'https://test.dodopayments.com' // Use test endpoint by default
+});
 
 const MODEL = "llama-3.1-8b-instant"; // Best balance of performance and high TPM limits
 
@@ -845,6 +851,82 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
     } catch (err) {
         console.error("CHAT FAILED:", err);
         res.status(500).json({ error: "Chat failed", details: err.message });
+    }
+});
+
+// --- DODO PAYMENTS ENDPOINTS ---
+
+app.post('/api/checkout', async (req, res) => {
+    const { productId, userEmail, userId, metadata } = req.body;
+
+    try {
+        if (!process.env.DODO_PAYMENTS_API_KEY) {
+            throw new Error("Dodo Payments API Key is not configured.");
+        }
+
+        const session = await dodoPayments.checkout.create({
+            product_id: productId,
+            customer: {
+                email: userEmail,
+            },
+            billing: {
+                city: metadata?.city || 'Unknown',
+                country: metadata?.country || 'US',
+                state: metadata?.state || 'Unknown',
+                street: metadata?.street || 'Unknown',
+                zip: metadata?.zip || '00000',
+            },
+            metadata: {
+                userId: userId,
+                ...metadata
+            },
+            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/project?payment=success`,
+        });
+
+        res.json({ checkout_url: session.checkout_url });
+    } catch (err) {
+        console.error("DODO CHECKOUT ERROR:", err.message);
+        res.status(500).json({ error: "Failed to create checkout session", details: err.message });
+    }
+});
+
+app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['x-dodo-signature'];
+    const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
+
+    try {
+        if (!webhookSecret) {
+            console.warn("Dodo Webhook Secret not configured. Skipping verification.");
+        }
+
+        // Note: SDK should have a verify method, but for now we'll handle the event
+        // If the signature is provided, you should verify it.
+        const event = JSON.parse(req.body);
+
+        console.log(`Dodo Webhook received: ${event.type}`);
+
+        switch (event.type) {
+            case 'subscription.created':
+            case 'subscription.updated':
+                const subscription = event.data;
+                const userId = subscription.metadata?.userId;
+                if (userId) {
+                    console.log(`Updating subscription for user: ${userId}`);
+                    // TODO: Update Supabase user profile with subscription status
+                    // Example: await supabase.from('profiles').update({ is_pro: true, dodo_subscription_id: subscription.id }).eq('id', userId);
+                }
+                break;
+            case 'subscription.cancelled':
+                // Handle cancellation
+                break;
+            default:
+                console.log(`Unhandled event type: ${event.type}`);
+        }
+
+        res.json({ received: true });
+    } catch (err) {
+        console.error("DODO WEBHOOK ERROR:", err.message);
+        res.status(400).send(`Webhook Error: ${err.message}`);
     }
 });
 

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Check, X, Zap, Crown, Rocket } from 'lucide-react';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
 
 const PricingPage = () => {
     const [billingCycle, setBillingCycle] = useState('monthly');
@@ -139,6 +140,8 @@ const PricingPage = () => {
 
 const PricingCard = ({ icon, name, description, price, period, features, cta, gradient, borderColor, popular }) => {
     const isGradient = gradient.includes('via');
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <div className={`pricing-card group relative ${popular ? 'md:-mt-8' : ''}`}>
@@ -195,15 +198,60 @@ const PricingCard = ({ icon, name, description, price, period, features, cta, gr
                 </div>
 
                 {/* CTA Button */}
-                <Link
-                    to="/dashboard"
-                    className={`relative w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 hover:shadow-xl active:scale-[0.98] mb-8 text-center ${isGradient
-                        ? 'bg-white text-[var(--brand-accent)] shadow-lg shadow-black/25 hover:bg-white/95'
-                        : 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-lg shadow-[var(--brand-accent)]/30 hover:shadow-[var(--brand-accent)]/40'
-                        }`}
-                >
-                    {cta}
-                </Link>
+                {name === 'Professional' ? (
+                    <button
+                        onClick={() => {
+                            if (!user) {
+                                navigate('/login', { state: { from: '/pricing' } });
+                                return;
+                            }
+                            const handleCheckout = async () => {
+                                try {
+                                    const response = await fetch('/api/checkout', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            productId: import.meta.env.VITE_DODO_PRODUCT_ID || 'PRO_PLAN_ID',
+                                            userEmail: user.email,
+                                            userId: user.id,
+                                            metadata: {
+                                                plan: 'professional'
+                                            }
+                                        }),
+                                    });
+                                    const data = await response.json();
+                                    if (data.checkout_url) {
+                                        window.location.href = data.checkout_url;
+                                    } else {
+                                        alert('Failed to initiate checkout. Please check if your API keys are configured.');
+                                    }
+                                } catch (err) {
+                                    console.error('Checkout error:', err);
+                                    alert('An error occurred during checkout.');
+                                }
+                            };
+                            handleCheckout();
+                        }}
+                        className={`relative w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 hover:shadow-xl active:scale-[0.98] mb-8 text-center ${isGradient
+                            ? 'bg-white text-[var(--brand-accent)] shadow-lg shadow-black/25 hover:bg-white/95'
+                            : 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-lg shadow-[var(--brand-accent)]/30 hover:shadow-[var(--brand-accent)]/40'
+                            }`}
+                    >
+                        {cta}
+                    </button>
+                ) : (
+                    <Link
+                        to="/dashboard"
+                        className={`relative w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 hover:shadow-xl active:scale-[0.98] mb-8 text-center ${isGradient
+                            ? 'bg-white text-[var(--brand-accent)] shadow-lg shadow-black/25 hover:bg-white/95'
+                            : 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-lg shadow-[var(--brand-accent)]/30 hover:shadow-[var(--brand-accent)]/40'
+                            }`}
+                    >
+                        {cta}
+                    </Link>
+                )}
 
                 {/* Features List */}
                 <ul className="relative space-y-3.5 flex-grow">
