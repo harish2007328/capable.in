@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PricingModal from './PricingModal';
-import logoSrc from '../assets/logo.svg';
+import logoIconSrc from '../assets/LOGO ICON.svg';
 
 const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleLoading }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -64,7 +64,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         className="flex items-center gap-2 p-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all border border-slate-200 shadow-sm group"
                     >
-                        <img src={logoSrc} alt="Logo" className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        <img src={logoIconSrc} alt="Logo" className="w-5 h-5 group-hover:scale-110 transition-transform" style={{ filter: "brightness(0)" }} />
                         <ChevronDown size={14} className={`text-slate-500 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
 
