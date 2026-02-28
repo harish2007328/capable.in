@@ -100,7 +100,7 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                                 Intelligence Hub
                             </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                        <h2 className="text-2xl font-normal text-slate-900 tracking-tight">
                             {report.project_name || "Venture Blueprint"}
                         </h2>
                     </div>
@@ -172,7 +172,7 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                                 {report.competitors?.map((comp, idx) => (
                                     <div key={idx} className="bg-white border border-slate-100 rounded-xl p-6 hover:border-blue-100 transition-all hover:shadow-md group flex flex-col h-full">
                                         <div className="flex justify-between items-start mb-4">
-                                            <h4 className="text-base font-bold text-slate-900 tracking-tight">{comp.name}</h4>
+                                            <h4 className="text-base font-normal text-slate-900 tracking-tight">{comp.name}</h4>
                                             <span className="px-2 py-0.5 bg-slate-50 text-slate-400 rounded text-[9px] font-black uppercase tracking-widest border border-slate-100">Rival</span>
                                         </div>
                                         <p className="text-[13px] text-slate-600 font-medium leading-relaxed italic line-clamp-3 mb-6 flex-1">
@@ -198,7 +198,7 @@ const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoad
                                 </div>
 
                                 <div className="flex items-center gap-3 mb-8 relative z-10 border-b border-white/10 pb-4">
-                                    <h4 className="text-sm font-black text-blue-200 uppercase tracking-widest">Strategic Insight</h4>
+                                    <h4 className="text-sm font-normal text-blue-200 uppercase tracking-widest">Strategic Insight</h4>
                                 </div>
 
                                 <div className="relative z-10 flex-1 flex flex-col justify-center">

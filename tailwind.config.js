@@ -23,9 +23,18 @@ export default {
                 'brand-accent-hover': 'var(--brand-accent-hover)',
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                display: ['Syne', 'sans-serif'],
-                body: ['Inter', 'sans-serif'],
+                sans: ['"Albert Sans"', 'sans-serif'],
+                display: ['"Instrument Serif"', 'serif'],
+                body: ['"Albert Sans"', 'sans-serif'],
+            },
+            letterSpacing: {
+                tightest: '-0.02em',
+                tighter: '-0.01em',
+                tight: '0em',
+                normal: '0em',
+                wide: '0.02em',
+                wider: '0.04em',
+                widest: '0.08em',
             },
             borderRadius: {
                 // Standardized Radii

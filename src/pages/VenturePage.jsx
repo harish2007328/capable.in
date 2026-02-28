@@ -239,7 +239,7 @@ const VenturePage = () => {
                                                     {/* Badge */}
                                                     <div className="flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
                                                         <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                                                        <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Content Blocked</span>
+                                                        <span className="text-[10px] font-bold text-red-500 uppercase">Content Blocked</span>
                                                     </div>
 
                                                     {/* Icon */}
@@ -252,7 +252,7 @@ const VenturePage = () => {
                                                     </div>
 
                                                     {/* Title */}
-                                                    <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
+                                                    <h3 className="text-2xl font-normal text-gray-900 mb-2">
                                                         We Can't Process This
                                                     </h3>
 
@@ -283,15 +283,15 @@ const VenturePage = () => {
                                                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                                                             <polyline points="9 12 12 15 22 5" />
                                                         </svg>
-                                                        <span className="text-[10px] font-bold uppercase tracking-wider">Safety Filter Active</span>
+                                                        <span className="text-[10px] font-bold uppercase">Safety Filter Active</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="max-w-md mx-auto text-center py-20 glass-card bg-white/80 p-10 border border-slate-200">
-                                                <h3 className="text-xl font-bold text-slate-900 mb-4 uppercase tracking-tighter">Connection Interrupted</h3>
+                                                <h3 className="text-xl font-normal text-slate-900 mb-4 uppercase">Connection Interrupted</h3>
                                                 <p className="text-slate-500 mb-8">The strategy core is taking longer than expected.</p>
-                                                <button onClick={() => window.location.reload()} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 uppercase tracking-widest text-xs">
+                                                <button onClick={() => window.location.reload()} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 uppercase text-xs">
                                                     Restart Core
                                                 </button>
                                             </div>

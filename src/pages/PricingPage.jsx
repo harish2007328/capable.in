@@ -15,21 +15,21 @@ const PricingPage = () => {
             <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[400px] bg-[var(--brand-accent)]/50 rounded-full blur-[180px] pointer-events-none"></div>
 
             {/* Hero Section */}
-            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-40">
+            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-36">
                 <div className="pricing-hero text-center max-w-5xl">
-                    <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
+                    <div className="mb-24 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Transparent Pricing</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Transparent Pricing</span>
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-display font-bold text-[#000000] tracking-tight leading-tight mb-6">
-                        Plans That Scale<br /><span className="text-[var(--brand-accent)]">With Your Vision</span>
+                    <h1 className="text-5xl md:text-7xl font-display font-normal text-[#000000] leading-tight mb-6">
+                        Plans That Scale<br /><span className="text-[var(--brand-accent)] font-display italic">With Your Vision</span>
                     </h1>
 
-                    <p className="text-base md:text-lg text-[#333333] max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
+                    <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
                         Start free, upgrade when you need more. No hidden fees, no surprises. Cancel anytime.
                     </p>
 
@@ -148,7 +148,7 @@ const PricingCard = ({ icon, name, description, price, period, features, cta, gr
             {/* Popular Badge */}
             {popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                    <div className="bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] text-white px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-xl backdrop-blur-sm">
+                    <div className="bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] text-white px-5 py-1.5 rounded-full text-xs font-bold uppercase shadow-xl backdrop-blur-sm">
                         Most Popular
                     </div>
                 </div>
@@ -182,7 +182,7 @@ const PricingCard = ({ icon, name, description, price, period, features, cta, gr
                 </div>
 
                 {/* Plan Name */}
-                <h3 className={`relative text-2xl font-bold mb-2 tracking-tight ${isGradient ? 'text-white' : 'text-gray-900'}`}>{name}</h3>
+                <h3 className={`relative text-2xl font-normal mb-2 ${isGradient ? 'text-white' : 'text-gray-900'}`}>{name}</h3>
                 <p className={`relative text-sm mb-6 font-medium ${isGradient ? 'text-white/80' : 'text-gray-600'}`}>{description}</p>
 
                 {/* Price */}
@@ -296,9 +296,9 @@ const PricingFAQSection = () => {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                     </span>
-                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">FAQ</span>
+                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">FAQ</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 leading-tight tracking-tight">
+                <h2 className="text-4xl md:text-5xl font-display font-normal text-gray-900 leading-tight">
                     Common <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Questions</span>
                 </h2>
             </div>
@@ -348,7 +348,7 @@ const CTASection = () => (
                 </div>
 
                 <div className="relative z-10 text-center max-w-3xl mx-auto">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight tracking-tight mb-6">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-normal text-white leading-tight mb-6">
                         Start Building Today
                     </h2>
 

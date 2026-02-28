@@ -141,7 +141,7 @@ const TaskView = ({ plan, projectId }) => {
 
                             {/* Scrollable Content */}
                             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-6">
-                                <h2 className="text-xl font-bold text-slate-900 leading-snug font-display">
+                                <h2 className="text-xl font-normal text-slate-900 leading-snug font-display">
                                     {selectedDayData.title}
                                 </h2>
 

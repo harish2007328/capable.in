@@ -16,7 +16,7 @@ const OptionCards = ({ cards, onSelect }) => {
             transition-all duration-300 ease-out
           "
                 >
-                    <span className="text-xl md:text-2xl font-display font-bold text-paper mb-3 group-hover:text-white transition-colors">
+                    <span className="text-xl md:text-2xl font-display font-normal text-paper mb-3 group-hover:text-white transition-colors">
                         {card.title}
                     </span>
                     <p className="text-sm md:text-base text-stone font-body leading-relaxed group-hover:text-stone/80">

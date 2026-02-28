@@ -12,7 +12,7 @@ const ProblemCard = ({ title, category, description, className = '', onClick }) 
                     {category}
                 </span>
 
-                <h3 className="text-3xl font-sans font-bold text-brand-black leading-none group-hover:text-brand-blue transition-colors tracking-tight">
+                <h3 className="text-3xl font-display font-normal text-brand-black leading-none group-hover:text-brand-blue transition-colors tracking-tight">
                     {title}
                 </h3>
 

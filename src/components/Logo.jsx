@@ -32,10 +32,10 @@ const Logo = ({ showText = true, className = "", color = "white", iconColor = "#
             </div>
             {showText && (
                 <span
-                    className={`text-4xl font-bold leading-none ${textColorClass}`}
+                    className={`text-4xl font-normal leading-none ${textColorClass}`}
                     style={{
-                        fontFamily: "'Cormorant Unicase', serif",
-                        letterSpacing: "0.05em",
+                        fontFamily: "'Instrument Serif', serif",
+                        letterSpacing: "0",
                         position: "relative",
                         top: "-2px"
                     }}

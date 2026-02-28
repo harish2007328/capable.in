@@ -199,7 +199,7 @@ const DashboardPage = () => {
                         <div>
                             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
                                 <div>
-                                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">Your Ventures</h2>
+                                    <h2 className="text-3xl font-normal text-slate-900">Your Ventures</h2>
                                     <p className="text-sm text-slate-500 font-medium">Manage and track your active execution plans.</p>
                                 </div>
 
@@ -258,7 +258,7 @@ const DashboardPage = () => {
                                                         bg = 'bg-slate-50 border-slate-100'; text = 'text-slate-400';
                                                     }
                                                     return (
-                                                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-full border ${bg} ${text}`}>
+                                                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-full border ${bg} ${text}`}>
                                                             {label}
                                                         </span>
                                                     );
@@ -273,7 +273,7 @@ const DashboardPage = () => {
                                             </div>
 
                                             <div className="flex-1">
-                                                <h3 className="text-base font-black text-slate-800 mb-3 tracking-tight line-clamp-1">
+                                                <h3 className="text-base font-normal text-slate-800 mb-3 line-clamp-1">
                                                     {project.title || 'Untitled Venture'}
                                                 </h3>
                                                 <p className="text-[11px] text-slate-500 font-medium line-clamp-3 leading-relaxed">
@@ -282,10 +282,10 @@ const DashboardPage = () => {
                                             </div>
 
                                             <div className="mt-8 pt-5 border-t border-slate-50 flex items-center justify-between">
-                                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                                                <span className="text-[9px] font-black text-slate-300 uppercase">
                                                     {project.createdAt ? new Date(project.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Recently'}
                                                 </span>
-                                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-brand-accent transition-colors">
+                                                <div className="text-[9px] font-black text-slate-400 uppercase group-hover:text-brand-accent transition-colors">
                                                     Open Venture
                                                 </div>
                                             </div>
@@ -340,7 +340,7 @@ const DashboardPage = () => {
                             onClick={(e) => e.stopPropagation()}
                             className="bg-white rounded-xl shadow-2xl border border-slate-100 p-6 max-w-[280px] w-full text-center"
                         >
-                            <h3 className="text-sm font-black text-slate-900 mb-1">Delete Venture?</h3>
+                            <h3 className="text-sm font-normal text-slate-900 mb-1">Delete Venture?</h3>
                             <p className="text-slate-400 text-[10px] mb-6 font-medium leading-relaxed">
                                 This action is permanent and cannot be undone.
                             </p>
@@ -383,7 +383,7 @@ const DashboardPage = () => {
                             <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Shield size={24} className="text-red-500" />
                             </div>
-                            <h3 className="text-sm font-black text-slate-900 mb-1">Wipe All Data?</h3>
+                            <h3 className="text-sm font-normal text-slate-900 mb-1">Wipe All Data?</h3>
                             <p className="text-slate-400 text-[10px] mb-6 font-medium leading-relaxed">
                                 This will erase everything from the server and this browser permanently.
                             </p>
@@ -424,7 +424,7 @@ const DashboardPage = () => {
                                 < Shield size={12} className="text-white" />
                             </div>
                         )}
-                        <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
+                        <span className="text-[10px] font-black text-slate-700 uppercase">
                             {notification.message}
                         </span>
                     </motion.div>
@@ -580,7 +580,7 @@ const MetricsView = ({ projects }) => {
         <div className="pb-20">
             {/* Header */}
             <div className="mb-8">
-                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Metrics</h2>
+                <h2 className="text-3xl font-normal text-slate-900">Metrics</h2>
                 <p className="text-sm text-slate-500 font-medium">Real-time data from your ventures and execution plans.</p>
             </div>
 
@@ -588,7 +588,7 @@ const MetricsView = ({ projects }) => {
 
                 {/* Row 1: 4 Primary Stat Cards */}
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Streak</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">Streak</p>
                     <div className="flex items-center gap-1.5">
                         <Flame size={16} className="text-orange-500" />
                         <span className="text-lg font-black text-slate-900">{streak}</span>
@@ -596,18 +596,18 @@ const MetricsView = ({ projects }) => {
                     </div>
                 </div>
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Ventures</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">Ventures</p>
                     <p className="text-lg font-black text-slate-900">{projects.length}</p>
                 </div>
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Tasks Done</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">Tasks Done</p>
                     <div className="flex items-baseline gap-1">
                         <span className="text-lg font-black text-slate-900">{completedTasks}</span>
                         <span className="text-[8px] text-slate-400 font-bold">/ {totalTasks}</span>
                     </div>
                 </div>
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Completion</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">Completion</p>
                     <div className="flex items-baseline gap-1">
                         <span className={`text-lg font-black ${completionRate >= 80 ? 'text-emerald-600' : completionRate >= 40 ? 'text-brand-accent' : 'text-slate-900'}`}>{completionRate}%</span>
                     </div>
@@ -615,26 +615,26 @@ const MetricsView = ({ projects }) => {
 
                 {/* Row 2: Secondary Stats */}
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Reports</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">Reports</p>
                     <p className="text-lg font-black text-slate-900">{reportsGenerated}</p>
                 </div>
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Plans Active</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">Plans Active</p>
                     <p className="text-lg font-black text-slate-900">{plansActive}</p>
                 </div>
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">AI Chats</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">AI Chats</p>
                     <p className="text-lg font-black text-slate-900">{totalChats}</p>
                 </div>
                 <div className="bg-white border border-slate-100 p-4 rounded-xl">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Active Days</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1.5">Active Days</p>
                     <p className="text-lg font-black text-slate-900">{activeDays}</p>
                 </div>
 
                 {/* Row 3: Calendar (2 cols) + Venture Progress (2 cols) */}
                 <div className="col-span-2 bg-white border border-slate-100 p-4 rounded-xl">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-[11px] font-black text-slate-900">Calendar</h3>
+                        <h3 className="text-[11px] font-normal text-slate-900">Calendar</h3>
                         <div className="flex items-center gap-1.5">
                             <button onClick={prevMonth} className="w-5 h-5 flex items-center justify-center rounded border border-slate-100 text-slate-400 hover:text-slate-900 transition-colors">
                                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -678,7 +678,7 @@ const MetricsView = ({ projects }) => {
                 {projects.length > 0 ? (
                     <div className="col-span-2 bg-white border border-slate-100 p-4 rounded-xl">
                         <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-[11px] font-black text-slate-900">Venture Progress</h3>
+                            <h3 className="text-[11px] font-normal text-slate-900">Venture Progress</h3>
                             <span className="text-[8px] font-bold text-slate-400">{avgCompletion}% avg</span>
                         </div>
                         <div className="space-y-3">
@@ -714,14 +714,14 @@ const MetricsView = ({ projects }) => {
                     </div>
                 ) : (
                     <div className="col-span-2 bg-white border border-slate-100 p-6 rounded-xl flex items-center justify-center">
-                        <p className="text-slate-300 text-[9px] font-black uppercase tracking-[0.2em]">No ventures yet</p>
+                        <p className="text-slate-300 text-[9px] font-black uppercase">No ventures yet</p>
                     </div>
                 )}
 
                 {/* Row 4: Phase Progress (2 cols) + Task Completion Chart (2 cols) */}
                 {phaseProgress.length > 0 && (
                     <div className="col-span-2 bg-white border border-slate-100 p-4 rounded-xl">
-                        <h3 className="text-[11px] font-black text-slate-900 mb-3">Phase Progress</h3>
+                        <h3 className="text-[11px] font-normal text-slate-900 mb-3">Phase Progress</h3>
                         <div className="space-y-3">
                             {phaseProgress.map((phase, idx) => (
                                 <div key={phase.name} className="space-y-1">
@@ -747,7 +747,7 @@ const MetricsView = ({ projects }) => {
                 {/* Task Completion Chart (2 cols) */}
                 {projects.some(p => p.data?.plan?.days?.length > 0) && (
                     <div className={`${phaseProgress.length > 0 ? 'col-span-2' : 'col-span-4'} bg-white border border-slate-100 p-4 rounded-xl`}>
-                        <h3 className="text-[11px] font-black text-slate-900 mb-3">Task Completion</h3>
+                        <h3 className="text-[11px] font-normal text-slate-900 mb-3">Task Completion</h3>
                         <div className="space-y-2.5">
                             {projects.filter(p => p.data?.plan?.days?.length > 0).map(project => {
                                 const total = project.data.plan.days.length;
@@ -854,7 +854,7 @@ const MetricsView = ({ projects }) => {
                         return (
                             <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between">
                                 <div>
-                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Top Venture</p>
+                                    <p className="text-[7px] font-black text-slate-400 uppercase mb-0.5">Top Venture</p>
                                     <p className="text-[10px] font-bold text-slate-800 truncate">{best.title || 'Untitled'}</p>
                                     {bestTasks > 0 && (
                                         <p className="text-[8px] text-slate-400 font-medium">{bestDone}/{bestTasks} tasks</p>
@@ -895,12 +895,12 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                 <aside className="lg:sticky lg:top-24 space-y-6 order-1 lg:order-2 hidden lg:block">
                     <div className="bg-white border border-slate-100 rounded-lg shadow-sm p-5 space-y-8">
                         <div>
-                            <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] mb-4">Quick Stylist</h4>
+                            <h4 className="text-[10px] font-normal text-slate-900 uppercase mb-4">Quick Stylist</h4>
 
                             <div className="space-y-6">
                                 {/* Banner Selection */}
                                 <div>
-                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Banner Gradient</label>
+                                    <label className="text-[8px] font-black text-slate-400 uppercase mb-3 block">Banner Gradient</label>
                                     <div className="grid grid-cols-3 gap-2">
                                         {Object.entries(bannerPresets.gradients).map(([name, classes]) => (
                                             <button
@@ -913,7 +913,7 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                                 </div>
 
                                 <div>
-                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Banner Pattern</label>
+                                    <label className="text-[8px] font-black text-slate-400 uppercase mb-3 block">Banner Pattern</label>
                                     <div className="grid grid-cols-3 gap-2">
                                         {Object.entries(bannerPresets.patterns).map(([name, classes]) => (
                                             <button
@@ -935,7 +935,7 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                 <div className="space-y-8 order-2 lg:order-1">
                     {/* Mobile Stylist Notice */}
                     <div className="lg:hidden bg-slate-50 border border-slate-100 rounded-lg p-4 flex items-center justify-between gap-4">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Advanced Appearance Settings</p>
+                        <p className="text-[9px] font-black text-slate-400 uppercase">Advanced Appearance Settings</p>
                         <span className="text-[8px] font-bold text-slate-500 bg-white border border-slate-100 px-2 py-1 rounded">PC ONLY</span>
                     </div>
 
@@ -958,16 +958,16 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                                     )}
                                 </div>
                                 <div className="flex-1 space-y-1 pb-2">
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                                    <h3 className="text-2xl font-normal text-slate-900">
                                         {state.name || 'Setup Profile'}
                                     </h3>
-                                    <p className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.2em]">{state.title || "Venture Scout"}</p>
+                                    <p className="text-slate-500 font-bold text-[10px] uppercase">{state.title || "Venture Scout"}</p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                 <div className="space-y-2.5">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Full Name</label>
+                                    <label className="text-[9px] font-black text-slate-400 uppercase ml-1">Full Name</label>
                                     <input
                                         type="text"
                                         value={state.name}
@@ -1048,7 +1048,7 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                                         <button
                                             key={level}
                                             onClick={() => setState({ ...state, researchDepth: level })}
-                                            className={`flex-1 sm:flex-none px-6 py-2 text-[9px] font-black uppercase tracking-widest rounded transition-all ${state.researchDepth === level ? 'bg-brand-accent text-white shadow-md' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+                                            className={`flex-1 sm:flex-none px-6 py-2 text-[9px] font-black uppercase rounded transition-all ${state.researchDepth === level ? 'bg-brand-accent text-white shadow-md' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
                                         >
                                             {level}
                                         </button>
@@ -1092,13 +1092,13 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                         <div className="p-4 md:p-6 bg-white flex flex-col sm:flex-row gap-3">
                             <button
                                 onClick={onClear}
-                                className="flex-1 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-all font-black text-[9px] uppercase tracking-[0.2em] shadow-lg shadow-rose-200 flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-all font-black text-[9px] uppercase shadow-lg shadow-rose-200 flex items-center justify-center gap-2"
                             >
                                 Confirm & Wipe Data
                             </button>
                             <button
                                 onClick={() => { logout(); navigate('/'); }}
-                                className="flex-1 py-3 bg-white border border-slate-100 text-slate-400 rounded-lg hover:border-slate-300 hover:text-slate-900 transition-all font-black text-[9px] uppercase tracking-[0.2em] shadow-sm flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-white border border-slate-100 text-slate-400 rounded-lg hover:border-slate-300 hover:text-slate-900 transition-all font-black text-[9px] uppercase shadow-sm flex items-center justify-center gap-2"
                             >
                                 <LogOut size={14} />
                                 Sign Out Account

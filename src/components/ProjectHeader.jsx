@@ -102,7 +102,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                     {isTitleLoading ? (
                         <div className="h-4 w-24 md:w-32 bg-slate-100 rounded animate-pulse" />
                     ) : (
-                        <h2 className="text-sm font-bold text-slate-900 truncate max-w-[150px] md:max-w-[300px]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        <h2 className="text-sm font-normal text-slate-900 truncate max-w-[150px] md:max-w-[300px]">
                             {projectTitle || 'New Venture'}
                         </h2>
                     )}

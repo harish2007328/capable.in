@@ -12,7 +12,7 @@ const QuestionList = ({ questions, onSubmit }) => {
     return (
         <div className="w-full max-w-3xl flex flex-col items-center space-y-8 animate-fade-in-up">
             <div className="text-center space-y-2">
-                <h2 className="text-2xl md:text-3xl font-display font-bold text-paper">
+                <h2 className="text-2xl md:text-3xl font-display font-normal text-paper">
                     Let's reduce the ambiguity.
                 </h2>
                 <p className="text-stone text-sm md:text-base">

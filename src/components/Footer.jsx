@@ -17,7 +17,7 @@ const Footer = () => {
 
                     {/* Product Links */}
                     <div>
-                        <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Product</h4>
+                        <h4 className="text-gray-900 font-display font-normal uppercase tracking-wider text-xs">Product</h4>
                         <ul className="space-y-4">
                             <li><Link to="/features" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Features</Link></li>
                             <li><Link to="/use-cases" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Use Cases</Link></li>
@@ -27,7 +27,7 @@ const Footer = () => {
 
                     {/* Company Links */}
                     <div>
-                        <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Company</h4>
+                        <h4 className="text-gray-900 font-display font-normal uppercase tracking-wider text-xs">Company</h4>
                         <ul className="space-y-4">
                             <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">About Us</a></li>
                             <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Privacy Policy</a></li>
@@ -37,7 +37,7 @@ const Footer = () => {
 
                     {/* Newsletter */}
                     <div>
-                        <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Stay Updated</h4>
+                        <h4 className="text-gray-900 font-display font-normal uppercase tracking-wider text-xs">Stay Updated</h4>
                         <p className="text-gray-500 font-sans text-sm mb-6 leading-relaxed">
                             Get the latest product updates and insights.
                         </p>

@@ -12,21 +12,21 @@ const UseCasesPage = () => {
             <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] bg-[var(--brand-accent)]/50 rounded-full blur-[180px] pointer-events-none"></div>
 
             {/* Hero Section */}
-            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-40">
+            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-36">
                 <div className="usecase-hero text-center max-w-5xl">
-                    <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
+                    <div className="mb-24 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Real World Applications</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Real World Applications</span>
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-display font-bold text-[#000000] tracking-tight leading-tight mb-6">
-                        Built for Every<br /><span className="text-[var(--brand-accent)]">Type of Founder</span>
+                    <h1 className="text-5xl md:text-7xl font-display font-normal text-[#000000] leading-tight mb-6">
+                        Built for Every<br /><span className="text-[var(--brand-accent)] font-display italic">Type of Founder</span>
                     </h1>
 
-                    <p className="text-base md:text-lg text-[#333333] max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
+                    <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
                         From local businesses to global SaaS products, Capable adapts to your unique context and delivers actionable strategies.
                     </p>
                 </div>
@@ -124,7 +124,7 @@ const UseCaseCard = ({ icon, gradient, title, description, features, example }) 
                     <div className="relative z-10">{icon}</div>
                 </div>
 
-                <h3 className="relative text-xl md:text-2xl font-bold text-gray-900 mb-2 tracking-tight">{title}</h3>
+                <h3 className="relative text-xl md:text-2xl font-normal text-gray-900 mb-2">{title}</h3>
                 <p className="relative text-sm text-gray-500 mb-6 font-medium">{description}</p>
 
                 <ul className="relative space-y-2.5 mb-6 flex-grow">
@@ -168,9 +168,9 @@ const SuccessStoriesSection = () => {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                     </span>
-                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Success Stories</span>
+                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Success Stories</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-gray-900 leading-tight tracking-tight mb-5">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-normal text-gray-900 leading-tight mb-5">
                     Real Founders, <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Real Results</span>
                 </h2>
             </div>
@@ -208,7 +208,7 @@ const CTASection = () => (
                 </div>
 
                 <div className="relative z-10 text-center max-w-3xl mx-auto">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight tracking-tight mb-6">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-normal text-white leading-tight mb-6">
                         Your Idea Can Be Next
                     </h2>
 
@@ -217,10 +217,10 @@ const CTASection = () => (
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <Link to="/dashboard" className="bg-white text-[var(--brand-accent)] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
+                        <Link to="/dashboard" className="bg-white text-[var(--brand-accent)] px-8 py-3 rounded-md font-bold text-sm transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
                             Validate Your Idea Now
                         </Link>
-                        <Link to="/pricing" className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">
+                        <Link to="/pricing" className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">
                             See Pricing
                         </Link>
                     </div>

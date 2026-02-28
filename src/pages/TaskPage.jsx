@@ -206,7 +206,7 @@ const TaskPage = () => {
                             <AlertCircle size={32} />
                         </div>
                     </div>
-                    <h2 className="text-2xl font-sans font-medium text-slate-900 mb-2">Generation Failed</h2>
+                    <h2 className="text-2xl font-display font-normal text-slate-900 mb-2">Generation Failed</h2>
                     <p className="text-slate-500 text-sm mb-8">
                         We couldn't generate a valid roadmap. Please try again.
                     </p>
@@ -244,9 +244,9 @@ const TaskPage = () => {
                 <div className="flex items-center gap-4 w-full md:w-auto">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-bold text-brand-blue uppercase tracking-wider">Active Venture</span>
+                            <span className="text-xs font-bold text-brand-blue uppercase">Active Venture</span>
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-sans font-medium text-slate-900 leading-none">
+                        <h1 className="text-2xl md:text-3xl font-display font-normal text-slate-900 leading-none">
                             {plan?.short_title || idea.split(' ').slice(0, 4).join(' ')}
                         </h1>
                     </div>
@@ -302,14 +302,14 @@ const TaskPage = () => {
                                     </div>
                                 </div>
 
-                                <h2 className="text-2xl font-sans font-medium text-slate-900 mb-6 leading-tight">
+                                <h2 className="text-2xl font-display font-normal text-slate-900 mb-6 leading-tight">
                                     {selectedDay.task}
                                 </h2>
 
                                 <div className="flex-1 overflow-y-auto mb-6 pr-2 custom-scrollbar space-y-6">
                                     {selectedDay.details && (
                                         <div className="space-y-3">
-                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tactical Steps</h3>
+                                            <h3 className="text-xs font-bold text-slate-400 uppercase">Tactical Steps</h3>
                                             <ul className="space-y-3">
                                                 {selectedDay.details.map((detail, idx) => (
                                                     <li key={idx} className="flex items-start gap-3 text-sm text-slate-600 leading-relaxed">
@@ -322,7 +322,7 @@ const TaskPage = () => {
                                     )}
 
                                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Deliverable</h3>
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase mb-2">Deliverable</h3>
                                         <p className="text-sm text-slate-700 italic">
                                             {selectedDay.deliverable}
                                         </p>
@@ -379,7 +379,7 @@ const TaskPage = () => {
 
                 {/* Middle: Map (4 cols) */}
                 <div className="lg:col-span-4 flex flex-col h-full overflow-hidden bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6 border-b border-slate-100 pb-4">
+                    <h3 className="text-sm font-bold text-slate-900 uppercase mb-6 border-b border-slate-100 pb-4">
                         Roadmap
                     </h3>
 
@@ -412,7 +412,7 @@ const TaskPage = () => {
 
                     {/* Phase Statistics */}
                     <div className="mt-auto pt-6 border-t border-slate-100">
-                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Phase Progress</h4>
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase mb-4">Phase Progress</h4>
                         <div className="grid grid-cols-2 gap-4">
                             {plan.phases.map(p => {
                                 const phaseDays = plan.days.filter(d => d.phase_id === p.id);
@@ -448,7 +448,7 @@ const TaskPage = () => {
                         <div className="absolute inset-0 z-20 flex bg-white/90 backdrop-blur-sm">
                             <div className="w-64 bg-white border-r border-slate-100 flex flex-col shadow-xl animate-slide-in-left">
                                 <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">History</h3>
+                                    <h3 className="text-xs font-bold text-slate-400 uppercase">History</h3>
                                     <button onClick={() => setIsHistoryOpen(false)} className="text-slate-400 hover:text-slate-900">
                                         <X size={16} />
                                     </button>

@@ -101,107 +101,52 @@ const HomePage = () => {
 
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-white">
-            {/* Background Gradient Base */}
-
-
-            {/* Corner Blurred Shapes */}
-            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#073B99]/100 rounded-full blur-[220px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0BAAFF]/100 rounded-full blur-[220px] translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
-
-            {/* Floating Decoration Cards (Desktop Only) */}
-            <div className="hidden lg:block absolute inset-0 pointer-events-none overflow-hidden max-w-[1600px] mx-auto z-20">
-
-                {/* LEFT SIDE CARDS */}
-                {/* Card 1: Top Left */}
-                <div className="absolute top-32 left-8 w-fit transform -rotate-6 transition-all duration-1000 hover:rotate-0 hover:scale-105 pointer-events-auto">
-                    <GlassCard
-                        quote="Now or never."
-                        sub="Execution is everything."
-                        gradient="from-[var(--brand-accent)]/90 to-[#0BAAFF]/90"
-                        textColor="text-white"
-                    />
-                </div>
-
-                {/* Card 2: Middle Left */}
-                <div className="absolute top-96 -left-4 w-fit transform rotate-6 transition-all duration-1000 hover:rotate-0 hover:scale-105 pointer-events-auto">
-                    <GlassCard
-                        quote="Capable."
-                        sub="Built for speed."
-                        gradient="from-white/80 to-blue-50/80"
-                        textColor="text-[#073B99]"
-                        light={true}
-                    />
-                </div>
-
-                {/* Card 3: Bottom Left */}
-                <div className="absolute top-[600px] left-12 w-fit transform -rotate-3 transition-all duration-1000 hover:rotate-0 hover:scale-105 pointer-events-auto">
-                    <GlassCard
-                        quote="No limits."
-                        sub="Scale infinitely."
-                        gradient="from-[#073B99]/90 to-[var(--brand-accent)]/90"
-                        textColor="text-white"
-                    />
-                </div>
-
-
-                {/* RIGHT SIDE CARDS */}
-                {/* Card 4: Top Right */}
-                <div className="absolute top-40 right-12 w-fit transform rotate-6 transition-all duration-1000 hover:rotate-0 hover:scale-105 pointer-events-auto">
-                    <GlassCard
-                        quote="Dream Big."
-                        sub="We handle the rest."
-                        gradient="from-white/80 to-indigo-50/80"
-                        textColor="text-[#073B99]"
-                        light={true}
-                    />
-                </div>
-
-                {/* Card 5: Middle Right */}
-                <div className="absolute top-96 -right-4 w-fit transform -rotate-6 transition-all duration-1000 hover:rotate-0 hover:scale-105 pointer-events-auto">
-                    <GlassCard
-                        quote="Launch Fast."
-                        sub="Weeks to seconds."
-                        gradient="from-[#0BAAFF]/90 to-[var(--brand-accent)]/90"
-                        textColor="text-white"
-                    />
-                </div>
-
-                {/* Card 6: Bottom Right */}
-                <div className="absolute top-[550px] right-24 w-fit transform rotate-3 transition-all duration-1000 hover:rotate-0 hover:scale-105 pointer-events-auto">
-                    <GlassCard
-                        quote="Efficiency."
-                        sub="The new standard."
-                        gradient="from-blue-50/90 to-white/90"
-                        textColor="text-[#073B99]"
-                        light={true}
-                        border="border-[var(--brand-accent)]/20"
-                    />
-                </div>
+            {/* Custom Bar Background - Locked to Hero Section */}
+            <div className="absolute top-0 left-0 right-0 h-screen w-full flex items-end overflow-hidden pointer-events-none z-0">
+                {[...Array(17)].map((_, i) => {
+                    // 17 bars: Valley shape from 90% at edges to 40% in center (index 8)
+                    const center = 8;
+                    const distFromCenter = Math.abs(i - center);
+                    const height = 40 + (distFromCenter * 6.25); // (50% range / 8 steps = 6.25)
+                    return (
+                        <div
+                            key={i}
+                            style={{
+                                height: `${height}%`,
+                                width: `${100 / 17}%`,
+                                background: 'linear-gradient(to top, #0051ffff 0%, #00c3ffff 50%, #ffffff01 100%)',
+                                opacity: 0.9
+                            }}
+                            className="flex-shrink-0 border-none"
+                        />
+                    );
+                })}
             </div>
+            {/* Soft Edge Overlay for the 100vh break */}
+            <div className="absolute top-[90vh] left-0 right-0 h-[10vh] bg-gradient-to-t/10 from-white to-transparent z-10 pointer-events-none" />
 
-            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-30">
+
+
+            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-40">
                 {/* Badge */}
                 <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                     <span className="flex h-2 w-2 relative">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                     </span>
-                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Intelligent Idea Architect</span>
+                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Intelligent Idea Architect</span>
                 </div>
 
                 {/* Hero Headings */}
-                <div className="max-w-5xl text-center space-y-2 mb-5">
-                    <h1 className="text-5xl md:text-7xl font-display font-bold text-[#000000] tracking-tight leading-tight">
-                        Transform Your Idea
-                    </h1>
-                    <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tight leading-tight">
-                        to a <span className="text-[var(--brand-accent)]">Business</span>
+                <div className="max-w-5xl text-center space-y-4 mb-6">
+                    <h1 className="text-5xl md:text-7xl font-display font-normal text-brand-black leading-tight">
+                        Build Your <span className="text-[var(--brand-accent)] font-display italic">Business</span>
                     </h1>
                 </div>
 
                 {/* Subtitle */}
-                <p className="text-base md:text-lg text-[#333333] max-w-2xl mx-auto text-center font-sans font-medium leading-relaxed mb-14 px-6">
-                    Real-time market signals from web search + social platforms. Strategic analysis with demand scoring. A complete 60-day execution plan in under a minute.
+                <p className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto text-center font-sans font-medium leading-relaxed mb-14 px-6">
+                    Turn your vision into an actionable roadmap.
                 </p>
 
                 {/* Levitating Glow Input Area & Process Flow */}
@@ -220,7 +165,7 @@ const HomePage = () => {
 
                             <div className="relative w-full">
                                 <textarea
-                                    className={`w-full h-28 p-6 text-xl text-[#111111] placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed tracking-tight rounded-md transition-opacity duration-300 ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
+                                    className={`w-full h-28 p-6 text-xl text-[#111111] placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed rounded-md transition-opacity duration-300 ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
                                     placeholder="Describe your business idea in a sentence..."
                                     value={idea}
                                     onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(''); }}
@@ -268,7 +213,7 @@ const HomePage = () => {
                                         </div>
 
                                         {/* Title */}
-                                        <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
+                                        <h3 className="text-2xl font-normal text-gray-900 mb-2">
                                             We Can't Process This
                                         </h3>
 
@@ -299,7 +244,7 @@ const HomePage = () => {
                                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                                                 <polyline points="9 12 12 15 22 5" />
                                             </svg>
-                                            <span className="text-[10px] font-bold uppercase tracking-wider">Safety Filter Active</span>
+                                            <span className="text-[10px] font-bold uppercase">Safety Filter Active</span>
                                         </div>
                                     </div>
                                 </div>
@@ -323,7 +268,7 @@ const HomePage = () => {
 
                                 <button
                                     onClick={handleGenerate}
-                                    className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[var(--brand-accent)]/25 hover:shadow-[var(--brand-accent)]/40"
+                                    className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-sm transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[var(--brand-accent)]/25 hover:shadow-[var(--brand-accent)]/40"
                                 >
                                     <span>Generate</span>
                                 </button>
@@ -332,9 +277,9 @@ const HomePage = () => {
                     </div>
 
                     {/* 2. FLOW LINES & BOXES */}
-                    <div className="relative w-full max-w-[95%] md:max-w-6xl mt-36">
+                    <div className="relative w-full max-w-[95%] md:max-w-6xl mt-64">
                         {/* SVG Flow Lines with Comet Particle Animation */}
-                        <svg className="absolute -top-32 left-0 w-full h-30 z-0 pointer-events-none -translate-y-4" viewBox="0 0 800 160" preserveAspectRatio="none">
+                        <svg className="absolute -top-[350px] left-0 w-full h-[450px] z-0 pointer-events-none" viewBox="0 0 800 300" preserveAspectRatio="none">
                             <style>
                                 {`
                                     @keyframes particleFlow {
@@ -375,44 +320,44 @@ const HomePage = () => {
                             </style>
 
                             {/* Left Branch - Base */}
-                            <path d="M 400 0 L 400 50 Q 400 70 380 70 L 133 70 Q 113 70 113 90 L 113 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
                             {/* Left Branch - Particle Trail */}
-                            <path d="M 400 0 L 400 50 Q 400 70 380 70 L 133 70 Q 113 70 113 90 L 113 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
-                            <path d="M 400 0 L 400 50 Q 400 70 380 70 L 133 70 Q 113 70 113 90 L 113 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
-                            <path d="M 400 0 L 400 50 Q 400 70 380 70 L 133 70 Q 113 70 113 90 L 113 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
 
                             {/* Center Branch - Base */}
-                            <path d="M 400 0 L 400 160"
+                            <path d="M 400 0 L 400 300"
                                 fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
                             {/* Center Branch - Particle Trail */}
-                            <path d="M 400 0 L 400 160"
+                            <path d="M 400 0 L 400 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
-                            <path d="M 400 0 L 400 160"
+                            <path d="M 400 0 L 400 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
-                            <path d="M 400 0 L 400 160"
+                            <path d="M 400 0 L 400 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
 
                             {/* Right Branch - Base */}
-                            <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
                                 fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
                             {/* Right Branch - Particle Trail */}
-                            <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
-                            <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
-                            <path d="M 400 0 L 400 50 Q 400 70 420 70 L 667 70 Q 687 70 687 90 L 687 160"
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
                                 fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
                         </svg>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-24">
                             <StepBox
                                 label="Context"
                                 title="Smart Interview"
-                                description="Dynamic question wizard that adapts to your idea—no generic templates. Location-aware for hyperlocal businesses."
+                                description="Dynamic question wizard that adapts to your idea â€” no generic templates. Location-aware for hyperlocal businesses."
                                 delay="0"
                                 image="/market_analysis_vector.png"
                             />
@@ -466,7 +411,7 @@ const HomePage = () => {
 
                         {/* Quick Links */}
                         <div>
-                            <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Product</h4>
+                            <h4 className="text-gray-900 font-display font-normal uppercase text-xs">Product</h4>
                             <ul className="space-y-4">
                                 <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Features</a></li>
                                 <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Case Studies</a></li>
@@ -477,7 +422,7 @@ const HomePage = () => {
 
                         {/* Company Links */}
                         <div>
-                            <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Company</h4>
+                            <h4 className="text-gray-900 font-display font-normal uppercase text-xs">Company</h4>
                             <ul className="space-y-4">
                                 <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">About Us</a></li>
                                 <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Careers</a></li>
@@ -488,7 +433,7 @@ const HomePage = () => {
 
                         {/* Newsletter */}
                         <div>
-                            <h4 className="text-gray-900 font-bold mb-6 font-display uppercase tracking-wider text-xs">Stay in the loop</h4>
+                            <h4 className="text-gray-900 font-display font-normal uppercase text-xs">Stay in the loop</h4>
                             <p className="text-gray-500 font-sans text-sm mb-6 leading-relaxed">
                                 Join our newsletter for the latest insights in AI and entrepreneurship.
                             </p>
@@ -534,7 +479,7 @@ const DeepDiveSection = () => {
             phase: "02",
             title: "Context-Aware Questions",
             subtitle: "Phase: Refinement",
-            description: "AI-powered wizard generates questions dynamically based on your idea—global or local, B2B or B2C. No duplicate questions, ever.",
+            description: "AI-powered wizard generates questions dynamically based on your idea â€” global or local, B2B or B2C. No duplicate questions, ever.",
             icon: <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>,
             span: "lg:col-span-1"
         },
@@ -567,13 +512,13 @@ const DeepDiveSection = () => {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">The Process</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">The Process</span>
                     </div>
-                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-gray-900 leading-tight tracking-tight mb-5 text-center">
-                        How It <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Works</span>
+                    <h1 className="text-5xl md:text-7xl font-display font-normal text-gray-900 leading-tight mb-5 text-center">
+                        How It <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] font-display italic">Works</span>
                     </h1>
-                    <p className="mt-8 text-xl md:text-2xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto text-center">
-                        From initial idea to actionable roadmap—four strategic phases powered by real-time data and AI analysis.
+                    <p className="mt-8 text-lg md:text-xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto text-center">
+                        From initial idea to actionable roadmap â€” four strategic phases powered by real-time data and AI analysis.
                     </p>
                 </div>
 
@@ -588,15 +533,15 @@ const DeepDiveSection = () => {
                                 <div className="flex justify-between items-start mb-12">
                                     <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
                                         {step.icon}
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-blue-100">{step.subtitle}</span>
+                                        <span className="text-[10px] font-bold uppercase text-blue-100">{step.subtitle}</span>
                                     </div>
-                                    <span className="text-5xl md:text-6xl font-display font-black text-white/5 transition-opacity duration-500 group-hover:opacity-10">
+                                    <span className="text-5xl md:text-6xl font-display font-normal text-white/5 transition-opacity duration-500 group-hover:opacity-10">
                                         {step.phase}
                                     </span>
                                 </div>
 
                                 <div className="mt-auto">
-                                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white mb-4 tracking-tight leading-tight">
+                                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-display font-normal text-white mb-4 leading-tight">
                                         {step.title}
                                     </h3>
                                     <p className="text-blue-50/80 font-sans font-medium leading-relaxed text-base md:text-lg">
@@ -645,28 +590,7 @@ const CollaboratorCursor = ({ name, color, hex, top, left, delay }) => (
     </div>
 );
 
-const GlassCard = ({ quote, sub, gradient, textColor, light = false, border }) => (
-    <div className={`relative group w-auto h-auto min-w-[220px] rounded-lg overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:scale-105 shadow-xl`}>
-        {/* Background */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${gradient} ${light ? 'backdrop-blur-xl' : ''}`}></div>
 
-        {/* Glass Overlay/Border */}
-        <div className={`absolute inset-0 border ${border || 'border-white/20'} rounded-lg z-10`}></div>
-
-        {/* Content */}
-        <div className="relative z-20 flex flex-col justify-center items-center py-8 px-10 text-center">
-            <h3 className={`text-2xl md:text-3xl font-display font-bold mb-2 leading-tight whitespace-nowrap ${textColor}`}>
-                {quote}
-            </h3>
-            <p className={`text-xs md:text-sm font-medium opacity-90 whitespace-nowrap ${textColor}`}>
-                {sub}
-            </p>
-        </div>
-
-        {/* Shine Effect */}
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-tr from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-30"></div>
-    </div>
-);
 
 const FeatureCard = ({ icon, title, description }) => (
     <div className="group space-y-6 p-8 rounded-lg bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-2">
@@ -674,7 +598,7 @@ const FeatureCard = ({ icon, title, description }) => (
             {icon}
         </div>
         <div className="space-y-3">
-            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{title}</h3>
+            <h3 className="text-2xl font-bold text-slate-900">{title}</h3>
             <p className="text-slate-500 leading-relaxed font-sans text-lg">
                 {description}
             </p>
@@ -695,13 +619,13 @@ const StepBox = ({ label, title, description, delay, image }) => (
             {/* Content Container */}
             <div className="p-8 pb-0 flex flex-col items-center text-center flex-grow">
                 {/* Label Badge */}
-                <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-[#0BAAFF]/10 to-[var(--brand-accent)]/10 border border-[#0BAAFF]/20 text-xs font-bold uppercase tracking-wider mb-4 text-[var(--brand-accent)]">
+                <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-[#0BAAFF]/10 to-[var(--brand-accent)]/10 border border-[#0BAAFF]/20 text-xs font-bold uppercase mb-4 text-[var(--brand-accent)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-accent)] mr-2 animate-pulse"></span>
                     {label}
                 </span>
 
                 {/* Title */}
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3">{title}</h3>
+                <h3 className="text-2xl md:text-3xl font-display font-normal text-gray-900 mb-3">{title}</h3>
 
                 {/* Description */}
                 <p className="text-sm text-gray-500 leading-relaxed max-w-xs">{description}</p>
@@ -755,12 +679,12 @@ const WhyCapableSection = () => {
         },
         {
             title: "Privacy First",
-            description: "Your data is secured with enterprise-grade encryption. No external servers—your ideas stay completely private.",
+            description: "Your data is secured with enterprise-grade encryption. No external servers â€” your ideas stay completely private.",
             image: "/feature_validation.png"
         },
         {
             title: "No Repeated Tasks",
-            description: "Every day in your 60-day plan has unique, specific activities—not generic advice.",
+            description: "Every day in your 60-day plan has unique, specific activities â€” not generic advice.",
             image: "/feature_roadmaps.png"
         },
         {
@@ -815,12 +739,12 @@ const WhyCapableSection = () => {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Why Capable</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Why Capable</span>
                     </div>
-                    <h2 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-gray-900 leading-[0.9] tracking-tighter mb-4 md:mb-6">
-                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Founders</span>
+                    <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-gray-900 leading-[0.9] mb-4 md:mb-6">
+                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] font-display italic">Founders</span>
                     </h2>
-                    <p className="text-lg md:text-xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto px-4">
+                    <p className="text-lg md:text-xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto text-center px-4">
                         Everything you need to validate, plan, and launch your business idea with confidence.
                     </p>
                 </div>
@@ -861,7 +785,7 @@ const WhyCapableSection = () => {
                                 )}
 
                                 {/* Content */}
-                                <h3 className="text-lg font-bold text-gray-900 mb-2 tracking-tight px-1">
+                                <h3 className="text-2xl font-display font-normal text-gray-900 mb-2 px-1">
                                     {feature.title}
                                 </h3>
                                 <p className="text-gray-500 font-sans leading-relaxed text-sm px-1">
@@ -945,21 +869,21 @@ const CTASection = () => {
                         </div>
 
                         {/* Headline */}
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight tracking-tight mb-6">
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-normal text-white leading-tight tracking-tight mb-6">
                             From Idea to Execution
                             <br />
-                            in 60 Seconds
+                            in 60 <span className="font-display italic">Seconds</span>
                         </h2>
 
                         {/* Subtitle */}
-                        <p className="text-base md:text-lg text-white/80 font-sans font-medium leading-relaxed max-w-xl mx-auto mb-10">
-                            Type your idea. Get market research, strategic analysis, and a 60-day action plan—all powered by AI and real-time data.
+                        <p className="text-lg md:text-xl text-white/80 font-sans font-medium leading-relaxed max-w-xl mx-auto text-center mb-10">
+                            Type your idea. Get market research, strategic analysis, and a 60-day action plan â€” all powered by AI and real-time data.
                         </p>
 
                         {/* CTA Buttons - matching hero button style */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                             <Link to="/dashboard" className="bg-white text-[var(--brand-accent)] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
-                                Start Building — It's Free
+                                Start Building  â€”  It's Free
                             </Link>
                             <button className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">
                                 Watch Demo
@@ -1015,13 +939,13 @@ const FAQSection = () => {
                             <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">FAQ</span>
                         </div>
 
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-gray-900 tracking-tight mb-6 leading-[1.1]">
+                        <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-gray-900 mb-6 leading-[1.1]">
                             Got
                             <br />
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Questions?</span>
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] font-display italic">Questions?</span>
                         </h2>
 
-                        <p className="text-gray-500 font-sans text-base md:text-lg max-w-md font-medium mb-8 leading-relaxed">
+                        <p className="text-gray-500 font-sans text-lg md:text-xl max-w-md font-medium mb-8 leading-relaxed">
                             Everything you need to know about Capable. Can't find what you're looking for? Reach out to our team.
                         </p>
 
@@ -1089,3 +1013,4 @@ const FAQSection = () => {
 };
 
 export default HomePage;
+

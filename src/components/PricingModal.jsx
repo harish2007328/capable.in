@@ -50,7 +50,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                     {/* Header */}
                     <div className="p-8 pb-0 flex justify-between items-start">
                         <div>
-                            <h2 className="text-3xl font-bold text-slate-900" style={{ fontFamily: "'Syne', sans-serif" }}>Choose Your Plan</h2>
+                            <h2 className="text-3xl font-normal text-slate-900">Choose Your Plan</h2>
                             <p className="text-slate-500 mt-2">Scale your vision with the right tools.</p>
                         </div>
                         <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
@@ -92,7 +92,7 @@ const PricingModal = ({ isOpen, onClose }) => {
                                         <Icon size={24} />
                                     </div>
 
-                                    <h3 className="text-xl font-bold text-slate-900 mb-1">{plan.name}</h3>
+                                    <h3 className="text-xl font-normal text-slate-900 mb-1">{plan.name}</h3>
                                     <div className="mb-6">
                                         <span className="text-3xl font-bold text-slate-900">{typeof plan.price === 'number' ? `$${plan.price}` : plan.price}</span>
                                         {typeof plan.price === 'number' && <span className="text-slate-400 text-sm ml-1">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>}

@@ -12,25 +12,25 @@ const FeaturesPage = () => {
             <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-[var(--brand-accent)]/50 rounded-full blur-[180px] pointer-events-none"></div>
 
             {/* Hero Section */}
-            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-40">
+            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-36">
                 <div className="feature-hero text-center max-w-5xl">
                     {/* Badge */}
-                    <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
+                    <div className="mb-24 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Platform Features</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Platform Features</span>
                     </div>
 
                     {/* Hero Headings */}
-                    <h1 className="text-5xl md:text-7xl font-display font-bold text-[#000000] tracking-tight leading-tight mb-6">
+                    <h1 className="text-5xl md:text-7xl font-display font-normal text-[#000000] leading-tight mb-6">
                         Everything You Need to
                         <br />
-                        <span className="text-[var(--brand-accent)]">Launch Fast</span>
+                        <span className="text-[var(--brand-accent)] font-display italic">Launch Fast</span>
                     </h1>
 
-                    <p className="text-base md:text-lg text-[#333333] max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
+                    <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto font-sans font-medium leading-relaxed mb-12 px-6">
                         From market research to execution planning, Capable provides all the tools founders need to validate ideas and move fast with confidence.
                     </p>
                 </div>
@@ -123,7 +123,7 @@ const FeaturesPage = () => {
                             </div>
 
                             <div className="relative z-10 text-center max-w-3xl mx-auto">
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight tracking-tight mb-6">
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-normal text-white leading-tight tracking-tight mb-6">
                                     Ready to Build?
                                 </h2>
 
@@ -135,7 +135,7 @@ const FeaturesPage = () => {
                                     <Link to="/dashboard" className="bg-white text-[var(--brand-accent)] px-8 py-3 rounded-md font-bold text-sm tracking-wide transition-all duration-300 hover:bg-white/80 active:scale-95 shadow-lg shadow-black/20 border border-white/20">
                                         Start Free Today
                                     </Link>
-                                    <Link to="/pricing" className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm tracking-wide border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">
+                                    <Link to="/pricing" className="bg-white/10 backdrop-blur-sm text-white px-8 py-3 rounded-md font-bold text-sm border border-white/20 transition-all duration-300 hover:bg-white/20 active:scale-95">
                                         View Pricing
                                     </Link>
                                 </div>
@@ -171,7 +171,7 @@ const FeatureCard = ({ icon, gradient, title, description, highlights }) => (
             </div>
 
             {/* Content */}
-            <h3 className="relative text-xl md:text-2xl font-bold text-gray-900 mb-3 tracking-tight">{title}</h3>
+            <h3 className="relative text-xl md:text-2xl font-normal text-gray-900 mb-3">{title}</h3>
             <p className="relative text-sm text-gray-600 leading-relaxed mb-6 flex-grow">{description}</p>
 
             {/* Highlights with glass effect */}
@@ -223,10 +223,10 @@ const DeepFeatureSection = () => {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
                         </span>
-                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-wider">Deep Dive</span>
+                        <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Deep Dive</span>
                     </div>
-                    <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-gray-900 leading-tight tracking-tight mb-5">
-                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF]">Speed</span>
+                    <h2 className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-gray-900 leading-tight mb-5">
+                        Built for <span className="bg-clip-text text-transparent bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] font-display">Speed</span>
                     </h2>
                     <p className="text-xl md:text-2xl text-gray-500 font-sans font-medium leading-relaxed max-w-2xl mx-auto">
                         Every feature designed to help you move faster without sacrificing quality.
@@ -255,7 +255,7 @@ const DeepFeatureSection = () => {
                                     </div>
                                 )}
                                 <div className="relative p-8">
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">{feature.title}</h3>
+                                    <h3 className="text-2xl font-normal text-gray-900 mb-3">{feature.title}</h3>
                                     <p className="text-gray-600 leading-relaxed font-sans">{feature.description}</p>
                                 </div>
                             </div>

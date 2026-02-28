@@ -41,17 +41,17 @@ const Header = () => {
 
     return (
         <motion.header
-            className="fixed top-0 left-0 right-0 z-50 pt-4 px-4 md:px-8"
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'pt-4 px-4 md:px-8' : 'pt-0 px-0'}`}
         >
-            <div className={`max-w-5xl mx-auto px-6 py-4 flex items-center justify-between bg-white/70 backdrop-blur-md border border-white/20 rounded-lg shadow-sm transition-all duration-300 ${scrolled ? 'shadow-md border-slate-200/50' : ''}`}>
+            <div className={`relative mx-auto flex items-center justify-between border-b transition-all duration-500 ${scrolled ? 'max-w-5xl px-6 py-4 bg-white/70 backdrop-blur-md border-white/20 rounded-lg shadow-md border-slate-200/50' : 'max-w-full w-full px-8 py-5 bg-white border-transparent rounded-none'}`}>
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">
                     <Logo color="dark" showText={true} />
                 </Link>
 
-                {/* Desktop Nav */}
-                <nav className="hidden lg:flex items-center gap-8">
+                {/* Desktop Nav - Absolutely Centered */}
+                <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
                     <Link to="/features" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Features</Link>
                     <Link to="/use-cases" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Use Cases</Link>
                     <Link to="/pricing" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Pricing</Link>
@@ -153,9 +153,9 @@ const Header = () => {
                         </div>
 
                         <nav className="flex flex-col gap-6 text-center">
-                            <Link to="/features" className="text-2xl font-bold text-brand-black font-display">Features</Link>
-                            <Link to="/use-cases" className="text-2xl font-bold text-brand-black font-display">Use Cases</Link>
-                            <Link to="/pricing" className="text-2xl font-bold text-brand-black font-display">Pricing</Link>
+                            <Link to="/features" className="text-2xl font-normal text-brand-black font-display">Features</Link>
+                            <Link to="/use-cases" className="text-2xl font-normal text-brand-black font-display">Use Cases</Link>
+                            <Link to="/pricing" className="text-2xl font-normal text-brand-black font-display">Pricing</Link>
                         </nav>
 
                         <div className="mt-auto flex flex-col gap-4">
