@@ -9,6 +9,11 @@ import { Database } from './database';
 const STORAGE_KEY = 'capable_projects';
 const ACTIVE_PROJECT_ID = 'capable_active_project_id';
 
+const memoryCache = {
+    allProjectsFetched: false,
+    projects: {}
+};
+
 const getLocalProjects = () => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : {};
@@ -51,35 +56,58 @@ export const ProjectStorage = {
         }
     },
 
-    getAll: async () => {
+    getAll: async (forceRefresh = false) => {
+        if (!forceRefresh && memoryCache.allProjectsFetched) {
+            return Object.values(memoryCache.projects).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             try {
                 const projects = await Database.getProjects();
-                return projects.map(p => ({
+                const formatted = projects.map(p => ({
                     id: p.id,
                     title: p.title,
                     data: p.data,
                     createdAt: p.created_at
                 }));
+                formatted.forEach(p => memoryCache.projects[p.id] = p);
+                memoryCache.allProjectsFetched = true;
+                return Object.values(memoryCache.projects).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
             } catch (error) {
                 console.error('Supabase fetch failed, falling back to local:', error);
             }
         }
-        return Object.values(getLocalProjects()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const local = getLocalProjects();
+        Object.values(local).forEach(p => memoryCache.projects[p.id] = p);
+        memoryCache.allProjectsFetched = true;
+        return Object.values(memoryCache.projects).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     },
 
-    getById: async (id) => {
+    getById: async (id, forceRefresh = false) => {
+        if (!forceRefresh && memoryCache.projects[id]) {
+            return memoryCache.projects[id];
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (session && String(id).includes('-')) { // UUID check
             try {
                 const p = await Database.getProjectById(id);
-                return p ? { id: p.id, title: p.title, data: p.data, createdAt: p.created_at } : null;
+                if (p) {
+                    const formatted = { id: p.id, title: p.title, data: p.data, createdAt: p.created_at };
+                    memoryCache.projects[id] = formatted;
+                    return formatted;
+                }
             } catch (e) {
                 console.warn('Project not found in DB, checking local');
             }
         }
-        return getLocalProjects()[id] || null;
+        const localP = getLocalProjects()[id];
+        if (localP) {
+            memoryCache.projects[id] = localP;
+            return localP;
+        }
+        return null;
     },
 
     create: async (idea, title = 'New Project') => {
@@ -87,19 +115,22 @@ export const ProjectStorage = {
         if (session) {
             const project = await Database.createProject(session.user.id, title, { idea, chats: null, progress: {} });
             localStorage.setItem(ACTIVE_PROJECT_ID, project.id);
+            memoryCache.projects[project.id] = { id: project.id, title: project.title, data: project.data, createdAt: project.created_at };
             return project.id;
         }
 
         const id = 'p-' + Date.now();
         const projects = getLocalProjects();
-        projects[id] = {
+        const newLocal = {
             id,
             title: title || idea.split(' ').slice(0, 2).join(' '),
             data: { idea, chats: null, progress: {} },
             createdAt: new Date().toISOString()
         };
+        projects[id] = newLocal;
         saveLocalProjects(projects);
         localStorage.setItem(ACTIVE_PROJECT_ID, id);
+        memoryCache.projects[id] = newLocal;
         return id;
     },
 
@@ -112,6 +143,11 @@ export const ProjectStorage = {
         if (!current) return;
 
         const newData = { ...current.data, ...updates };
+
+        if (memoryCache.projects[id]) {
+            memoryCache.projects[id].data = newData;
+            if (titleUpdate) memoryCache.projects[id].title = titleUpdate;
+        }
 
         if (session && String(id).includes('-')) {
             await Database.updateProject(id, {
@@ -131,6 +167,8 @@ export const ProjectStorage = {
 
     delete: async (id) => {
         const { data: { session } } = await supabase.auth.getSession();
+        delete memoryCache.projects[id];
+
         if (session && id.length > 10) {
             await Database.deleteProject(id);
         } else {
@@ -160,6 +198,9 @@ export const ProjectStorage = {
         if (session) {
             await Database.deleteAllProjects(session.user.id);
         }
+        memoryCache.allProjectsFetched = false;
+        memoryCache.projects = {};
+
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(ACTIVE_PROJECT_ID);
         // Clear all matching keys for progress and chats

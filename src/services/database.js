@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 export const Database = {
     // Projects
     getProjects: async () => {
-        const { data, error } = await supabase
+        const { data, error } = await supabase.database
             .from('projects')
             .select('*')
             .order('created_at', { ascending: false });
@@ -13,7 +13,7 @@ export const Database = {
     },
 
     getProjectById: async (id) => {
-        const { data, error } = await supabase
+        const { data, error } = await supabase.database
             .from('projects')
             .select('*')
             .eq('id', id)
@@ -24,7 +24,7 @@ export const Database = {
     },
 
     createProject: async (userId, title, projectData) => {
-        const { data, error } = await supabase
+        const { data, error } = await supabase.database
             .from('projects')
             .insert([
                 { user_id: userId, title, data: projectData }
@@ -37,7 +37,7 @@ export const Database = {
     },
 
     updateProject: async (id, updates) => {
-        const { data, error } = await supabase
+        const { data, error } = await supabase.database
             .from('projects')
             .update(updates)
             .eq('id', id)
@@ -49,7 +49,7 @@ export const Database = {
     },
 
     deleteProject: async (id) => {
-        const { error } = await supabase
+        const { error } = await supabase.database
             .from('projects')
             .delete()
             .eq('id', id);
@@ -58,7 +58,7 @@ export const Database = {
     },
 
     deleteAllProjects: async (userId) => {
-        const { error } = await supabase
+        const { error } = await supabase.database
             .from('projects')
             .delete()
             .eq('user_id', userId);

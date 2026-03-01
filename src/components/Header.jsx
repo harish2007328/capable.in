@@ -36,6 +36,15 @@ const Header = () => {
         setUserMenuOpen(false);
     }, [location]);
 
+    useEffect(() => {
+        if (user) {
+            console.log("=== USER AVATAR DEBUG ===");
+            console.log("Profile:", user.profile);
+            console.log("Metadata:", user.metadata);
+            console.log("Providers:", user.providers);
+        }
+    }, [user]);
+
     // Reusable Gradient Button Style
     const btnClassName = "bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-2.5 rounded-md font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center whitespace-nowrap";
 
@@ -78,15 +87,15 @@ const Header = () => {
                                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                                     className="flex items-center justify-center w-[35px] h-[35px] bg-white border border-slate-100 rounded-full text-slate-900 hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] shadow-sm active:scale-95 group overflow-hidden transition-all"
                                 >
-                                    {user.user_metadata?.avatar_url ? (
+                                    {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
                                         <img
-                                            src={user.user_metadata.avatar_url}
+                                            src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
                                             alt="Profile"
                                             className="w-full h-full object-cover group-hover:scale-102 transition-transform"
                                         />
-                                    ) : user.user_metadata?.name ? (
+                                    ) : user?.profile?.name || user?.user_metadata?.name ? (
                                         <span className="font-bold text-xs uppercase tracking-tighter">
-                                            {user.user_metadata.name.split(' ').map(n => n[0]).join('')}
+                                            {(user?.profile?.name || user?.user_metadata?.name).split(' ').map(n => n[0]).join('')}
                                         </span>
                                     ) : (
                                         <User size={18} className="transition-transform" />
@@ -104,7 +113,7 @@ const Header = () => {
                                             style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
                                         >
                                             <div className="px-4 py-4 mb-2 border-b border-slate-50 text-left">
-                                                <p className="text-sm font-bold text-slate-900 truncate">{user.user_metadata?.name || 'Venture Founder'}</p>
+                                                <p className="text-sm font-bold text-slate-900 truncate">{user?.profile?.name || user?.user_metadata?.name || 'Venture Founder'}</p>
                                                 <p className="text-[10px] text-slate-400 font-medium truncate">{user.email}</p>
                                             </div>
 

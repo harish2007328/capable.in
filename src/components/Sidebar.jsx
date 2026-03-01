@@ -111,15 +111,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <div className="p-6 space-y-4 border-t border-white/10">
                 <div className="flex items-center gap-3 px-2">
                     <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                        {user?.user_metadata?.avatar_url ? (
-                            <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                        {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
+                            <img src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                             <User className="text-white/40" size={18} />
                         )}
                     </div>
                     <div className="min-w-0">
                         <p className="text-[11px] font-black text-white truncate uppercase tracking-tight">
-                            {user?.user_metadata?.full_name || user?.user_metadata?.name || 'Founder'}
+                            {user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || 'Founder'}
                         </p>
                         <p className="text-[9px] font-bold text-white/60 truncate uppercase tracking-widest">
                             Starter Plan

@@ -9,6 +9,7 @@ import SkeletonWizard from '../components/SkeletonWizard';
 import SkeletonReport from '../components/SkeletonReport';
 import { generateAnalysisQuestions, generateAnalysisReport, generateActionPlan } from '../services/ai';
 import { ProjectStorage } from '../services/projectStorage';
+import FullScreenLoader from '../components/FullScreenLoader';
 
 const VenturePage = () => {
     const { projectId } = useParams();
@@ -209,7 +210,7 @@ const VenturePage = () => {
         }
     };
 
-    if (loading) return null;
+    if (loading) return <FullScreenLoader />;
 
     return (
         <div className="flex flex-col h-screen w-full bg-[#FAFAFA] overflow-hidden selection:bg-indigo-100 selection:text-indigo-900">

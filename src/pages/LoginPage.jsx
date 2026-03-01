@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ArrowRight, Mail, Lock, Loader2, Sparkles, ChevronLeft, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../components/Logo';
+import FullScreenLoader from '../components/FullScreenLoader';
 
 const LoginPage = () => {
     const [mode, setMode] = useState('login'); // 'login' or 'signup'
@@ -60,6 +61,10 @@ const LoginPage = () => {
             setIsLoading(false);
         }
     };
+
+    if (loading) {
+        return <FullScreenLoader />;
+    }
 
     return (
         <div className="w-full h-screen flex overflow-hidden bg-white selection:bg-blue-100 font-sans">

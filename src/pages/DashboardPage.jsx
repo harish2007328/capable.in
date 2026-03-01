@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { ProjectStorage } from '../services/projectStorage';
 import { motion, AnimatePresence } from 'framer-motion';
+import FullScreenLoader from '../components/FullScreenLoader';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
@@ -28,6 +29,7 @@ const DashboardPage = () => {
 
     const [activeSection, setActiveSection] = useState('projects');
     const [projects, setProjects] = useState([]);
+    const [isLoadingProjects, setIsLoadingProjects] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteTargetId, setDeleteTargetId] = useState(null);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -52,9 +54,16 @@ const DashboardPage = () => {
 
     useEffect(() => {
         const load = async () => {
-            await ProjectStorage.init();
-            const allProjects = await ProjectStorage.getAll();
-            setProjects(allProjects);
+            setIsLoadingProjects(true);
+            try {
+                await ProjectStorage.init();
+                const allProjects = await ProjectStorage.getAll();
+                setProjects(allProjects);
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            } finally {
+                setIsLoadingProjects(false);
+            }
         };
         load();
 
@@ -162,6 +171,10 @@ const DashboardPage = () => {
             detail: { isOpen: isModalOpen }
         }));
     }, [deleteTargetId]);
+
+    if (isLoadingProjects) {
+        return <FullScreenLoader />;
+    }
 
     return (
         <div className="min-h-screen bg-[#FAFAFA] pb-24">
@@ -949,8 +962,8 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                         <div className="p-6 md:p-10 -mt-16 relative">
                             <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
                                 <div className="w-32 h-32 bg-white text-slate-300 flex items-center justify-center rounded-2xl border-4 border-white shadow-xl overflow-hidden shrink-0">
-                                    {user?.user_metadata?.avatar_url ? (
-                                        <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                    {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
+                                        <img src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full bg-slate-50 flex items-center justify-center">
                                             <User size={48} className="text-slate-200" />
@@ -959,7 +972,7 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                                 </div>
                                 <div className="flex-1 space-y-1 pb-2">
                                     <h3 className="text-2xl font-normal text-slate-900">
-                                        {state.name || 'Setup Profile'}
+                                        {state.name || user?.profile?.name || user?.user_metadata?.name || 'Setup Profile'}
                                     </h3>
                                     <p className="text-slate-500 font-bold text-[10px] uppercase">{state.title || "Venture Scout"}</p>
                                 </div>

@@ -12,12 +12,14 @@ import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
 
+import FullScreenLoader from './components/FullScreenLoader';
+
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) return null; // Or a loading spinner
+  if (loading) return <FullScreenLoader />;
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
