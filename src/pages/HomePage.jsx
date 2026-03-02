@@ -99,21 +99,33 @@ const HomePage = () => {
         }
     };
 
+    const [barCount, setBarCount] = useState(17);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setBarCount(window.innerWidth < 768 ? 9 : 17);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
         <div className="relative min-h-screen w-full overflow-hidden bg-white">
             {/* Custom Bar Background - Locked to Hero Section */}
             <div className="absolute top-0 left-0 right-0 h-screen w-full flex items-end overflow-hidden pointer-events-none z-0">
-                {[...Array(17)].map((_, i) => {
-                    // 17 bars: Valley shape from 90% at edges to 40% in center (index 8)
-                    const center = 8;
+                {[...Array(barCount)].map((_, i) => {
+                    // Valley shape from 90% at edges to 40% in center
+                    const center = (barCount - 1) / 2;
                     const distFromCenter = Math.abs(i - center);
-                    const height = 40 + (distFromCenter * 6.25); // (50% range / 8 steps = 6.25)
+                    // Adjust height range for smaller counts if needed, but 40-90% works well
+                    const height = 40 + (distFromCenter * (50 / center)); 
                     return (
                         <div
                             key={i}
                             style={{
                                 height: `${height}%`,
-                                width: `${100 / 17}%`,
+                                width: `${100 / barCount}%`,
                                 background: 'linear-gradient(to top, #0051ffff 0%, #00c3ffff 50%, #ffffff01 100%)',
                                 opacity: 0.9
                             }}

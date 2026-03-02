@@ -36,14 +36,6 @@ const Header = () => {
         setUserMenuOpen(false);
     }, [location]);
 
-    useEffect(() => {
-        if (user) {
-            console.log("=== USER AVATAR DEBUG ===");
-            console.log("Profile:", user.profile);
-            console.log("Metadata:", user.metadata);
-            console.log("Providers:", user.providers);
-        }
-    }, [user]);
 
     // Reusable Gradient Button Style
     const btnClassName = "bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-2.5 rounded-md font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center whitespace-nowrap";
