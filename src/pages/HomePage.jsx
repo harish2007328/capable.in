@@ -279,7 +279,7 @@ const HomePage = () => {
                     {/* 2. FLOW LINES & BOXES */}
                     <div className="relative w-full max-w-[95%] md:max-w-6xl mt-64">
                         {/* SVG Flow Lines with Comet Particle Animation */}
-                        <svg className="absolute -top-[350px] left-0 w-full h-[450px] z-0 pointer-events-none" viewBox="0 0 800 300" preserveAspectRatio="none">
+                        <svg className="absolute -top-[350px] left-0 w-full h-[2000px] md:h-[450px] z-0 pointer-events-none" viewBox="0 0 800 300" preserveAspectRatio="none">
                             <style>
                                 {`
                                     @keyframes particleFlow {
@@ -319,38 +319,40 @@ const HomePage = () => {
                                 `}
                             </style>
 
-                            {/* Left Branch - Base */}
-                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
-                            {/* Left Branch - Particle Trail */}
-                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
-                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
-                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
+                            {/* Left Branch - Base (Hidden on Mobile) */}
+                            <g className="hidden md:block">
+                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
+                                    fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round" />
+                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
+                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
+                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
+                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="1" className="particle-core" />
+                            </g>
 
-                            {/* Center Branch - Base */}
+                            {/* Center Branch - Base (Persistent) */}
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
+                                fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round" />
                             {/* Center Branch - Particle Trail */}
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
+                                fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="1" className="particle-core" />
 
-                            {/* Right Branch - Base */}
-                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                fill="none" stroke="#E5E7EB" strokeWidth="3" strokeLinecap="round" />
-                            {/* Right Branch - Particle Trail */}
-                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
-                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
-                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="3" strokeLinecap="round" opacity="1" className="particle-core" />
+                            {/* Right Branch - Base (Hidden on Mobile) */}
+                            <g className="hidden md:block">
+                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                    fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round" />
+                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="1" className="particle-core" />
+                            </g>
                         </svg>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-24">
