@@ -119,7 +119,7 @@ const HomePage = () => {
                     const center = (barCount - 1) / 2;
                     const distFromCenter = Math.abs(i - center);
                     // Adjust height range for smaller counts if needed, but 40-90% works well
-                    const height = 40 + (distFromCenter * (50 / center)); 
+                    const height = 40 + (distFromCenter * (50 / center));
                     return (
                         <div
                             key={i}
@@ -319,14 +319,18 @@ const HomePage = () => {
                                     .animate-spin-slow {
                                         animation: spin-slow 8s linear infinite;
                                     }
-                                    @keyframes shimmer {
-                                        0% { background-position: -200% 0; }
-                                        100% { background-position: 200% 0; }
-                                    }
                                     .shimmer {
                                         background: linear-gradient(90deg, #f0f4f8 25%, #f9fafb 50%, #f0f4f8 75%);
                                         background-size: 200% 100%;
                                         animation: shimmer 2s infinite linear;
+                                    }
+                                    .flow-line {
+                                        stroke-width: 12px;
+                                    }
+                                    @media (min-width: 768px) {
+                                        .flow-line {
+                                            stroke-width: 3px;
+                                        }
                                     }
                                 `}
                             </style>
@@ -334,36 +338,36 @@ const HomePage = () => {
                             {/* Left Branch - Base (Hidden on Mobile) */}
                             <g className="hidden md:block">
                                 <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round" />
+                                    fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
                                 <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
                                 <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
                                 <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="1" className="particle-core" />
+                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
                             </g>
 
                             {/* Center Branch - Base (Persistent) */}
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round" />
+                                fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
                             {/* Center Branch - Particle Trail */}
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
                             <path d="M 400 0 L 400 300"
-                                fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="1" className="particle-core" />
+                                fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
 
                             {/* Right Branch - Base (Hidden on Mobile) */}
                             <g className="hidden md:block">
                                 <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round" />
+                                    fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
                                 <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.15" className="particle-glow2" />
+                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
                                 <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="0.4" className="particle-glow1" />
+                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
                                 <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeWidth="10" strokeLinecap="round" opacity="1" className="particle-core" />
+                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
                             </g>
                         </svg>
 
