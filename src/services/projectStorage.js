@@ -209,5 +209,16 @@ export const ProjectStorage = {
                 localStorage.removeItem(key);
             }
         });
+    },
+
+    logout: () => {
+        // Clear memory cache to prevent data leakage between users
+        memoryCache.allProjectsFetched = false;
+        memoryCache.projects = {};
     }
 };
+
+// Expose to window for AuthContext access
+if (typeof window !== 'undefined') {
+    window.ProjectStorage = ProjectStorage;
+}

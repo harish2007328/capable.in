@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowRight, Mail, Lock, Loader2, Sparkles, ChevronLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Loader2, Sparkles, ChevronLeft, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../components/Logo';
 import FullScreenLoader from '../components/FullScreenLoader';
+import ParticleBackground from '../components/ParticleBackground';
 
 const LoginPage = () => {
     const [mode, setMode] = useState('login'); // 'login' or 'signup'
@@ -16,7 +17,7 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const { login, signup, loginWithOAuth, user, loading } = useAuth();
+    const { login, signup, loginWithOAuth, verifyEmail, user, loading } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -36,6 +37,9 @@ const LoginPage = () => {
 
     const from = location.state?.from?.pathname || '/dashboard';
 
+    const [verificationMode, setVerificationMode] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -44,25 +48,58 @@ const LoginPage = () => {
         try {
             if (mode === 'login') {
                 await login(email, password);
+                navigate(from, { replace: true });
+            } else if (verificationMode) {
+                await verifyEmail(email, verificationCode);
+                navigate(from, { replace: true });
             } else {
                 if (password !== confirmPassword) {
-                    setError('Passwords do not match.');
+                    setError('Your passwords do not match. Please re-enter them.');
                     setIsLoading(false);
                     return;
                 }
                 await signup(email, password);
-                // If signup requires email confirmation, we might need to show a success message
-                alert('Sign up successful! Please check your email for confirmation if required.');
+                setVerificationMode(true);
             }
-            navigate(from, { replace: true });
         } catch (err) {
-            setError(err.message || 'Authentication failed. Please check your credentials.');
+            console.error("Auth error detail:", err);
+            let message = 'Something went wrong. Please check your connection.';
+
+            if (err.message) {
+                // Map cryptic backend errors to friendly user messages
+                if (err.message.includes('Invalid login credentials')) {
+                    message = 'The email or password you entered is incorrect.';
+                } else if (err.message.includes('User already registered')) {
+                    message = 'This email is already in use. Try signing in instead.';
+                } else if (err.message.includes('Password should be at least')) {
+                    message = 'To keep your account secure, use at least 6 characters.';
+                } else if (err.message.includes('rate limit')) {
+                    message = 'Too many attempts! Please wait a moment before trying again.';
+                } else if (err.message.includes('Email not confirmed')) {
+                    message = 'Please check your email to verify your account first.';
+                    setVerificationMode(true); // Auto-switch to verification mode
+                } else {
+                    message = err.message;
+                }
+            }
+            setError(message);
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (loading) {
+    const handleOAuth = async (provider) => {
+        setIsLoading(true);
+        setError('');
+        try {
+            await loginWithOAuth(provider);
+        } catch (err) {
+            setError(err.message || 'OAuth login failed.');
+            setIsLoading(false);
+        }
+    };
+
+    if (loading || isLoading) {
         return <FullScreenLoader />;
     }
 
@@ -73,223 +110,258 @@ const LoginPage = () => {
                 {/* Background Decor */}
                 <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-50/30 rounded-full blur-[100px] pointer-events-none -z-10 -translate-x-1/2 -translate-y-1/2 opacity-40"></div>
 
-                {/* Fixed Header */}
-                <div className="p-8 md:p-12 flex items-center justify-between shrink-0 font-display">
-                    <Link to="/" className="group flex items-center gap-2">
-                        <Logo color="dark" showText={true} className="scale-110" />
-                    </Link>
-
-                    <Link to="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-[var(--brand-accent)] transition-colors group">
-                        <ChevronLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-                        Back to Home
-                    </Link>
+                {/* Top Back Button */}
+                <div className="absolute top-6 left-6 z-10">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all group"
+                    >
+                        <ChevronLeft size={14} className="transition-transform group-hover:-translate-x-1" />
+                        Home
+                    </button>
                 </div>
 
-                {/* Main Form Content - Perfectly Centered in Viewport */}
-                <div className="flex-1 flex items-center justify-center px-8 md:px-24 overflow-y-auto custom-scrollbar">
-                    <div className="w-full max-w-md py-8">
+                {/* Main Auth Form Container - Restricted to Viewport */}
+                <div className="h-full flex flex-col items-center justify-center px-8 md:px-24">
+                    <div className="w-full max-sm flex flex-col items-center">
                         <motion.div
-                            initial={{ opacity: 0, y: 15 }}
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
+                            transition={{ duration: 0.4 }}
+                            className="w-full flex flex-col items-center"
                         >
-                            {/* Title Section */}
-                            <div className="mb-10 text-center md:text-left">
-                                <h1 className="text-4xl font-normal text-slate-900 mb-4 leading-none">
-                                    {mode === 'login' ? 'Welcome back' : 'Create an account'}
+                            {/* Logo Mark - Compact */}
+                            <div className="mb-5">
+                                <Logo showText={false} className="scale-[1.6]" />
+                            </div>
+
+                            {/* Welcome Text - Compact */}
+                            <div className="text-center mb-5">
+                                <h1 className="text-3xl font-display font-normal text-slate-900 mb-0.5 tracking-tight leading-tight">
+                                    {mode === 'login' ? 'Welcome Back' : 'Join Capable'}
                                 </h1>
-                                <p className="text-slate-400 text-sm font-medium">
-                                    {mode === 'login' ? "Sign in to continue to your dashboard." : "Join our community of builders today."}
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                                    {mode === 'login' ? 'Continue with' : 'Create with'}
                                 </p>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <AnimatePresence mode='wait'>
-                                    {error && (
-                                        <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            exit={{ opacity: 0, height: 0 }}
-                                            className="bg-red-50 border border-red-100 text-red-600 px-5 py-3 rounded-xl text-xs font-bold"
-                                        >
-                                            {error}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-
-                                <div className="grid grid-cols-1 gap-4">
-                                    {/* Email Input */}
-                                    <div className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[var(--brand-accent)] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[var(--brand-accent)]">Email</span>
-                                            <Mail size={12} className="text-slate-300 group-focus-within:text-[var(--brand-accent)] transition-colors" />
+                            {/* Dynamic Error Alert */}
+                            <AnimatePresence mode="wait">
+                                {error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                                        className="w-full mb-5 overflow-hidden"
+                                    >
+                                        <div className="flex items-center gap-2.5 p-3.5 bg-red-50/50 border border-red-100 rounded-lg text-[11px] font-bold text-red-500/90 leading-tight">
+                                            <AlertCircle size={15} className="shrink-0 text-red-400" />
+                                            <div className="flex-1">{error}</div>
+                                            <button
+                                                onClick={() => setError('')}
+                                                className="text-[9px] uppercase tracking-widest opacity-50 hover:opacity-100 ml-2"
+                                            >
+                                                Dismiss
+                                            </button>
                                         </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* OAuth Section - 2x2 Grid with reduced radius */}
+                            <div className="w-full grid grid-cols-2 gap-2.5 mb-5">
+                                <button
+                                    onClick={() => handleOAuth('google')}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
+                                >
+                                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                                        <path fill="#4285F4" d="M23.7449 12.27C23.7449 11.48 23.6849 10.73 23.5549 10H12.2549V14.51H18.7249C18.4349 15.99 17.5849 17.24 16.3249 18.09V21.09H20.1849C22.4449 19.01 23.7449 15.92 23.7449 12.27Z" />
+                                        <path fill="#34A853" d="M12.2549 24C15.4949 24 18.2049 22.92 20.1849 21.09L16.3249 18.09C15.2449 18.81 13.8749 19.25 12.2549 19.25C9.12492 19.25 6.47492 17.14 5.52492 14.29H1.54492V17.38C3.51492 21.3 7.56492 24 12.2549 24Z" />
+                                        <path fill="#FBBC05" d="M5.52492 14.29C5.27492 13.57 5.14492 12.8 5.14492 12C5.14492 11.2 5.28492 10.43 5.52492 9.71V6.62H1.54492C0.724922 8.24 0.254918 10.06 0.254918 12C0.254918 13.94 0.724922 15.76 1.54492 17.38L5.52492 14.29Z" />
+                                        <path fill="#EA4335" d="M12.2549 4.75C14.0249 4.75 15.6049 5.36 16.8549 6.55L20.2749 3.13C18.2049 1.19 15.4949 0 12.2549 0C7.56492 0 3.51492 2.7 1.54492 6.62L5.52492 9.71C6.47492 6.86 9.12492 4.75 12.2549 4.75Z" />
+                                    </svg>
+                                    Google
+                                </button>
+                                <button
+                                    onClick={() => handleOAuth('apple')}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
+                                >
+                                    <svg className="w-4 h-4 shrink-0 fill-black" viewBox="0 0 384 512">
+                                        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                                    </svg>
+                                    Apple
+                                </button>
+                                <button
+                                    onClick={() => handleOAuth('facebook')}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
+                                >
+                                    <svg className="w-4 h-4 shrink-0 fill-[#1877F2]" viewBox="0 0 24 24">
+                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                    </svg>
+                                    Facebook
+                                </button>
+                                <button
+                                    onClick={() => handleOAuth('discord')}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
+                                >
+                                    <svg className="w-4 h-4 shrink-0 fill-[#5865F2]" viewBox="0 0 640 512">
+                                        <path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.538 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126c3.082-2.309 6.166-4.711 9.109-7.137a1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233c2.944 2.426 6.027 4.851 9.132 7.16a1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 49.177 1.862 1.862 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541zM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241z" />
+                                    </svg>
+                                    Discord
+                                </button>
+                            </div>
+
+                            {/* Divider - Minimal */}
+                            <div className="w-full flex items-center gap-3 mb-5">
+                                <div className="h-[1px] flex-1 bg-slate-100"></div>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-200">or</span>
+                                <div className="h-[1px] flex-1 bg-slate-100"></div>
+                            </div>
+
+                            {/* Email/Password Form - High Density */}
+                            {!verificationMode ? (
+                                <form onSubmit={handleSubmit} className="w-full space-y-2.5">
+                                    <div className="space-y-1">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Email</label>
                                         <input
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="your@email.com"
-                                            className="bg-transparent border-none outline-none text-sm font-bold text-slate-900 placeholder:text-slate-200 w-full"
+                                            className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
                                             required
                                         />
                                     </div>
 
-                                    {/* Password Input */}
-                                    <div className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[var(--brand-accent)] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group relative">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[var(--brand-accent)]">Password</span>
-                                            <Lock size={12} className="text-slate-300 group-focus-within:text-[var(--brand-accent)] transition-colors" />
+                                    <div className="space-y-1">
+                                        <div className="flex items-center justify-between px-1">
+                                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Password</label>
+                                            {mode === 'login' && (
+                                                <button type="button" className="text-[8px] font-black uppercase tracking-widest text-slate-300 hover:text-[var(--brand-accent)] transition-colors">
+                                                    Forgot?
+                                                </button>
+                                            )}
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div className="relative">
                                             <input
                                                 type={showPassword ? 'text' : 'password'}
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="********"
-                                                className="bg-transparent border-none outline-none text-sm font-bold text-slate-900 placeholder:text-slate-200 w-full"
+                                                placeholder="••••••••"
+                                                className="w-full h-10 px-4 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
                                                 required
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="text-slate-400 hover:text-[var(--brand-accent)] transition-colors"
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
                                             >
-                                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                             </button>
                                         </div>
                                     </div>
 
                                     {/* Confirm Password (Signup only) */}
                                     {mode === 'signup' && (
-                                        <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            className="bg-slate-50 border-2 border-slate-50 rounded-xl p-4 flex flex-col gap-1 focus-within:bg-white focus-within:border-[var(--brand-accent)] focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-300 group relative"
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-[var(--brand-accent)]">Confirm Password</span>
-                                                <Lock size={12} className="text-slate-300 group-focus-within:text-[var(--brand-accent)] transition-colors" />
-                                            </div>
-                                            <div className="flex items-center gap-2">
+                                        <div className="space-y-1">
+                                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Confirm Password</label>
+                                            <div className="relative">
                                                 <input
                                                     type={showConfirmPassword ? 'text' : 'password'}
                                                     value={confirmPassword}
                                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                                     placeholder="••••••••"
-                                                    className="bg-transparent border-none outline-none text-sm font-bold text-slate-900 placeholder:text-slate-200 w-full"
+                                                    className="w-full h-10 px-4 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
                                                     required={mode === 'signup'}
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                    className="text-slate-400 hover:text-[var(--brand-accent)] transition-colors"
+                                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
                                                 >
-                                                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                    {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                                 </button>
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     )}
+
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full h-11 bg-[var(--brand-accent)] hover:bg-[#0099ff] text-white rounded-lg font-black text-[10px] uppercase tracking-[0.25em] flex items-center justify-center transition-all shadow-lg shadow-blue-500/10 active:scale-[0.98] disabled:opacity-70 mt-2"
+                                    >
+                                        {isLoading ? <Loader2 className="animate-spin" size={18} /> : (mode === 'login' ? 'Sign In' : 'Create Account')}
+                                    </button>
+                                </form>
+                            ) : (
+                                <form onSubmit={handleSubmit} className="w-full space-y-4">
+                                    <div className="text-center mb-2">
+                                        <p className="text-xs text-slate-500">We've sent a 6-digit code to <span className="text-slate-900 font-bold">{email}</span></p>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1 text-center block">Verification Code</label>
+                                        <input
+                                            type="text"
+                                            value={verificationCode}
+                                            onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                            placeholder="0 0 0 0 0 0"
+                                            className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] transition-all outline-none font-bold text-slate-900 text-xl text-center tracking-[0.5em]"
+                                            required
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-full h-11 bg-[var(--brand-accent)] hover:bg-[#0099ff] text-white rounded-lg font-black text-[10px] uppercase tracking-[0.25em] flex items-center justify-center transition-all shadow-lg shadow-blue-500/10 active:scale-[0.98] disabled:opacity-70"
+                                    >
+                                        {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Verify & Continue'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setVerificationMode(false)}
+                                        className="w-full text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors py-2"
+                                    >
+                                        Back to Register
+                                    </button>
+                                </form>
+                            )}
+
+                            {/* Switch Mode - Separated & Minimal */}
+                            {!verificationMode && (
+                                <div className="mt-6 text-[11px] font-medium text-slate-400">
+                                    {mode === 'login' ? "New here?" : "Already member?"}{' '}
+                                    <button
+                                        onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+                                        className="text-slate-900 font-bold hover:underline ml-1"
+                                    >
+                                        {mode === 'login' ? 'Sign Up' : 'Sign In'}
+                                    </button>
                                 </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="w-full py-4 px-6 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-2"
-                                >
-                                    {isLoading ? (
-                                        <Loader2 className="animate-spin" size={18} />
-                                    ) : (
-                                        <>
-                                            {mode === 'login' ? 'Sign in' : 'Create account'}
-                                            <ArrowRight size={16} />
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-
-                            <div className="relative my-10">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-slate-100"></div>
-                                </div>
-                                <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.3em]">
-                                    <span className="bg-white px-4 text-slate-300 text-center">Or continue with</span>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    onClick={() => loginWithOAuth('google')}
-                                    className="flex items-center justify-center gap-3 py-3.5 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 hover:border-slate-200 transition-all font-black text-[9px] uppercase tracking-widest text-slate-600 active:scale-95 group shadow-sm"
-                                >
-                                    <svg className="w-4 h-4" viewBox="0 0 24 24">
-                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1c-2.85 0-5.3 1.54-6.6 3.81l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                    </svg>
-                                    Google
-                                </button>
-                                <button
-                                    onClick={() => loginWithOAuth('github')}
-                                    className="flex items-center justify-center gap-3 py-3.5 bg-slate-900 border border-slate-900 rounded-xl hover:bg-black transition-all font-black text-[9px] uppercase tracking-widest text-white active:scale-95 group shadow-lg shadow-black/5"
-                                >
-                                    <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-                                    </svg>
-                                    GitHub
-                                </button>
-                            </div>
-
-                            <div className="mt-8 text-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                {mode === 'login' ? "New here?" : "Already have an account?"}{' '}
-                                <button
-                                    onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-                                    className="text-[var(--brand-accent)] hover:underline"
-                                >
-                                    {mode === 'login' ? 'Sign up' : 'Sign in'}
-                                </button>
-                            </div>
+                            )}
                         </motion.div>
                     </div>
                 </div>
+
             </div>
 
-            {/* Right Panel - Visual Branding (45%) */}
-            <div className="hidden lg:flex lg:w-[45%] h-full bg-[#FAFBFF] items-center justify-center p-0 overflow-hidden relative border-l border-slate-50">
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(var(--brand-accent)_1px,transparent_1px)] [background-size:24px_24px]"></div>
+            {/* Right Panel - Visual Branding (50%) */}
+            <div className="hidden lg:flex lg:w-[50%] h-full p-4">
+                <div className="w-full h-full bg-gradient-to-br from-[#073B99] via-[var(--brand-accent)] to-[#0BAAFF] items-center justify-center overflow-hidden relative rounded-3xl flex">
+                    {/* Particle System */}
+                    <ParticleBackground />
 
-                <div className="relative z-10 w-full h-full">
-                    <img
-                        src="/bauhaus_last_gen.png"
-                        alt="Join us"
-                        className="w-full h-full object-cover grayscale-[20%] contrast-[1.05]"
-                        onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1550684847-75bdda21cc95?q=80&w=2070&auto=format&fit=crop';
-                        }}
-                    />
-                    {/* Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[var(--brand-accent)]/60 via-transparent to-transparent"></div>
-                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay"></div>
-                </div>
-
-                {/* Vertical Text Overlays for Brand Name */}
-                <div className="absolute inset-0 p-12 flex flex-col justify-end pointer-events-none z-20">
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
-                    >
-                        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full">
-                            <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                            <span className="text-[8px] font-black text-white uppercase tracking-[0.2em]">Capable</span>
-                        </div>
-                        <h3 className="text-3xl font-normal text-white mb-3 leading-[0.85]">
-                            Build your <br />next big idea
-                        </h3>
-                        <p className="text-white/70 text-xs font-semibold max-w-xs leading-relaxed drop-shadow-sm uppercase tracking-wider">
-                            Create and track your projects with ease.
-                        </p>
-                    </motion.div>
+                    {/* Text Overlay */}
+                    <div className="absolute inset-0 p-16 flex flex-col justify-center items-center text-center z-20 pointer-events-none">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                        >
+                            <h3 className="text-5xl font-display font-normal text-white mb-6 tracking-tight">
+                                Build Your <span className="font-display italic">Business</span>
+                            </h3>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
         </div>

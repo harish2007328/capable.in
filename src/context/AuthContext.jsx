@@ -101,7 +101,13 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
+
+        // Clear all persistent and memory caches
         localStorage.removeItem('capable_cached_user');
+        if (window.ProjectStorage && window.ProjectStorage.logout) {
+            window.ProjectStorage.logout();
+        }
+
         setUser(null);
     };
 
@@ -130,10 +136,21 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
+    const verifyEmail = async (email, otp) => {
+        const { data, error } = await supabase.auth.verifyEmail({
+            email,
+            otp
+        });
+        if (error) throw error;
+        setUser(data?.user || null);
+        return data;
+    };
+
     const value = {
         user,
         login,
         signup,
+        verifyEmail,
         logout,
         loginWithOAuth,
         updateUser,
