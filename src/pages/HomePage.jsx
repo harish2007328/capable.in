@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Wand2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,53 @@ const HomePage = () => {
     const [idea, setIdea] = useState(location.state?.idea || '');
     const [isEnhancing, setIsEnhancing] = useState(false);
     const [contentWarning, setContentWarning] = useState('');
+    const [placeholder, setPlaceholder] = useState('');
+
+    // Animated Placeholder Logic
+    useEffect(() => {
+        const examples = [
+            "AI tutor for engineering students...",
+            "Local bakery subscription service...",
+            "Build an AI tool for farmers...",
+            "Start a niche coffee brand...",
+            "Marketplace for freelance designers..."
+        ];
+        let i = 0;
+        let j = 0;
+        let currentText = '';
+        let isDeleting = false;
+        let timeout;
+
+        const type = () => {
+            const currentExample = examples[i];
+
+            if (isDeleting) {
+                currentText = currentExample.substring(0, j - 1);
+                j--;
+            } else {
+                currentText = currentExample.substring(0, j + 1);
+                j++;
+            }
+
+            setPlaceholder(currentText);
+
+            let speed = isDeleting ? 40 : 80;
+
+            if (!isDeleting && j === currentExample.length) {
+                speed = 2000; // Pause at the end
+                isDeleting = true;
+            } else if (isDeleting && j === 0) {
+                isDeleting = false;
+                i = (i + 1) % examples.length;
+                speed = 500;
+            }
+
+            timeout = setTimeout(type, speed);
+        };
+
+        type();
+        return () => clearTimeout(timeout);
+    }, []);
 
     // Quick client-side check (server has the full check)
     const checkContent = (text) => {
@@ -152,33 +200,67 @@ const HomePage = () => {
                 {/* Hero Headings */}
                 <div className="max-w-5xl text-center space-y-4 mb-6">
                     <h1 className="text-5xl md:text-7xl font-display font-normal text-brand-black leading-tight">
-                        Build Your <span className="text-[var(--brand-accent)] font-display italic">Business</span>
+                        Be <span className="text-[var(--brand-accent)] font-display italic">Capable</span> of Building Business
                     </h1>
                 </div>
 
                 {/* Subtitle */}
-                <p className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto text-center font-sans font-medium leading-relaxed mb-14 px-6">
-                    Turn your vision into an actionable roadmap.
+                <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
+                    Validate your market and get a personalized 60-day roadmap to turn your vision into a real business.
                 </p>
 
                 {/* Levitating Glow Input Area & Process Flow */}
                 <div className="relative w-full max-w-6xl mx-auto mb-24 flex flex-col items-center z-40">
 
                     {/* 1. INPUT BOX WRAPPER */}
+                    <style>
+                        {`
+                            @property --border-angle {
+                                syntax: '<angle>';
+                                initial-value: 0deg;
+                                inherits: false;
+                            }
+                            @keyframes rotateBorder {
+                                to { --border-angle: 360deg; }
+                            }
+                            @keyframes subtlePulse {
+                                0% { opacity: 0.15; transform: scale(1); }
+                                50% { opacity: 0.3; transform: scale(1.01); }
+                                100% { opacity: 0.15; transform: scale(1); }
+                            }
+                            .orbit-border {
+                                --border-angle: 0deg;
+                                animation: rotateBorder 4s linear infinite;
+                                background: conic-gradient(
+                                    from var(--border-angle),
+                                    transparent 30%,
+                                    #0066FF 50%,
+                                    #0BAAFF 55%,
+                                    transparent 70%
+                                );
+                            }
+                        `}
+                    </style>
                     <div className="relative w-full max-w-2xl group mb-0 z-10">
-                        {/* Gradient Border */}
-                        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] via-[#0BAAFF] to-[var(--brand-accent)] pointer-events-none"></div>
+                        {/* Animated Rotating Border */}
+                        <div className="orbit-border absolute -inset-[2px] rounded-2xl pointer-events-none"></div>
 
-                        {/* Glow Effect */}
-                        <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-20 blur-lg transition-opacity duration-500 group-hover:opacity-40"></div>
+                        {/* Static fallback border underneath */}
+                        <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)]/30 via-[#0BAAFF]/30 to-[var(--brand-accent)]/30 pointer-events-none"></div>
+
+                        {/* Pulsing Aura Glow */}
+                        <div className="absolute -inset-[8px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] blur-xl animate-[subtlePulse_4s_ease-in-out_infinite] pointer-events-none"></div>
+
+                        {/* Hover Intensified Glow */}
+                        <div className="absolute -inset-[15px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-25 pointer-events-none"></div>
 
                         {/* Input Content */}
-                        <div className="relative bg-white rounded-[14px] flex flex-col p-2 h-full m-[2px]">
+                        <div className="relative bg-white/90 backdrop-blur-xl rounded-[14px] flex flex-col p-2 h-full m-[2px] shadow-lg shadow-blue-500/5">
 
                             <div className="relative w-full">
                                 <textarea
                                     className={`w-full h-28 p-6 text-xl text-[#111111] placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed rounded-md transition-opacity duration-300 ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
-                                    placeholder="Describe your business idea in a sentence..."
+                                    placeholder={idea ? "" : placeholder}
                                     value={idea}
                                     onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(''); }}
                                     disabled={isEnhancing}
@@ -200,24 +282,18 @@ const HomePage = () => {
                                 )}
                             </div>
 
-                            {/* Content Moderation Warning - Modal Popup (matches OnboardSummary style) */}
-                            {contentWarning && (
-                                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-                                    onClick={() => setContentWarning('')}
+                            {/* Content Moderation Warning */}
+                            {contentWarning && ReactDOM.createPortal(
+                                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-md px-4"
+                                    onClick={() => { setContentWarning(''); setIdea(''); }}
                                 >
                                     <div
-                                        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 flex flex-col items-center text-center animate-in fade-in zoom-in duration-200"
+                                        className="bg-gradient-to-b from-red-500 to-red-600 rounded-2xl shadow-2xl shadow-red-500/30 w-full max-w-sm p-8 flex flex-col items-center text-center animate-in fade-in zoom-in duration-200"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        {/* Badge */}
-                                        <div className="flex items-center gap-2 mb-4 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
-                                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                                            <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Content Blocked</span>
-                                        </div>
-
                                         {/* Icon */}
-                                        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-5">
-                                            <svg className="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <div className="w-14 h-14 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center mb-5">
+                                            <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                                                 <line x1="9" y1="9" x2="15" y2="15" />
                                                 <line x1="15" y1="9" x2="9" y2="15" />
@@ -225,41 +301,25 @@ const HomePage = () => {
                                         </div>
 
                                         {/* Title */}
-                                        <h3 className="text-2xl font-normal text-gray-900 mb-2">
+                                        <h3 className="text-xl font-bold text-white mb-2">
                                             We Can't Process This
                                         </h3>
 
                                         {/* Message */}
-                                        <p className="text-gray-500 text-sm leading-relaxed max-w-xs mb-8">
+                                        <p className="text-red-100 text-sm leading-relaxed max-w-xs mb-6">
                                             {contentWarning}
                                         </p>
 
-                                        {/* Actions */}
-                                        <div className="flex items-center gap-3 w-full">
-                                            <button
-                                                onClick={() => { setContentWarning(''); setIdea(''); }}
-                                                className="flex-1 px-5 py-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-lg font-bold text-sm hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
-                                            >
-                                                Try a New Idea
-                                            </button>
-                                            <button
-                                                onClick={() => setContentWarning('')}
-                                                className="flex-1 px-5 py-3 bg-gray-50 text-gray-600 rounded-lg font-bold text-sm hover:bg-gray-100 transition-all active:scale-95 border border-gray-200"
-                                            >
-                                                Go Back
-                                            </button>
-                                        </div>
-
-                                        {/* Footer badge */}
-                                        <div className="flex items-center gap-2 text-gray-400 mt-6">
-                                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                                <polyline points="9 12 12 15 22 5" />
-                                            </svg>
-                                            <span className="text-[10px] font-bold uppercase">Safety Filter Active</span>
-                                        </div>
+                                        {/* Single Action */}
+                                        <button
+                                            onClick={() => { setContentWarning(''); setIdea(''); }}
+                                            className="w-full px-5 py-3 bg-white text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all active:scale-95 shadow-lg"
+                                        >
+                                            Try a Different Idea
+                                        </button>
                                     </div>
-                                </div>
+                                </div>,
+                                document.body
                             )}
 
                             <div className="flex justify-between items-center px-4 pb-3 mt-4">

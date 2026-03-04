@@ -458,9 +458,9 @@ app.post('/api/analyze', async (req, res) => {
                 { role: "system", content: "You are a world-class mentor. You provide pithy, actionable, and data-backed advice. Output valid JSON. If user answers are vague, focus on helping them gain clarity." },
                 { role: "user", content: prompt }
             ],
-            model: MODEL,
+            model: "llama-3.3-70b-versatile",
             response_format: { type: "json_object" },
-            max_tokens: 8000, // Increased for full editorial reports
+            max_tokens: 6000, // Balanced for quality and limits
         }));
 
         const report = JSON.parse(completion.choices[0].message.content);
@@ -528,19 +528,33 @@ app.post('/api/generate-plan', async (req, res) => {
 
         const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
             messages: [
-                { role: "system", content: "You are an operations-focused mentor. Provide a 60-day sequence of high-leverage actions. Output valid JSON. Ensure exactly 60 days are generated." },
+                { role: "system", content: "You are an operations-focused mentor. Provide a 60-day sequence of high-leverage actions. Output valid JSON. Ensure exactly 60 days are generated. Keep descriptions CONCISE but tactical to ensure you stay under output token limits." },
                 { role: "user", content: prompt }
             ],
-            model: MODEL,
+            model: "llama-3.3-70b-versatile",
             response_format: { type: "json_object" },
-            max_tokens: 8000,
+            max_tokens: 8192,
         }));
 
-        const plan = JSON.parse(completion.choices[0].message.content);
+        const content = completion.choices[0].message.content;
+
+        console.log(`Plan Generation received ${content.length} chars.`);
+
+        let plan;
+        try {
+            plan = JSON.parse(content);
+        } catch (parseErr) {
+            console.error("JSON PARSE FAILED for plan generation.");
+            // Write to a temp file for inspection
+            const fs = await import('fs');
+            fs.writeFileSync('C:\\Users\\Admin\\OneDrive\\Desktop\\capable\\tmp\\failed_plan_response.json', content);
+            throw new Error("Invalid structure returned from AI. The plan was too complex.");
+        }
+
         res.json(plan);
     } catch (err) {
-        console.error("PLAN GENERATION FAILED:", err);
-        res.status(500).json({ error: "Plan generation failed" });
+        console.error("PLAN GENERATION FAILED:", err.message);
+        res.status(500).json({ error: "Plan generation failed", details: err.message });
     }
 });
 

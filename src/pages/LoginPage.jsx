@@ -132,7 +132,7 @@ const LoginPage = () => {
                         >
                             {/* Logo Mark - Compact */}
                             <div className="mb-5">
-                                <Logo showText={false} className="scale-[1.6]" />
+                                <Logo showText={false} className="scale-[1.6]" color="dark" />
                             </div>
 
                             {/* Welcome Text - Compact */}
