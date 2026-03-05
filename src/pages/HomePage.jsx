@@ -9,6 +9,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ProjectStorage } from '../services/projectStorage';
 import heroVideo from '../assets/hero-bg2-compressed.mp4';
+import heroPoster from '../assets/hero-poster.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,10 +33,12 @@ const HomePage = () => {
     const [placeholder, setPlaceholder] = useState('');
     const videoRef = useRef(null);
 
-    // Slow down video playback
+    // Optimize video performance and slow down playback
     useEffect(() => {
         if (videoRef.current) {
-            videoRef.current.playbackRate = 0.5;
+            videoRef.current.playbackRate = 0.75;
+            // Immediate hardware acceleration hint
+            videoRef.current.style.transform = 'translateZ(0)';
         }
     }, []);
 
@@ -170,8 +173,16 @@ const HomePage = () => {
                             muted
                             playsInline
                             preload="auto"
+                            poster={heroPoster}
+                            fetchPriority="high"
                             className="h-full w-full object-cover"
-                            style={{ willChange: 'transform' }}
+                            style={{
+                                backfaceVisibility: 'hidden',
+                                willChange: 'transform',
+                                transform: 'translateZ(0)',
+                                backgroundColor: '#0c1428', // Fallback color for instant appearance
+                                filter: 'brightness(0.9)' // Subtle darkening for better contrast
+                            }}
                         >
                             <source src={heroVideo} type="video/mp4" />
                         </video>
@@ -415,7 +426,7 @@ const HomePage = () => {
                 <WhyCapableSection />
                 <CTASection />
                 <FAQSection />
-            </div>
+            </div >
 
             {/* Premium Footer Section */}
             <footer className="w-full bg-white border-t border-gray-100 pt-24 pb-12 relative overflow-hidden">
