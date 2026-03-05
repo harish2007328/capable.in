@@ -44,7 +44,7 @@ const Header = () => {
         <motion.header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'pt-4 px-4 md:px-8' : 'pt-0 px-0'}`}
         >
-            <div className={`relative mx-auto flex items-center justify-between border-b transition-all duration-500 ${scrolled ? 'max-w-5xl px-6 py-4 bg-white/70 backdrop-blur-md border-white/20 rounded-lg shadow-md border-slate-200/50' : 'max-w-full w-full px-8 py-5 bg-white border-transparent rounded-none'}`}>
+            <div className={`relative mx-auto flex items-center justify-between border-b transition-all duration-500 ${scrolled ? 'max-w-5xl px-6 py-4 bg-white/30 backdrop-blur-md border-white/20 rounded-lg shadow-md border-slate-200/50' : 'max-w-full w-full px-8 py-5 bg-transparent border-transparent rounded-none'}`}>
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">

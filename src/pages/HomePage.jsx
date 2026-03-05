@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ProjectStorage } from '../services/projectStorage';
+import heroVideo from '../assets/hero-bg2-compressed.mp4';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,6 +30,14 @@ const HomePage = () => {
     const [isEnhancing, setIsEnhancing] = useState(false);
     const [contentWarning, setContentWarning] = useState('');
     const [placeholder, setPlaceholder] = useState('');
+    const videoRef = useRef(null);
+
+    // Slow down video playback
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.playbackRate = 0.5;
+        }
+    }, []);
 
     // Animated Placeholder Logic
     useEffect(() => {
@@ -147,313 +156,258 @@ const HomePage = () => {
         }
     };
 
-    const [barCount, setBarCount] = useState(17);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setBarCount(window.innerWidth < 768 ? 9 : 17);
-        };
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-white">
-            {/* Custom Bar Background - Locked to Hero Section */}
-            <div className="absolute top-0 left-0 right-0 h-screen w-full flex items-end overflow-hidden pointer-events-none z-0">
-                {[...Array(barCount)].map((_, i) => {
-                    // Valley shape from 90% at edges to 40% in center
-                    const center = (barCount - 1) / 2;
-                    const distFromCenter = Math.abs(i - center);
-                    // Adjust height range for smaller counts if needed, but 40-90% works well
-                    const height = 40 + (distFromCenter * (50 / center));
-                    return (
-                        <div
-                            key={i}
-                            style={{
-                                height: `${height}%`,
-                                width: `${100 / barCount}%`,
-                                background: 'linear-gradient(to top, #0051ffff 0%, #00c3ffff 50%, #ffffff01 100%)',
-                                opacity: 0.9
-                            }}
-                            className="flex-shrink-0 border-none"
-                        />
-                    );
-                })}
-            </div>
-            {/* Soft Edge Overlay for the 100vh break */}
-            <div className="absolute top-[90vh] left-0 right-0 h-[10vh] bg-gradient-to-t/10 from-white to-transparent z-10 pointer-events-none" />
-
-
-
-            <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-40">
-                {/* Badge */}
-                <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
-                    <span className="flex h-2 w-2 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--brand-accent)] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--brand-accent)]"></span>
-                    </span>
-                    <span className="text-xs font-bold text-[var(--brand-accent)] uppercase">Intelligent Idea Architect</span>
+        <div className="relative w-full bg-white">
+            {/* --- HERO SECTION --- */}
+            <section className="relative w-full min-h-[95vh] md:min-h-screen flex flex-col items-center overflow-hidden">
+                {/* 1. Contained Video Background */}
+                <div className="absolute inset-0 z-0 pt-[84px] px-2 md:px-3 pb-2 md:pb-3 pointer-events-none">
+                    <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden">
+                        <video
+                            ref={videoRef}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                            className="h-full w-full object-cover"
+                            style={{ willChange: 'transform' }}
+                        >
+                            <source src={heroVideo} type="video/mp4" />
+                        </video>
+                        {/* Cinematic Dark Overlay */}
+                        <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(rgba(10, 20, 40, 0.35), rgba(10, 20, 40, 0.35))' }}></div>
+                    </div>
                 </div>
 
-                {/* Hero Headings */}
-                <div className="max-w-5xl text-center space-y-4 mb-6">
-                    <h1 className="text-5xl md:text-7xl font-display font-normal text-brand-black leading-tight">
-                        Be <span className="text-[var(--brand-accent)] font-display italic">Capable</span> of Building Business
-                    </h1>
-                </div>
+                <div className="relative z-30 flex flex-col items-center justify-center px-4 max-w-7xl mx-auto w-full flex-1 pt-[84px]">
+                    {/* Badge */}
+                    <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 shadow-sm cursor-default">
+                        <span className="flex h-2 w-2 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
+                        </span>
+                        <span className="text-xs font-bold text-white uppercase tracking-wide">Intelligent Idea Architect</span>
+                    </div>
 
-                {/* Subtitle */}
-                <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
-                    Validate your market and get a personalized 60-day roadmap to turn your vision into a real business.
-                </p>
+                    {/* Hero Headings */}
+                    <div className="max-w-5xl text-center space-y-4 mb-6">
+                        <h1 className="text-5xl md:text-7xl font-display font-normal text-white leading-tight" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.3)' }}>
+                            Be <span className="text-sky-400 font-display italic">Capable</span> of Building Business
+                        </h1>
+                    </div>
 
-                {/* Levitating Glow Input Area & Process Flow */}
-                <div className="relative w-full max-w-6xl mx-auto mb-24 flex flex-col items-center z-40">
+                    {/* Subtitle */}
+                    <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
+                        Validate your market and get a personalized 60-day roadmap to turn your vision into a real business.
+                    </p>
 
-                    {/* 1. INPUT BOX WRAPPER */}
-                    <style>
-                        {`
-                            @property --border-angle {
-                                syntax: '<angle>';
-                                initial-value: 0deg;
-                                inherits: false;
-                            }
-                            @keyframes rotateBorder {
-                                to { --border-angle: 360deg; }
-                            }
-                            @keyframes subtlePulse {
-                                0% { opacity: 0.15; transform: scale(1); }
-                                50% { opacity: 0.3; transform: scale(1.01); }
-                                100% { opacity: 0.15; transform: scale(1); }
-                            }
-                            .orbit-border {
-                                --border-angle: 0deg;
-                                animation: rotateBorder 4s linear infinite;
-                                background: conic-gradient(
-                                    from var(--border-angle),
-                                    transparent 30%,
-                                    #0066FF 50%,
-                                    #0BAAFF 55%,
-                                    transparent 70%
-                                );
-                            }
-                        `}
-                    </style>
-                    <div className="relative w-full max-w-2xl group mb-0 z-10">
-                        {/* Animated Rotating Border */}
-                        <div className="orbit-border absolute -inset-[2px] rounded-2xl pointer-events-none"></div>
+                    {/* Levitating Glow Input Area & Process Flow */}
+                    <div className="relative w-full max-w-6xl mx-auto mb-24 flex flex-col items-center z-40">
 
-                        {/* Static fallback border underneath */}
-                        <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)]/30 via-[#0BAAFF]/30 to-[var(--brand-accent)]/30 pointer-events-none"></div>
+                        {/* 1. INPUT BOX WRAPPER */}
 
-                        {/* Pulsing Aura Glow */}
-                        <div className="absolute -inset-[8px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] blur-xl animate-[subtlePulse_4s_ease-in-out_infinite] pointer-events-none"></div>
+                        <div className="relative w-full max-w-2xl group mb-0 z-10">
+                            {/* MAIN OUTER CONTAINER (Refined Glass) */}
+                            <div className="relative bg-white/10 backdrop-blur-xl rounded-[20px] p-2 flex flex-col h-full border border-white/15 shadow-2xl shadow-black/20">
 
-                        {/* Hover Intensified Glow */}
-                        <div className="absolute -inset-[15px] rounded-2xl bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-25 pointer-events-none"></div>
+                                {/* FRONT CONTAINER (Inner glass box for Text Input) */}
+                                <div className="relative bg-white/10 backdrop-blur-xl rounded-[14px] p-1 mb-2 border border-white/15">
+                                    <div className="relative w-full">
+                                        <textarea
+                                            className={`w-full h-28 p-4 text-xl text-white placeholder:text-white/40 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed rounded-md transition-opacity duration-300 ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
+                                            placeholder={idea ? "" : placeholder}
+                                            value={idea}
+                                            onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(''); }}
+                                            disabled={isEnhancing}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && !e.shiftKey) {
+                                                    e.preventDefault();
+                                                    handleGenerate();
+                                                }
+                                            }}
+                                        ></textarea>
 
-                        {/* Input Content */}
-                        <div className="relative bg-white/90 backdrop-blur-xl rounded-[14px] flex flex-col p-2 h-full m-[2px] shadow-lg shadow-blue-500/5">
-
-                            <div className="relative w-full">
-                                <textarea
-                                    className={`w-full h-28 p-6 text-xl text-[#111111] placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed rounded-md transition-opacity duration-300 ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
-                                    placeholder={idea ? "" : placeholder}
-                                    value={idea}
-                                    onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(''); }}
-                                    disabled={isEnhancing}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleGenerate();
-                                        }
-                                    }}
-                                ></textarea>
-
-                                {/* Skeleton Loading Overlay */}
-                                {isEnhancing && (
-                                    <div className="absolute inset-0 p-6 flex flex-col gap-3 z-10">
-                                        <div className="h-4 bg-gray-200/80 rounded w-3/4 animate-pulse"></div>
-                                        <div className="h-4 bg-gray-200/60 rounded w-1/2 animate-pulse delay-75"></div>
-                                        <div className="h-4 bg-gray-200/40 rounded w-2/3 animate-pulse delay-150"></div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Content Moderation Warning */}
-                            {contentWarning && ReactDOM.createPortal(
-                                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-md px-4"
-                                    onClick={() => { setContentWarning(''); setIdea(''); }}
-                                >
-                                    <div
-                                        className="bg-gradient-to-b from-red-500 to-red-600 rounded-2xl shadow-2xl shadow-red-500/30 w-full max-w-sm p-8 flex flex-col items-center text-center animate-in fade-in zoom-in duration-200"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        {/* Icon */}
-                                        <div className="w-14 h-14 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center mb-5">
-                                            <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                                <line x1="9" y1="9" x2="15" y2="15" />
-                                                <line x1="15" y1="9" x2="9" y2="15" />
-                                            </svg>
-                                        </div>
-
-                                        {/* Title */}
-                                        <h3 className="text-xl font-bold text-white mb-2">
-                                            We Can't Process This
-                                        </h3>
-
-                                        {/* Message */}
-                                        <p className="text-red-100 text-sm leading-relaxed max-w-xs mb-6">
-                                            {contentWarning}
-                                        </p>
-
-                                        {/* Single Action */}
-                                        <button
-                                            onClick={() => { setContentWarning(''); setIdea(''); }}
-                                            className="w-full px-5 py-3 bg-white text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all active:scale-95 shadow-lg"
-                                        >
-                                            Try a Different Idea
-                                        </button>
-                                    </div>
-                                </div>,
-                                document.body
-                            )}
-
-                            <div className="flex justify-between items-center px-4 pb-3 mt-4">
-                                <div className="relative group/enhance">
-                                    <button
-                                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${isEnhancing ? 'text-[var(--brand-accent)] bg-blue-50 cursor-not-allowed' : 'text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50'}`}
-                                        onClick={handleEnhance}
-                                        disabled={isEnhancing}
-                                    >
-                                        <Wand2 size={20} className={isEnhancing ? "animate-spin" : ""} />
-                                    </button>
-                                    {/* Custom Tooltip */}
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs font-semibold rounded-lg opacity-0 group-hover/enhance:opacity-100 transform translate-y-2 group-hover/enhance:translate-y-0 transition-all duration-200 whitespace-nowrap shadow-xl pointer-events-none">
-                                        Enhance Idea
-                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                                        {/* Skeleton Loading Overlay */}
+                                        {isEnhancing && (
+                                            <div className="absolute inset-0 p-4 flex flex-col gap-2 z-10">
+                                                <div className="h-4 bg-white/10 rounded w-3/4 animate-pulse"></div>
+                                                <div className="h-4 bg-white/5 rounded w-1/2 animate-pulse delay-75"></div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
-                                <button
-                                    onClick={handleGenerate}
-                                    className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-sm transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-[var(--brand-accent)]/25 hover:shadow-[var(--brand-accent)]/40"
-                                >
-                                    <span>Generate</span>
-                                </button>
+                                {/* BUTTONS (Reduced padding/spacing) */}
+                                <div className="flex justify-between items-center px-1">
+                                    <div className="relative group/enhance">
+                                        <button
+                                            className={`flex items-center justify-center w-8 h-8 rounded-full transition-all ${isEnhancing ? 'text-sky-400 bg-white/5 cursor-not-allowed' : 'text-white/40 hover:text-white hover:bg-white/10'}`}
+                                            onClick={handleEnhance}
+                                            disabled={isEnhancing}
+                                        >
+                                            <Wand2 size={18} className={isEnhancing ? "animate-spin" : ""} />
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        onClick={handleGenerate}
+                                        className="bg-white text-black px-8 py-3 rounded-[18px] font-medium text-sm transition-all duration-300 hover:bg-sky-400 active:scale-95 shadow-xl shadow-white/5"
+                                    >
+                                        <span>Generate</span>
+                                    </button>
+                                </div>
+
+                                {contentWarning && ReactDOM.createPortal(
+                                    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-md px-4"
+                                        onClick={() => { setContentWarning(''); setIdea(''); }}
+                                    >
+                                        <div
+                                            className="bg-gradient-to-b from-red-500 to-red-600 rounded-2xl shadow-2xl shadow-red-500/30 w-full max-w-sm p-8 flex flex-col items-center text-center animate-in fade-in zoom-in duration-200"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {/* Icon */}
+                                            <div className="w-14 h-14 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center mb-5">
+                                                <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                                    <line x1="9" y1="9" x2="15" y2="15" />
+                                                    <line x1="15" y1="9" x2="9" y2="15" />
+                                                </svg>
+                                            </div>
+
+                                            {/* Title */}
+                                            <h3 className="text-xl font-bold text-white mb-2">
+                                                We Can't Process This
+                                            </h3>
+
+                                            {/* Message */}
+                                            <p className="text-red-100 text-sm leading-relaxed max-w-xs mb-6">
+                                                {contentWarning}
+                                            </p>
+
+                                            {/* Single Action */}
+                                            <button
+                                                onClick={() => { setContentWarning(''); setIdea(''); }}
+                                                className="w-full px-5 py-3 bg-white text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all active:scale-95 shadow-lg"
+                                            >
+                                                Try a Different Idea
+                                            </button>
+                                        </div>
+                                    </div>,
+                                    document.body
+                                )}
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    {/* 2. FLOW LINES & BOXES */}
-                    <div className="relative w-full max-w-[95%] md:max-w-6xl mt-64">
-                        {/* SVG Flow Lines with Comet Particle Animation */}
-                        <svg className="absolute -top-[350px] left-0 w-full h-[2000px] md:h-[450px] z-0 pointer-events-none" viewBox="0 0 800 300" preserveAspectRatio="none">
-                            <style>
-                                {`
-                                    @keyframes particleFlow {
-                                        0% { stroke-dashoffset: 600; }
-                                        100% { stroke-dashoffset: 0; }
-                                    }
-                                    .particle-core {
-                                        stroke-dasharray: 20 580;
-                                        animation: particleFlow 3s ease-in-out infinite;
-                                    }
-                                    .particle-glow1 {
-                                        stroke-dasharray: 30 570;
-                                        animation: particleFlow 3s ease-in-out infinite;
-                                        animation-delay: -0.05s;
-                                    }
-                                    .particle-glow2 {
-                                        stroke-dasharray: 45 555;
-                                        animation: particleFlow 3s ease-in-out infinite;
-                                        animation-delay: -0.1s;
-                                    }
-                                    @keyframes spin-slow {
-                                        from { transform: rotate(0deg); }
-                                        to { transform: rotate(360deg); }
-                                    }
-                                    .animate-spin-slow {
-                                        animation: spin-slow 8s linear infinite;
-                                    }
-                                    .shimmer {
-                                        background: linear-gradient(90deg, #f0f4f8 25%, #f9fafb 50%, #f0f4f8 75%);
-                                        background-size: 200% 100%;
-                                        animation: shimmer 2s infinite linear;
-                                    }
+            {/* --- BELOW HERO: Flow Lines & Feature Boxes --- */}
+            <div className="relative w-full flex flex-col items-center bg-white">
+                <div className="relative w-full max-w-[95%] md:max-w-6xl mt-16">
+                    {/* SVG Flow Lines with Comet Particle Animation */}
+                    <svg className="absolute -top-[350px] left-0 w-full h-[2000px] md:h-[450px] z-0 pointer-events-none" viewBox="0 0 800 300" preserveAspectRatio="none">
+                        <style>
+                            {`
+                                @keyframes particleFlow {
+                                    0% { stroke-dashoffset: 600; }
+                                    100% { stroke-dashoffset: 0; }
+                                }
+                                .particle-core {
+                                    stroke-dasharray: 20 580;
+                                    animation: particleFlow 3s ease-in-out infinite;
+                                }
+                                .particle-glow1 {
+                                    stroke-dasharray: 30 570;
+                                    animation: particleFlow 3s ease-in-out infinite;
+                                    animation-delay: -0.05s;
+                                }
+                                .particle-glow2 {
+                                    stroke-dasharray: 45 555;
+                                    animation: particleFlow 3s ease-in-out infinite;
+                                    animation-delay: -0.1s;
+                                }
+                                @keyframes spin-slow {
+                                    from { transform: rotate(0deg); }
+                                    to { transform: rotate(360deg); }
+                                }
+                                .animate-spin-slow {
+                                    animation: spin-slow 8s linear infinite;
+                                }
+                                .shimmer {
+                                    background: linear-gradient(90deg, #f0f4f8 25%, #f9fafb 50%, #f0f4f8 75%);
+                                    background-size: 200% 100%;
+                                    animation: shimmer 2s infinite linear;
+                                }
+                                .flow-line {
+                                    stroke-width: 12px;
+                                }
+                                @media (min-width: 768px) {
                                     .flow-line {
-                                        stroke-width: 12px;
+                                        stroke-width: 3px;
                                     }
-                                    @media (min-width: 768px) {
-                                        .flow-line {
-                                            stroke-width: 3px;
-                                        }
-                                    }
-                                `}
-                            </style>
+                                }
+                            `}
+                        </style>
 
-                            {/* Left Branch - Base (Hidden on Mobile) */}
-                            <g className="hidden md:block">
-                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
-                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
-                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
-                                <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
-                            </g>
-
-                            {/* Center Branch - Base (Persistent) */}
-                            <path d="M 400 0 L 400 300"
+                        {/* Left Branch - Base (Hidden on Mobile) */}
+                        <g className="hidden md:block">
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
-                            {/* Center Branch - Particle Trail */}
-                            <path d="M 400 0 L 400 300"
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
-                            <path d="M 400 0 L 400 300"
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
-                            <path d="M 400 0 L 400 300"
+                            <path d="M 400 0 L 400 220 Q 400 240 380 240 L 133 240 Q 113 240 113 260 L 113 300"
                                 fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
+                        </g>
 
-                            {/* Right Branch - Base (Hidden on Mobile) */}
-                            <g className="hidden md:block">
-                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
-                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
-                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
-                                <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
-                                    fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
-                            </g>
-                        </svg>
+                        {/* Center Branch - Base (Persistent) */}
+                        <path d="M 400 0 L 400 300"
+                            fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
+                        {/* Center Branch - Particle Trail */}
+                        <path d="M 400 0 L 400 300"
+                            fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
+                        <path d="M 400 0 L 400 300"
+                            fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
+                        <path d="M 400 0 L 400 300"
+                            fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-24">
-                            <StepBox
-                                label="Context"
-                                title="Smart Interview"
-                                description="Dynamic question wizard that adapts to your idea — no generic templates. Location-aware for hyperlocal businesses."
-                                delay="0"
-                                image="/market_analysis_vector.png"
-                            />
-                            <StepBox
-                                label="Strategy"
-                                title="Market-Backed Report"
-                                description="1-10 demand score, feasibility breakdown, differentiation tactics, and risk analysis powered by live web data."
-                                delay="100"
-                                image="/business_model_vector.png"
-                            />
-                            <StepBox
-                                label="Plan"
-                                title="60-Day Roadmap"
-                                description="Daily task calendar with no repeated activities. Every day is distinct, phased by objective, with measurable deliverables."
-                                delay="200"
-                                image="/action_roadmap_vector.png"
-                            />
-                        </div>
+                        {/* Right Branch - Base (Hidden on Mobile) */}
+                        <g className="hidden md:block">
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                fill="none" stroke="#E5E7EB" strokeLinecap="round" className="flow-line" />
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.15" className="flow-line particle-glow2" />
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="0.4" className="flow-line particle-glow1" />
+                            <path d="M 400 0 L 400 220 Q 400 240 420 240 L 667 240 Q 687 240 687 260 L 687 300"
+                                fill="none" stroke="var(--brand-accent)" strokeLinecap="round" opacity="1" className="flow-line particle-core" />
+                        </g>
+                    </svg>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-24">
+                        <StepBox
+                            label="Context"
+                            title="Smart Interview"
+                            description="Dynamic question wizard that adapts to your idea — no generic templates. Location-aware for hyperlocal businesses."
+                            delay="0"
+                            image="/market_analysis_vector.png"
+                        />
+                        <StepBox
+                            label="Strategy"
+                            title="Market-Backed Report"
+                            description="1-10 demand score, feasibility breakdown, differentiation tactics, and risk analysis powered by live web data."
+                            delay="100"
+                            image="/business_model_vector.png"
+                        />
+                        <StepBox
+                            label="Plan"
+                            title="60-Day Roadmap"
+                            description="Daily task calendar with no repeated activities. Every day is distinct, phased by objective, with measurable deliverables."
+                            delay="200"
+                            image="/action_roadmap_vector.png"
+                        />
                     </div>
                 </div>
 
