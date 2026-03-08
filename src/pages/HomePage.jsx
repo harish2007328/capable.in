@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
 import heroVideo from '../assets/hero-bg2-compressed.mp4';
-import heroPoster from '../assets/hero-poster.png';
+import heroPoster from '../assets/hero-poster.webp';
 
 // Import Home Components
 import ServicesSection from '../components/home/ServicesSection';
@@ -447,7 +447,7 @@ const HomePage = () => {
                         <div className="lg:col-span-7">
                             <div className="relative group">
                                 <div className="rounded-[14px] overflow-hidden aspect-[4/3] sm:aspect-[16/10] bg-gray-100 relative shadow-2xl">
-                                    <img src="/1.png" loading="lazy" alt="Market Analysis Workflow" className="w-full h-full object-cover" />
+                                    <img src="/1.webp" loading="lazy" alt="Market Analysis Workflow" className="w-full h-full object-cover" />
                                     <div className="absolute inset-0 bg-blue-600/5"></div>
 
                                     <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 p-1 sm:p-1.5 rounded-[14px] shadow-2xl border border-white/30">

@@ -28,7 +28,7 @@ const BottomCTASection = () => (
 
                     <div className="rounded-[24px] border border-gray-100 bg-white shadow-soft overflow-hidden group-hover:shadow-card transition-all duration-700">
                         <div className="w-full aspect-[4/3] relative">
-                            <img src="/bauhaus_last_gen.png" loading="lazy" alt="Strategy Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <img src="/bauhaus_last_gen.webp" loading="lazy" alt="Strategy Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                             <div className="absolute inset-0 bg-black/10"></div>
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="bg-white/25 backdrop-blur-md p-1 rounded-[14px] shadow-xl border border-white/30">

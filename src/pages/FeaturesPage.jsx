@@ -28,28 +28,28 @@ const FeaturesPage = () => {
             title: "Instant Validation",
             tag: "Speed",
             description: "Skip months of manual research. Our AI-driven engine validates your business hypotheses against real-time market signals in seconds.",
-            image: "/feature_lightning.png"
+            image: "/feature_lightning.webp"
         },
         {
             icon: <BarChart3 className="w-6 h-6 text-emerald-500" />,
             title: "Market Intelligence",
             tag: "Insight",
             description: "Deep-dive into competitive landscapes, target demographics, and industry trends with data-backed accuracy.",
-            image: "/feature_market.png"
+            image: "/feature_market.webp"
         },
         {
             icon: <RouteIcon className="w-6 h-6 text-fuchsia-500" />,
             title: "Dynamic Roadmaps",
             tag: "Strategy",
             description: "Get a personalized 60-day execution plan that adapts to your specific goals and industry requirements.",
-            image: "/feature_roadmaps.png"
+            image: "/feature_roadmaps.webp"
         },
         {
             icon: <MessageSquare className="w-6 h-6 text-sky-500" />,
             title: "AI Business Mentor",
             tag: "Guidance",
             description: "An interactive coach that knows your project inside out, offering context-aware support throughout your journey.",
-            image: "/feature_ai.png"
+            image: "/feature_ai.webp"
         }
     ];
 
@@ -136,7 +136,7 @@ const FeaturesPage = () => {
                         <div className="relative order-2 lg:order-1">
                             {/* Decorative element like the homepage */}
                             <div className="rounded-[40px] overflow-hidden aspect-square md:aspect-[4/5] relative shadow-2xl">
-                                <img src="/market_analysis_vector.png" alt="Advantage" className="w-full h-full object-cover" />
+                                <img src="/market_analysis_vector.webp" alt="Advantage" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 to-transparent"></div>
 
                                 <div className="absolute bottom-8 left-8 right-8 bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl">

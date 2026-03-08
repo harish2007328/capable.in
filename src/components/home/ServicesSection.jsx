@@ -123,7 +123,7 @@ const ServicesSection = () => {
                             <div id="service-step-0" data-index="0" className="service-step-container space-y-8">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_lightning.png" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[2%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Validated" />
+                                        <img src="/feature_lightning.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[2%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Validated" />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>
@@ -142,7 +142,7 @@ const ServicesSection = () => {
                             <div id="service-step-1" data-index="1" className="service-step-container space-y-10">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_market.png" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[5%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Analysis" />
+                                        <img src="/feature_market.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[5%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Analysis" />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>
@@ -159,7 +159,7 @@ const ServicesSection = () => {
                             <div id="service-step-2" data-index="2" className="service-step-container space-y-10">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_roadmaps.png" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Roadmaps" />
+                                        <img src="/feature_roadmaps.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Roadmaps" />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>
@@ -176,7 +176,7 @@ const ServicesSection = () => {
                             <div id="service-step-3" data-index="3" className="service-step-container space-y-10">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_ai.png" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Chat" />
+                                        <img src="/feature_ai.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Chat" />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>

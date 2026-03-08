@@ -79,7 +79,7 @@ const FAQWithStatsSection = () => {
 
                         <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
                             <div className="w-full aspect-[16/10] bg-gray-50 relative">
-                                <img src="/feature_ai.png" loading="lazy" alt="AI Analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <img src="/feature_ai.webp" loading="lazy" alt="AI Analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                 <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                             </div>
                         </div>
