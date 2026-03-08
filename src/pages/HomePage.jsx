@@ -190,6 +190,7 @@ const HomePage = () => {
                             }}
                         >
                             <source src={heroVideo} type="video/mp4" />
+                            <track kind="captions" />
                         </video>
                         {/* Cinematic Dark Overlay */}
                         <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(rgba(41, 145, 248, 0.5), rgba(9, 106, 202, 0.5))' }}></div>
@@ -214,7 +215,7 @@ const HomePage = () => {
                     </div>
 
                     {/* Subtitle */}
-                    <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
+                    <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
                         Validate your market and get a personalized 60-day roadmap to turn your vision into a real business.
                     </p>
 

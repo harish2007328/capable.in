@@ -4,18 +4,33 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/logo-icon.svg" />
+  <!-- Meta & SEO -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
     content="Validate your startup idea and get a personalized 60-day roadmap with Capable. Intelligent market analysis and action plans for modern founders." />
+  <meta name="theme-color" content="#ffffff" />
   <title>Capable — Build Businesses with Clarity</title>
 
   <!-- Preload Critical Assets -->
   <link rel="preload" as="video" href="/src/assets/hero-bg2-compressed.mp4" type="video/mp4" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Albert+Sans:wght@300;400;500;600;700;800&display=swap">
   <link
     href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Albert+Sans:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
+    rel="stylesheet" media="print" onload="this.media='all'">
+
+  <style>
+    body {
+      background-color: #ffffff;
+      margin: 0;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+  </style>
   <script>
     // Global error suppressor for external offsetX errors (common in cursor extensions)
     (function () {

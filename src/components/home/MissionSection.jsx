@@ -20,7 +20,9 @@ const MissionSection = ({ heroVideo }) => (
                         filter: 'brightness(0.9)'
                     }}
                     src={heroVideo}
-                />
+                >
+                    <track kind="captions" />
+                </video>
 
                 <div className="absolute inset-0 transition-all duration-1000 opacity-100 group-hover:opacity-90 group-hover:scale-105 pointer-events-none" style={{ background: 'linear-gradient(rgba(41, 145, 248, 0.5), rgba(9, 106, 202, 0.5))' }}></div>
 
