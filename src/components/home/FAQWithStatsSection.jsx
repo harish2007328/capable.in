@@ -79,14 +79,14 @@ const FAQWithStatsSection = () => {
 
                         <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
                             <div className="relative group">
-                                <div className="rounded-[40px] overflow-hidden aspect-square md:aspect-[4/5] bg-gray-900 shadow-2xl relative">
+                                <div className="rounded-[40px] overflow-hidden aspect-[16/10] bg-gray-900 shadow-2xl relative">
                                     <img
-                                        src="/2.webp"
-                                        srcSet="/mobile/2.webp 640w, /2.webp 1200w"
+                                        src="/feature_ai.webp"
+                                        srcSet="/mobile/feature_ai.webp 640w, /feature_ai.webp 1200w"
                                         sizes="(max-width: 640px) 100vw, 40vw"
                                         loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                                        alt="Market Analysis"
+                                        alt="AI Guidance"
                                     />
                                     <div className="absolute inset-0 bg-blue-600/10 pointer-events-none group-hover:opacity-0 transition-opacity duration-1000"></div>
                                 </div>
