@@ -81,7 +81,7 @@ const FAQWithStatsSection = () => {
                             <div className="relative group">
                                 <div className="rounded-[40px] overflow-hidden aspect-[16/10] bg-gray-900 shadow-2xl relative">
                                     <img
-                                        src="/feature_ai.webp"
+                                        src="/mobile/feature_ai.webp"
                                         srcSet="/mobile/feature_ai.webp 640w, /feature_ai.webp 1200w"
                                         sizes="(max-width: 640px) 100vw, 40vw"
                                         loading="lazy"

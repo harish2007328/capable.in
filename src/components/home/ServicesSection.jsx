@@ -124,7 +124,7 @@ const ServicesSection = () => {
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
-                                            src="/feature_lightning.webp"
+                                            src="/mobile/feature_lightning.webp"
                                             srcSet="/mobile/feature_lightning.webp 640w, /feature_lightning.webp 1200w"
                                             sizes="(max-width: 640px) 100vw, 50vw"
                                             loading="lazy"
@@ -150,7 +150,7 @@ const ServicesSection = () => {
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
-                                            src="/feature_market.webp"
+                                            src="/mobile/feature_market.webp"
                                             srcSet="/mobile/feature_market.webp 640w, /feature_market.webp 1200w"
                                             sizes="(max-width: 640px) 100vw, 50vw"
                                             loading="lazy"
@@ -174,7 +174,7 @@ const ServicesSection = () => {
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
-                                            src="/feature_roadmaps.webp"
+                                            src="/mobile/feature_roadmaps.webp"
                                             srcSet="/mobile/feature_roadmaps.webp 640w, /feature_roadmaps.webp 1200w"
                                             sizes="(max-width: 640px) 100vw, 50vw"
                                             loading="lazy"
@@ -198,7 +198,7 @@ const ServicesSection = () => {
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
-                                            src="/feature_ai.webp"
+                                            src="/mobile/feature_ai.webp"
                                             srcSet="/mobile/feature_ai.webp 640w, /feature_ai.webp 1200w"
                                             sizes="(max-width: 640px) 100vw, 50vw"
                                             loading="lazy"

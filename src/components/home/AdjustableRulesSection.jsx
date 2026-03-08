@@ -30,7 +30,7 @@ const AdjustableRulesSection = () => (
                     <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
                         <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
                             <img
-                                src="/market_analysis_vector.webp"
+                                src="/mobile/market_analysis_vector.webp"
                                 srcSet="/mobile/market_analysis_vector.webp 640w, /market_analysis_vector.webp 1200w"
                                 sizes="(max-width: 640px) 100vw, 50vw"
                                 loading="lazy"
@@ -55,7 +55,7 @@ const AdjustableRulesSection = () => (
                     <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
                         <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
                             <img
-                                src="/action_roadmap_vector.webp"
+                                src="/mobile/action_roadmap_vector.webp"
                                 srcSet="/mobile/action_roadmap_vector.webp 640w, /action_roadmap_vector.webp 1200w"
                                 sizes="(max-width: 640px) 100vw, 50vw"
                                 loading="lazy"

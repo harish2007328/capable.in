@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
-import Lottie from 'lottie-react';
-import loaderAnimation from '../assets/loader.json';
 
 const AuthContext = createContext();
 

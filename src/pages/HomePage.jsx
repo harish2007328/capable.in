@@ -450,7 +450,7 @@ const HomePage = () => {
                             <div className="relative group">
                                 <div className="rounded-[14px] overflow-hidden aspect-[4/3] sm:aspect-[16/10] bg-gray-100 relative shadow-2xl">
                                     <img
-                                        src="/1.webp"
+                                        src="/mobile/1.webp"
                                         srcSet="/mobile/1.webp 640w, /1.webp 1200w"
                                         sizes="(max-width: 640px) 100vw, 800px"
                                         loading="lazy"
