@@ -29,7 +29,7 @@ const Layout = ({ children }) => {
     }
 
     return (
-        <div className="relative min-h-screen w-full bg-slate-50 text-slate-900 font-sans selection:bg-brand-blue/10 selection:text-brand-blue flex flex-col overflow-x-hidden">
+        <div className="relative min-h-screen w-full bg-slate-50 text-slate-900 font-sans selection:bg-brand-blue/10 selection:text-brand-blue flex flex-col">
 
             {/* Soft Ambient Light Effect */}
             <div className="fixed top-0 left-0 w-full h-screen bg-gradient-radial from-white via-slate-50 to-slate-100 pointer-events-none -z-10"></div>

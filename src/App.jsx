@@ -6,6 +6,8 @@ import PricingPage from './pages/PricingPage';
 import VenturePage from './pages/VenturePage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
+import DocsPage from './pages/DocsPage';
+import FeaturesPage from './pages/FeaturesPage';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
@@ -34,6 +36,8 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/docs" element={<DocsPage />} />
+            <Route path="/features" element={<FeaturesPage />} />
             <Route path="/login" element={<LoginPage />} />
 
             {/* Unified Venture Route - Public (Handles guests via localStorage) */}

@@ -1,15 +1,21 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wand2, Maximize2, X } from 'lucide-react';
+import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
 import heroVideo from '../assets/hero-bg2-compressed.mp4';
 import heroPoster from '../assets/hero-poster.png';
 
-
+// Import Home Components
+import ServicesSection from '../components/home/ServicesSection';
+import AdjustableRulesSection from '../components/home/AdjustableRulesSection';
+import MissionSection from '../components/home/MissionSection';
+import TestimonialStepsSection from '../components/home/TestimonialStepsSection';
+import FAQWithStatsSection from '../components/home/FAQWithStatsSection';
+import BottomCTASection from '../components/home/BottomCTASection';
 
 // Client-side blocked terms (quick pre-check before hitting the server)
 const CLIENT_BLOCKED_TERMS = [
@@ -159,7 +165,7 @@ const HomePage = () => {
     };
 
     return (
-        <div className="relative w-full bg-white">
+        <div className="relative w-full bg-white clip-path-bounds">
             {/* --- HERO SECTION --- */}
             <section className="relative w-full min-h-[95vh] md:min-h-screen flex flex-col items-center overflow-hidden">
                 {/* 1. Contained Video Background */}
@@ -279,7 +285,7 @@ const HomePage = () => {
                                         </button>
                                         <button
                                             onClick={handleGenerate}
-                                            className="bg-white text-black px-5 py-2 rounded-[10px] font-medium text-sm transition-all duration-300 hover:bg-sky-400 active:scale-95 shadow-xl shadow-white/5 z-10"
+                                            className="bg-white text-black px-5 py-2 rounded-[10px] font-medium text-sm transition-all duration-300 hover:bg-[var(--brand-accent)] hover:text-white active:scale-95 shadow-xl shadow-white/5 z-10"
                                         >
                                             <span>Generate</span>
                                         </button>
@@ -382,7 +388,7 @@ const HomePage = () => {
                                                             </button>
                                                             <button
                                                                 onClick={handleGenerate}
-                                                                className="bg-white text-black px-5 py-2 rounded-[10px] font-medium text-sm transition-all duration-300 hover:bg-sky-400 active:scale-95 shadow-xl shadow-white/5"
+                                                                className="bg-white text-black px-5 py-2 rounded-[10px] font-medium text-sm transition-all duration-300 hover:bg-[var(--brand-accent)] hover:text-white active:scale-95 shadow-xl shadow-white/5"
                                                             >
                                                                 <span>Generate</span>
                                                             </button>
@@ -423,13 +429,13 @@ const HomePage = () => {
             </section>
 
             {/* === BETTER UNDERWRITES / FEATURE SHOWCASE === */}
-            <section className="w-full bg-[#f9f9f9] py-20 md:py-24 overflow-hidden">
+            <section className="w-full bg-[#f9f9f9] py-20 md:py-24">
                 <div className="max-w-7xl mx-auto px-6">
                     {/* Header: Large Editorial Headline */}
-                    <div className="mb-12 max-w-4xl">
-                        <h2 className="text-4xl md:text-7xl font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
+                    <div className="mb-8 md:mb-12 max-w-4xl">
+                        <h2 className="text-3xl sm:text-4xl md:text-7xl font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
                             Smarter research,<br />faster
-                            <span className="text-gray-900 font-display italic"> launch</span>
+                            <span className="text-[var(--brand-accent)] font-display italic"> launch</span>
                         </h2>
                     </div>
 
@@ -439,12 +445,12 @@ const HomePage = () => {
                         <div className="lg:col-span-7">
                             <div className="relative group">
                                 <div className="rounded-[14px] overflow-hidden aspect-[4/3] sm:aspect-[16/10] bg-gray-100 relative shadow-2xl">
-                                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center"></div>
+                                    <div className="absolute inset-0 bg-[url('/1.png')] bg-cover bg-center"></div>
                                     <div className="absolute inset-0 bg-blue-600/5"></div>
 
-                                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[85%] bg-white/25 p-1.5 rounded-[14px] shadow-2xl border border-white/30">
-                                        <div className="bg-white rounded-[12px] py-4 flex items-center justify-center">
-                                            <span className="text-[13px] font-bold text-gray-900 tracking-tight uppercase tracking-widest">Intelligent Market Analysis Workflow</span>
+                                    <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 p-1 sm:p-1.5 rounded-[14px] shadow-2xl border border-white/30">
+                                        <div className="bg-white rounded-[12px] py-2.5 sm:py-4 flex items-center justify-center">
+                                            <span className="text-[10px] sm:text-[13px] font-bold text-gray-900 tracking-tight uppercase tracking-widest text-center px-2">Intelligent Market Analysis Workflow</span>
                                         </div>
                                     </div>
                                 </div>
@@ -455,10 +461,10 @@ const HomePage = () => {
                         <div className="lg:col-span-5 pt-8">
                             <div className="space-y-10">
                                 <div className="space-y-6">
-                                    <p className="text-gray-900 font-sans text-xl leading-relaxed font-normal">
+                                    <p className="text-gray-900 font-sans text-lg sm:text-xl leading-relaxed font-normal">
                                         Launching is traditionally <span className="italic font-display">complex and resource-intensive</span>. We've optimized the process from the ground up.
                                     </p>
-                                    <p className="text-gray-500 font-sans text-lg leading-relaxed">
+                                    <p className="text-gray-500 font-sans text-base sm:text-lg leading-relaxed">
                                         By seamlessly merging smart technology with market expertise, we enable founders to make faster, more confident decisions without sacrificing clarity or conviction.
                                     </p>
                                 </div>
@@ -491,7 +497,7 @@ const HomePage = () => {
 
                         {/* CTA Unit */}
                         <div className="flex flex-col items-center lg:items-end gap-6">
-                            <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-[14px] tracking-tight hover:shadow-lg hover:shadow-blue-500/10 active:scale-[0.98] transition-all duration-300 shadow-md flex items-center gap-2">
+                            <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-[14px] tracking-tight hover:shadow-card active:scale-[0.98] transition-all duration-300 shadow-md flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.8)]"></span>
                                 Request a demo
                             </button>
@@ -522,190 +528,244 @@ const HomePage = () => {
             <BottomCTASection />
 
             {/* === FOOTER === */}
-            <footer className="w-full bg-white border-t border-gray-100 pt-20 pb-8 relative overflow-hidden">
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-16 border-b border-gray-100">
-                        {/* Company Info */}
-                        <div className="space-y-6">
-                            <Logo color="dark" className="h-8 w-auto scale-90 origin-left" />
-                            <p className="text-gray-500 font-sans text-sm leading-relaxed max-w-xs">
-                                Empowering the next generation of entrepreneurs with AI-driven business intelligence and strategy.
+            <footer className="w-full bg-white py-12 border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4">
+                        {/* Copyright */}
+                        <div className="order-3 md:order-1">
+                            <p className="text-[12px] text-gray-400 font-sans tracking-tight">
+                                © 2025 Capable Labs. All rights reserved.
                             </p>
-                            <div className="flex items-center gap-3">
-                                <a href="#" className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50 transition-all">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" /></svg>
-                                </a>
-                                <a href="#" className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50 transition-all">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
-                                </a>
-                                <a href="#" className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[var(--brand-accent)] hover:bg-blue-50 transition-all">
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /></svg>
-                                </a>
-                            </div>
                         </div>
 
-                        {/* Quick Links */}
-                        <div>
-                            <h4 className="text-gray-900 font-display font-normal uppercase text-xs mb-6">Product</h4>
-                            <ul className="space-y-4">
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Features</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Case Studies</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Pricing</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Updates</a></li>
-                            </ul>
+                        {/* Social Icons */}
+                        <div className="flex items-center gap-8 order-1 md:order-2">
+                            {[
+                                { icon: 'X', path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z' },
+                                { icon: 'LinkedIn', path: 'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z' },
+                                { icon: 'GitHub', path: 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' }
+                            ].map((item, i) => (
+                                <a key={i} href="#" className="text-gray-400 hover:text-gray-900 transition-all duration-300">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d={item.path} /></svg>
+                                </a>
+                            ))}
                         </div>
 
-                        {/* Company Links */}
-                        <div>
-                            <h4 className="text-gray-900 font-display font-normal uppercase text-xs mb-6">Company</h4>
-                            <ul className="space-y-4">
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">About Us</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Careers</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Privacy Policy</a></li>
-                                <li><a href="#" className="text-gray-500 hover:text-[var(--brand-accent)] transition-colors font-sans font-medium text-sm">Terms of Service</a></li>
-                            </ul>
-                        </div>
-
-                        {/* Newsletter */}
-                        <div>
-                            <h4 className="text-gray-900 font-display font-normal uppercase text-xs mb-6">Stay in the loop</h4>
-                            <p className="text-gray-500 font-sans text-sm mb-6 leading-relaxed">
-                                Join our newsletter for the latest insights in AI and entrepreneurship.
+                        {/* Made with Tagline */}
+                        <div className="flex items-center gap-2 order-2 md:order-3">
+                            <p className="text-[12px] text-gray-400 font-sans tracking-tight">
+                                Build by <span className="font-bold text-gray-900 tracking-tight">Harish 💙</span>
                             </p>
-                            <div className="relative group/input">
-                                <input
-                                    type="email"
-                                    placeholder="Enter your email"
-                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[var(--brand-accent)]/10 focus:border-[var(--brand-accent)]/30 transition-all placeholder:text-gray-400 group-hover/input:border-gray-200"
-                                />
-                                <button className="absolute right-1.5 top-1.5 bottom-1.5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-4 rounded-[10px] text-xs font-bold hover:shadow-soft transition-all">
-                                    Join
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Copyright Bar */}
-                    <div className="flex flex-col md:flex-row items-center justify-between pt-8 gap-4">
-                        <p className="text-xs text-gray-400 font-sans">Â© 2025 Capable. All rights reserved.</p>
-                        <div className="flex items-center gap-6">
-                            <a href="#" className="text-xs text-gray-400 hover:text-gray-600 transition-colors font-sans">Privacy</a>
-                            <a href="#" className="text-xs text-gray-400 hover:text-gray-600 transition-colors font-sans">Terms</a>
                         </div>
                     </div>
                 </div>
             </footer>
-
-            {/* Massive Brand Mark Image */}
-            <div className="w-full bg-white flex justify-center overflow-hidden pointer-events-none select-none">
-                <img
-                    src="/footer_brand.png"
-                    alt="Brand Mark"
-                    className="w-full md:w-[100%] h-auto opacity-100 object-cover"
-                />
-            </div>
-        </div>
+        </div >
     );
 };
 
-// ========== SERVICES SECTION (Tabbed with stats) ==========
+// ========== SERVICES SECTION (Sticky Scroll Redesign) ==========
 const ServicesSection = () => {
     const [activeTab, setActiveTab] = useState(0);
     const tabs = ['Validated', 'Analysis', 'Roadmaps', 'Chat'];
 
+    // Update active tab on scroll
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('data-index');
+                    if (id !== null) setActiveTab(parseInt(id));
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "-30% 0px -50% 0px" });
+
+        const elements = document.querySelectorAll('.service-step-container');
+        elements.forEach(el => observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    const scrollToStep = (idx) => {
+        const el = document.getElementById(`service-step-${idx}`);
+        if (el) {
+            const offset = 180; // Accounts for sticky header/tabs + breathing room
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = el.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     return (
-        <section className="w-full bg-[#f9f9f9] py-20 md:py-24">
+        <section className="w-full bg-white pt-24 pb-48 md:pt-32 md:pb-64 border-t border-gray-50">
             <div className="max-w-7xl mx-auto px-6">
-                {/* Header: Headline + CTA Button */}
-                <div className="mb-12">
-                    <div className="max-w-5xl">
-                        <h2 className="text-3xl md:text-5xl lg:text-7xl font-display font-normal text-gray-900 leading-[1.1] tracking-tightest mb-0">
-                            Capable isn't just a research tool; it makes your venture journey <span className="font-display italic text-blue-600">way better!</span>
+
+                {/* 1. SECTION HEADER (Editorial Typography) */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-16 sm:mb-24 items-start pt-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-0">
+                            Design a startup journey <span className="font-display italic text-[var(--brand-accent)]">that actually works.</span>
                         </h2>
-                    </div>
-                </div>
-
-                {/* Secondary Header: Subheading + Tabs (FULL WIDTH) */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 pt-8 border-t border-gray-100/50 items-center mb-16">
-                    <div className="w-full">
-                        <p className="text-gray-400 text-lg font-sans leading-relaxed mb-0">
-                            Use out-of-the-box logic for all business types and industries—or create, update and manage custom growth and product strategy requirements with ease.
+                    </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 }}
+                        className="flex flex-col"
+                    >
+                        <p className="text-gray-500 text-base sm:text-lg md:text-xl font-sans leading-relaxed max-w-xl mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
+                            Capable isn't just a research tool; it makes your venture journey way better. Use out-of-the-box logic for all business types and industries—or create, update and manage custom growth requirements with ease.
                         </p>
-                    </div>
-
-                    {/* Tabs (The Four Options) */}
-                    <div className="w-full flex">
-                        <div className="flex gap-1 bg-gray-100/100 p-1.5 rounded-[14px] w-full shadow-sm border border-gray-100 overflow-x-auto scrollbar-hide">
-                            {tabs.map((tab, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => setActiveTab(idx)}
-                                    className={`flex-1 min-w-[80px] px-4 py-3 rounded-[10px] text-[13px] font-bold transition-all duration-300 whitespace-nowrap ${activeTab === idx
-                                        ? 'bg-white text-gray-900 shadow-md scale-[1.02]'
-                                        : 'text-gray-400 hover:text-gray-600'
-                                        }`}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    </motion.div>
                 </div>
 
-                {/* Content Grid */}
-                <div>
+                {/* 2. STICKY INTERACTIVE AREA */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                        {/* Left: Text & Stats */}
-                        <div>
-                            <h3 className="text-4xl md:text-5xl font-display text-gray-900 mb-8 leading-[1.1]">Adjustable steps to fit your goal</h3>
-                            <div className="space-y-6 mb-12">
-                                <p className="text-gray-500 font-sans text-[17px] leading-relaxed">
-                                    You can use ready-made frameworks for any startup type and market, or easily create, update, and manage your own custom goalsets.
-                                </p>
-                                <p className="text-gray-500 font-sans text-[17px] leading-relaxed">
-                                    Feel free to use standard models for all business types and sectors, or you can easily create, update, and manage your own custom vision.
-                                </p>
-                            </div>
+                    {/* LEFT Side: Sticky SideNav + Stats (Desktop) */}
+                    <div className="hidden lg:block lg:col-span-4 relative">
+                        <div className="sticky top-40 h-fit space-y-16">
+                            {/* Tab List with Progress Indicator */}
+                            <nav className="flex flex-col gap-6">
+                                {tabs.map((tab, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => scrollToStep(idx)}
+                                        className="text-left group flex items-center gap-6"
+                                    >
+                                        <div className={`h-[2px] transition-all duration-700 ease-out ${activeTab === idx ? 'bg-[var(--brand-accent)] w-16' : 'bg-gray-100 group-hover:bg-gray-200 w-8'}`}></div>
+                                        <span className={`text-2xl font-display transition-all duration-500 ${activeTab === idx ? 'text-gray-900 translate-x-2' : 'text-gray-300 group-hover:text-gray-400'}`}>
+                                            {tab}
+                                        </span>
+                                    </button>
+                                ))}
+                            </nav>
 
-                            {/* Small Image Card */}
-                            <div className="w-64 h-48 rounded-[14px] overflow-hidden bg-gradient-to-br from-blue-400 to-blue-200 relative shadow-soft mb-12">
-                                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center"></div>
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[85%] bg-white/25 backdrop-blur-md p-1 rounded-[14px] shadow-lg border border-white/30">
-                                    <div className="bg-white rounded-[10px] py-3 text-center">
-                                        <span className="text-[11px] font-bold text-gray-900 tracking-widest uppercase">Workflows</span>
-                                    </div>
+                            {/* Triple Stats Unit - Derived from the workflow/signals handle content */}
+                            <div className="pt-16 border-t border-gray-100 space-y-12">
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Global Impact</p>
+                                    <p className="text-gray-900 font-sans text-sm italic pr-12 leading-relaxed">"120+ Ideas Analyzed through custom frameworks and standard business models."</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-8">
+                                    {[
+                                        { number: '98+', label: 'STRATEGIES BUILT', desc: 'Custom growth paths' },
+                                        { number: '2M+', label: 'SIGNALS HANDLED', desc: 'Real-time market data' }
+                                    ].map((stat, i) => (
+                                        <div key={i} className="flex items-end justify-between group cursor-default">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-gray-400 tracking-widest mb-1 uppercase">{stat.label}</p>
+                                                <p className="text-xs text-gray-300 group-hover:text-gray-400 transition-colors uppercase tracking-widest">{stat.desc}</p>
+                                            </div>
+                                            <p className="text-4xl md:text-5xl font-display text-gray-900 group-hover:text-[var(--brand-accent)] transition-all duration-500">{stat.number}</p>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            {/* Triple Stats */}
-                            <div className="flex flex-wrap gap-8 md:gap-12 pt-8">
-                                {[
-                                    { number: '120+', label: 'IDEAS ANALYZED' },
-                                    { number: '98+', label: 'STRATEGIES BUILT' },
-                                    { number: '2M+', label: 'SIGNALS HANDLED' }
-                                ].map((stat, idx) => (
-                                    <div key={idx} className="min-w-[100px]">
-                                        <p className="text-4xl md:text-5xl font-display text-gray-900 mb-2">{stat.number}</p>
-                                        <p className="text-[9px] md:text-[10px] font-bold text-gray-400 tracking-widest uppercase">{stat.label}</p>
-                                    </div>
+                    {/* RIGHT Side: Scrolling Content Blocks */}
+                    <div className="lg:col-span-8 relative">
+
+                        {/* Mobile Tabs Nav (Sticky at top of viewport) */}
+                        <div className="lg:hidden sticky top-[84px] z-30 bg-white/90 backdrop-blur-xl py-4 -mx-6 px-6 border-b border-gray-100 mb-12 shadow-sm">
+                            <div className="flex gap-1 bg-gray-100 p-1 rounded-2xl overflow-x-auto scrollbar-hide border border-gray-100/50">
+                                {tabs.map((tab, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => scrollToStep(idx)}
+                                        className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${activeTab === idx ? 'bg-white text-gray-900 shadow-md scale-[1.02]' : 'text-gray-400'}`}
+                                    >
+                                        {tab}
+                                    </button>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Right: Cloud Image + Glass Card */}
-                        <div className="relative group">
-                            <div className="rounded-[14px] overflow-hidden aspect-[1.1/1] relative shadow-soft bg-gradient-to-br from-green-50 to-blue-50">
-                                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center"></div>
-
-                                {/* Centered Glass Card */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] bg-white/25 backdrop-blur-xl p-1.5 rounded-[14px] shadow-2xl border border-white/30 transform -rotate-1 group-hover:rotate-0 transition-transform duration-700">
-                                    <div className="bg-white rounded-[10px] p-8">
-                                        <h4 className="text-2xl font-bold text-gray-900 mb-6">Validated ideas</h4>
-                                        <p className="text-gray-500 font-sans text-sm leading-relaxed mb-0">
-                                            Use out-of-the-box logic for all business types and industries—or create, update and manage custom growth and product strategy requirements.
+                        <div className="space-y-32 md:space-y-48">
+                            {/* STEP 1: VALIDATED */}
+                            <div id="service-step-0" data-index="0" className="service-step-container space-y-8">
+                                <div className="relative group">
+                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
+                                        <img src="/feature_lightning.png" className="w-full h-full object-cover scale-110 translate-y-[2%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Validated" />
+                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
+                                    </div>
+                                </div>
+                                <div className="max-w-3xl">
+                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                        Validate ideas with <span className="font-display italic">real signals</span>
+                                    </h3>
+                                    <div className="space-y-6">
+                                        <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                            Skip the guesswork. Capable helps you rapidly test assumptions and validate your core venture hypotheses using concrete market data before you build.
                                         </p>
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* STEP 2: ANALYSIS */}
+                            <div id="service-step-1" data-index="1" className="service-step-container space-y-10">
+                                <div className="relative group">
+                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
+                                        <img src="/feature_market.png" className="w-full h-full object-cover scale-110 translate-y-[5%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Analysis" />
+                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
+                                    </div>
+                                </div>
+                                <div className="max-w-3xl">
+                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                        Deep analysis for <span className="font-display italic">any sector</span>
+                                    </h3>
+                                    <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                        Get comprehensive breakdowns of your competitive landscape, target audience, and market viability, powered by vast reserves of industry intelligence.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* STEP 3: ROADMAPS */}
+                            <div id="service-step-2" data-index="2" className="service-step-container space-y-10">
+                                <div className="relative group">
+                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
+                                        <img src="/feature_roadmaps.png" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Roadmaps" />
+                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
+                                    </div>
+                                </div>
+                                <div className="max-w-3xl">
+                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                        Manage custom growth requirements
+                                    </h3>
+                                    <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                        Easily create, update, and manage your own custom strategy requirements with ease. Our roadmaps adapt as your market signals evolve.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* STEP 4: CHAT */}
+                            <div id="service-step-3" data-index="3" className="service-step-container space-y-10">
+                                <div className="relative group">
+                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
+                                        <img src="/feature_ai.png" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Chat" />
+                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
+                                    </div>
+                                </div>
+                                <div className="max-w-3xl">
+                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                        Interactive support, <span className="font-display italic">every step</span>
+                                    </h3>
+                                    <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                        Capable isn't just a research tool; it makes your venture journey way better with real-time feedback and intelligent chat guidance.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -716,19 +776,20 @@ const ServicesSection = () => {
     );
 };
 
+
 // ========== ADJUSTABLE RULES SECTION ==========
 const AdjustableRulesSection = () => (
     <section className="w-full bg-[#FAFBFF] py-20 md:py-24">
         <div className="max-w-7xl mx-auto px-6">
             {/* Header */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-16 items-start pt-12 border-t border-gray-100/50">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-10 sm:mb-16 items-start pt-12 border-t border-gray-100/50">
                 <div>
-                    <h2 className="text-4xl md:text-5xl lg:text-[72px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-0">
-                        Adjustable steps to fit <span className="font-display italic text-blue-600">your goal</span>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[72px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-0">
+                        Adjustable steps to fit <span className="font-display italic text-[var(--brand-accent)]">your goal</span>
                     </h2>
                 </div>
                 <div className="flex flex-col">
-                    <p className="text-gray-400 text-lg font-sans leading-relaxed max-w-lg mb-0 pt-2 border-l-2 border-blue-500/10 pl-8">
+                    <p className="text-gray-400 text-base sm:text-lg font-sans leading-relaxed max-w-lg mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
                         Customize precisely how your venture evolves. Set milestones, tasks, and objectives that match your specific industry standards.
                     </p>
                 </div>
@@ -737,39 +798,41 @@ const AdjustableRulesSection = () => (
             {/* Two Feature Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Card 1: Customisable */}
-                <div className="rounded-[14px] border border-gray-100 bg-white overflow-hidden shadow-soft hover:shadow-card transition-all duration-700 group flex flex-col pt-8">
-                    <div className="px-10 pb-4">
+                <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft hover:shadow-card transition-all duration-700 group flex flex-col">
+                    <div className="px-8 sm:px-10 pt-10 pb-8">
                         <span className="inline-flex items-center px-4 py-1.5 rounded-[14px] bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 text-[11px] font-bold text-[var(--brand-accent)] uppercase tracking-widest mb-6">
                             Customisable
                         </span>
-                        <h3 className="text-2xl font-display text-gray-900 mb-4">Precise Logic</h3>
-                        <p className="text-gray-500 text-[15px] leading-relaxed max-w-xs mb-8">
+                        <h3 className="text-2xl md:text-3xl font-display text-gray-900 mb-4 tracking-tight">Precise Logic</h3>
+                        <p className="text-gray-500 text-[16px] leading-relaxed max-w-sm mb-4">
                             Design paths that work for you, not the other way around.
                         </p>
                     </div>
-                    {/* Image Placeholder */}
-                    <div className="w-full aspect-[16/9] bg-gradient-to-br from-gray-50 to-blue-50/20 flex items-center justify-center ml-10 rounded-tl-[14px] overflow-hidden border-t border-l border-gray-100">
-                        <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-100 bg-white flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                            <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    {/* Image Container */}
+                    <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
+                        <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
+                            <img src="/market_analysis_vector.png" alt="Market Analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <div className="absolute inset-0 bg-blue-500/5 transition-all duration-700 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                         </div>
                     </div>
                 </div>
 
                 {/* Card 2: Workflows */}
-                <div className="rounded-[14px] border border-gray-100 bg-white overflow-hidden shadow-soft hover:shadow-card transition-all duration-700 group flex flex-col pt-8">
-                    <div className="px-10 pb-4">
+                <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft hover:shadow-card transition-all duration-700 group flex flex-col">
+                    <div className="px-8 sm:px-10 pt-10 pb-8">
                         <span className="inline-flex items-center px-4 py-1.5 rounded-[14px] bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 text-[11px] font-bold text-[var(--brand-accent)] uppercase tracking-widest mb-6">
                             Workflows
                         </span>
-                        <h3 className="text-2xl font-display text-gray-900 mb-4">Insightful Coaching</h3>
-                        <p className="text-gray-400 text-[15px] leading-relaxed max-w-xs mb-8">
+                        <h3 className="text-2xl md:text-3xl font-display text-gray-900 mb-4 tracking-tight">Insightful Coaching</h3>
+                        <p className="text-gray-400 text-[16px] leading-relaxed max-w-sm mb-4">
                             Simplify the complex work and focus on the results.
                         </p>
                     </div>
-                    {/* Image Placeholder */}
-                    <div className="w-full aspect-[16/9] bg-gradient-to-br from-gray-50 to-blue-50/20 flex items-center justify-center ml-10 rounded-tl-[14px] overflow-hidden border-t border-l border-gray-100">
-                        <div className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-100 bg-white flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                            <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    {/* Image Container */}
+                    <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
+                        <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
+                            <img src="/action_roadmap_vector.png" alt="Market Analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <div className="absolute inset-0 bg-blue-500/5 transition-all duration-700 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                         </div>
                     </div>
                 </div>
@@ -782,14 +845,45 @@ const AdjustableRulesSection = () => (
 const MissionSection = () => (
     <section className="w-full bg-[#f9f9f9] py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6">
-            <div className="rounded-[24px] overflow-hidden aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9] relative group border border-gray-100 shadow-soft">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center opacity-90 transition-transform duration-1000 group-hover:scale-105"></div>
+            <div className="rounded-[24px] overflow-hidden relative group border border-gray-100 shadow-soft min-h-[500px] md:min-h-[700px] flex items-center justify-center py-16 px-4 md:py-24 md:px-12">
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    fetchPriority="high"
+                    className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105"
+                    style={{
+                        backfaceVisibility: 'hidden',
+                        willChange: 'transform',
+                        transform: 'translateZ(0)',
+                        backgroundColor: '#0c1428',
+                        filter: 'brightness(0.9)'
+                    }}
+                    src={heroVideo}
+                />
 
-                <div className="absolute inset-0 flex items-center justify-center p-4">
-                    <div className="bg-white/30 backdrop-blur-2xl rounded-[14px] p-1 shadow-2xl border border-white/40 w-full max-w-5xl">
-                        <div className="bg-white rounded-[10px] p-6 sm:p-10 md:p-16 lg:p-20">
-                            <p className="text-lg sm:text-2xl lg:text-4xl font-display font-normal text-gray-900 leading-[1.3] tracking-tightest text-center">
-                                What began as a simple <img src="https://ui-avatars.com/api/?name=User+One&background=random" className="inline w-8 h-8 md:w-12 md:h-12 rounded-full align-middle mx-1 md:mx-2 shadow-soft border border-white" alt="Avatar 1" /> question—why is starting up so hard?—has evolved into a mission to modernize <img src="https://ui-avatars.com/api/?name=User+Two&background=random" className="inline w-8 h-8 md:w-12 md:h-12 rounded-full align-middle mx-1 md:mx-2 shadow-soft border border-white" alt="Avatar 2" /> <span className="text-gray-400">venture building.</span> By merging technical skills with industry <img src="https://ui-avatars.com/api/?name=User+Three&background=random" className="inline w-8 h-8 md:w-12 md:h-12 rounded-full align-middle mx-1 md:mx-2 shadow-soft border border-white" alt="Avatar 3" /> insights, we're creating technology that <span className="text-gray-400">enhances speed, clarity, and confidence in founder decisions.</span>
+                {/* Cinematic Dark Overlay */}
+                <div className="absolute inset-0 transition-all duration-1000 opacity-100 group-hover:opacity-90 group-hover:scale-105 pointer-events-none" style={{ background: 'linear-gradient(rgba(41, 145, 248, 0.5), rgba(9, 106, 202, 0.5))' }}></div>
+
+                <div className="relative z-10 flex items-center justify-center w-full max-w-5xl">
+                    <div className="bg-white/30 backdrop-blur-2xl rounded-[28px] p-2 md:p-3 shadow-[0_30px_60px_rgba(0,0,0,0.12)] border border-white/40 w-full">
+                        <div className="bg-white/80 backdrop-blur-3xl rounded-[20px] p-8 sm:p-10 md:p-16 lg:p-20 shadow-inner">
+                            <p className="text-2xl sm:text-3xl lg:text-[42px] font-display font-normal text-gray-900 leading-[1.5] lg:leading-[1.6] tracking-tightest text-center mx-auto max-w-4xl">
+                                What began as a <span className="font-display italic text-[var(--brand-accent)]">simple</span>
+                                <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 backdrop-blur-2xl border border-white/20 shadow-[0_8px_16px_rgba(59,130,246,0.3)] align-middle mx-1.5 sm:mx-3 transform rotate-3 transition-transform hover:scale-110">
+                                    <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={1.5} fill="currentColor" />
+                                </span>
+                                question—<span className="font-display italic">why is starting up so hard?</span>—has evolved into a mission to modernize
+                                <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 backdrop-blur-2xl border border-white/20 shadow-[0_8px_16px_rgba(59,130,246,0.3)] align-middle mx-1.5 sm:mx-3 transform -rotate-6 transition-transform hover:scale-110">
+                                    <Rocket className="w-5 h-5 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={1.5} fill="currentColor" />
+                                </span>
+                                venture building. By merging technical skills with <span className="font-display italic">industry</span>
+                                <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 backdrop-blur-2xl border border-white/20 shadow-[0_8px_16px_rgba(59,130,246,0.3)] align-middle mx-1.5 sm:mx-3 transform rotate-6 transition-transform hover:scale-110">
+                                    <Lightbulb className="w-5 h-5 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={1.5} fill="currentColor" />
+                                </span>
+                                insights, we're creating technology that <span className="font-display italic text-gray-500">enhances speed, clarity, and confidence</span> in founder decisions.
                             </p>
                         </div>
                     </div>
@@ -827,12 +921,12 @@ const TestimonialStepsSection = () => (
 
                     {/* Small nature card with glass label */}
                     <div className="w-full max-w-md aspect-[16/9] rounded-[14px] overflow-hidden bg-gray-100 relative shadow-soft">
-                        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center"></div>
+                        <div className="absolute inset-0 bg-[url('/bauhaus_last_gen.png')] bg-cover bg-center"></div>
                         <div className="absolute inset-0 bg-blue-500/10"></div>
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[85%] bg-white/25 backdrop-blur-md p-1 rounded-[14px] shadow-xl border border-white/30">
-                            <div className="bg-white rounded-[10px] p-6">
-                                <p className="text-[13px] font-bold text-gray-900 mb-1">Thorough market signal analysis</p>
-                                <p className="text-[11px] text-gray-400 font-sans leading-relaxed">Goes beyond surface keywords to analyze every aspect of the market landscape, including niche trends.</p>
+                        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 backdrop-blur-md p-0.5 sm:p-1 rounded-[14px] shadow-xl border border-white/30">
+                            <div className="bg-white rounded-[10px] p-4 sm:p-6">
+                                <p className="text-[11px] sm:text-[13px] font-bold text-gray-900 mb-1 leading-tight">Thorough market signal analysis</p>
+                                <p className="text-[10px] sm:text-[11px] text-gray-400 font-sans leading-relaxed">Goes beyond surface keywords to analyze every aspect of the market landscape.</p>
                             </div>
                         </div>
                     </div>
@@ -893,7 +987,7 @@ const FAQWithStatsSection = () => {
                 {/* Header */}
                 <div className="mb-12 md:mb-20 pt-16 border-t border-gray-100/50">
                     <h2 className="text-4xl md:text-[84px] font-display font-normal text-gray-900 leading-[1] tracking-tightest">
-                        Got questions? <br className="md:hidden" /> We've got <span className="font-display italic text-blue-600">clarity</span>
+                        Got questions? <br className="md:hidden" /> We've got <span className="font-display italic text-[var(--brand-accent)]">clarity</span>
                     </h2>
                 </div>
 
@@ -937,23 +1031,21 @@ const FAQWithStatsSection = () => {
                     <div className="space-y-8">
                         {/* Stats Cards Row */}
                         <div className="grid grid-cols-2 gap-6">
-                            <div className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-lg transition-all duration-500 cursor-default group">
+                            <div className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:rotate-3 transition-transform duration-500">75%</p>
                                 <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest leading-none">Faster Decisions</p>
                             </div>
-                            <div className="rounded-[14px] bg-gray-900 p-8 text-center shadow-soft hover:shadow-lg transition-all duration-500 cursor-default group">
+                            <div className="rounded-[14px] bg-gray-900 p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:-rotate-3 transition-transform duration-500">50%</p>
                                 <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none">Cost Reduction</p>
                             </div>
                         </div>
 
                         {/* Image Placeholder */}
-                        <div className="rounded-[14px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
-                            <div className="w-full aspect-[16/10] bg-gradient-to-br from-gray-50/50 via-white to-blue-50/20 flex items-center justify-center relative">
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,var(--brand-accent)_0%,transparent_70%)] opacity-[0.02]"></div>
-                                <div className="w-20 h-20 rounded-2xl border-2 border-dashed border-gray-100 bg-white flex items-center justify-center relative z-10 group-hover:rotate-12 transition-transform duration-700">
-                                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
+                        <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
+                            <div className="w-full aspect-[16/10] bg-gray-50 relative">
+                                <img src="/feature_ai.png" alt="AI Analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                             </div>
                         </div>
                     </div>
@@ -976,7 +1068,7 @@ const BottomCTASection = () => (
                     {/* Left: CTA Content */}
                     <div>
                         <h2 className="text-3xl md:text-6xl lg:text-7xl font-display font-normal text-gray-900 leading-tight mb-8 tracking-tightest">
-                            Ready to accelerate <br className="hidden md:block" /> your <span className="font-display italic text-blue-600">business success?</span>
+                            Ready to accelerate <br className="hidden md:block" /> your <span className="font-display italic text-[var(--brand-accent)]">business success?</span>
                         </h2>
                         <p className="text-gray-400 font-sans leading-relaxed text-lg max-w-lg mb-12">
                             Join thousands of entrepreneurs who've transformed their ideas into actionable plans with Capable.
@@ -992,22 +1084,24 @@ const BottomCTASection = () => (
                     </div>
 
                     {/* Right: Image Placeholder Card */}
-                    <div className="rounded-[14px] border border-gray-100 bg-white shadow-soft overflow-hidden group-hover:shadow-card transition-all duration-700">
-                        <div className="w-full aspect-[4/3] bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center relative">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--brand-accent)_0%,transparent_70%)] opacity-[0.02]"></div>
-                            <div className="text-center relative z-10">
-                                <div className="w-20 h-20 rounded-2xl border-2 border-dashed border-gray-100 bg-white flex items-center justify-center mx-auto mb-5 shadow-soft group-hover:scale-110 transition-transform duration-700">
-                                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    <div className="rounded-[24px] border border-gray-100 bg-white shadow-soft overflow-hidden group-hover:shadow-card transition-all duration-700">
+                        <div className="w-full aspect-[4/3] relative">
+                            <img src="/bauhaus_last_gen.png" alt="Strategy Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <div className="absolute inset-0 bg-black/10"></div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="bg-white/25 backdrop-blur-md p-1 rounded-[14px] shadow-xl border border-white/30">
+                                    <div className="bg-white rounded-[10px] py-3 px-6 text-center">
+                                        <span className="text-[11px] font-bold text-gray-900 tracking-widest uppercase">Premium Strategy Preview</span>
+                                    </div>
                                 </div>
-                                <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Premium Strategy Preview</span>
                             </div>
                         </div>
-                        <div className="p-8 bg-gray-900 text-white flex items-center justify-between group-hover:bg-black transition-colors duration-700">
+                        <div className="p-5 sm:p-8 bg-gray-900 text-white flex items-center justify-between group-hover:bg-black transition-colors duration-700">
                             <div>
-                                <p className="text-sm font-bold mb-1 tracking-tight">Access Premium Packages</p>
-                                <p className="text-[11px] text-white/40 uppercase tracking-widest font-bold">Scaling made simple</p>
+                                <p className="text-xs sm:text-sm font-bold mb-1 tracking-tight">Access Premium Packages</p>
+                                <p className="text-[9px] sm:text-[11px] text-white/40 uppercase tracking-widest font-bold">Scaling made simple</p>
                             </div>
-                            <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-6 py-2.5 rounded-[10px] text-xs font-bold hover:shadow-soft transition-all active:scale-95">
+                            <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-[10px] text-[10px] sm:text-xs font-bold hover:shadow-soft transition-all active:scale-95">
                                 View Plans
                             </button>
                         </div>

@@ -10,11 +10,15 @@
 }
 
 @layer base {
+
+  html,
   body {
-    @apply bg-brand-white text-gray-900 font-body antialiased selection:bg-brand-blue/20 selection:text-brand-blue overflow-x-hidden tracking-normal;
+    @apply bg-brand-white text-gray-900 font-body antialiased selection:bg-brand-blue/20 selection:text-brand-blue tracking-normal;
     scrollbar-gutter: stable;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
   }
 
   h1,
@@ -38,12 +42,6 @@
   select {
     @apply font-body;
     letter-spacing: 0;
-  }
-
-  /* Global Radius override for all lg elements */
-  .rounded-2xl,
-  .rounded-xl {
-    border-radius: var(--brand-radius) !important;
   }
 }
 

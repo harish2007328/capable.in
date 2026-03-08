@@ -8,7 +8,7 @@ export default {
         extend: {
             colors: {
                 // Strict Palette
-                'brand-blue': '#0BAAFF', // Primary Blue
+                'brand-blue': '#0066CC', // Primary Blue (matches --brand-accent)
                 'brand-dark-blue': '#073B99', // Secondary Deep Blue
                 'brand-black': '#000000', // Pure Black
                 'brand-white': '#FFFFFF', // Pure White
