@@ -49,7 +49,7 @@ const FAQWithStatsSection = () => {
                                         : 'bg-white border-gray-100 group-hover:border-gray-200 group-hover:scale-110'
                                         }`}>
                                         <svg
-                                            className={`w-4 h-4 transition-colors duration-500 ${openIndex === idx ? 'text-white' : 'text-gray-400'}`}
+                                            className={`w-4 h-4 transition-colors duration-500 ${openIndex === idx ? 'text-white' : 'text-gray-500'}`}
                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
                                         >
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -57,7 +57,7 @@ const FAQWithStatsSection = () => {
                                     </div>
                                 </button>
                                 <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === idx ? 'max-h-64 opacity-100 pb-8' : 'max-h-0 opacity-0 pointer-events-none'}`}>
-                                    <p className="text-gray-600 leading-relaxed font-sans text-lg pr-16">
+                                    <p className="text-gray-700 leading-relaxed font-sans text-lg pr-16">
                                         {faq.answer}
                                     </p>
                                 </div>
@@ -69,18 +69,27 @@ const FAQWithStatsSection = () => {
                         <div className="grid grid-cols-2 gap-6">
                             <div className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:rotate-3 transition-transform duration-500">75%</p>
-                                <p className="text-[10px] font-bold text-white/80 uppercase tracking-widest leading-none">Faster Decisions</p>
+                                <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none">Faster Decisions</p>
                             </div>
                             <div className="rounded-[14px] bg-gray-900 p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:-rotate-3 transition-transform duration-500">50%</p>
-                                <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest leading-none">Cost Reduction</p>
+                                <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none">Cost Reduction</p>
                             </div>
                         </div>
 
                         <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
-                            <div className="w-full aspect-[16/10] bg-gray-50 relative">
-                                <img src="/feature_ai.webp" loading="lazy" alt="AI Analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
+                            <div className="relative group">
+                                <div className="rounded-[40px] overflow-hidden aspect-square md:aspect-[4/5] bg-gray-900 shadow-2xl relative">
+                                    <img
+                                        src="/2.webp"
+                                        srcSet="/mobile/2.webp 640w, /2.webp 1200w"
+                                        sizes="(max-width: 640px) 100vw, 40vw"
+                                        loading="lazy"
+                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        alt="Market Analysis"
+                                    />
+                                    <div className="absolute inset-0 bg-blue-600/10 pointer-events-none group-hover:opacity-0 transition-opacity duration-1000"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

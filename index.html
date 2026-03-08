@@ -12,9 +12,12 @@
   <title>Capable — Build Businesses with Clarity</title>
 
   <!-- Preload Critical Assets -->
-  <link rel="preload" as="video" href="/src/assets/hero-bg2-compressed.mp4" type="video/mp4" />
+  <link rel="preload" as="video" href="/hero-bg2-compressed.mp4" type="video/mp4" fetchpriority="high">
+  <link rel="preload" as="image" href="/hero-poster.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://4aqgz7mw.us-east.insforge.app">
+  <link rel="preconnect" href="https://api.groq.com">
   <link rel="preload" as="style"
     href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Albert+Sans:wght@300;400;500;600;700;800&display=swap">
   <link
@@ -44,7 +47,9 @@
           return;
         }
 
-        console.error('GLOBAL ERROR:', error);
+        if (error) {
+          console.error('Handled Error:', error);
+        }
 
         // List of errors that should trigger the connection issue UI
         const isNetworkError =

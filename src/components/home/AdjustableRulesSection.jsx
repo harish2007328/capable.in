@@ -10,7 +10,7 @@ const AdjustableRulesSection = () => (
                     </h2>
                 </div>
                 <div className="flex flex-col">
-                    <p className="text-gray-600 text-base sm:text-lg font-sans leading-relaxed max-w-lg mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
+                    <p className="text-gray-700 text-base sm:text-lg font-sans leading-relaxed max-w-lg mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
                         Customize precisely how your venture evolves. Set milestones, tasks, and objectives that match your specific industry standards.
                     </p>
                 </div>
@@ -23,13 +23,20 @@ const AdjustableRulesSection = () => (
                             Customisable
                         </span>
                         <h3 className="text-2xl md:text-3xl font-display text-gray-900 mb-4 tracking-tight">Precise Logic</h3>
-                        <p className="text-gray-500 text-[16px] leading-relaxed max-w-sm mb-4">
+                        <p className="text-gray-700 text-[16px] leading-relaxed max-w-sm mb-4">
                             Design paths that work for you, not the other way around.
                         </p>
                     </div>
                     <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
                         <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
-                            <img src="/market_analysis_vector.webp" loading="lazy" alt="Market Analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <img
+                                src="/market_analysis_vector.webp"
+                                srcSet="/mobile/market_analysis_vector.webp 640w, /market_analysis_vector.webp 1200w"
+                                sizes="(max-width: 640px) 100vw, 50vw"
+                                loading="lazy"
+                                alt="Market Analysis"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
                             <div className="absolute inset-0 bg-blue-500/5 transition-all duration-700 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                         </div>
                     </div>
@@ -41,13 +48,20 @@ const AdjustableRulesSection = () => (
                             Workflows
                         </span>
                         <h3 className="text-2xl md:text-3xl font-display text-gray-900 mb-4 tracking-tight">Insightful Coaching</h3>
-                        <p className="text-gray-600 text-[16px] leading-relaxed max-w-sm mb-4">
+                        <p className="text-gray-700 text-[16px] leading-relaxed max-w-sm mb-4">
                             Simplify the complex work and focus on the results.
                         </p>
                     </div>
                     <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
                         <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
-                            <img src="/action_roadmap_vector.webp" loading="lazy" alt="Action Roadmap" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <img
+                                src="/action_roadmap_vector.webp"
+                                srcSet="/mobile/action_roadmap_vector.webp 640w, /action_roadmap_vector.webp 1200w"
+                                sizes="(max-width: 640px) 100vw, 50vw"
+                                loading="lazy"
+                                alt="Action Roadmap"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
                             <div className="absolute inset-0 bg-blue-500/5 transition-all duration-700 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                         </div>
                     </div>

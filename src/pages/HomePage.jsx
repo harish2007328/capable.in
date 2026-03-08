@@ -6,11 +6,12 @@ import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
-import heroVideo from '../assets/hero-bg2-compressed.mp4';
-import heroPoster from '../assets/hero-poster.webp';
+// Hero Assets (Moved to public/ for preloading)
+const heroVideo = "/hero-bg2-compressed.mp4";
+const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
 
 // Import Home Components
-import ServicesSection from '../components/home/ServicesSection';
+const ServicesSection = React.lazy(() => import('../components/home/ServicesSection'));
 const AdjustableRulesSection = React.lazy(() => import('../components/home/AdjustableRulesSection'));
 const MissionSection = React.lazy(() => import('../components/home/MissionSection'));
 const TestimonialStepsSection = React.lazy(() => import('../components/home/TestimonialStepsSection'));
@@ -448,7 +449,14 @@ const HomePage = () => {
                         <div className="lg:col-span-7">
                             <div className="relative group">
                                 <div className="rounded-[14px] overflow-hidden aspect-[4/3] sm:aspect-[16/10] bg-gray-100 relative shadow-2xl">
-                                    <img src="/1.webp" loading="lazy" alt="Market Analysis Workflow" className="w-full h-full object-cover" />
+                                    <img
+                                        src="/1.webp"
+                                        srcSet="/mobile/1.webp 640w, /1.webp 1200w"
+                                        sizes="(max-width: 640px) 100vw, 800px"
+                                        loading="lazy"
+                                        alt="Market Analysis Workflow"
+                                        className="w-full h-full object-cover"
+                                    />
                                     <div className="absolute inset-0 bg-blue-600/5"></div>
 
                                     <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 p-1 sm:p-1.5 rounded-[14px] shadow-2xl border border-white/30">
@@ -467,12 +475,12 @@ const HomePage = () => {
                                     <p className="text-gray-900 font-sans text-lg sm:text-xl leading-relaxed font-normal">
                                         Launching is traditionally <span className="italic font-display">complex and resource-intensive</span>. We've optimized the process from the ground up.
                                     </p>
-                                    <p className="text-gray-500 font-sans text-base sm:text-lg leading-relaxed">
+                                    <p className="text-gray-700 font-sans text-base sm:text-lg leading-relaxed">
                                         By seamlessly merging smart technology with market expertise, we enable founders to make faster, more confident decisions without sacrificing clarity or conviction.
                                     </p>
                                 </div>
                                 <div className="pt-8 border-t border-gray-100 w-fit">
-                                    <p className="text-gray-400 font-bold text-[11px] tracking-widest mb-2">OUR PHILOSOPHY</p>
+                                    <p className="text-gray-900 font-bold text-[11px] tracking-widest mb-2">OUR PHILOSOPHY</p>
                                     <p className="text-gray-900 font-sans text-base italic">"Execution is nothing without validation."</p>
                                 </div>
                             </div>
@@ -493,7 +501,7 @@ const HomePage = () => {
                                         <p className="text-5xl md:text-7xl font-display font-normal text-gray-900 leading-none tracking-tightest group-hover:translate-y-[-5px] transition-transform duration-500">{stat.number}</p>
                                     </div>
                                     <p className="text-gray-900 font-bold text-[11px] md:text-[13px] mb-2 md:mb-3 uppercase tracking-wider">{stat.label}</p>
-                                    <p className="text-[13px] md:text-[14px] text-gray-400 font-sans leading-relaxed max-w-[180px]">{stat.desc}</p>
+                                    <p className="text-[13px] md:text-[14px] text-gray-700 font-sans leading-relaxed max-w-[180px]">{stat.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -504,7 +512,7 @@ const HomePage = () => {
                                 <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.8)]"></span>
                                 Request a demo
                             </button>
-                            <Link to="/plans" className="text-gray-500 hover:text-[var(--brand-accent)] font-bold text-[14px] tracking-tight transition-all border-b border-transparent hover:border-[var(--brand-accent)] pb-0.5 uppercase">
+                            <Link to="/plans" className="text-gray-700 hover:text-[var(--brand-accent)] font-bold text-[14px] tracking-tight transition-all border-b border-transparent hover:border-[var(--brand-accent)] pb-0.5 uppercase">
                                 Explore pricing
                             </Link>
                         </div>
@@ -513,7 +521,9 @@ const HomePage = () => {
             </section>
 
             {/* === SERVICES / TABBED SECTION === */}
-            <ServicesSection />
+            <React.Suspense fallback={<div className="h-96 w-full bg-white animate-pulse" />}>
+                <ServicesSection />
+            </React.Suspense>
 
             <React.Suspense fallback={<div className="h-96 w-full bg-white animate-pulse" />}>
                 {/* === ADJUSTABLE RULES SECTION === */}
@@ -538,7 +548,7 @@ const HomePage = () => {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4">
                         {/* Copyright */}
                         <div className="order-3 md:order-1">
-                            <p className="text-[12px] text-gray-600 font-sans tracking-tight">
+                            <p className="text-[12px] text-gray-700 font-sans tracking-tight">
                                 © 2025 Capable Labs. All rights reserved.
                             </p>
                         </div>
@@ -550,7 +560,7 @@ const HomePage = () => {
                                 { icon: 'LinkedIn', path: 'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z' },
                                 { icon: 'GitHub', path: 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' }
                             ].map((item, i) => (
-                                <a key={i} href="#" aria-label={`Follow us on ${item.icon}`} className="text-gray-400 hover:text-gray-900 transition-all duration-300">
+                                <a key={i} href="#" aria-label={`Follow us on ${item.icon}`} className="text-gray-500 hover:text-gray-900 transition-all duration-300">
                                     <svg className="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24"><path d={item.path} /></svg>
                                 </a>
                             ))}
@@ -558,7 +568,7 @@ const HomePage = () => {
 
                         {/* Made with Tagline */}
                         <div className="flex items-center gap-2 order-2 md:order-3">
-                            <p className="text-[12px] text-gray-600 font-sans tracking-tight">
+                            <p className="text-[12px] text-gray-700 font-sans tracking-tight">
                                 Build by <span className="font-bold text-gray-900 tracking-tight">Harish 💙</span>
                             </p>
                         </div>

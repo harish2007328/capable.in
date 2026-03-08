@@ -531,9 +531,9 @@ app.post('/api/generate-plan', async (req, res) => {
                 { role: "system", content: "You are an operations-focused mentor. Provide a 60-day sequence of high-leverage actions. Output valid JSON. Ensure exactly 60 days are generated. Keep descriptions CONCISE but tactical to ensure you stay under output token limits." },
                 { role: "user", content: prompt }
             ],
-            model: "llama-3.3-70b-versatile",
+            model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-            max_tokens: 8192,
+            max_tokens: 8000,
         }));
 
         const content = completion.choices[0].message.content;
@@ -547,7 +547,9 @@ app.post('/api/generate-plan', async (req, res) => {
             console.error("JSON PARSE FAILED for plan generation.");
             // Write to a temp file for inspection
             const fs = await import('fs');
-            fs.writeFileSync('C:\\Users\\Admin\\OneDrive\\Desktop\\capable\\tmp\\failed_plan_response.json', content);
+            const tmpDir = path.join(__dirname, 'tmp');
+            if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+            fs.writeFileSync(path.join(tmpDir, 'failed_plan_response.json'), content);
             throw new Error("Invalid structure returned from AI. The plan was too complex.");
         }
 

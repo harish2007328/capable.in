@@ -56,7 +56,7 @@ const ServicesSection = () => {
                         transition={{ delay: 0.1 }}
                         className="flex flex-col"
                     >
-                        <p className="text-gray-500 text-base sm:text-lg md:text-xl font-sans leading-relaxed max-w-xl mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
+                        <p className="text-gray-700 text-base sm:text-lg md:text-xl font-sans leading-relaxed max-w-xl mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
                             Capable isn't just a research tool; it makes your venture journey way better. Use out-of-the-box logic for all business types and industries—or create, update and manage custom growth requirements with ease.
                         </p>
                     </motion.div>
@@ -73,7 +73,7 @@ const ServicesSection = () => {
                                         className="text-left group flex items-center gap-6"
                                     >
                                         <div className={`h-[2px] transition-all duration-700 ease-out ${activeTab === idx ? 'bg-[var(--brand-accent)] w-16' : 'bg-gray-200 group-hover:bg-gray-300 w-8'}`}></div>
-                                        <span className={`text-2xl font-display transition-all duration-500 ${activeTab === idx ? 'text-gray-900 translate-x-2' : 'text-gray-500 group-hover:text-gray-600'}`}>
+                                        <span className={`text-2xl font-display transition-all duration-500 ${activeTab === idx ? 'text-gray-900 translate-x-2' : 'text-gray-700 group-hover:text-gray-900'}`}>
                                             {tab}
                                         </span>
                                     </button>
@@ -111,7 +111,7 @@ const ServicesSection = () => {
                                     <button
                                         key={idx}
                                         onClick={() => scrollToStep(idx)}
-                                        className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${activeTab === idx ? 'bg-white text-gray-900 shadow-md scale-[1.02]' : 'text-gray-400'}`}
+                                        className={`flex-1 min-w-[100px] px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300 ${activeTab === idx ? 'bg-white text-gray-900 shadow-md scale-[1.02]' : 'text-gray-700'}`}
                                     >
                                         {tab}
                                     </button>
@@ -123,7 +123,14 @@ const ServicesSection = () => {
                             <div id="service-step-0" data-index="0" className="service-step-container space-y-8">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_lightning.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[2%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Validated" />
+                                        <img
+                                            src="/feature_lightning.webp"
+                                            srcSet="/mobile/feature_lightning.webp 640w, /feature_lightning.webp 1200w"
+                                            sizes="(max-width: 640px) 100vw, 50vw"
+                                            loading="lazy"
+                                            className="w-full h-full object-cover scale-110 translate-y-[2%] transition-transform duration-1000 group-hover:scale-[1.15]"
+                                            alt="Validated"
+                                        />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>
@@ -132,7 +139,7 @@ const ServicesSection = () => {
                                         Validate ideas with <span className="font-display italic">real signals</span>
                                     </h3>
                                     <div className="space-y-6">
-                                        <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                        <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
                                             Skip the guesswork. Capable helps you rapidly test assumptions and validate your core venture hypotheses using concrete market data before you build.
                                         </p>
                                     </div>
@@ -142,7 +149,14 @@ const ServicesSection = () => {
                             <div id="service-step-1" data-index="1" className="service-step-container space-y-10">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_market.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[5%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Analysis" />
+                                        <img
+                                            src="/feature_market.webp"
+                                            srcSet="/mobile/feature_market.webp 640w, /feature_market.webp 1200w"
+                                            sizes="(max-width: 640px) 100vw, 50vw"
+                                            loading="lazy"
+                                            className="w-full h-full object-cover scale-110 translate-y-[5%] transition-transform duration-1000 group-hover:scale-[1.15]"
+                                            alt="Analysis"
+                                        />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>
@@ -150,7 +164,7 @@ const ServicesSection = () => {
                                     <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
                                         Deep analysis for <span className="font-display italic">any sector</span>
                                     </h3>
-                                    <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
                                         Get comprehensive breakdowns of your competitive landscape, target audience, and market viability, powered by vast reserves of industry intelligence.
                                     </p>
                                 </div>
@@ -159,7 +173,14 @@ const ServicesSection = () => {
                             <div id="service-step-2" data-index="2" className="service-step-container space-y-10">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_roadmaps.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Roadmaps" />
+                                        <img
+                                            src="/feature_roadmaps.webp"
+                                            srcSet="/mobile/feature_roadmaps.webp 640w, /feature_roadmaps.webp 1200w"
+                                            sizes="(max-width: 640px) 100vw, 50vw"
+                                            loading="lazy"
+                                            className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]"
+                                            alt="Roadmaps"
+                                        />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>
@@ -167,7 +188,7 @@ const ServicesSection = () => {
                                     <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
                                         Manage custom growth requirements
                                     </h3>
-                                    <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
                                         Easily create, update, and manage your own custom strategy requirements with ease. Our roadmaps adapt as your market signals evolve.
                                     </p>
                                 </div>
@@ -176,7 +197,14 @@ const ServicesSection = () => {
                             <div id="service-step-3" data-index="3" className="service-step-container space-y-10">
                                 <div className="relative group">
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img src="/feature_ai.webp" loading="lazy" className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]" alt="Chat" />
+                                        <img
+                                            src="/feature_ai.webp"
+                                            srcSet="/mobile/feature_ai.webp 640w, /feature_ai.webp 1200w"
+                                            sizes="(max-width: 640px) 100vw, 50vw"
+                                            loading="lazy"
+                                            className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]"
+                                            alt="Chat"
+                                        />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
                                 </div>
@@ -184,7 +212,7 @@ const ServicesSection = () => {
                                     <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
                                         Interactive support, <span className="font-display italic">every step</span>
                                     </h3>
-                                    <p className="text-gray-500 text-lg md:text-xl leading-relaxed">
+                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
                                         Capable isn't just a research tool; it makes your venture journey way better with real-time feedback and intelligent chat guidance.
                                     </p>
                                 </div>

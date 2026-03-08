@@ -16,17 +16,29 @@ const TestimonialStepsSection = () => (
                     </p>
 
                     <div className="mb-16 pl-6 border-l-2 border-blue-500">
-                        <p className="font-bold text-gray-900 text-[16px] mb-1">Samantha Rivers</p>
-                        <p className="text-[12px] font-sans text-gray-400 font-bold uppercase tracking-widest">Co-founder, InnovateX</p>
+                        <div className="flex flex-col">
+                            <span className="text-gray-900 font-display font-medium text-lg leading-tight">HARISH S.</span>
+                            <span className="text-gray-700 font-sans text-xs tracking-widest font-bold uppercase mt-1">CO-FOUNDER, INNOVATEX</span>
+                        </div>
                     </div>
+                    <p className="text-gray-700 text-lg md:text-xl font-display font-normal leading-relaxed italic pr-4">
+                        "Capable goes beyond surface-level keywords. It captured the nuance of my vision and translated it into a tactical roadmap that we're executing on today."
+                    </p>
 
-                    <div className="w-full max-w-md aspect-[16/9] rounded-[14px] overflow-hidden bg-gray-100 relative shadow-soft">
-                        <div className="absolute inset-0 bg-[url('/bauhaus_last_gen.png')] bg-cover bg-center"></div>
-                        <div className="absolute inset-0 bg-blue-500/10"></div>
+                    <div className="w-full max-w-md aspect-[16/9] rounded-[14px] overflow-hidden bg-gray-100 relative shadow-soft group">
+                        <img
+                            src="/bauhaus_last_gen.webp"
+                            srcSet="/mobile/bauhaus_last_gen.webp 640w, /bauhaus_last_gen.webp 1200w"
+                            sizes="(max-width: 640px) 100vw, 400px"
+                            loading="lazy"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            alt="Market Signal Analysis"
+                        />
+                        <div className="absolute inset-0 bg-blue-500/10 pointer-events-none group-hover:opacity-0 transition-opacity"></div>
                         <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 backdrop-blur-md p-0.5 sm:p-1 rounded-[14px] shadow-xl border border-white/30">
                             <div className="bg-white rounded-[10px] p-4 sm:p-6">
                                 <p className="text-[11px] sm:text-[13px] font-bold text-gray-900 mb-1 leading-tight">Thorough market signal analysis</p>
-                                <p className="text-[10px] sm:text-[11px] text-gray-400 font-sans leading-relaxed">Goes beyond surface keywords to analyze every aspect of the market landscape.</p>
+                                <p className="text-[10px] sm:text-[11px] text-gray-700 font-sans leading-relaxed">Goes beyond surface keywords to analyze every aspect of the market landscape.</p>
                             </div>
                         </div>
                     </div>
@@ -45,9 +57,11 @@ const TestimonialStepsSection = () => (
                         ].map((step, idx) => (
                             <div key={idx} className="space-y-2 md:space-y-3">
                                 <h4 className="text-xl md:text-2xl font-bold text-gray-900">{step.title}</h4>
-                                <p className="text-gray-400 text-base md:text-lg leading-relaxed max-w-lg font-sans">
-                                    {step.desc}
-                                </p>
+                                <div className="md:col-span-8 flex flex-col justify-center">
+                                    <p className="text-gray-700 text-base md:text-lg font-sans leading-relaxed">
+                                        {step.desc}
+                                    </p>
+                                </div>
                             </div>
                         ))}
                     </div>

@@ -13,7 +13,7 @@ const BottomCTASection = () => (
                         <h2 className="text-3xl md:text-6xl lg:text-7xl font-display font-normal text-gray-900 leading-tight mb-8 tracking-tightest">
                             Ready to accelerate <br className="hidden md:block" /> your <span className="font-display italic text-[var(--brand-accent)]">business success?</span>
                         </h2>
-                        <p className="text-gray-400 font-sans leading-relaxed text-lg max-w-lg mb-12">
+                        <p className="text-gray-700 font-sans leading-relaxed text-lg max-w-lg mb-12">
                             Join thousands of entrepreneurs who've transformed their ideas into actionable plans with Capable.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
