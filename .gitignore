@@ -26,3 +26,4 @@ dist-ssr
 *.sln
 *.sw?
 convert_images.py
+convert_images_pro.py

@@ -21,7 +21,7 @@ const MissionSection = ({ heroVideo }) => (
                     }}
                     src={heroVideo}
                 >
-                    <track kind="captions" />
+                    <track kind="captions" srcLang="en" label="English" />
                 </video>
 
                 <div className="absolute inset-0 transition-all duration-1000 opacity-100 group-hover:opacity-90 group-hover:scale-105 pointer-events-none" style={{ background: 'linear-gradient(rgba(41, 145, 248, 0.5), rgba(9, 106, 202, 0.5))' }}></div>
@@ -42,7 +42,7 @@ const MissionSection = ({ heroVideo }) => (
                                 <span className="inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 backdrop-blur-2xl border border-white/20 shadow-[0_8px_16px_rgba(59,130,246,0.3)] align-middle mx-1.5 sm:mx-3 transform rotate-6 transition-transform hover:scale-110">
                                     <Lightbulb className="w-5 h-5 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={1.5} fill="currentColor" />
                                 </span>
-                                insights, we're creating technology that <span className="font-display italic text-gray-500">enhances speed, clarity, and confidence</span> in founder decisions.
+                                insights, we're creating technology that <span className="font-display italic text-gray-700">enhances speed, clarity, and confidence</span> in founder decisions.
                             </p>
                         </div>
                     </div>

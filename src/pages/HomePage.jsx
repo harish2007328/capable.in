@@ -190,7 +190,7 @@ const HomePage = () => {
                             }}
                         >
                             <source src={heroVideo} type="video/mp4" />
-                            <track kind="captions" />
+                            <track kind="captions" srcLang="en" label="English" />
                         </video>
                         {/* Cinematic Dark Overlay */}
                         <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(rgba(41, 145, 248, 0.5), rgba(9, 106, 202, 0.5))' }}></div>
@@ -538,7 +538,7 @@ const HomePage = () => {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4">
                         {/* Copyright */}
                         <div className="order-3 md:order-1">
-                            <p className="text-[12px] text-gray-400 font-sans tracking-tight">
+                            <p className="text-[12px] text-gray-600 font-sans tracking-tight">
                                 © 2025 Capable Labs. All rights reserved.
                             </p>
                         </div>
@@ -558,7 +558,7 @@ const HomePage = () => {
 
                         {/* Made with Tagline */}
                         <div className="flex items-center gap-2 order-2 md:order-3">
-                            <p className="text-[12px] text-gray-400 font-sans tracking-tight">
+                            <p className="text-[12px] text-gray-600 font-sans tracking-tight">
                                 Build by <span className="font-bold text-gray-900 tracking-tight">Harish 💙</span>
                             </p>
                         </div>

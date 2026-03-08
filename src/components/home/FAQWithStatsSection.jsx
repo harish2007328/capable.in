@@ -57,7 +57,7 @@ const FAQWithStatsSection = () => {
                                     </div>
                                 </button>
                                 <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === idx ? 'max-h-64 opacity-100 pb-8' : 'max-h-0 opacity-0 pointer-events-none'}`}>
-                                    <p className="text-gray-400 leading-relaxed font-sans text-lg pr-16">
+                                    <p className="text-gray-600 leading-relaxed font-sans text-lg pr-16">
                                         {faq.answer}
                                     </p>
                                 </div>
@@ -69,11 +69,11 @@ const FAQWithStatsSection = () => {
                         <div className="grid grid-cols-2 gap-6">
                             <div className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:rotate-3 transition-transform duration-500">75%</p>
-                                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest leading-none">Faster Decisions</p>
+                                <p className="text-[10px] font-bold text-white/80 uppercase tracking-widest leading-none">Faster Decisions</p>
                             </div>
                             <div className="rounded-[14px] bg-gray-900 p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:-rotate-3 transition-transform duration-500">50%</p>
-                                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none">Cost Reduction</p>
+                                <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest leading-none">Cost Reduction</p>
                             </div>
                         </div>
 

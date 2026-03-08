@@ -72,8 +72,8 @@ const ServicesSection = () => {
                                         onClick={() => scrollToStep(idx)}
                                         className="text-left group flex items-center gap-6"
                                     >
-                                        <div className={`h-[2px] transition-all duration-700 ease-out ${activeTab === idx ? 'bg-[var(--brand-accent)] w-16' : 'bg-gray-100 group-hover:bg-gray-200 w-8'}`}></div>
-                                        <span className={`text-2xl font-display transition-all duration-500 ${activeTab === idx ? 'text-gray-900 translate-x-2' : 'text-gray-300 group-hover:text-gray-400'}`}>
+                                        <div className={`h-[2px] transition-all duration-700 ease-out ${activeTab === idx ? 'bg-[var(--brand-accent)] w-16' : 'bg-gray-200 group-hover:bg-gray-300 w-8'}`}></div>
+                                        <span className={`text-2xl font-display transition-all duration-500 ${activeTab === idx ? 'text-gray-900 translate-x-2' : 'text-gray-500 group-hover:text-gray-600'}`}>
                                             {tab}
                                         </span>
                                     </button>
@@ -82,7 +82,7 @@ const ServicesSection = () => {
 
                             <div className="pt-16 border-t border-gray-100 space-y-12">
                                 <div className="space-y-2">
-                                    <p className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Global Impact</p>
+                                    <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Global Impact</p>
                                     <p className="text-gray-900 font-sans text-sm italic pr-12 leading-relaxed">"120+ Ideas Analyzed through custom frameworks and standard business models."</p>
                                 </div>
 
@@ -93,8 +93,8 @@ const ServicesSection = () => {
                                     ].map((stat, i) => (
                                         <div key={i} className="flex items-end justify-between group cursor-default">
                                             <div>
-                                                <p className="text-[10px] font-bold text-gray-400 tracking-widest mb-1 uppercase">{stat.label}</p>
-                                                <p className="text-xs text-gray-300 group-hover:text-gray-400 transition-colors uppercase tracking-widest">{stat.desc}</p>
+                                                <p className="text-[10px] font-bold text-gray-500 tracking-widest mb-1 uppercase">{stat.label}</p>
+                                                <p className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors uppercase tracking-widest">{stat.desc}</p>
                                             </div>
                                             <p className="text-4xl md:text-5xl font-display text-gray-900 group-hover:text-[var(--brand-accent)] transition-all duration-500">{stat.number}</p>
                                         </div>

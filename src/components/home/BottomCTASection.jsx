@@ -41,7 +41,7 @@ const BottomCTASection = () => (
                         <div className="p-5 sm:p-8 bg-gray-900 text-white flex items-center justify-between group-hover:bg-black transition-colors duration-700">
                             <div>
                                 <p className="text-xs sm:text-sm font-bold mb-1 tracking-tight">Access Premium Packages</p>
-                                <p className="text-[9px] sm:text-[11px] text-white/40 uppercase tracking-widest font-bold">Scaling made simple</p>
+                                <p className="text-[9px] sm:text-[11px] text-white/70 uppercase tracking-widest font-bold">Scaling made simple</p>
                             </div>
                             <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-[10px] text-[10px] sm:text-xs font-bold hover:shadow-soft transition-all active:scale-95">
                                 View Plans

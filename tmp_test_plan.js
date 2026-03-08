@@ -6,11 +6,11 @@ const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
 const groq = new Groq({ apiKey });
 
 async function testPlan() {
-    const idea = "A subscription service for premium cat food";
-    const report = { project_name: "CatFeast", explanation: "Premium cat food delivered monthly." };
-    const answers = "Q: Budget? A: $1000. Q: Location? A: New York.";
+  const idea = "A subscription service for premium cat food";
+  const report = { project_name: "CatFeast", explanation: "Premium cat food delivered monthly." };
+  const answers = "Q: Budget? A: $1000. Q: Location? A: New York.";
 
-    const prompt = `
+  const prompt = `
       ROLE: Elite Startup Operations Expert.
       IDEA: "${idea}"
       LOCATION: ${answers.includes('Country') ? answers : 'Global'}
@@ -58,27 +58,27 @@ async function testPlan() {
       }
     `;
 
-    try {
-        console.log("Calling Groq...");
-        const completion = await groq.chat.completions.create({
-            messages: [
-                { role: "system", content: "You are an operations-focused mentor. Provide a 60-day sequence of high-leverage actions. Output valid JSON. Ensure exactly 60 days are generated." },
-                { role: "user", content: prompt }
-            ],
-            model: "llama-3.3-70b-versatile",
-            response_format: { type: "json_object" },
-            max_tokens: 8192,
-        });
+  try {
+    console.log("Calling Groq...");
+    const completion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are an operations-focused mentor. Provide a 60-day sequence of high-leverage actions. Output valid JSON. Ensure exactly 60 days are generated." },
+        { role: "user", content: prompt }
+      ],
+      model: "llama-3.1-8b-instant",
+      response_format: { type: "json_object" },
+      max_tokens: 8192,
+    });
 
-        const content = completion.choices[0].message.content;
-        console.log("Response length:", content.length);
-        const plan = JSON.parse(content);
-        console.log("Plan days count:", plan.days.length);
-        console.log("First day:", plan.days[0].title);
-        console.log("Last day:", plan.days[plan.days.length - 1].day);
-    } catch (err) {
-        console.error("Test failed:", err.message);
-    }
+    const content = completion.choices[0].message.content;
+    console.log("Response length:", content.length);
+    const plan = JSON.parse(content);
+    console.log("Plan days count:", plan.days.length);
+    console.log("First day:", plan.days[0].title);
+    console.log("Last day:", plan.days[plan.days.length - 1].day);
+  } catch (err) {
+    console.error("Test failed:", err.message);
+  }
 }
 
 testPlan();
