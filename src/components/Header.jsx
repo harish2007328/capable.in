@@ -53,8 +53,6 @@ const Header = () => {
 
                 {/* Desktop Nav - Absolutely Centered */}
                 <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-                    <Link to="/features" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Features</Link>
-                    <Link to="/use-cases" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Use Cases</Link>
                     <Link to="/pricing" className="text-sm font-medium text-gray-600 hover:text-[var(--brand-accent)] transition-colors font-sans">Pricing</Link>
                 </nav>
 

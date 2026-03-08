@@ -1,0 +1,58 @@
+# Capable App - Comprehensive Technical Analysis
+
+## 1. Project Overview
+"Capable" is a premium AI-powered platform designed to empower entrepreneurs by transforming raw business ideas into actionable ventures. It provides market research, strategic analysis, personalized action plans, and ongoing AI mentorship.
+- **Domain**: `capable.website`
+
+## 2. Core Tech Stack
+- **Frontend**: React 19 (Vite), Tailwind CSS, Framer Motion, GSAP, Lucide React.
+- **Backend**: Node.js (Express), Axios, Cheerio (Scraping), Groq SDK.
+- **Infrastructure**: InsForge SDK (Auth/DB), DodoPayments (Payments).
+
+## 3. Backend Architecture (server.js)
+The `server.js` file is the heart of the application's intelligence.
+- **AI Engine**: Uses Groq SDK with the `llama-3.1-8b-instant` model for high-speed, high-performance reasoning.
+- **Workflow Pipeline**:
+    1. **Idea Enhancement** (`/api/enhance-idea`): Punchifies business ideas.
+    2. **Research Stage** (`/api/research`): 
+        - Scrapes DuckDuckGo and Reddit for real-time market signals.
+        - Generates 3 strategic discovery questions (JSON format).
+    3. **Analysis Stage** (`/api/analyze`): Produces a SWOT analysis, market sizing, and strategic breakdown.
+    4. **Execution Stage** (`/api/generate-plan`): Creates a 60-day roadmap with daily tasks.
+    5. **Mentorship** (`/api/chat`): Provides contextual AI coaching based on the user's progress.
+- **Safety**: Includes a robust `moderateContent` function with a blocked keyword list to prevent harmful or illegal business ideas.
+- **Payments**: Integrated with DodoPayments for subscription management.
+
+## 4. Frontend AI Services (src/services/ai.js)
+This service layer abstracts the REST API calls to the backend, providing clean, typed (via JS docs) functions for the UI:
+- `enhanceIdea(idea)`
+- `generateAnalysisQuestions(idea, location)`
+- `generateAnalysisReport(idea, answers)`
+- `generateActionPlan(idea, report, answers)`
+- `mentorChat(idea, plan, messages, ...)`
+
+## 5. Page Structure & Format (src/pages)
+All pages follow a premium design language characterized by glassmorphism, smooth transitions (Framer Motion), and a clean "slate and brand-blue" palette.
+
+- **HomePage.jsx**: High-conversion landing page with hero, bento grids, and testimonial sliders.
+- **WizardPage.jsx** (Legacy Redirect): Previously handled the multi-step flow.
+- **VenturePage.jsx**: The "Workhorse" page. It handles the dynamic flow of:
+    - Idea Input -> Enhancement -> Research -> Questions -> Report -> Action Plan.
+    - Uses LocalStorage for guest users and synchronizes with the backend for authenticated users.
+- **DashboardPage.jsx**: A comprehensive hub for registered users to manage multiple "ventures", view metrics, and adjust settings.
+- **TaskPage.jsx**: Specialized view for executing specific tasks within the action plan.
+- **ReportPage.jsx**: Dedicated view for the deep-dive analytical report.
+- **PricingPage.jsx**: Subscription tiers and payment gateway integration.
+- **LoginPage.jsx**: Styled entry point for authentication.
+
+## 6. Layout & Routing (src/App.jsx & src/components/Layout.jsx)
+- **Routing**: Uses `react-router-dom` v7. Includes `ProtectedRoute` for dashboard access.
+- **Layout System**: 
+    - **Focus Layout**: Full-screen, minimal UI for "deep work" pages like `/project`, `/task`, `/wizard`.
+    - **App Layout**: Includes a persistent `Sidebar` and `Header` for the `/dashboard`.
+    - **Landing Layout**: Standard `Header` and `Footer` for public-facing pages.
+
+## 7. Key Features & Strengths
+- **Hybrid Guest Mode**: Users can generate a full plan without logging in, but must sign up to save it to their persistent dashboard.
+- **Real-time Signals**: Unlike static LLMs, Capable fetches live data from the web (via `server.js`) to ground its analysis in current trends.
+- **Gamified Execution**: The action plan (60-day roadmap) turns business building into a series of manageable daily tasks.

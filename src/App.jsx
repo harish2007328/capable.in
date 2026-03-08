@@ -2,8 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
-import FeaturesPage from './pages/FeaturesPage';
-import UseCasesPage from './pages/UseCasesPage';
 import PricingPage from './pages/PricingPage';
 import VenturePage from './pages/VenturePage';
 import DashboardPage from './pages/DashboardPage';
@@ -35,8 +33,6 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/features" element={<FeaturesPage />} />
-            <Route path="/use-cases" element={<UseCasesPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/login" element={<LoginPage />} />
 

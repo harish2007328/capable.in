@@ -252,6 +252,30 @@
   @apply bg-slate-300;
 }
 
+/* Hero Section Custom Scrollbar */
+.custom-scrollbar-hero {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.custom-scrollbar-hero::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar-hero::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar-hero::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-scrollbar-hero::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .animate-svg-flow {
   stroke-dasharray: 10 10;
   animation: svg-flow 2s linear infinite;
