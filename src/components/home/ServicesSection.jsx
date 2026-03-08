@@ -41,9 +41,10 @@ const ServicesSection = () => {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-16 sm:mb-24 items-start pt-12">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     >
                         <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-0">
                             Design a startup journey <span className="font-display italic text-[var(--brand-accent)]">that actually works.</span>
@@ -52,8 +53,8 @@ const ServicesSection = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                         className="flex flex-col"
                     >
                         <p className="text-gray-700 text-base sm:text-lg md:text-xl font-sans leading-relaxed max-w-xl mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
@@ -65,7 +66,13 @@ const ServicesSection = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
                     <div className="hidden lg:block lg:col-span-4 relative">
                         <div className="sticky top-40 h-fit space-y-16">
-                            <nav className="flex flex-col gap-6">
+                            <motion.nav
+                                initial={{ opacity: 0, x: -20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.8, delay: 0.2 }}
+                                className="flex flex-col gap-6"
+                            >
                                 {tabs.map((tab, idx) => (
                                     <button
                                         key={idx}
@@ -78,9 +85,15 @@ const ServicesSection = () => {
                                         </span>
                                     </button>
                                 ))}
-                            </nav>
+                            </motion.nav>
 
-                            <div className="pt-16 border-t border-gray-100 space-y-12">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.8, delay: 0.3 }}
+                                className="pt-16 border-t border-gray-100 space-y-12"
+                            >
                                 <div className="space-y-2">
                                     <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Global Impact</p>
                                     <p className="text-gray-900 font-sans text-sm italic pr-12 leading-relaxed">"120+ Ideas Analyzed through custom frameworks and standard business models."</p>
@@ -100,7 +113,7 @@ const ServicesSection = () => {
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
 
@@ -120,103 +133,75 @@ const ServicesSection = () => {
                         </div>
 
                         <div className="space-y-32 md:space-y-48">
-                            <div id="service-step-0" data-index="0" className="service-step-container space-y-8">
-                                <div className="relative group">
-                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img
-                                            src="/mobile/feature_lightning.webp"
-                                            srcSet="/mobile/feature_lightning.webp 640w, /feature_lightning.webp 1200w"
-                                            sizes="(max-width: 640px) 100vw, 50vw"
-                                            loading="lazy"
-                                            className="w-full h-full object-cover scale-110 translate-y-[2%] transition-transform duration-1000 group-hover:scale-[1.15]"
-                                            alt="Validated"
-                                        />
-                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
+                            {[
+                                {
+                                    id: 'service-step-0',
+                                    idx: 0,
+                                    img: '/mobile/feature_lightning.webp',
+                                    imgSet: '/mobile/feature_lightning.webp 640w, /feature_lightning.webp 1200w',
+                                    title: <>Validate ideas with <span className="font-display italic">real signals</span></>,
+                                    desc: 'Skip the guesswork. Capable helps you rapidly test assumptions and validate your core venture hypotheses using concrete market data before you build.'
+                                },
+                                {
+                                    id: 'service-step-1',
+                                    idx: 1,
+                                    img: '/mobile/feature_market.webp',
+                                    imgSet: '/mobile/feature_market.webp 640w, /feature_market.webp 1200w',
+                                    title: <>Deep analysis for <span className="font-display italic">any sector</span></>,
+                                    desc: 'Get comprehensive breakdowns of your competitive landscape, target audience, and market viability, powered by vast reserves of industry intelligence.'
+                                },
+                                {
+                                    id: 'service-step-2',
+                                    idx: 2,
+                                    img: '/mobile/feature_roadmaps.webp',
+                                    imgSet: '/mobile/feature_roadmaps.webp 640w, /feature_roadmaps.webp 1200w',
+                                    title: <>Manage custom growth requirements</>,
+                                    desc: 'Easily create, update, and manage your own custom strategy requirements with ease. Our roadmaps adapt as your market signals evolve.'
+                                },
+                                {
+                                    id: 'service-step-3',
+                                    idx: 3,
+                                    img: '/mobile/feature_ai.webp',
+                                    imgSet: '/mobile/feature_ai.webp 640w, /feature_ai.webp 1200w',
+                                    title: <>Interactive support, <span className="font-display italic">every step</span></>,
+                                    desc: 'Capable isn\'t just a research tool; it makes your venture journey way better with real-time feedback and intelligent chat guidance.'
+                                }
+                            ].map((step) => (
+                                <motion.div
+                                    key={step.id}
+                                    id={step.id}
+                                    data-index={step.idx}
+                                    initial={{ opacity: 0, y: 40 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, amount: 0.3 }}
+                                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                                    className="service-step-container space-y-8"
+                                >
+                                    <div className="relative group">
+                                        <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
+                                            <img
+                                                src={step.img}
+                                                srcSet={step.imgSet}
+                                                sizes="(max-width: 640px) 100vw, 50vw"
+                                                loading="lazy"
+                                                className="w-full h-full object-cover scale-110 translate-y-[2%] transition-transform duration-1000 group-hover:scale-[1.15]"
+                                                alt={step.title}
+                                            />
+                                            <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
-                                        Validate ideas with <span className="font-display italic">real signals</span>
-                                    </h3>
-                                    <div className="space-y-6">
-                                        <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
-                                            Skip the guesswork. Capable helps you rapidly test assumptions and validate your core venture hypotheses using concrete market data before you build.
-                                        </p>
+                                    <div className="max-w-3xl">
+                                        <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                            {step.title}
+                                        </h3>
+                                        <div className="space-y-6">
+                                            <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
+                                                {step.desc}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div id="service-step-1" data-index="1" className="service-step-container space-y-10">
-                                <div className="relative group">
-                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img
-                                            src="/mobile/feature_market.webp"
-                                            srcSet="/mobile/feature_market.webp 640w, /feature_market.webp 1200w"
-                                            sizes="(max-width: 640px) 100vw, 50vw"
-                                            loading="lazy"
-                                            className="w-full h-full object-cover scale-110 translate-y-[5%] transition-transform duration-1000 group-hover:scale-[1.15]"
-                                            alt="Analysis"
-                                        />
-                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
-                                    </div>
-                                </div>
-                                <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
-                                        Deep analysis for <span className="font-display italic">any sector</span>
-                                    </h3>
-                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
-                                        Get comprehensive breakdowns of your competitive landscape, target audience, and market viability, powered by vast reserves of industry intelligence.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div id="service-step-2" data-index="2" className="service-step-container space-y-10">
-                                <div className="relative group">
-                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img
-                                            src="/mobile/feature_roadmaps.webp"
-                                            srcSet="/mobile/feature_roadmaps.webp 640w, /feature_roadmaps.webp 1200w"
-                                            sizes="(max-width: 640px) 100vw, 50vw"
-                                            loading="lazy"
-                                            className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]"
-                                            alt="Roadmaps"
-                                        />
-                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
-                                    </div>
-                                </div>
-                                <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
-                                        Manage custom growth requirements
-                                    </h3>
-                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
-                                        Easily create, update, and manage your own custom strategy requirements with ease. Our roadmaps adapt as your market signals evolve.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div id="service-step-3" data-index="3" className="service-step-container space-y-10">
-                                <div className="relative group">
-                                    <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
-                                        <img
-                                            src="/mobile/feature_ai.webp"
-                                            srcSet="/mobile/feature_ai.webp 640w, /feature_ai.webp 1200w"
-                                            sizes="(max-width: 640px) 100vw, 50vw"
-                                            loading="lazy"
-                                            className="w-full h-full object-cover scale-110 translate-y-[3%] transition-transform duration-1000 group-hover:scale-[1.15]"
-                                            alt="Chat"
-                                        />
-                                        <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
-                                    </div>
-                                </div>
-                                <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
-                                        Interactive support, <span className="font-display italic">every step</span>
-                                    </h3>
-                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
-                                        Capable isn't just a research tool; it makes your venture journey way better with real-time feedback and intelligent chat guidance.
-                                    </p>
-                                </div>
-                            </div>
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
                 </div>
