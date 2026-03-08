@@ -80,6 +80,7 @@ const Header = () => {
                             <div className="relative h-full flex items-center" ref={userMenuRef}>
                                 <button
                                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+                                    aria-label="User profile menu"
                                     className="flex items-center justify-center w-[35px] h-[35px] bg-white border border-slate-100 rounded-full text-slate-900 hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] shadow-sm active:scale-95 group overflow-hidden transition-all"
                                 >
                                     {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
@@ -135,7 +136,11 @@ const Header = () => {
                 </div>
 
                 {/* Mobile Toggle */}
-                <button onClick={() => setMobileMenuOpen(true)} className="md:hidden p-2 text-brand-black">
+                <button
+                    onClick={() => setMobileMenuOpen(true)}
+                    className="md:hidden p-2 text-brand-black"
+                    aria-label="Open navigation menu"
+                >
                     <Menu size={24} />
                 </button>
             </div>
@@ -151,7 +156,11 @@ const Header = () => {
                     >
                         <div className="flex justify-between items-center mb-8">
                             <Logo color="dark" />
-                            <button onClick={() => setMobileMenuOpen(false)} className="p-2 bg-gray-50 rounded-full text-brand-black">
+                            <button
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="p-2 bg-gray-50 rounded-full text-brand-black"
+                                aria-label="Close navigation menu"
+                            >
                                 <X size={24} />
                             </button>
                         </div>
