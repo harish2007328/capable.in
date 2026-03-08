@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
-const HomePage = React.lazy(() => import('./pages/HomePage'));
+import HomePage from './pages/HomePage';
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const VenturePage = React.lazy(() => import('./pages/VenturePage'));
 const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));

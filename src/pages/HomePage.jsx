@@ -40,13 +40,12 @@ const HomePage = () => {
     const videoRef = useRef(null);
 
     // Optimize video performance and slow down playback
-    useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.playbackRate = 0.75;
-            // Immediate hardware acceleration hint
-            videoRef.current.style.transform = 'translateZ(0)';
+    // Optimize video performance handles playback rate
+    const handleVideoLoad = (e) => {
+        if (e.target) {
+            e.target.playbackRate = 0.75;
         }
-    }, []);
+    };
 
     // Animated Placeholder Logic
     useEffect(() => {
@@ -174,6 +173,7 @@ const HomePage = () => {
                     <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden">
                         <video
                             ref={videoRef}
+                            onLoadedMetadata={handleVideoLoad}
                             autoPlay
                             loop
                             muted
@@ -184,8 +184,6 @@ const HomePage = () => {
                             className="h-full w-full object-cover"
                             style={{
                                 backfaceVisibility: 'hidden',
-                                willChange: 'transform',
-                                transform: 'translateZ(0)',
                                 backgroundColor: '#0c1428', // Fallback color for instant appearance
                                 filter: 'brightness(0.9)' // Subtle darkening for better contrast
                             }}
