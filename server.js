@@ -7,6 +7,11 @@ import Groq from 'groq-sdk';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { DodoPayments } from 'dodopayments';
+import { createClient } from '@insforge/sdk';
+import { OAuth2Client } from 'google-auth-library';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,7 +22,29 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'capable-secret-key-123',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
 app.use(express.static(path.join(__dirname, 'dist')));
+
+// --- AUTH UTILS ---
+const oauth2Client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.NODE_ENV === 'production' 
+        ? `${process.env.FRONTEND_URL}/api/auth/google/callback`
+        : `http://localhost:3001/api/auth/google/callback`
+);
+
+const getInsForgePassword = (sub) => {
+    return crypto.createHmac('sha256', process.env.AUTH_SALT || 'capable-auth-salt')
+        .update(sub)
+        .digest('hex');
+};
 
 const getGroqClient = () => {
     const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
@@ -28,8 +55,20 @@ const getGroqClient = () => {
 };
 
 const dodoPayments = new DodoPayments({
-    apiKey: process.env.DODO_PAYMENTS_API_KEY,
-    endpoint: process.env.DODO_PAYMENTS_ENDPOINT || 'https://test.dodopayments.com' // Use test endpoint by default
+    bearerToken: process.env.DODO_PAYMENTS_API_KEY,
+    endpoint: process.env.DODO_PAYMENTS_MODE === 'live'
+        ? 'https://live.dodopayments.com'
+        : 'https://test.dodopayments.com'
+});
+
+console.log("Dodo SDK initialized on:", process.env.DODO_PAYMENTS_MODE === 'live' ? 'LIVE' : 'TEST');
+if (process.env.DODO_PAYMENTS_API_KEY) {
+    console.log("Key prefix:", process.env.DODO_PAYMENTS_API_KEY.substring(0, 5) + "...");
+}
+
+const insforge = createClient({
+    baseUrl: process.env.VITE_INSFORGE_URL,
+    anonKey: process.env.VITE_INSFORGE_ANON_KEY
 });
 
 const MODEL = "llama-3.1-8b-instant"; // Best balance of performance and high TPM limits
@@ -873,36 +912,63 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
 // --- DODO PAYMENTS ENDPOINTS ---
 
 app.post('/api/checkout', async (req, res) => {
-    const { productId, userEmail, userId, metadata } = req.body;
+    const { productId, quantity = 1, userEmail, userId, metadata, planType } = req.body;
 
     try {
         if (!process.env.DODO_PAYMENTS_API_KEY) {
             throw new Error("Dodo Payments API Key is not configured.");
         }
 
-        const session = await dodoPayments.checkout.create({
-            product_id: productId,
+        const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID;
+
+        console.log("--- Dodo Debug ---");
+        console.log("dodoPayments defined?", !!dodoPayments);
+        console.log("dodoPayments keys:", Object.keys(dodoPayments || {}));
+        if (dodoPayments && dodoPayments.checkoutSessions) {
+            console.log("checkoutSessions keys:", Object.getOwnPropertyNames(Object.getPrototypeOf(dodoPayments.checkoutSessions)));
+        } else {
+            console.log("WARNING: checkoutSessions is UNDEFINED on dodoPayments instance");
+        }
+
+        // Use product_cart as recommended by Dodo v2 SDK
+        // Attempting with fallback if checkoutSessions is missing
+        const checkoutHandler = dodoPayments.checkoutSessions || dodoPayments.checkouts || dodoPayments.checkout;
+
+        if (!checkoutHandler) {
+            throw new Error("Dodo SDK initialized but no checkout handler (checkoutSessions/checkouts) found.");
+        }
+
+        const session = await checkoutHandler.create({
+            product_cart: [{
+                product_id: targetProductId,
+                quantity: quantity
+            }],
             customer: {
                 email: userEmail,
             },
-            billing: {
-                city: metadata?.city || 'Unknown',
-                country: metadata?.country || 'US',
-                state: metadata?.state || 'Unknown',
-                street: metadata?.street || 'Unknown',
-                zip: metadata?.zip || '00000',
-            },
             metadata: {
                 userId: userId,
+                planType: planType,
                 ...metadata
             },
-            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/project?payment=success`,
+            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout-result?session_id={checkout_session_id}`,
         });
 
         res.json({ checkout_url: session.checkout_url });
     } catch (err) {
-        console.error("DODO CHECKOUT ERROR:", err.message);
-        res.status(500).json({ error: "Failed to create checkout session", details: err.message });
+        console.error("--- DODO CHECKOUT ERROR DETAILS ---");
+        console.error("Message:", err.message);
+        console.error("Status Code (err.status):", err.status);
+        console.error("Status (err.statusCode):", err.statusCode);
+        if (err.response) {
+            console.error("Response Data:", err.response.data);
+            console.error("Response Status:", err.response.status);
+        }
+        res.status(err.status || 500).json({
+            error: "Failed to create checkout session",
+            details: err.message,
+            code: err.status
+        });
     }
 });
 
@@ -911,38 +977,142 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
     const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
 
     try {
-        if (!webhookSecret) {
-            console.warn("Dodo Webhook Secret not configured. Skipping verification.");
+        if (webhookSecret && sig) {
+            // Verification logic placeholder
         }
 
-        // Note: SDK should have a verify method, but for now we'll handle the event
-        // If the signature is provided, you should verify it.
         const event = JSON.parse(req.body);
-
-        console.log(`Dodo Webhook received: ${event.type}`);
+        console.log(`✅ Dodo Webhook: ${event.type}`, event.data?.id || '');
 
         switch (event.type) {
-            case 'subscription.created':
-            case 'subscription.updated':
-                const subscription = event.data;
-                const userId = subscription.metadata?.userId;
+            case 'payment.succeeded':
+            case 'subscription.active':
+            case 'subscription.renewed':
+                const data = event.data;
+                const userId = data.metadata?.userId;
+                const planType = data.metadata?.planType || 'pro';
+
                 if (userId) {
-                    console.log(`Updating subscription for user: ${userId}`);
-                    // TODO: Update Supabase user profile with subscription status
-                    // Example: await supabase.from('profiles').update({ is_pro: true, dodo_subscription_id: subscription.id }).eq('id', userId);
+                    console.log(`💰 FULFILLING: User ${userId} -> Plan: ${planType}`);
+                    try {
+                        // Attempt to find existing profile
+                        const { data: profile, error: fetchError } = await insforge.from('profiles').select('id').eq('id', userId).single();
+                        
+                        if (fetchError || !profile) {
+                            console.log(`Creating new profile for user ${userId}`);
+                            const { error: insertError } = await insforge.from('profiles').insert([{ 
+                                id: userId,
+                                email: event.data.customer?.email,
+                                subscription_status: 'pro',
+                                dodo_customer_id: event.data.customer?.id
+                            }]);
+                            if (insertError) console.error("Profile Insert Error:", insertError.message);
+                            else console.log(`✅ Profile created for user ${userId}.`);
+                        } else {
+                            const { error: updateError } = await insforge.from('profiles').update({ 
+                                subscription_status: 'pro',
+                                dodo_customer_id: event.data.customer?.id,
+                                updated_at: new Date()
+                            }).eq('id', userId);
+                            
+                            if (updateError) console.error("Profile Update Error:", updateError.message);
+                            else console.log(`✅ User ${userId} profile updated to Pro.`);
+                        }
+                    } catch (dbErr) {
+                        console.warn("DB fulfillment check failure:", dbErr.message);
+                    }
                 }
                 break;
             case 'subscription.cancelled':
-                // Handle cancellation
+            case 'subscription.expired':
+                console.log(`🚫 REVOKING: User ${event.data?.metadata?.userId} subscription ended`);
                 break;
             default:
-                console.log(`Unhandled event type: ${event.type}`);
+                console.log(`ℹ️ Dodo Info: Received ${event.type}`);
         }
 
         res.json({ received: true });
     } catch (err) {
         console.error("DODO WEBHOOK ERROR:", err.message);
         res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+});
+
+// --- GOOGLE CUSTOM AUTH ENDPOINTS ---
+
+app.get('/api/auth/google', (req, res) => {
+    const url = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+        prompt: 'consent'
+    });
+    console.log("Redirecting to Google Auth:", url);
+    res.redirect(url);
+});
+
+app.get('/api/auth/google/callback', async (req, res) => {
+    const { code } = req.query;
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        // Fetch User Info from Google
+        const ticket = await oauth2Client.verifyIdToken({
+            idToken: tokens.id_token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const googleId = payload['sub'];
+        const email = payload['email'];
+        const name = payload['name'];
+
+        console.log(`🔐 Google Callback: ${email} (${googleId})`);
+
+        // Get unique password for InsForge
+        const insforgePassword = getInsForgePassword(googleId);
+
+        // 1. Try to Login to InsForge
+        let loginResponse;
+        try {
+            console.log(`Attempting login for ${email}`);
+            loginResponse = await axios.post(`${process.env.VITE_INSFORGE_URL}/api/auth/sessions`, {
+                email: email,
+                password: insforgePassword
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } catch (err) {
+            if (err.response?.status === 401 || err.response?.status === 404) {
+                // 2. User not found or wrong password (likely first time), try to SignUp
+                console.log(`User not found, signing up: ${email}`);
+                try {
+                    loginResponse = await axios.post(`${process.env.VITE_INSFORGE_URL}/api/auth/users`, {
+                        email: email,
+                        password: insforgePassword,
+                        name: name
+                    }, {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                } catch (signUpErr) {
+                    console.error("InsForge SignUp Error:", signUpErr.response?.data || signUpErr.message);
+                    throw new Error("Failed to create InsForge account");
+                }
+            } else {
+                console.error("InsForge Session Error:", err.response?.data || err.message);
+                throw new Error("Failed to connect to InsForge");
+            }
+        }
+
+        const accessToken = loginResponse.data.accessToken;
+        
+        // Redirect to Frontend with the token
+        const frontendRedirect = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?access_token=${accessToken}`;
+        console.log("Success! Redirecting to:", frontendRedirect);
+        res.redirect(frontendRedirect);
+
+    } catch (err) {
+        console.error("GOOGLE AUTH ERROR:", err.message);
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
     }
 });
 
@@ -958,5 +1128,3 @@ app.get(/^(?!\/api).+/, (req, res) => {
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
 });
-
-export default app;

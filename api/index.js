@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import Groq from 'groq-sdk';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { DodoPayments } from 'dodopayments';
+import { createClient } from '@insforge/sdk';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +27,21 @@ const getGroqClient = () => {
     }
     return new Groq({ apiKey });
 };
+
+const dodoPayments = new DodoPayments({
+    bearerToken: process.env.DODO_PAYMENTS_API_KEY,
+    environment: process.env.DODO_PAYMENTS_MODE === 'live' ? 'live_mode' : 'test_mode'
+});
+
+console.log("Dodo SDK initialized on:", process.env.DODO_PAYMENTS_MODE === 'live' ? 'LIVE' : 'TEST');
+if (process.env.DODO_PAYMENTS_API_KEY) {
+    console.log("Key prefix:", process.env.DODO_PAYMENTS_API_KEY.substring(0, 5) + "...");
+}
+
+const insforge = createClient({
+    baseUrl: process.env.VITE_INSFORGE_URL,
+    anonKey: process.env.VITE_INSFORGE_ANON_KEY
+});
 
 const MODEL = "llama-3.1-8b-instant"; // Best balance of performance and high TPM limits
 
@@ -704,6 +721,122 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
     }
 });
 
+
+// --- DODO PAYMENTS ENDPOINTS ---
+
+app.post('/api/checkout', async (req, res) => {
+    const { productId, quantity = 1, userEmail, userId, metadata, planType } = req.body;
+
+    try {
+        if (!process.env.DODO_PAYMENTS_API_KEY) {
+            throw new Error("Dodo Payments API Key is not configured.");
+        }
+
+        const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID;
+
+        // Use product_cart as recommended by Dodo
+        const session = await dodoPayments.checkoutSessions.create({
+            product_cart: [{
+                product_id: targetProductId,
+                quantity: quantity
+            }],
+            customer: {
+                email: userEmail,
+            },
+            metadata: {
+                userId: userId,
+                planType: planType,
+                ...metadata
+            },
+            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout-result?session_id={checkout_session_id}`,
+        });
+
+        res.json({ checkout_url: session.checkout_url });
+    } catch (err) {
+        console.error("DODO CHECKOUT ERROR:", err.message);
+        res.status(500).json({ error: "Failed to create checkout session", details: err.message });
+    }
+});
+
+app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['x-dodo-signature'];
+    const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
+
+    try {
+        if (webhookSecret && sig) {
+            // TODO: In production, verify the signature here
+            // console.log("Verifying webhook signature...");
+        }
+
+        const event = JSON.parse(req.body);
+        console.log(`✅ Dodo Webhook: ${event.type}`, event.data?.id || '');
+
+        switch (event.type) {
+            case 'payment.succeeded':
+            case 'subscription.active':
+            case 'subscription.renewed':
+                const data = event.data;
+                const userId = data.metadata?.userId;
+                const planType = data.metadata?.planType || 'pro';
+
+                if (userId) {
+                    console.log(`💰 FULFILLING: User ${userId} -> Plan: ${planType}`);
+                    try {
+                        const { data: profile, error: fetchError } = await insforge.from('profiles').select('id').eq('id', userId).single();
+                        
+                        if (fetchError || !profile) {
+                            console.log(`Creating new profile for user ${userId}`);
+                            const { error: insertError } = await insforge.from('profiles').insert([{ 
+                                id: userId,
+                                email: event.data.customer?.email,
+                                subscription_status: 'pro',
+                                dodo_customer_id: event.data.customer?.id
+                            }]);
+                            if (insertError) console.error("Profile Insert Error:", insertError.message);
+                            else console.log(`✅ Profile created for user ${userId}.`);
+                        } else {
+                            const { error: updateError } = await insforge.from('profiles').update({ 
+                                subscription_status: 'pro',
+                                dodo_customer_id: event.data.customer?.id,
+                                updated_at: new Date()
+                            }).eq('id', userId);
+                            
+                            if (updateError) console.error("Profile Update Error:", updateError.message);
+                            else console.log(`✅ User ${userId} profile updated to Pro.`);
+                        }
+                    } catch (dbErr) {
+                        console.warn("DB fulfillment check failure:", dbErr.message);
+                    }
+                }
+                break;
+            case 'subscription.cancelled':
+            case 'subscription.expired':
+                console.log(`🚫 REVOKING: User ${event.data?.metadata?.userId} subscription ended`);
+                break;
+            default:
+                console.log(`ℹ️ Dodo Info: Received ${event.type}`);
+        }
+
+        res.json({ received: true });
+    } catch (err) {
+        console.error("DODO WEBHOOK ERROR:", err.message);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+});
+
+app.post('/api/portal', async (req, res) => {
+    const { customerId } = req.body;
+    try {
+        const session = await dodoPayments.customerPortalSessions.create({
+            customer_id: customerId,
+            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`
+        });
+        res.json({ portal_url: session.portal_url });
+    } catch (err) {
+        console.error("DODO PORTAL ERROR:", err.message);
+        res.status(500).json({ error: "Failed to create portal session" });
+    }
+});
 
 // --- SERVE FRONTEND (Removed for Vercel Serverless) ---
 // Vercel handles static file serving via the Build Output API automatically.

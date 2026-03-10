@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, Settings, LogOut } from 'lucide-react';
+import { Menu, X, User, Settings, LogOut, CreditCard, Loader2 } from 'lucide-react';
+import axios from 'axios';
 import Logo from './Logo';
 
 const Header = () => {
@@ -11,6 +12,7 @@ const Header = () => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [loadingPortal, setLoadingPortal] = useState(false);
     const userMenuRef = useRef(null);
 
     useEffect(() => {
@@ -39,6 +41,30 @@ const Header = () => {
 
     // Reusable Gradient Button Style
     const btnClassName = "bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-2.5 rounded-md font-bold text-sm tracking-wide transition-all duration-300 flex items-center justify-center whitespace-nowrap";
+
+    const handlePortal = async () => {
+        setLoadingPortal(true);
+        try {
+            // In a real app, you'd store the dodo_customer_id in user profile
+            const customerId = user?.profile?.dodo_customer_id || user?.user_metadata?.dodo_customer_id;
+
+            if (!customerId) {
+                // If no customer ID, redirect to pricing as they might not have a subscription
+                window.location.href = '/pricing';
+                return;
+            }
+
+            const response = await axios.post('/api/portal', { customerId });
+            if (response.data.portal_url) {
+                window.location.href = response.data.portal_url;
+            }
+        } catch (err) {
+            console.error("Portal redirect failed:", err);
+            alert("Could not open billing portal. Please try again.");
+        } finally {
+            setLoadingPortal(false);
+        }
+    };
 
     const isHomePage = location.pathname === '/';
     const showShrink = isHomePage && scrolled;
@@ -117,6 +143,18 @@ const Header = () => {
                                                 <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[var(--brand-accent)] rounded-xl transition-all group">
                                                     <Settings size={18} className="text-slate-300 group-hover:text-[var(--brand-accent)] transition-colors" /> Settings
                                                 </Link>
+                                                <button
+                                                    onClick={handlePortal}
+                                                    disabled={loadingPortal}
+                                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[var(--brand-accent)] rounded-xl transition-all group text-left disabled:opacity-50"
+                                                >
+                                                    {loadingPortal ? (
+                                                        <Loader2 size={18} className="animate-spin text-[var(--brand-accent)]" />
+                                                    ) : (
+                                                        <CreditCard size={18} className="text-slate-300 group-hover:text-[var(--brand-accent)] transition-colors" />
+                                                    )}
+                                                    Manage Billing
+                                                </button>
                                                 <button
                                                     onClick={() => {
                                                         logout();

@@ -35,6 +35,19 @@ export const AuthProvider = ({ children }) => {
         const checkSession = async () => {
             if (!isMounted) return;
             try {
+                // 1. Check if we have an access_token in the URL (from our backend callback)
+                const urlParams = new URLSearchParams(window.location.search);
+                const tokenFromUrl = urlParams.get('access_token');
+
+                if (tokenFromUrl) {
+                    console.log("Found token in URL, setting session...");
+                    // Store token in localStorage so SDK can pick it up or we can use it manually
+                    localStorage.setItem('insforge_session_token', tokenFromUrl);
+                    // Clear the token from URL
+                    const cleanUrl = window.location.pathname;
+                    window.history.replaceState(null, '', cleanUrl);
+                }
+
                 const { data } = await supabase.auth.getSession();
                 const fetchedUser = data?.session?.user ?? null;
 
@@ -110,6 +123,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithOAuth = async (provider) => {
+        if (provider === 'google') {
+            // Use our custom backend route to maintain branding
+            window.location.href = '/api/auth/google';
+            return;
+        }
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
             redirectTo: window.location.origin,

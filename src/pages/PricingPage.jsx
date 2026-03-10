@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Rocket, ZapIcon, Globe, Shield } from 'lucide-react';
+import { Check, Sparkles, Rocket, ZapIcon, Globe, Shield, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 // Pricing Assets (Matching Home)
 const heroVideo = "/hero-bg2-compressed.mp4";
 const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
 
 const PricingPage = () => {
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const [isYearly, setIsYearly] = useState(false);
+    const [loadingPlan, setLoadingPlan] = useState(null);
     const videoRef = useRef(null);
 
     const handleVideoLoad = (e) => {
@@ -57,9 +62,50 @@ const PricingPage = () => {
                 "Team collaboration",
                 "Full API access"
             ],
-            type: "dark"
+            type: "dark",
+            productId: "p_123" // Placeholder, should be from env or props
         }
     ];
+
+    const handleCheckout = async (plan) => {
+        if (plan.price === "0") {
+            navigate('/dashboard');
+            return;
+        }
+
+        if (!user) {
+            navigate('/login?redirect=pricing');
+            return;
+        }
+
+        setLoadingPlan(plan.name);
+        try {
+            console.log("Initiating checkout with email:", user.email);
+            const response = await axios.post('/api/checkout', {
+                productId: plan.productId || import.meta.env.VITE_DODO_PAYMENTS_PRODUCT_ID,
+                userEmail: user.email,
+                userId: user.id,
+                planType: plan.name.toLowerCase(),
+                metadata: {
+                    billingCycle: isYearly ? 'yearly' : 'monthly',
+                    planName: plan.name
+                }
+            });
+
+            if (response.data && response.data.checkout_url) {
+                console.log("Redirecting to:", response.data.checkout_url);
+                window.location.href = response.data.checkout_url;
+            } else {
+                throw new Error(response.data?.error || "No checkout URL returned from server");
+            }
+        } catch (err) {
+            console.error("Checkout failed:", err);
+            const errorMsg = err.response?.data?.details || err.response?.data?.error || err.message;
+            alert(`Payment setup failed: ${errorMsg}`);
+        } finally {
+            setLoadingPlan(null);
+        }
+    };
 
     return (
         <div className="relative w-full bg-white lg:h-screen lg:overflow-hidden font-sans selection:bg-blue-600 selection:text-white">
@@ -180,15 +226,23 @@ const PricingPage = () => {
                                             </ul>
                                         </div>
 
-                                        <Link
-                                            to="/login"
-                                            className={`w-full py-3.5 rounded-lg font-bold text-center text-[10px] tracking-widest uppercase transition-all duration-300 active:scale-[0.98] ${plan.type === 'dark'
-                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500'
-                                                : 'bg-gray-900 text-white hover:bg-black'
+                                        <button
+                                            onClick={() => handleCheckout(plan)}
+                                            disabled={loadingPlan === plan.name}
+                                            className={`w-full py-3.5 rounded-lg font-bold text-center text-[10px] tracking-widest uppercase transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2 ${plan.type === 'dark'
+                                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500 disabled:bg-blue-400'
+                                                : 'bg-gray-900 text-white hover:bg-black disabled:bg-gray-700'
                                                 }`}
                                         >
-                                            Get started
-                                        </Link>
+                                            {loadingPlan === plan.name ? (
+                                                <>
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                                    Processing...
+                                                </>
+                                            ) : (
+                                                'Get started'
+                                            )}
+                                        </button>
                                     </div>
                                 </motion.div>
                             ))}

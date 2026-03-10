@@ -8,6 +8,7 @@ const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const DocsPage = React.lazy(() => import('./pages/DocsPage'));
 const FeaturesPage = React.lazy(() => import('./pages/FeaturesPage'));
+const CheckoutResult = React.lazy(() => import('./pages/CheckoutResult'));
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
@@ -40,6 +41,7 @@ function App() {
               <Route path="/docs" element={<DocsPage />} />
               <Route path="/features" element={<FeaturesPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/checkout-result" element={<CheckoutResult />} />
 
               {/* Unified Venture Route - Public (Handles guests via localStorage) */}
               <Route path="/project" element={<VenturePage />} />

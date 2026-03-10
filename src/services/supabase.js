@@ -7,7 +7,30 @@ const client = createClient({ baseUrl, anonKey });
 
 client.auth.getSession = async () => {
     try {
-        const { data, error } = await client.auth.getCurrentSession();
+        // First try standard session from cookies
+        let { data, error } = await client.auth.getCurrentSession();
+        
+        // If not found, check if we have a manual token from our custom Google Auth flow
+        if (!data?.session) {
+            const manualToken = localStorage.getItem('insforge_session_token');
+            if (manualToken) {
+                // If we have a manual token, we could try to use it
+                // For now, we'll try to fetch the current user with this token to verify it
+                try {
+                    const response = await fetch(`${baseUrl}/api/auth/sessions/current`, {
+                        headers: { 'Authorization': `Bearer ${manualToken}` }
+                    });
+                    if (response.ok) {
+                        const userData = await response.json();
+                        return { data: { session: { user: userData.user, accessToken: manualToken } }, error: null };
+                    }
+                } catch (e) {
+                    console.error("Manual token verification failed:", e);
+                    localStorage.removeItem('insforge_session_token');
+                }
+            }
+        }
+        
         return { data: { session: data?.session || null }, error };
     } catch (err) {
         return { data: { session: null }, error: err };

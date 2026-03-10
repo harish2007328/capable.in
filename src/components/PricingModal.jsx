@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, Rocket, Crown, Check } from 'lucide-react';
+import { X, Zap, Rocket, Crown, Check, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 const PricingModal = ({ isOpen, onClose }) => {
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const [billingCycle, setBillingCycle] = useState('monthly');
+    const [loadingPlan, setLoadingPlan] = useState(null);
 
     if (!isOpen) return null;
 
@@ -29,6 +35,49 @@ const PricingModal = ({ isOpen, onClose }) => {
             features: ["Everything in Pro", "White-label reports", "API access", "Team collaboration", "Dedicated manager"]
         }
     ];
+
+    const handleCheckout = async (plan) => {
+        if (plan.price === 0) {
+            navigate('/dashboard');
+            onClose();
+            return;
+        }
+
+        if (plan.name === 'Enterprise') {
+            window.location.href = 'mailto:hello@capable.xyz';
+            return;
+        }
+
+        if (!user) {
+            navigate('/login?redirect=pricing');
+            onClose();
+            return;
+        }
+
+        setLoadingPlan(plan.name);
+        try {
+            const response = await axios.post('/api/checkout', {
+                productId: import.meta.env.VITE_DODO_PAYMENTS_PRODUCT_ID,
+                userEmail: user.email,
+                userId: user.id,
+                planType: plan.name.toLowerCase(),
+                metadata: {
+                    billingCycle
+                }
+            });
+
+            if (response.data.checkout_url) {
+                window.location.href = response.data.checkout_url;
+            } else {
+                throw new Error("No checkout URL returned");
+            }
+        } catch (err) {
+            console.error("Checkout failed:", err);
+            alert("Failed to start checkout. Please try again.");
+        } finally {
+            setLoadingPlan(null);
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -109,8 +158,19 @@ const PricingModal = ({ isOpen, onClose }) => {
                                         ))}
                                     </ul>
 
-                                    <button className={`w-full py-4 rounded-2xl font-bold text-sm transition-all ${plan.featured ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-lg shadow-blue-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>
-                                        {plan.name === 'Enterprise' ? 'Contact Us' : 'Get Started'}
+                                    <button
+                                        onClick={() => handleCheckout(plan)}
+                                        disabled={loadingPlan === plan.name}
+                                        className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${plan.featured ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-lg shadow-blue-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+                                    >
+                                        {loadingPlan === plan.name ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Processing...
+                                            </>
+                                        ) : (
+                                            plan.name === 'Enterprise' ? 'Contact Us' : 'Get Started'
+                                        )}
                                     </button>
                                 </div>
                             )
