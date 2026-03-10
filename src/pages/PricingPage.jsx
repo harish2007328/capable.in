@@ -1,10 +1,11 @@
-<<<<<<< HEAD
+
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Check, Sparkles, Rocket, ZapIcon, Globe, Shield, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, X, Zap, Sparkles, Rocket, ZapIcon, Globe, Shield, Loader2, Crown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import Footer from '../components/Footer';
 
 // Pricing Assets (Matching Home)
 const heroVideo = "/hero-bg2-compressed.mp4";
@@ -13,13 +14,11 @@ const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero
 const PricingPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [isYearly, setIsYearly] = useState(false);
+    const [billingCycle, setBillingCycle] = useState('monthly');
     const [loadingPlan, setLoadingPlan] = useState(null);
     const videoRef = useRef(null);
 
-    const handleVideoLoad = (e) => {
-        if (e.target) e.target.playbackRate = 0.75;
-    };
+    const isYearly = billingCycle === 'annual';
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -64,28 +63,23 @@ const PricingPage = () => {
                 "Full API access"
             ],
             type: "dark",
-            productId: "p_123" // Placeholder, should be from env or props
+            productId: import.meta.env.VITE_DODO_PAYMENTS_PRODUCT_ID // Use env var
         }
     ];
-=======
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Check, X, Zap, Crown, Rocket } from 'lucide-react';
-import Footer from '../components/Footer';
-import { useAuth } from '../context/AuthContext';
-
-const PricingPage = () => {
-    const [billingCycle, setBillingCycle] = useState('monthly');
->>>>>>> parent of 1e2f61e (feat: add initial marketing pages including home, pricing, and features with their modular sections.)
 
     const handleCheckout = async (plan) => {
-        if (plan.price === "0") {
+        if (plan.price === "0" || plan.name.toLowerCase().includes('starter')) {
             navigate('/dashboard');
             return;
         }
 
         if (!user) {
             navigate('/login?redirect=pricing');
+            return;
+        }
+
+        if (plan.name.toLowerCase().includes('enterprise')) {
+            window.location.href = 'mailto:sales@capable.in';
             return;
         }
 
@@ -125,7 +119,7 @@ const PricingPage = () => {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0BAAFF]/100 rounded-full blur-[220px] translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
             <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[400px] bg-[var(--brand-accent)]/50 rounded-full blur-[180px] pointer-events-none"></div>
 
-            {/* Hero Section */}
+            {/* Content Wrapper */}
             <div className="relative z-30 flex flex-col items-center px-4 max-w-7xl mx-auto w-full pt-32 md:pt-36">
                 <div className="pricing-hero text-center max-w-5xl">
                     <div className="mb-24 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 shadow-sm cursor-default">
@@ -167,7 +161,7 @@ const PricingPage = () => {
                     </div>
                 </div>
 
-                {/* Pricing Cards */}
+                {/* Pricing Cards Grid */}
                 <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
                     <PricingCard
                         icon={<Zap className="w-6 h-6 text-[var(--brand-accent)]" />}
@@ -213,26 +207,9 @@ const PricingPage = () => {
                         popular={true}
                     />
 
-<<<<<<< HEAD
                     {/* Integrated Pricing Cards - Right Side (Compact) */}
-                    <div className="w-full lg:flex-[1.2] flex flex-col items-center lg:items-center gap-6">
-                        {/* Billing Switcher (Center Top of Cards) */}
-                        <div className="inline-flex items-center gap-1.5 p-1 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 shadow-2xl">
-                            <button
-                                onClick={() => setIsYearly(false)}
-                                className={`px-8 py-2.5 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-300 ${!isYearly ? 'bg-white text-blue-600 shadow-xl' : 'text-white/60 hover:text-white'}`}
-                            >
-                                Monthly
-                            </button>
-                            <button
-                                onClick={() => setIsYearly(true)}
-                                className={`px-8 py-2.5 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-300 ${isYearly ? 'bg-white text-blue-600 shadow-xl' : 'text-white/60 hover:text-white'}`}
-                            >
-                                Yearly <span className="text-[8px] ml-1 opacity-70">(-33%)</span>
-                            </button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch w-full">
+                    <div className="flex flex-col gap-6">
+                        <div className="grid grid-cols-1 gap-4 items-stretch w-full">
                             {plans.map((plan, idx) => (
                                 <motion.div
                                     key={idx}
@@ -304,7 +281,7 @@ const PricingPage = () => {
                             ))}
                         </div>
                     </div>
-=======
+
                     <PricingCard
                         icon={<Crown className="w-6 h-6 text-[var(--brand-accent)]" />}
                         name="Enterprise"
@@ -325,8 +302,8 @@ const PricingPage = () => {
                         gradient="from-gray-50 to-white"
                         borderColor="border-gray-200"
                         popular={false}
+                        onCheckout={() => window.location.href = 'mailto:sales@capable.in'}
                     />
->>>>>>> parent of 1e2f61e (feat: add initial marketing pages including home, pricing, and features with their modular sections.)
                 </div>
 
                 {/* FAQ Section */}
@@ -342,7 +319,7 @@ const PricingPage = () => {
     );
 };
 
-const PricingCard = ({ icon, name, description, price, period, features, cta, gradient, borderColor, popular }) => {
+const PricingCard = ({ icon, name, description, price, period, features, cta, gradient, borderColor, popular, onCheckout }) => {
     const isGradient = gradient.includes('via');
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -402,41 +379,39 @@ const PricingCard = ({ icon, name, description, price, period, features, cta, gr
                 </div>
 
                 {/* CTA Button */}
-                {name === 'Professional' ? (
+                {onCheckout ? (
+                    <button
+                        onClick={onCheckout}
+                        className={`relative w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 hover:shadow-xl active:scale-[0.98] mb-8 text-center ${isGradient
+                            ? 'bg-white text-[var(--brand-accent)]'
+                            : 'bg-gradient-to-r from-[var(--brand-accent)] to-[#0BAAFF] text-white'
+                            }`}
+                    >
+                        {cta}
+                    </button>
+                ) : name === 'Professional' ? (
                     <button
                         onClick={() => {
                             if (!user) {
                                 navigate('/login', { state: { from: '/pricing' } });
                                 return;
                             }
-                            const handleCheckout = async () => {
+                            const runCheckout = async () => {
                                 try {
                                     const response = await fetch('/api/checkout', {
                                         method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        },
+                                        headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
                                             productId: import.meta.env.VITE_DODO_PRODUCT_ID || 'PRO_PLAN_ID',
                                             userEmail: user.email,
-                                            userId: user.id,
-                                            metadata: {
-                                                plan: 'professional'
-                                            }
+                                            userId: user.id
                                         }),
                                     });
                                     const data = await response.json();
-                                    if (data.checkout_url) {
-                                        window.location.href = data.checkout_url;
-                                    } else {
-                                        alert('Failed to initiate checkout. Please check if your API keys are configured.');
-                                    }
-                                } catch (err) {
-                                    console.error('Checkout error:', err);
-                                    alert('An error occurred during checkout.');
-                                }
+                                    if (data.checkout_url) window.location.href = data.checkout_url;
+                                } catch (err) { console.error(err); }
                             };
-                            handleCheckout();
+                            runCheckout();
                         }}
                         className={`relative w-full py-3.5 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 hover:shadow-xl active:scale-[0.98] mb-8 text-center ${isGradient
                             ? 'bg-white text-[var(--brand-accent)] shadow-lg shadow-black/25 hover:bg-white/95'
@@ -480,6 +455,7 @@ const PricingCard = ({ icon, name, description, price, period, features, cta, gr
         </div>
     );
 };
+
 
 const PricingFAQSection = () => {
     const [openIndex, setOpenIndex] = useState(null);

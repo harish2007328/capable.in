@@ -172,15 +172,16 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                         className="w-10 h-10 bg-rose-500 text-white flex items-center justify-center text-sm font-bold rounded-full border-2 border-white shadow-sm ring-1 ring-slate-200 hover:ring-[var(--brand-accent)]/30 transition-all overflow-hidden group"
                     >
-                        {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
+                        {user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url ? (
                             <img
-                                src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
+                                src={user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url}
                                 alt="Profile"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                referrerPolicy="no-referrer"
                             />
-                        ) : user?.profile?.name || user?.user_metadata?.name ? (
+                        ) : user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name ? (
                             <span className="font-bold text-xs uppercase tracking-tighter">
-                                {(user?.profile?.name || user?.user_metadata?.name).split(' ').map(n => n[0]).join('')}
+                                {(user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name).split(' ').map(n => n[0]).join('')}
                             </span>
                         ) : (
                             user?.email?.charAt(0).toUpperCase() || 'H'

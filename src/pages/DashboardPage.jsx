@@ -37,18 +37,18 @@ const DashboardPage = () => {
 
     // Settings state
     const [settingsState, setSettingsState] = useState({
-        name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
-        title: user?.user_metadata?.title || '',
-        bio: user?.user_metadata?.bio || '',
-        website: user?.user_metadata?.website || '',
-        twitter: user?.user_metadata?.twitter || '',
-        researchDepth: user?.user_metadata?.researchDepth || 'Deep',
-        autoResearch: user?.user_metadata?.autoResearch !== false,
-        bannerGradient: user?.user_metadata?.bannerGradient || 'midnight',
-        bannerPattern: user?.user_metadata?.bannerPattern || 'none',
-        accentColor: user?.user_metadata?.accentColor || 'var(--brand-accent)',
-        borderRadius: user?.user_metadata?.borderRadius || '16px',
-        glassIntensity: user?.user_metadata?.glassIntensity || '12px',
+        name: user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+        title: user?.profile?.title || user?.user_metadata?.title || '',
+        bio: user?.profile?.bio || user?.user_metadata?.bio || '',
+        website: user?.profile?.website || user?.user_metadata?.website || '',
+        twitter: user?.profile?.twitter || user?.user_metadata?.twitter || '',
+        researchDepth: user?.profile?.researchDepth || user?.user_metadata?.researchDepth || 'Deep',
+        autoResearch: (user?.profile?.autoResearch ?? user?.user_metadata?.autoResearch) !== false,
+        bannerGradient: user?.profile?.bannerGradient || user?.user_metadata?.bannerGradient || 'midnight',
+        bannerPattern: user?.profile?.bannerPattern || user?.user_metadata?.bannerPattern || 'none',
+        accentColor: user?.profile?.accentColor || user?.user_metadata?.accentColor || 'var(--brand-accent)',
+        borderRadius: user?.profile?.borderRadius || user?.user_metadata?.borderRadius || '16px',
+        glassIntensity: user?.profile?.glassIntensity || user?.user_metadata?.glassIntensity || '12px',
         isSaving: false
     });
 
@@ -69,18 +69,18 @@ const DashboardPage = () => {
 
         if (user) {
             setSettingsState({
-                name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
-                title: user?.user_metadata?.title || '',
-                bio: user?.user_metadata?.bio || '',
-                website: user?.user_metadata?.website || '',
-                twitter: user?.user_metadata?.twitter || '',
-                researchDepth: user?.user_metadata?.researchDepth || 'Deep',
-                autoResearch: user?.user_metadata?.autoResearch !== false,
-                bannerGradient: user?.user_metadata?.bannerGradient || 'midnight',
-                bannerPattern: user?.user_metadata?.bannerPattern || 'none',
-                accentColor: user?.user_metadata?.accentColor || '#0066CC',
-                borderRadius: user?.user_metadata?.borderRadius || '16px',
-                glassIntensity: user?.user_metadata?.glassIntensity || '12px',
+                name: user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+                title: user?.profile?.title || user?.user_metadata?.title || '',
+                bio: user?.profile?.bio || user?.user_metadata?.bio || '',
+                website: user?.profile?.website || user?.user_metadata?.website || '',
+                twitter: user?.profile?.twitter || user?.user_metadata?.twitter || '',
+                researchDepth: user?.profile?.researchDepth || user?.user_metadata?.researchDepth || 'Deep',
+                autoResearch: (user?.profile?.autoResearch ?? user?.user_metadata?.autoResearch) !== false,
+                bannerGradient: user?.profile?.bannerGradient || user?.user_metadata?.bannerGradient || 'midnight',
+                bannerPattern: user?.profile?.bannerPattern || user?.user_metadata?.bannerPattern || 'none',
+                accentColor: user?.profile?.accentColor || user?.user_metadata?.accentColor || '#0066CC',
+                borderRadius: user?.profile?.borderRadius || user?.user_metadata?.borderRadius || '16px',
+                glassIntensity: user?.profile?.glassIntensity || user?.user_metadata?.glassIntensity || '12px',
                 isSaving: false
             });
         }
@@ -190,7 +190,7 @@ const DashboardPage = () => {
                         </svg>
                     </button>
                     <h1 className="text-xs font-bold text-slate-900">
-                        {(() => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; })()}, {user?.user_metadata?.full_name?.split(' ')[0] || 'Founder'}
+                        {(() => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; })()}, {user?.profile?.name?.split(' ')[0] || user?.user_metadata?.full_name?.split(' ')[0] || 'Founder'}
                     </h1>
                 </div>
 
@@ -962,8 +962,8 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                         <div className="p-6 md:p-10 -mt-16 relative">
                             <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
                                 <div className="w-32 h-32 bg-white text-slate-300 flex items-center justify-center rounded-2xl border-4 border-white shadow-xl overflow-hidden shrink-0">
-                                    {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
-                                        <img src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="Profile" className="w-full h-full object-cover" />
+                                    {user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url ? (
+                                        <img src={user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                     ) : (
                                         <div className="w-full h-full bg-slate-50 flex items-center justify-center">
                                             <User size={48} className="text-slate-200" />

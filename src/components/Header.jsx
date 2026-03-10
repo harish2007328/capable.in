@@ -109,15 +109,16 @@ const Header = () => {
                                     aria-label="User profile menu"
                                     className="flex items-center justify-center w-[35px] h-[35px] bg-white border border-slate-100 rounded-full text-slate-900 hover:border-[var(--brand-accent)] hover:text-[var(--brand-accent)] shadow-sm active:scale-95 group overflow-hidden transition-all"
                                 >
-                                    {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
+                                    {user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url ? (
                                         <img
-                                            src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture}
+                                            src={user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url}
                                             alt="Profile"
                                             className="w-full h-full object-cover group-hover:scale-102 transition-transform"
+                                            referrerPolicy="no-referrer"
                                         />
-                                    ) : user?.profile?.name || user?.user_metadata?.name ? (
+                                    ) : user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name ? (
                                         <span className="font-bold text-xs uppercase tracking-tighter">
-                                            {(user?.profile?.name || user?.user_metadata?.name).split(' ').map(n => n[0]).join('')}
+                                            {(user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name).split(' ').map(n => n[0]).join('')}
                                         </span>
                                     ) : (
                                         <User size={18} className="transition-transform" />

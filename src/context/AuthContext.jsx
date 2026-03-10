@@ -11,31 +11,142 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         try {
             const cachedUser = localStorage.getItem('capable_cached_user');
-            return cachedUser ? JSON.parse(cachedUser) : null;
+            if (cachedUser) {
+                const parsed = JSON.parse(cachedUser);
+                if (parsed && parsed.metadata && !parsed.user_metadata) {
+                    parsed.user_metadata = parsed.metadata;
+                }
+                return parsed;
+            }
+            return null;
         } catch (e) {
             return null;
         }
     });
-    // Set loading to false initially if we have a cached user, so the UI can render instantly
+
     const [loading, setLoading] = useState(!user);
+
+    // DEBUG: Log user state changes with deep inspection
+    useEffect(() => {
+        if (user) {
+            console.log("👤 Auth User Object:", JSON.stringify(user, null, 2));
+            
+            // Check for identities which often hide the metadata
+            if (user.identities) {
+                console.log("- Identities found:", user.identities.length);
+                user.identities.forEach((id, i) => {
+                    console.log(`  Identity [${i}] (${id.provider}):`, id.identity_data || id.metadata);
+                });
+            }
+        }
+    }, [user]);
+
+    const updateUser = React.useCallback(async (attributes) => {
+        const payload = attributes?.data || attributes || {};
+        if (payload.full_name && !payload.name) payload.name = payload.full_name;
+
+        console.log("📤 Updating Profile with:", payload);
+        const { data, error } = await supabase.auth.setProfile(payload);
+        
+        if (error) {
+            console.error("❌ Update failed:", error);
+            throw error;
+        }
+        
+        const { data: sessionData } = await supabase.auth.getCurrentSession();
+        if (sessionData?.session?.user) {
+            let freshUser = sessionData.session.user;
+            if (freshUser.metadata && !freshUser.user_metadata) freshUser.user_metadata = freshUser.metadata;
+            setUser(freshUser);
+            localStorage.setItem('capable_cached_user', JSON.stringify(freshUser));
+        }
+
+        return data;
+    }, []);
+
+    const syncProfileFromMetadata = React.useCallback(async (currentUser) => {
+        if (!currentUser) return;
+        
+        console.log("🔄 Syncing profile for:", currentUser.email);
+
+        // 1. Fetch the full profile from the auth service to be sure
+        const { data: fullProfile } = await supabase.auth.getProfile(currentUser.id);
+        console.log("- Auth.getProfile result:", fullProfile);
+
+        const metadata = currentUser.user_metadata || currentUser.metadata || {};
+        const profile = { ...(currentUser.profile || {}), ...(fullProfile || {}) };
+        
+        // 2. Look deep into identities if metadata is empty
+        let avatarFromIdentity = null;
+        let nameFromIdentity = null;
+        
+        if (currentUser.identities && currentUser.identities.length > 0) {
+            for (const identity of currentUser.identities) {
+                const idData = identity.identity_data || identity.metadata || {};
+                if (!avatarFromIdentity) avatarFromIdentity = idData.picture || idData.avatar_url;
+                if (!nameFromIdentity) nameFromIdentity = idData.full_name || idData.name;
+            }
+        }
+
+        const finalName = profile.name || nameFromIdentity || metadata.full_name || metadata.name;
+        const finalAvatar = profile.avatar_url || avatarFromIdentity || metadata.avatar_url || metadata.picture || profile.picture;
+
+        console.log("- Final Resolved Name:", finalName);
+        console.log("- Final Resolved Avatar:", finalAvatar);
+
+        // 3. Ensure a row exists in the 'profiles' table
+        try {
+            const { data: existingProfile, error: fetchError } = await supabase.database
+                .from('profiles')
+                .select('id, avatar_url')
+                .eq('id', currentUser.id)
+                .maybeSingle();
+            
+            if (fetchError) throw fetchError;
+
+            if (!existingProfile) {
+                console.log("🌱 Creating missing profile record in database...");
+                await supabase.database
+                    .from('profiles')
+                    .insert({
+                        id: currentUser.id,
+                        email: currentUser.email,
+                        name: finalName,
+                        avatar_url: finalAvatar
+                    });
+            } else if ((!existingProfile.avatar_url && finalAvatar) || (finalName && !existingProfile.name)) {
+                console.log("🔄 Updating profile record in database...");
+                await supabase.database
+                    .from('profiles')
+                    .update({ 
+                        avatar_url: finalAvatar || existingProfile.avatar_url, 
+                        name: finalName || existingProfile.name 
+                    })
+                    .eq('id', currentUser.id);
+            }
+        } catch (dbErr) {
+            console.warn("Database profile sync failed:", dbErr.message);
+        }
+    }, [updateUser]);
 
     const checkSession = React.useCallback(async () => {
         try {
             const { data } = await supabase.auth.getSession();
-            const fetchedUser = data?.session?.user ?? null;
-
-            setUser(fetchedUser);
+            let fetchedUser = data?.session?.user ?? null;
             if (fetchedUser) {
-                // Persistent cache for instant visual load
+                if (fetchedUser.metadata && !fetchedUser.user_metadata) fetchedUser.user_metadata = fetchedUser.metadata;
+                if (!fetchedUser.profile) fetchedUser.profile = {};
+                setUser(fetchedUser);
+                syncProfileFromMetadata(fetchedUser);
                 localStorage.setItem('capable_cached_user', JSON.stringify(fetchedUser));
                 
-                // Cleanup URL only AFTER session is confirmed
                 const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.has('access_token')) {
+                if (urlParams.has('access_token') || urlParams.has('insforge_code')) {
                     const cleanUrl = window.location.pathname;
                     window.history.replaceState(null, '', cleanUrl);
                 }
             } else {
+                setUser(null);
                 localStorage.removeItem('capable_cached_user');
             }
             setLoading(false);
@@ -45,33 +156,32 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
             return null;
         }
-    }, []);
+    }, [syncProfileFromMetadata]);
 
     useEffect(() => {
         let isMounted = true;
         const authTimeout = setTimeout(() => {
             setLoading(prevLoading => {
-                if (isMounted && prevLoading) {
-                    console.warn('Auth initialization timed out. Entering Guest Mode.');
-                    return false;
-                }
+                if (isMounted && prevLoading) return false;
                 return prevLoading;
             });
-        }, 6000); // Increased to 6s for slower networks
+        }, 6000);
 
         checkSession().finally(() => {
-            if (isMounted) {
-                clearTimeout(authTimeout);
-            }
+            if (isMounted) clearTimeout(authTimeout);
         });
 
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             if (isMounted) {
-                const currentUser = session?.user ?? null;
-                setUser(currentUser);
+                let currentUser = session?.user ?? null;
                 if (currentUser) {
+                    if (currentUser.metadata && !currentUser.user_metadata) currentUser.user_metadata = currentUser.metadata;
+                    if (!currentUser.profile) currentUser.profile = {};
+                    setUser(currentUser);
+                    syncProfileFromMetadata(currentUser);
                     localStorage.setItem('capable_cached_user', JSON.stringify(currentUser));
                 } else {
+                    setUser(null);
                     localStorage.removeItem('capable_cached_user');
                 }
                 setLoading(false);
@@ -84,73 +194,43 @@ export const AuthProvider = ({ children }) => {
             authListener?.subscription?.unsubscribe();
             clearTimeout(authTimeout);
         };
-    }, [checkSession]);
+    }, [checkSession, syncProfileFromMetadata]);
 
     const login = async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        setUser(data?.user || null);
         return data;
     };
 
     const signup = async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setUser(data?.user || null);
         return data;
     };
 
     const logout = async () => {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
-
-        // Clear all persistent and memory caches
         localStorage.removeItem('capable_cached_user');
-        if (window.ProjectStorage && window.ProjectStorage.logout) {
-            window.ProjectStorage.logout();
-        }
-
+        if (window.ProjectStorage?.logout) window.ProjectStorage.logout();
         setUser(null);
     };
 
     const loginWithOAuth = async (provider) => {
-        if (provider === 'google') {
-            // Use our custom backend route to maintain branding
-            window.location.href = '/api/auth/google';
-            return;
-        }
-
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
-            redirectTo: window.location.origin,
-        });
-        if (error) throw error;
-        return data;
-    };
-
-    const updateUser = async (attributes) => {
-        let payload = attributes;
-        if (supabase.auth.setProfile) {
-            // InsForge setProfile expects a flat object; Supabase nested it under `data`
-            payload = attributes.data ? attributes.data : attributes;
-            // Also map Supabase full_name to name
-            if (payload.full_name && !payload.name) {
-                payload.name = payload.full_name;
+            redirectTo: `${window.location.origin}/auth/callback`,
+            queryParams: {
+                prompt: 'select_account'
             }
-        }
-
-        const { data, error } = await (supabase.auth.setProfile ? supabase.auth.setProfile(payload) : supabase.auth.updateUser(payload));
+        });
         if (error) throw error;
         return data;
     };
 
     const verifyEmail = async (email, otp) => {
-        const { data, error } = await supabase.auth.verifyEmail({
-            email,
-            otp
-        });
+        const { data, error } = await supabase.auth.verifyEmail({ email, otp });
         if (error) throw error;
-        setUser(data?.user || null);
         return data;
     };
 
@@ -166,11 +246,5 @@ export const AuthProvider = ({ children }) => {
         loading
     };
 
-
-
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

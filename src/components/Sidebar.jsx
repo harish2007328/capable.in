@@ -111,8 +111,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <div className="p-6 space-y-4 border-t border-white/10">
                 <div className="flex items-center gap-3 px-2">
                     <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                        {user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture ? (
-                            <img src={user?.profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture} alt="Profile" className="w-full h-full object-cover" />
+                        {user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url ? (
+                            <img src={user?.profile?.avatar_url || user?.profile?.picture || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.metadata?.picture || user?.metadata?.avatar_url} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                             <User className="text-white/40" size={18} />
                         )}

@@ -1,40 +1,42 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import FullScreenLoader from '../components/FullScreenLoader';
 
 const AuthCallbackPage = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const { refreshSession } = useAuth();
+    const processed = useRef(false);
 
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('access_token');
+        if (processed.current) return;
+        processed.current = true;
 
-        if (token && token !== 'null' && token !== 'undefined') {
-            console.log("Saving token and initializing session...");
-            localStorage.setItem('insforge_session_token', token);
-            
-            // Trigger refresh in context and wait for completion
-            refreshSession().then((user) => {
-                if (user) {
-                    console.log("🚀 Session established for:", user.email);
-                    const from = sessionStorage.getItem('auth_redirect_to') || '/dashboard';
-                    sessionStorage.removeItem('auth_redirect_to');
-                    navigate(from, { replace: true });
-                } else {
-                    console.error("❌ Session verification failed: user is null");
-                    navigate('/login', { replace: true, state: { error: 'Verification failed' } });
-                }
-            });
-        } else if (localStorage.getItem('insforge_session_token')) {
-            // Already have a token, just ensure context sees it
-            refreshSession().then(() => navigate('/dashboard', { replace: true }));
-        } else {
-            console.error("No token found in callback URL");
+        console.log("🔄 Processing authentication callback...");
+        console.log("📍 Current URL:", window.location.href);
+        const params = new URLSearchParams(window.location.search);
+        params.forEach((v, k) => console.log(`- Query Param [${k}]:`, v));
+        if (window.location.hash) console.log("- Hash Fragment:", window.location.hash);
+        
+        // Trigger refresh in context. 
+        // InsForge SDK will automatically detect the token in the URL.
+        refreshSession().then((user) => {
+            if (user) {
+                console.log("✅ Welcome!", user.email);
+                const from = sessionStorage.getItem('auth_redirect_to') || '/dashboard';
+                sessionStorage.removeItem('auth_redirect_to');
+                navigate(from, { replace: true });
+            } else {
+                console.error("❌ Authentication failed: No session established.");
+                navigate('/login', { 
+                    replace: true, 
+                    state: { error: 'Authentication failed. Please try again.' } 
+                });
+            }
+        }).catch(err => {
+            console.error("❌ Callback error:", err);
             navigate('/login', { replace: true });
-        }
+        });
     }, [refreshSession, navigate]);
 
     return <FullScreenLoader />;
