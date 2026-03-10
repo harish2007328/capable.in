@@ -19,60 +19,51 @@ export const AuthProvider = ({ children }) => {
     // Set loading to false initially if we have a cached user, so the UI can render instantly
     const [loading, setLoading] = useState(!user);
 
-    useEffect(() => {
-        let isMounted = true;
-        let authTimeout;
+    const checkSession = React.useCallback(async () => {
+        try {
+            const { data } = await supabase.auth.getSession();
+            const fetchedUser = data?.session?.user ?? null;
 
-        // Safety Timeout: Force loading to false if Supabase doesn't respond in 3 seconds
-        // This prevents a white page on networks that block Supabase domains.
-        authTimeout = setTimeout(() => {
-            if (isMounted && loading) {
-                console.warn('Auth initialization timed out. Entering Guest Mode.');
-                setLoading(false);
-            }
-        }, 3000);
-
-        const checkSession = async () => {
-            if (!isMounted) return;
-            try {
-                // 1. Check if we have an access_token in the URL (from our backend callback)
+            setUser(fetchedUser);
+            if (fetchedUser) {
+                // Persistent cache for instant visual load
+                localStorage.setItem('capable_cached_user', JSON.stringify(fetchedUser));
+                
+                // Cleanup URL only AFTER session is confirmed
                 const urlParams = new URLSearchParams(window.location.search);
-                const tokenFromUrl = urlParams.get('access_token');
-
-                if (tokenFromUrl) {
-                    console.log("Found token in URL, setting session...");
-                    // Store token in localStorage so SDK can pick it up or we can use it manually
-                    localStorage.setItem('insforge_session_token', tokenFromUrl);
-                    // Clear the token from URL
+                if (urlParams.has('access_token')) {
                     const cleanUrl = window.location.pathname;
                     window.history.replaceState(null, '', cleanUrl);
                 }
-
-                const { data } = await supabase.auth.getSession();
-                const fetchedUser = data?.session?.user ?? null;
-
-                if (isMounted) {
-                    setUser(fetchedUser);
-                    if (fetchedUser) {
-                        localStorage.setItem('capable_cached_user', JSON.stringify(fetchedUser));
-                    } else {
-                        localStorage.removeItem('capable_cached_user');
-                    }
-                    setLoading(false);
-                    clearTimeout(authTimeout);
-                }
-
-                if (data?.session && (window.location.hash || window.location.search.includes('access_token'))) {
-                    const cleanUrl = window.location.pathname + window.location.search.replace(/[?&]access_token=[^&]+/, '').replace(/[?&]refresh_token=[^&]+/, '').replace(/[?&]expires_at=[^&]+/, '').replace(/[?&]expires_in=[^&]+/, '').replace(/[?&]token_type=[^&]+/, '').replace(/[?&]type=[^&]+/, '');
-                    window.history.replaceState(null, '', cleanUrl);
-                }
-            } catch (err) {
-                console.error("Session check failed", err);
-                if (isMounted) setLoading(false);
+            } else {
+                localStorage.removeItem('capable_cached_user');
             }
-        };
+            setLoading(false);
+            return fetchedUser;
+        } catch (err) {
+            console.error("Session check failed", err);
+            setLoading(false);
+            return null;
+        }
+    }, []);
 
-        checkSession();
+    useEffect(() => {
+        let isMounted = true;
+        const authTimeout = setTimeout(() => {
+            setLoading(prevLoading => {
+                if (isMounted && prevLoading) {
+                    console.warn('Auth initialization timed out. Entering Guest Mode.');
+                    return false;
+                }
+                return prevLoading;
+            });
+        }, 6000); // Increased to 6s for slower networks
+
+        checkSession().finally(() => {
+            if (isMounted) {
+                clearTimeout(authTimeout);
+            }
+        });
 
         const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             if (isMounted) {
@@ -84,16 +75,16 @@ export const AuthProvider = ({ children }) => {
                     localStorage.removeItem('capable_cached_user');
                 }
                 setLoading(false);
+                clearTimeout(authTimeout);
             }
         });
 
         return () => {
             isMounted = false;
-            if (authListener?.subscription) {
-                authListener.subscription.unsubscribe();
-            }
+            authListener?.subscription?.unsubscribe();
+            clearTimeout(authTimeout);
         };
-    }, []);
+    }, [checkSession]);
 
     const login = async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -171,6 +162,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         loginWithOAuth,
         updateUser,
+        refreshSession: checkSession,
         loading
     };
 

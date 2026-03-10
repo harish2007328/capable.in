@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const FAQWithStatsSection = () => {
     const [openIndex, setOpenIndex] = useState(0);
@@ -26,26 +25,14 @@ const FAQWithStatsSection = () => {
     return (
         <section className="w-full py-20 bg-[#FAFBFF]">
             <div className="max-w-7xl mx-auto px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.3 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="mb-12 md:mb-20 pt-16 border-t border-gray-100/50"
-                >
+                <div className="mb-12 md:mb-20 pt-16 border-t border-gray-100/50">
                     <h2 className="text-4xl md:text-[84px] font-display font-normal text-gray-900 leading-[1] tracking-tightest">
                         Got questions? <br className="md:hidden" /> We've got <span className="font-display italic text-[var(--brand-accent)]">clarity</span>
                     </h2>
-                </motion.div>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-                    <motion.div
-                        initial={{ opacity: 0, x: -40 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        className="divide-y divide-gray-100"
-                    >
+                    <div className="divide-y divide-gray-100">
                         {faqs.map((faq, idx) => (
                             <div key={idx} className="group overflow-hidden">
                                 <button
@@ -69,32 +56,16 @@ const FAQWithStatsSection = () => {
                                         </svg>
                                     </div>
                                 </button>
-                                <AnimatePresence>
-                                    {openIndex === idx && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                            className="overflow-hidden"
-                                        >
-                                            <p className="text-gray-700 leading-relaxed font-sans text-lg pr-16 pb-8">
-                                                {faq.answer}
-                                            </p>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === idx ? 'max-h-64 opacity-100 pb-8' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+                                    <p className="text-gray-700 leading-relaxed font-sans text-lg pr-16">
+                                        {faq.answer}
+                                    </p>
+                                </div>
                             </div>
                         ))}
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                        initial={{ opacity: 0, x: 40 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="space-y-8"
-                    >
+                    <div className="space-y-8">
                         <div className="grid grid-cols-2 gap-6">
                             <div className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:rotate-3 transition-transform duration-500">75%</p>
@@ -121,7 +92,7 @@ const FAQWithStatsSection = () => {
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
             </div>
         </section>

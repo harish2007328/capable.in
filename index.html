@@ -11,9 +11,6 @@
   <meta name="theme-color" content="#ffffff" />
   <title>Capable — Build Businesses with Clarity</title>
 
-  <!-- Preload Critical Assets -->
-  <link rel="preload" as="video" href="/hero-bg2-compressed.mp4" type="video/mp4" fetchpriority="high">
-  <link rel="preload" as="image" href="/mobile/hero-poster.webp" fetchpriority="high">
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,58 +29,38 @@
     }
   </style>
   <script>
-    // Global error suppressor for external offsetX errors (common in cursor extensions)
-    (function () {
-      const handler = (event) => {
-        const error = event.error || event.reason;
-        const errorMsg = (error?.message || String(error)).toLowerCase();
+    // Console Noise Filter (suppress expected BaaS 401s for guests)
+    (function() {
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      
+      const noisePatterns = [
+        'api/auth/refresh',
+        'offsetx',
+        'preloaded using link preload but not used',
+        'installHook.js'
+      ];
 
-        // Handle specific non-critical errors
-        if (errorMsg.includes('offsetx')) {
-          event.preventDefault();
-          return;
-        }
-
-        if (error) {
-          console.error('Handled Error:', error);
-        }
-
-        // List of errors that should trigger the connection issue UI
-        const isNetworkError =
-          errorMsg.includes('failed to fetch') ||
-          errorMsg.includes('connection_timed_out') ||
-          errorMsg.includes('net::err_') ||
-          errorMsg.includes('loading chunk');
-
-        // If the root is empty or the app hasn't loaded, show a fallback UI
-        const root = document.getElementById('root');
-        if (root && (!root.children.length || isNetworkError)) {
-          root.innerHTML = `
-            <div style="padding: 40px; color: #333; font-family: 'Inter', sans-serif; text-align: center; max-width: 500px; margin: 100px auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); background: white;">
-              <h1 style="color: #ff4d4f; margin-bottom: 20px;">Connection Issue</h1>
-              <p style="font-size: 16px; line-height: 1.6; color: #666;">
-                The application is having trouble loading. This often happens on some mobile hotspots or restricted networks.
-              </p>
-              <div style="margin-top: 30px; padding: 15px; background: #f5f5f5; border-radius: 8px; text-align: left; font-size: 13px;">
-                <code style="word-break: break-all; color: #888;">${errorMsg || 'Check your internet connection or try a different network.'}</code>
-              </div>
-              <button onclick="window.location.reload()" style="margin-top: 30px; padding: 12px 24px; background: #1890ff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                Try Reloading
-              </button>
-            </div>`;
-        }
+      console.error = function(...args) {
+        const msg = args.join(' ').toLowerCase();
+        if (noisePatterns.some(p => msg.includes(p))) return;
+        originalError.apply(console, args);
       };
 
-      // Final safety: if after 4 seconds the root is still empty, something is wrong
-      setTimeout(() => {
-        const root = document.getElementById('root');
-        if (root && !root.children.length) {
-          handler({ error: new Error('Application initialization timed out. Please check your network connection.') });
-        }
-      }, 4000);
+      console.warn = function(...args) {
+        const msg = args.join(' ').toLowerCase();
+        if (noisePatterns.some(p => msg.includes(p))) return;
+        originalWarn.apply(console, args);
+      };
 
-      window.addEventListener('error', handler, true);
-      window.addEventListener('unhandledrejection', handler, true);
+      // Safety handler for uncaught errors
+      window.addEventListener('error', (event) => {
+        const msg = (event.error?.message || String(event)).toLowerCase();
+        if (noisePatterns.some(p => msg.includes(p))) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+        }
+      }, true);
     })();
   </script>
 </head>

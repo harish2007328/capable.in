@@ -8,6 +8,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { DodoPayments } from 'dodopayments';
 import { createClient } from '@insforge/sdk';
+import { OAuth2Client } from 'google-auth-library';
+import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,6 +20,27 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// --- AUTH UTILS ---
+const oauth2Client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.NODE_ENV === 'production' 
+        ? `${process.env.FRONTEND_URL}/api/auth/google/callback`
+        : `http://localhost:3001/api/auth/google/callback`
+);
+
+const getInsForgePassword = (sub, customSalt = '__DEFAULT_SALT__') => {
+    // If explicit null or empty string, use NO salt (raw hash or raw string)
+    if (customSalt === null || customSalt === '') {
+        return sub; // Return raw sub if no salt is intended (for recovery)
+    }
+    const salt = customSalt === '__DEFAULT_SALT__' ? (process.env.AUTH_SALT || 'capable-auth-salt') : customSalt;
+    return crypto.createHmac('sha256', salt)
+        .update(sub)
+        .digest('hex');
+};
+
 app.use(express.static(path.join(__dirname, 'dist')));
 
 const getGroqClient = () => {
@@ -28,10 +51,20 @@ const getGroqClient = () => {
     return new Groq({ apiKey });
 };
 
-const dodoPayments = new DodoPayments({
-    bearerToken: process.env.DODO_PAYMENTS_API_KEY,
-    environment: process.env.DODO_PAYMENTS_MODE === 'live' ? 'live_mode' : 'test_mode'
-});
+let dodoPayments;
+try {
+    if (process.env.DODO_PAYMENTS_API_KEY) {
+        dodoPayments = new DodoPayments({
+            bearerToken: process.env.DODO_PAYMENTS_API_KEY,
+            environment: process.env.DODO_PAYMENTS_MODE === 'live' ? 'live_mode' : 'test_mode'
+        });
+        console.log("✅ Dodo SDK initialized");
+    } else {
+        console.warn("⚠️ Dodo API Key missing. Checkout will be disabled.");
+    }
+} catch (e) {
+    console.error("❌ Dodo Initialization Error:", e.message);
+}
 
 console.log("Dodo SDK initialized on:", process.env.DODO_PAYMENTS_MODE === 'live' ? 'LIVE' : 'TEST');
 if (process.env.DODO_PAYMENTS_API_KEY) {
@@ -129,6 +162,122 @@ async function withRetry(fn, retries = 2, delay = 1000) {
         }
     }
 }
+
+// --- AUTH SESSION VERIFICATION ---
+app.get('/api/auth/sessions/current', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.split(' ')[1];
+
+        if (!token || token === 'null' || token === 'undefined') {
+            return res.status(401).json({ error: "No token provided" });
+        }
+
+        try {
+            const response = await axios.get(`${process.env.VITE_INSFORGE_URL}/api/auth/sessions/current`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            res.json(response.data.user || response.data);
+        } catch (insforgeErr) {
+            console.error("InsForge Session Verification Failed:", insforgeErr.response?.data || insforgeErr.message);
+            res.status(401).json({ error: "Invalid session token" });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- GOOGLE CUSTOM AUTH ENDPOINTS ---
+app.get('/api/auth/google', (req, res) => {
+    const url = oauth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+        prompt: 'consent'
+    });
+    res.redirect(url);
+});
+
+app.get('/api/auth/google/callback', async (req, res) => {
+    const { code } = req.query;
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        const ticket = await oauth2Client.verifyIdToken({
+            idToken: tokens.id_token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const googleId = payload['sub'];
+        const email = payload['email'];
+        const name = payload['name'];
+
+        // 1. Try to Login to InsForge with even more aggressive fallback salts & identifiers
+        const basisToTry = [googleId, email];
+        const saltsToTry = [
+            '__DEFAULT_SALT__',              
+            'capable-auth-salt',            
+            'capable-app-salt',             
+            '',                             
+            null,                           
+            process.env.SESSION_SECRET       
+        ].filter((s, i, a) => a.indexOf(s) === i); 
+
+        let authData = null;
+        for (const basis of basisToTry) {
+            for (const salt of saltsToTry) {
+                const testPassword = getInsForgePassword(basis, salt);
+                try {
+                    const { data } = await insforge.auth.signInWithPassword({
+                        email: email,
+                        password: testPassword
+                    });
+                    
+                    if (data?.accessToken) {
+                        authData = data;
+                        break;
+                    }
+                } catch (err) {
+                    continue; 
+                }
+            }
+            if (authData) break;
+        }
+
+        // 2. If all loop logins failed, try SignUp or Recovery Login
+        if (!authData) {
+            const finalPassword = getInsForgePassword(googleId);
+            const { data: signUpData, error: signUpError } = await insforge.auth.signUp({
+                email: email,
+                password: finalPassword,
+                name: name
+            });
+
+            if (signUpData?.accessToken) {
+                authData = signUpData;
+            } else if (signUpError?.statusCode === 409) {
+                const { data: finalData } = await insforge.auth.signInWithPassword({
+                    email: email,
+                    password: finalPassword
+                });
+                authData = finalData;
+            }
+        }
+
+        if (!authData?.accessToken) {
+            throw new Error("Conflict: User exists with an unknown password hash.");
+        }
+
+        const accessToken = authData.accessToken || authData.access_token || authData.token;
+        if (!accessToken) throw new Error("No access token provided.");
+
+        const frontendRedirect = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?access_token=${accessToken}`;
+        res.redirect(frontendRedirect);
+    } catch (err) {
+        console.error("GOOGLE AUTH ERROR:", err.message);
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
+    }
+});
 
 // --- API ENDPOINTS ---
 
@@ -728,8 +877,8 @@ app.post('/api/checkout', async (req, res) => {
     const { productId, quantity = 1, userEmail, userId, metadata, planType } = req.body;
 
     try {
-        if (!process.env.DODO_PAYMENTS_API_KEY) {
-            throw new Error("Dodo Payments API Key is not configured.");
+        if (!dodoPayments) {
+            throw new Error("Dodo Payments is not configured (missing API key).");
         }
 
         const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID;
@@ -827,6 +976,9 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
 app.post('/api/portal', async (req, res) => {
     const { customerId } = req.body;
     try {
+        if (!dodoPayments) {
+            throw new Error("Dodo Payments is not configured.");
+        }
         const session = await dodoPayments.customerPortalSessions.create({
             customer_id: customerId,
             return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`

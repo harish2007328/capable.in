@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
+const HomePage = React.lazy(() => import('./pages/HomePage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const VenturePage = React.lazy(() => import('./pages/VenturePage'));
 const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
@@ -9,6 +9,8 @@ const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const DocsPage = React.lazy(() => import('./pages/DocsPage'));
 const FeaturesPage = React.lazy(() => import('./pages/FeaturesPage'));
 const CheckoutResult = React.lazy(() => import('./pages/CheckoutResult'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AuthCallbackPage = React.lazy(() => import('./pages/AuthCallbackPage'));
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
@@ -41,6 +43,7 @@ function App() {
               <Route path="/docs" element={<DocsPage />} />
               <Route path="/features" element={<FeaturesPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/checkout-result" element={<CheckoutResult />} />
 
               {/* Unified Venture Route - Public (Handles guests via localStorage) */}
@@ -63,6 +66,14 @@ function App() {
               />
               <Route path="/settings" element={<Navigate to="/dashboard#settings" replace />} />
               <Route path="/metrics" element={<Navigate to="/dashboard#metrics" replace />} />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
             </Routes>
           </React.Suspense>
         </Layout>

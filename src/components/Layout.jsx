@@ -22,7 +22,7 @@ const Layout = ({ children }) => {
     const focusRoutes = ['/task', '/wizard', '/report', '/project', '/login'];
     if (focusRoutes.some(route => location.pathname.startsWith(route))) {
         return (
-            <div className="h-screen w-full bg-slate-50 overflow-hidden">
+            <div className="relative h-screen w-full bg-slate-50 overflow-hidden">
                 {children}
             </div>
         );
@@ -36,7 +36,7 @@ const Layout = ({ children }) => {
 
             {isAppPage ? (
                 // --- APP LAYOUT (Sidebar) ---
-                <div className="flex min-h-screen">
+                <div className="relative flex min-h-screen">
                     <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
 

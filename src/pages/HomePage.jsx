@@ -40,12 +40,13 @@ const HomePage = () => {
     const videoRef = useRef(null);
 
     // Optimize video performance and slow down playback
-    // Optimize video performance handles playback rate
-    const handleVideoLoad = (e) => {
-        if (e.target) {
-            e.target.playbackRate = 0.75;
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.playbackRate = 0.75;
+            // Immediate hardware acceleration hint
+            videoRef.current.style.transform = 'translateZ(0)';
         }
-    };
+    }, []);
 
     // Animated Placeholder Logic
     useEffect(() => {
@@ -173,17 +174,18 @@ const HomePage = () => {
                     <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden">
                         <video
                             ref={videoRef}
-                            onLoadedMetadata={handleVideoLoad}
                             autoPlay
                             loop
                             muted
                             playsInline
-                            preload="auto"
+                            preload="none"
                             poster={heroPoster}
                             fetchPriority="high"
                             className="h-full w-full object-cover"
                             style={{
                                 backfaceVisibility: 'hidden',
+                                willChange: 'transform',
+                                transform: 'translateZ(0)',
                                 backgroundColor: '#0c1428', // Fallback color for instant appearance
                                 filter: 'brightness(0.9)' // Subtle darkening for better contrast
                             }}
@@ -208,33 +210,18 @@ const HomePage = () => {
 
                     {/* Hero Headings */}
                     <div className="max-w-5xl text-center space-y-4 mb-6">
-                        <motion.h1
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                            className="text-4xl sm:text-5xl md:text-7xl font-display font-normal text-white leading-tight" style={{ textShadow: '0 2px-12px rgba(0,0,0,0.3)' }}
-                        >
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-normal text-white leading-tight" style={{ textShadow: '0 2px-12px rgba(0,0,0,0.3)' }}>
                             Be <span className=" font-display italic">Capable</span> of Building Businesses
-                        </motion.h1>
+                        </h1>
                     </div>
 
                     {/* Subtitle */}
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                        className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6"
-                    >
+                    <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
                         Validate your market and get a personalized 60-day roadmap to turn your vision into a real business.
-                    </motion.p>
+                    </p>
 
                     {/* Levitating Glow Input Area & Process Flow */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative w-full max-w-6xl mx-auto mb-24 flex flex-col items-center z-40"
-                    >
+                    <div className="relative w-full max-w-6xl mx-auto mb-24 flex flex-col items-center z-40">
 
                         {/* 1. INPUT BOX WRAPPER */}
 
@@ -419,7 +406,29 @@ const HomePage = () => {
                                 )}
                             </motion.div>
                         </div>
-                    </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* === LOGO BAR === */}
+            <section className="w-full bg-white py-12 md:py-16">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-20">
+                        {[
+                            { name: 'Scratch', color: 'bg-blue-600' },
+                            { name: 'Segment', color: 'bg-emerald-600' },
+                            { name: 'FrontApp', color: 'bg-fuchsia-600' },
+                            { name: 'QuickBooks', color: 'bg-teal-500' },
+                            { name: 'Mailchimp', color: 'bg-black' }
+                        ].map((brand, idx) => (
+                            <div key={idx} className="flex items-center gap-3 opacity-40 hover:opacity-100 transition-all duration-500 cursor-default group">
+                                <div className={`w-6 h-6 rounded-md ${brand.color} flex-shrink-0 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                                    <div className="w-2 h-2 bg-white/40 rounded-full"></div>
+                                </div>
+                                <span className="text-[16px] font-bold text-gray-900 tracking-tightest">{brand.name}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
@@ -427,34 +436,22 @@ const HomePage = () => {
             <section className="w-full bg-[#f9f9f9] py-20 md:py-24">
                 <div className="max-w-7xl mx-auto px-6">
                     {/* Header: Large Editorial Headline */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                        className="mb-8 md:mb-12 max-w-4xl"
-                    >
+                    <div className="mb-8 md:mb-12 max-w-4xl">
                         <h2 className="text-3xl sm:text-4xl md:text-7xl font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
                             Smarter research,<br />faster
                             <span className="text-[var(--brand-accent)] font-display italic"> launch</span>
                         </h2>
-                    </motion.div>
+                    </div>
 
                     {/* Content Grid: Staggered Image & Text */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 lg:gap-24 mb-20 items-start">
                         {/* Left: Premium Image Container */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -40 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                            className="lg:col-span-7"
-                        >
+                        <div className="lg:col-span-7">
                             <div className="relative group">
                                 <div className="rounded-[14px] overflow-hidden aspect-[4/3] sm:aspect-[16/10] bg-gray-100 relative shadow-2xl">
                                     <img
-                                        src="/mobile/hero-poster.webp"
-                                        srcSet="/mobile/hero-poster.webp 640w, /hero-poster.webp 1200w"
+                                        src="/mobile/1.webp"
+                                        srcSet="/mobile/1.webp 640w, /1.webp 1200w"
                                         sizes="(max-width: 640px) 100vw, 800px"
                                         loading="lazy"
                                         alt="Market Analysis Workflow"
@@ -469,16 +466,10 @@ const HomePage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
                         {/* Right: Editorial Narrative */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 40 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, amount: 0.3 }}
-                            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                            className="lg:col-span-5 pt-8"
-                        >
+                        <div className="lg:col-span-5 pt-8">
                             <div className="space-y-10">
                                 <div className="space-y-6">
                                     <p className="text-gray-900 font-sans text-lg sm:text-xl leading-relaxed font-normal">
@@ -493,7 +484,7 @@ const HomePage = () => {
                                     <p className="text-gray-900 font-sans text-base italic">"Execution is nothing without validation."</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
 
                     {/* Bottom Section: CTA & Stats */}
@@ -505,49 +496,29 @@ const HomePage = () => {
                                 { number: '40%', label: 'Launch Readiness', desc: 'Increase in speed to market implementation.' },
                                 { number: '95%', label: 'Market Accuracy', desc: 'Highest precision rate in trend analysis.' }
                             ].map((stat, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true, margin: "-100px" }}
-                                    transition={{ duration: 0.5, delay: 0.3 + (idx * 0.1), ease: "easeOut" }}
-                                    className="flex flex-col group py-4 md:py-0"
-                                >
+                                <div key={idx} className="flex flex-col group py-4 md:py-0">
                                     <div className="mb-2 md:mb-4 overflow-hidden">
                                         <p className="text-5xl md:text-7xl font-display font-normal text-gray-900 leading-none tracking-tightest group-hover:translate-y-[-5px] transition-transform duration-500">{stat.number}</p>
                                     </div>
                                     <p className="text-gray-900 font-bold text-[11px] md:text-[13px] mb-2 md:mb-3 uppercase tracking-wider">{stat.label}</p>
                                     <p className="text-[13px] md:text-[14px] text-gray-700 font-sans leading-relaxed max-w-[180px]">{stat.desc}</p>
-                                </motion.div>
+                                </div>
                             ))}
                         </div>
 
                         {/* CTA Unit */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true, margin: "-150px" }}
-                            transition={{ duration: 0.6, delay: 0.5 }}
-                            className="flex flex-col items-center lg:items-end gap-6"
-                        >
-                            <button
-                                onClick={() => {
-                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                    const textarea = document.querySelector('textarea');
-                                    if (textarea) textarea.focus();
-                                }}
-                                className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-[14px] tracking-tight hover:shadow-card active:scale-[0.98] transition-all duration-300 shadow-md flex items-center gap-2"
-                            >
+                        <div className="flex flex-col items-center lg:items-end gap-6">
+                            <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-[14px] tracking-tight hover:shadow-card active:scale-[0.98] transition-all duration-300 shadow-md flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.8)]"></span>
                                 Request a demo
                             </button>
-                            <Link to="/pricing" className="text-gray-700 hover:text-[var(--brand-accent)] font-bold text-[14px] tracking-tight transition-all border-b border-transparent hover:border-[var(--brand-accent)] pb-0.5 uppercase">
+                            <Link to="/plans" className="text-gray-700 hover:text-[var(--brand-accent)] font-bold text-[14px] tracking-tight transition-all border-b border-transparent hover:border-[var(--brand-accent)] pb-0.5 uppercase">
                                 Explore pricing
                             </Link>
-                        </motion.div>
+                        </div>
                     </div>
                 </div>
-            </section >
+            </section>
 
             {/* === SERVICES / TABBED SECTION === */}
             <React.Suspense fallback={<div className="h-96 w-full bg-white animate-pulse" />}>
@@ -585,11 +556,11 @@ const HomePage = () => {
                         {/* Social Icons */}
                         <div className="flex items-center gap-8 order-1 md:order-2">
                             {[
-                                { icon: 'X', path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z', url: 'https://x.com/capable' },
-                                { icon: 'LinkedIn', path: 'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z', url: 'https://linkedin.com/company/capable' },
-                                { icon: 'GitHub', path: 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12', url: 'https://github.com/capable' }
+                                { icon: 'X', path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z' },
+                                { icon: 'LinkedIn', path: 'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z' },
+                                { icon: 'GitHub', path: 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' }
                             ].map((item, i) => (
-                                <a key={i} href={item.url} target="_blank" rel="noopener noreferrer" aria-label={`Follow us on ${item.icon}`} className="text-gray-500 hover:text-gray-900 transition-all duration-300">
+                                <a key={i} href="#" aria-label={`Follow us on ${item.icon}`} className="text-gray-500 hover:text-gray-900 transition-all duration-300">
                                     <svg className="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24"><path d={item.path} /></svg>
                                 </a>
                             ))}
@@ -604,7 +575,7 @@ const HomePage = () => {
                     </div>
                 </div>
             </footer>
-        </div>
+        </div >
     );
 };
 

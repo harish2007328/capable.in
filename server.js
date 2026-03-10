@@ -40,8 +40,13 @@ const oauth2Client = new OAuth2Client(
         : `http://localhost:3001/api/auth/google/callback`
 );
 
-const getInsForgePassword = (sub) => {
-    return crypto.createHmac('sha256', process.env.AUTH_SALT || 'capable-auth-salt')
+const getInsForgePassword = (sub, customSalt = '__DEFAULT_SALT__') => {
+    // If explicit null or empty string, use NO salt (raw hash or raw string)
+    if (customSalt === null || customSalt === '') {
+        return sub; // Return raw sub if no salt is intended (for recovery)
+    }
+    const salt = customSalt === '__DEFAULT_SALT__' ? (process.env.AUTH_SALT || 'capable-auth-salt') : customSalt;
+    return crypto.createHmac('sha256', salt)
         .update(sub)
         .digest('hex');
 };
@@ -54,12 +59,20 @@ const getGroqClient = () => {
     return new Groq({ apiKey });
 };
 
-const dodoPayments = new DodoPayments({
-    bearerToken: process.env.DODO_PAYMENTS_API_KEY,
-    endpoint: process.env.DODO_PAYMENTS_MODE === 'live'
-        ? 'https://live.dodopayments.com'
-        : 'https://test.dodopayments.com'
-});
+let dodoPayments;
+try {
+    if (process.env.DODO_PAYMENTS_API_KEY) {
+        dodoPayments = new DodoPayments({
+            bearerToken: process.env.DODO_PAYMENTS_API_KEY,
+            environment: process.env.DODO_PAYMENTS_MODE === 'live' ? 'live_mode' : 'test_mode'
+        });
+        console.log("✅ Dodo SDK initialized");
+    } else {
+        console.warn("⚠️ Dodo API Key missing. Checkout will be disabled.");
+    }
+} catch (e) {
+    console.error("❌ Dodo Initialization Error:", e.message);
+}
 
 console.log("Dodo SDK initialized on:", process.env.DODO_PAYMENTS_MODE === 'live' ? 'LIVE' : 'TEST');
 if (process.env.DODO_PAYMENTS_API_KEY) {
@@ -1038,6 +1051,34 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
     }
 });
 
+// --- AUTH SESSION VERIFICATION ---
+// This endpoint is the bridge. Frontend sends a token, we ask InsForge who it belongs to.
+app.get('/api/auth/sessions/current', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.split(' ')[1];
+
+        if (!token || token === 'null' || token === 'undefined') {
+            return res.status(401).json({ error: "No token provided" });
+        }
+
+        // Verify with InsForge
+        try {
+            const response = await axios.get(`${process.env.VITE_INSFORGE_URL}/api/auth/sessions/current`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            // Return user data directly
+            res.json(response.data.user || response.data);
+        } catch (insforgeErr) {
+            console.error("InsForge Session Verification Failed:", insforgeErr.response?.data || insforgeErr.message);
+            res.status(401).json({ error: "Invalid session token" });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // --- GOOGLE CUSTOM AUTH ENDPOINTS ---
 
 app.get('/api/auth/google', (req, res) => {
@@ -1068,51 +1109,131 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
         console.log(`🔐 Google Callback: ${email} (${googleId})`);
 
-        // Get unique password for InsForge
-        const insforgePassword = getInsForgePassword(googleId);
+        // 1. Try to Login to InsForge with even more aggressive fallback salts & identifiers
+        // We try both GoogleId and Email as the Basis for the password (since it might have changed)
+        const basisToTry = [googleId, email];
+        const saltsToTry = [
+            '__DEFAULT_SALT__',              // 1. Current salt from .env logic
+            'capable-auth-salt',            // 2. Previous default
+            'capable-app-salt',             // 3. Alternative common salt
+            '',                             // 4. No salt (raw basis)
+            null,                           // 5. Explicit null (raw basis)
+            process.env.SESSION_SECRET       // 6. Session secret as salt
+        ].filter((s, i, a) => a.indexOf(s) === i); 
 
-        // 1. Try to Login to InsForge
-        let loginResponse;
-        try {
-            console.log(`Attempting login for ${email}`);
-            loginResponse = await axios.post(`${process.env.VITE_INSFORGE_URL}/api/auth/sessions`, {
-                email: email,
-                password: insforgePassword
-            }, {
-                headers: { 'Content-Type': 'application/json' }
-            });
-        } catch (err) {
-            if (err.response?.status === 401 || err.response?.status === 404) {
-                // 2. User not found or wrong password (likely first time), try to SignUp
-                console.log(`User not found, signing up: ${email}`);
+        let authData = null;
+        let successfulPassword = null;
+
+        for (const basis of basisToTry) {
+            for (const salt of saltsToTry) {
+                const testPassword = getInsForgePassword(basis, salt);
                 try {
-                    loginResponse = await axios.post(`${process.env.VITE_INSFORGE_URL}/api/auth/users`, {
+                    console.log(`Attempting SDK login for ${email} [Basis: ${basis === googleId ? 'GoogleId' : 'Email'}, Salt: ${salt === '__DEFAULT_SALT__' ? 'Env' : (salt || 'None')}]`);
+                    
+                    const { data, error } = await insforge.auth.signInWithPassword({
                         email: email,
-                        password: insforgePassword,
-                        name: name
-                    }, {
-                        headers: { 'Content-Type': 'application/json' }
+                        password: testPassword
                     });
-                } catch (signUpErr) {
-                    console.error("InsForge SignUp Error:", signUpErr.response?.data || signUpErr.message);
-                    throw new Error("Failed to create InsForge account");
+                    
+                    if (data?.accessToken) {
+                        authData = data;
+                        successfulPassword = testPassword;
+                        console.log(`✅ SDK Login SUCCESS for ${email}`);
+                        break;
+                    }
+                } catch (err) {
+                    continue; // SDK usually returns {data, error} but we catch just in case
                 }
-            } else {
-                console.error("InsForge Session Error:", err.response?.data || err.message);
-                throw new Error("Failed to connect to InsForge");
+            }
+            if (authData) break;
+        }
+
+        // 2. If all loop logins failed, try SignUp or Recovery Login
+        if (!authData) {
+            console.log(`User ${email} not found with any known configuration. Attempting final SDK SignUp/Recovery...`);
+            const finalPassword = getInsForgePassword(googleId); // Current default
+            
+            const { data: signUpData, error: signUpError } = await insforge.auth.signUp({
+                email: email,
+                password: finalPassword,
+                name: name
+            });
+
+            if (signUpData?.accessToken) {
+                authData = signUpData;
+                console.log(`✅ New SDK account established for ${email}`);
+            } else if (signUpError?.statusCode === 409) {
+                // RECOVERY: If SignUp 409, it means user EXISTS. Since Loop failed, something is weird.
+                // Try one last login with the current generation.
+                console.log(`⚠️ User exists but login loop failed. Forcing SDK login with current generation for ${email}`);
+                const { data: finalData } = await insforge.auth.signInWithPassword({
+                    email: email,
+                    password: finalPassword
+                });
+                
+                if (finalData?.accessToken) {
+                    authData = finalData;
+                } else {
+                    console.error("❌ SDK RECOVERY FAILED. User exists but password is unknown.");
+                    throw new Error("Account exists with unknown password hash. Please reset in InsForge dashboard.");
+                }
+            } else if (signUpError) {
+                console.error("InsForge SDK SignUp Error:", signUpError);
+                throw new Error("Failed to create and login to InsForge account via SDK");
             }
         }
 
-        const accessToken = loginResponse.data.accessToken;
+        const accessToken = authData.accessToken || authData.access_token || authData.token;
         
+        if (!accessToken) {
+            console.error("❌ NO TOKEN IN INSFORGE RESPONSE:", loginResponse.data);
+            throw new Error("Login succeeded but no access token was provided.");
+        }
+
         // Redirect to Frontend with the token
         const frontendRedirect = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?access_token=${accessToken}`;
-        console.log("Success! Redirecting to:", frontendRedirect);
+        console.log("✅ Success! Token secured. Redirecting...");
         res.redirect(frontendRedirect);
 
     } catch (err) {
         console.error("GOOGLE AUTH ERROR:", err.message);
         res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
+    }
+});
+
+// --- ADMIN API --- (Basic fetch for dashboard)
+const ADMIN_EMAILS = ['harish2007328@gmail.com'];
+
+app.get('/api/admin/users', async (req, res) => {
+    try {
+        // Simple verification for the demo
+        const authHeader = req.headers.authorization;
+        const { data: sessionData } = await insforge.auth.getCurrentSession(authHeader?.split(' ')[1]);
+        if (!sessionData?.session?.user || !ADMIN_EMAILS.includes(sessionData.session.user.email)) {
+            return res.status(403).json({ error: "Unauthorized" });
+        }
+
+        const { data, error } = await insforge.from('profiles').select('*').order('updated_at', { ascending: false });
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/admin/projects', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const { data: sessionData } = await insforge.auth.getCurrentSession(authHeader?.split(' ')[1]);
+        if (!sessionData?.session?.user || !ADMIN_EMAILS.includes(sessionData.session.user.email)) {
+            return res.status(403).json({ error: "Unauthorized" });
+        }
+
+        const { data, error } = await insforge.from('projects').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
