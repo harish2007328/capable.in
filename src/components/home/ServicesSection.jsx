@@ -41,19 +41,20 @@ const ServicesSection = () => {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-16 sm:mb-24 items-start pt-12">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     >
                         <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-0">
                             Design a startup journey <span className="font-display italic text-[var(--brand-accent)]">that actually works.</span>
                         </h2>
                     </motion.div>
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                         className="flex flex-col"
                     >
                         <p className="text-gray-700 text-base sm:text-lg md:text-xl font-sans leading-relaxed max-w-xl mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
@@ -121,7 +122,13 @@ const ServicesSection = () => {
 
                         <div className="space-y-32 md:space-y-48">
                             <div id="service-step-0" data-index="0" className="service-step-container space-y-8">
-                                <div className="relative group">
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 40, scale: 0.95 }} 
+                                    whileInView={{ opacity: 1, y: 0, scale: 1 }} 
+                                    viewport={{ once: true, amount: 0.3 }} 
+                                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                                    className="relative group"
+                                >
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
                                             src="/mobile/feature_lightning.webp"
@@ -133,21 +140,39 @@ const ServicesSection = () => {
                                         />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
-                                </div>
+                                </motion.div>
                                 <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                    <motion.h3 
+                                        initial={{ opacity: 0, y: 30 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                        className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest"
+                                    >
                                         Validate ideas with <span className="font-display italic">real signals</span>
-                                    </h3>
-                                    <div className="space-y-6">
+                                    </motion.h3>
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 20 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                                        className="space-y-6"
+                                    >
                                         <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
                                             Skip the guesswork. Capable helps you rapidly test assumptions and validate your core venture hypotheses using concrete market data before you build.
                                         </p>
-                                    </div>
+                                    </motion.div>
                                 </div>
                             </div>
 
                             <div id="service-step-1" data-index="1" className="service-step-container space-y-10">
-                                <div className="relative group">
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 40, scale: 0.95 }} 
+                                    whileInView={{ opacity: 1, y: 0, scale: 1 }} 
+                                    viewport={{ once: true, amount: 0.3 }} 
+                                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                                    className="relative group"
+                                >
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
                                             src="/mobile/feature_market.webp"
@@ -159,19 +184,37 @@ const ServicesSection = () => {
                                         />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
-                                </div>
+                                </motion.div>
                                 <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                    <motion.h3 
+                                        initial={{ opacity: 0, y: 30 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                        className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest"
+                                    >
                                         Deep analysis for <span className="font-display italic">any sector</span>
-                                    </h3>
-                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
+                                    </motion.h3>
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: 20 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                                        className="text-gray-700 text-lg md:text-xl leading-relaxed"
+                                    >
                                         Get comprehensive breakdowns of your competitive landscape, target audience, and market viability, powered by vast reserves of industry intelligence.
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
 
                             <div id="service-step-2" data-index="2" className="service-step-container space-y-10">
-                                <div className="relative group">
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 40, scale: 0.95 }} 
+                                    whileInView={{ opacity: 1, y: 0, scale: 1 }} 
+                                    viewport={{ once: true, amount: 0.3 }} 
+                                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                                    className="relative group"
+                                >
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
                                             src="/mobile/feature_roadmaps.webp"
@@ -183,19 +226,37 @@ const ServicesSection = () => {
                                         />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
-                                </div>
+                                </motion.div>
                                 <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                    <motion.h3 
+                                        initial={{ opacity: 0, y: 30 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                        className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest"
+                                    >
                                         Manage custom growth requirements
-                                    </h3>
-                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
+                                    </motion.h3>
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: 20 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                                        className="text-gray-700 text-lg md:text-xl leading-relaxed"
+                                    >
                                         Easily create, update, and manage your own custom strategy requirements with ease. Our roadmaps adapt as your market signals evolve.
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
 
                             <div id="service-step-3" data-index="3" className="service-step-container space-y-10">
-                                <div className="relative group">
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 40, scale: 0.95 }} 
+                                    whileInView={{ opacity: 1, y: 0, scale: 1 }} 
+                                    viewport={{ once: true, amount: 0.3 }} 
+                                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                                    className="relative group"
+                                >
                                     <div className="rounded-[24px] overflow-hidden aspect-[16/10] sm:aspect-[21/11] bg-gray-50 border border-gray-100/50 shadow-2xl relative">
                                         <img
                                             src="/mobile/feature_ai.webp"
@@ -207,14 +268,26 @@ const ServicesSection = () => {
                                         />
                                         <div className="absolute inset-0 bg-blue-600/5 transition-all duration-1000 group-hover:opacity-0 group-hover:scale-[1.15] pointer-events-none"></div>
                                     </div>
-                                </div>
+                                </motion.div>
                                 <div className="max-w-3xl">
-                                    <h3 className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest">
+                                    <motion.h3 
+                                        initial={{ opacity: 0, y: 30 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                        className="text-3xl md:text-5xl font-display text-gray-900 mb-8 leading-tight tracking-tightest"
+                                    >
                                         Interactive support, <span className="font-display italic">every step</span>
-                                    </h3>
-                                    <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
+                                    </motion.h3>
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: 20 }} 
+                                        whileInView={{ opacity: 1, y: 0 }} 
+                                        viewport={{ once: true, amount: 0.5 }} 
+                                        transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                                        className="text-gray-700 text-lg md:text-xl leading-relaxed"
+                                    >
                                         Capable isn't just a research tool; it makes your venture journey way better with real-time feedback and intelligent chat guidance.
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
                         </div>

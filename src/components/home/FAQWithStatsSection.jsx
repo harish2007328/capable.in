@@ -1,4 +1,20 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const scaleIn = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } }
+};
 
 const FAQWithStatsSection = () => {
     const [openIndex, setOpenIndex] = useState(0);
@@ -25,16 +41,28 @@ const FAQWithStatsSection = () => {
     return (
         <section className="w-full py-20 bg-[#FAFBFF]">
             <div className="max-w-7xl mx-auto px-6">
-                <div className="mb-12 md:mb-20 pt-16 border-t border-gray-100/50">
+                <motion.div 
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.3 }}
+                    variants={fadeUp}
+                    className="mb-12 md:mb-20 pt-16 border-t border-gray-100/50"
+                >
                     <h2 className="text-4xl md:text-[84px] font-display font-normal text-gray-900 leading-[1] tracking-tightest">
                         Got questions? <br className="md:hidden" /> We've got <span className="font-display italic text-[var(--brand-accent)]">clarity</span>
                     </h2>
-                </div>
+                </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-                    <div className="divide-y divide-gray-100">
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.2 }}
+                        variants={staggerContainer}
+                        className="divide-y divide-gray-100"
+                    >
                         {faqs.map((faq, idx) => (
-                            <div key={idx} className="group overflow-hidden">
+                            <motion.div variants={fadeUp} key={idx} className="group overflow-hidden">
                                 <button
                                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                                     className={`w-full py-8 flex items-center gap-6 text-left transition-all duration-500 ${openIndex === idx ? 'pb-4' : ''}`}
@@ -61,23 +89,29 @@ const FAQWithStatsSection = () => {
                                         {faq.answer}
                                     </p>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
 
-                    <div className="space-y-8">
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.2 }}
+                        variants={staggerContainer}
+                        className="space-y-8"
+                    >
                         <div className="grid grid-cols-2 gap-6">
-                            <div className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
+                            <motion.div variants={scaleIn} className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:rotate-3 transition-transform duration-500">75%</p>
                                 <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none">Faster Decisions</p>
-                            </div>
-                            <div className="rounded-[14px] bg-gray-900 p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
+                            </motion.div>
+                            <motion.div variants={scaleIn} className="rounded-[14px] bg-gray-900 p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
                                 <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:-rotate-3 transition-transform duration-500">50%</p>
                                 <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none">Cost Reduction</p>
-                            </div>
+                            </motion.div>
                         </div>
 
-                        <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
+                        <motion.div variants={fadeUp} className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
                             <div className="relative group">
                                 <div className="rounded-[40px] overflow-hidden aspect-[16/10] bg-gray-900 shadow-2xl relative">
                                     <img
@@ -91,8 +125,8 @@ const FAQWithStatsSection = () => {
                                     <div className="absolute inset-0 bg-blue-600/10 pointer-events-none group-hover:opacity-0 transition-opacity duration-1000"></div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 </div>
             </div>
         </section>

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../components/Logo';
 import FullScreenLoader from '../components/FullScreenLoader';
 import ParticleBackground from '../components/ParticleBackground';
+import { ProjectStorage } from '../services/projectStorage';
 
 const LoginPage = () => {
     const [mode, setMode] = useState('login'); // 'login' or 'signup'
@@ -23,10 +24,27 @@ const LoginPage = () => {
 
     // Auto-redirect if already logged in
     React.useEffect(() => {
-        if (!loading && user) {
-            navigate('/dashboard', { replace: true });
-        }
-    }, [user, loading, navigate]);
+        let isMounted = true;
+        const checkAndRedirect = async () => {
+            if (!loading && user) {
+                try {
+                    await ProjectStorage.init();
+                    const projects = await ProjectStorage.getAll();
+                    if (!isMounted) return;
+                    
+                    if (projects && projects.length > 0) {
+                        navigate(location.state?.from?.pathname || '/dashboard', { replace: true });
+                    } else {
+                        navigate('/', { replace: true });
+                    }
+                } catch (err) {
+                    if (isMounted) navigate(location.state?.from?.pathname || '/dashboard', { replace: true });
+                }
+            }
+        };
+        checkAndRedirect();
+        return () => { isMounted = false; };
+    }, [user, loading, navigate, location.state]);
 
     // Handle initial mode from navigation state
     React.useEffect(() => {
@@ -40,6 +58,20 @@ const LoginPage = () => {
     const [verificationMode, setVerificationMode] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
 
+    const handleSuccessfulLogin = async () => {
+        try {
+            await ProjectStorage.init();
+            const projects = await ProjectStorage.getAll();
+            if (projects && projects.length > 0) {
+                navigate(from, { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        } catch (err) {
+            navigate(from, { replace: true });
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -48,10 +80,10 @@ const LoginPage = () => {
         try {
             if (mode === 'login') {
                 await login(email, password);
-                navigate(from, { replace: true });
+                await handleSuccessfulLogin();
             } else if (verificationMode) {
                 await verifyEmail(email, verificationCode);
-                navigate(from, { replace: true });
+                await handleSuccessfulLogin();
             } else {
                 if (password !== confirmPassword) {
                     setError('Your passwords do not match. Please re-enter them.');
@@ -169,45 +201,18 @@ const LoginPage = () => {
                             </AnimatePresence>
 
                             {/* OAuth Section - 2x2 Grid with reduced radius */}
-                            <div className="w-full grid grid-cols-2 gap-2.5 mb-5">
+                            <div className="w-full mb-5">
                                 <button
                                     onClick={() => handleOAuth('google')}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
+                                    className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-700 text-xs shadow-sm active:scale-95 group"
                                 >
-                                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                                    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                                         <path fill="#4285F4" d="M23.7449 12.27C23.7449 11.48 23.6849 10.73 23.5549 10H12.2549V14.51H18.7249C18.4349 15.99 17.5849 17.24 16.3249 18.09V21.09H20.1849C22.4449 19.01 23.7449 15.92 23.7449 12.27Z" />
                                         <path fill="#34A853" d="M12.2549 24C15.4949 24 18.2049 22.92 20.1849 21.09L16.3249 18.09C15.2449 18.81 13.8749 19.25 12.2549 19.25C9.12492 19.25 6.47492 17.14 5.52492 14.29H1.54492V17.38C3.51492 21.3 7.56492 24 12.2549 24Z" />
                                         <path fill="#FBBC05" d="M5.52492 14.29C5.27492 13.57 5.14492 12.8 5.14492 12C5.14492 11.2 5.28492 10.43 5.52492 9.71V6.62H1.54492C0.724922 8.24 0.254918 10.06 0.254918 12C0.254918 13.94 0.724922 15.76 1.54492 17.38L5.52492 14.29Z" />
                                         <path fill="#EA4335" d="M12.2549 4.75C14.0249 4.75 15.6049 5.36 16.8549 6.55L20.2749 3.13C18.2049 1.19 15.4949 0 12.2549 0C7.56492 0 3.51492 2.7 1.54492 6.62L5.52492 9.71C6.47492 6.86 9.12492 4.75 12.2549 4.75Z" />
                                     </svg>
-                                    Google
-                                </button>
-                                <button
-                                    onClick={() => handleOAuth('apple')}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
-                                >
-                                    <svg className="w-4 h-4 shrink-0 fill-black" viewBox="0 0 384 512">
-                                        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
-                                    </svg>
-                                    Apple
-                                </button>
-                                <button
-                                    onClick={() => handleOAuth('facebook')}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
-                                >
-                                    <svg className="w-4 h-4 shrink-0 fill-[#1877F2]" viewBox="0 0 24 24">
-                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                    </svg>
-                                    Facebook
-                                </button>
-                                <button
-                                    onClick={() => handleOAuth('discord')}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-600 text-[10px] shadow-sm active:scale-95"
-                                >
-                                    <svg className="w-4 h-4 shrink-0 fill-[#5865F2]" viewBox="0 0 640 512">
-                                        <path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.538 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126c3.082-2.309 6.166-4.711 9.109-7.137a1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233c2.944 2.426 6.027 4.851 9.132 7.16a1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 49.177 1.862 1.862 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541zM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241z" />
-                                    </svg>
-                                    Discord
+                                    Continue with Google
                                 </button>
                             </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import FullScreenLoader from '../components/FullScreenLoader';
+import { ProjectStorage } from '../services/projectStorage';
 
 const AuthCallbackPage = () => {
     const navigate = useNavigate();
@@ -20,12 +21,23 @@ const AuthCallbackPage = () => {
         
         // Trigger refresh in context. 
         // InsForge SDK will automatically detect the token in the URL.
-        refreshSession().then((user) => {
+        refreshSession().then(async (user) => {
             if (user) {
                 console.log("✅ Welcome!", user.email);
                 const from = sessionStorage.getItem('auth_redirect_to') || '/dashboard';
                 sessionStorage.removeItem('auth_redirect_to');
-                navigate(from, { replace: true });
+                
+                try {
+                    await ProjectStorage.init();
+                    const projects = await ProjectStorage.getAll();
+                    if (projects && projects.length > 0) {
+                        navigate(from, { replace: true });
+                    } else {
+                        navigate('/', { replace: true });
+                    }
+                } catch (err) {
+                    navigate(from, { replace: true });
+                }
             } else {
                 console.error("❌ Authentication failed: No session established.");
                 navigate('/login', { 

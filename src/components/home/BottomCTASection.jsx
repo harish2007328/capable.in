@@ -1,15 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2, delayChildren: 0.1 } }
+};
+
+const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const scaleIn = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } }
+};
 
 const BottomCTASection = () => (
     <section className="w-full bg-white py-20 md:py-24">
         <div className="max-w-7xl mx-auto px-6">
-            <div className="rounded-[24px] bg-[#FAFBFF] border border-gray-100 p-8 md:p-16 lg:p-24 relative overflow-hidden group shadow-soft">
+            <motion.div 
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                variants={staggerContainer}
+                className="rounded-[24px] bg-[#FAFBFF] border border-gray-100 p-8 md:p-16 lg:p-24 relative overflow-hidden group shadow-soft"
+            >
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[var(--brand-accent)]/5 rounded-full blur-[100px] -mr-48 -mt-48 transition-all duration-1000 group-hover:bg-[var(--brand-accent)]/10"></div>
                 <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-400/5 rounded-full blur-[80px] -ml-40 -mb-40"></div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
-                    <div>
+                    <motion.div variants={fadeUp}>
                         <h2 className="text-3xl md:text-6xl lg:text-7xl font-display font-normal text-gray-900 leading-tight mb-8 tracking-tightest">
                             Ready to accelerate <br className="hidden md:block" /> your <span className="font-display italic text-[var(--brand-accent)]">business success?</span>
                         </h2>
@@ -24,12 +46,11 @@ const BottomCTASection = () => (
                                 Learn more →
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="rounded-[24px] border border-gray-100 bg-white shadow-soft overflow-hidden group-hover:shadow-card transition-all duration-700">
-                        <div className="w-full aspect-[4/3] relative">
-                            <img src="/bauhaus_last_gen.webp" loading="lazy" alt="Strategy Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                            <div className="absolute inset-0 bg-black/10"></div>
+                    <motion.div variants={scaleIn} className="rounded-[24px] border border-gray-100 bg-white shadow-soft overflow-hidden group-hover:shadow-card transition-all duration-700">
+                        <div className="w-full aspect-[4/3] relative overflow-hidden">
+                            <img src="/hero-poster.webp" loading="lazy" alt="Strategy Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="bg-white/25 backdrop-blur-md p-1 rounded-[14px] shadow-xl border border-white/30">
                                     <div className="bg-white rounded-[10px] py-3 px-6 text-center">
@@ -47,9 +68,9 @@ const BottomCTASection = () => (
                                 View Plans
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     </section>
 );

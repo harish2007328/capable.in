@@ -84,12 +84,14 @@ const DashboardPage = () => {
                 isSaving: false
             });
         }
+    }, [user]);
 
+    useEffect(() => {
         const hash = location.hash.replace('#', '');
         if (['projects', 'metrics', 'settings'].includes(hash)) {
             setActiveSection(hash);
         }
-    }, [location.hash, user]);
+    }, [location.hash]);
 
     // Inject Theme Variables
     useEffect(() => {

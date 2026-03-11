@@ -25,8 +25,26 @@ const CLIENT_BLOCKED_TERMS = [
     'money laundering', 'ponzi scheme', 'pyramid scheme', 'counterfeit',
     'identity theft', 'credit card fraud', 'hacking service', 'ransomware',
     'dark web', 'child exploitation', 'terrorism', 'hitman', 'contract killing',
-    'sex trafficking', 'slave labor', 'child labor', 'phishing'
 ];
+
+// --- Animation Variants for Scroll Effects ---
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.15, delayChildren: 0.1 }
+    }
+};
+
+const fadeUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const scaleUp = {
+    hidden: { opacity: 0, scale: 0.95, filter: 'blur(8px)' },
+    visible: { opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } }
+};
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -198,30 +216,35 @@ const HomePage = () => {
                     </div>
                 </div>
 
-                <div className="relative z-30 flex flex-col items-center justify-center px-4 max-w-7xl mx-auto w-full flex-1 pt-[84px]">
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={staggerContainer}
+                    className="relative z-30 flex flex-col items-center justify-center px-4 max-w-7xl mx-auto w-full flex-1 pt-[84px]"
+                >
                     {/* Badge */}
-                    <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 shadow-sm cursor-default">
+                    <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 shadow-sm cursor-default">
                         <span className="flex h-2 w-2 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                         </span>
                         <span className="text-xs font-bold text-white uppercase tracking-wide">Intelligent Idea Architect</span>
-                    </div>
+                    </motion.div>
 
                     {/* Hero Headings */}
-                    <div className="max-w-5xl text-center space-y-4 mb-6">
+                    <motion.div variants={fadeUp} className="max-w-5xl text-center space-y-4 mb-6">
                         <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-normal text-white leading-tight" style={{ textShadow: '0 2px-12px rgba(0,0,0,0.3)' }}>
                             Be <span className=" font-display italic">Capable</span> of Building Businesses
                         </h1>
-                    </div>
+                    </motion.div>
 
                     {/* Subtitle */}
-                    <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
+                    <motion.p variants={fadeUp} className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto text-center font-sans font-medium leading-relaxed mb-10 px-6">
                         Validate your market and get a personalized 60-day roadmap to turn your vision into a real business.
-                    </p>
+                    </motion.p>
 
                     {/* Levitating Glow Input Area & Process Flow */}
-                    <div className="relative w-full max-w-6xl mx-auto mb-24 flex flex-col items-center z-40">
+                    <motion.div variants={fadeUp} className="relative w-full max-w-6xl mx-auto mb-24 flex flex-col items-center z-40">
 
                         {/* 1. INPUT BOX WRAPPER */}
 
@@ -406,29 +429,53 @@ const HomePage = () => {
                                 )}
                             </motion.div>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
             </section>
 
-            {/* === LOGO BAR === */}
-            <section className="w-full bg-white py-12 md:py-16">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 md:gap-20">
+            {/* === CORE CAPABILITIES / TAGS === */}
+            <section className="w-full bg-white py-10 md:py-14 border-b border-gray-50 overflow-hidden relative">
+                {/* Subtle gradient edges */}
+                <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+                <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+                <div className="max-w-[1400px] mx-auto px-4">
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.4 }}
+                        variants={staggerContainer}
+                        className="flex flex-wrap xl:flex-nowrap items-center justify-center gap-3 sm:gap-4 xl:gap-0"
+                    >
                         {[
-                            { name: 'Scratch', color: 'bg-blue-600' },
-                            { name: 'Segment', color: 'bg-emerald-600' },
-                            { name: 'FrontApp', color: 'bg-fuchsia-600' },
-                            { name: 'QuickBooks', color: 'bg-teal-500' },
-                            { name: 'Mailchimp', color: 'bg-black' }
-                        ].map((brand, idx) => (
-                            <div key={idx} className="flex items-center gap-3 opacity-40 hover:opacity-100 transition-all duration-500 cursor-default group">
-                                <div className={`w-6 h-6 rounded-md ${brand.color} flex-shrink-0 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
-                                    <div className="w-2 h-2 bg-white/40 rounded-full"></div>
-                                </div>
-                                <span className="text-[16px] font-bold text-gray-900 tracking-tightest">{brand.name}</span>
-                            </div>
+                            'Idea Validation', 'Market Analysis', 'Competitor Intelligence', 'Custom Roadmaps', 'Go-To-Market Strategy'
+                        ].map((item, idx, arr) => (
+                            <React.Fragment key={idx}>
+                                <motion.div variants={fadeUp} className="bg-blue-50/60 p-1 sm:p-1.5 rounded-full shadow-sm border border-blue-100 hover:border-blue-200 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-default group backdrop-blur-sm z-10 relative">
+                                    <div className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] rounded-full py-2 sm:py-2.5 px-4 sm:px-5 flex items-center justify-center gap-2 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]">
+                                        <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/90 group-hover:text-white transition-colors" />
+                                        <span className="text-[11px] sm:text-[13px] font-bold text-white tracking-widest uppercase text-center whitespace-nowrap">{item}</span>
+                                    </div>
+                                </motion.div>
+                                
+                                {/* Node connector lines between pills */}
+                                {idx < arr.length - 1 && (
+                                    <motion.div 
+                                        variants={fadeUp}
+                                        className="hidden xl:flex items-center w-10 -mx-1 z-0 relative"
+                                    >
+                                        <motion.div 
+                                            variants={{
+                                                hidden: { scaleX: 0 },
+                                                visible: { scaleX: 1, transition: { duration: 0.4, delay: 1.6 + (idx * 0.2), ease: "easeOut" } }
+                                            }}
+                                            className="w-full h-[3px] bg-gradient-to-r from-blue-200 to-blue-400 rounded-full origin-left"
+                                        ></motion.div>
+                                    </motion.div>
+                                )}
+                            </React.Fragment>
                         ))}
-                    </div>
+                    </motion.div>
                 </div>
             </section>
 
@@ -436,22 +483,34 @@ const HomePage = () => {
             <section className="w-full bg-[#f9f9f9] py-20 md:py-24">
                 <div className="max-w-7xl mx-auto px-6">
                     {/* Header: Large Editorial Headline */}
-                    <div className="mb-8 md:mb-12 max-w-4xl">
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.3 }}
+                        variants={fadeUp}
+                        className="mb-8 md:mb-12 max-w-4xl"
+                    >
                         <h2 className="text-3xl sm:text-4xl md:text-7xl font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
                             Smarter research,<br />faster
                             <span className="text-[var(--brand-accent)] font-display italic"> launch</span>
                         </h2>
-                    </div>
+                    </motion.div>
 
                     {/* Content Grid: Staggered Image & Text */}
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 lg:gap-24 mb-20 items-start">
                         {/* Left: Premium Image Container */}
-                        <div className="lg:col-span-7">
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.3 }}
+                            variants={scaleUp}
+                            className="lg:col-span-7"
+                        >
                             <div className="relative group">
                                 <div className="rounded-[14px] overflow-hidden aspect-[4/3] sm:aspect-[16/10] bg-gray-100 relative shadow-2xl">
                                     <img
-                                        src="/mobile/1.webp"
-                                        srcSet="/mobile/1.webp 640w, /1.webp 1200w"
+                                        src="/mobile/hero-poster.webp"
+                                        srcSet="/mobile/hero-poster.webp 640w, /mobile/hero-poster.webp 1200w"
                                         sizes="(max-width: 640px) 100vw, 800px"
                                         loading="lazy"
                                         alt="Market Analysis Workflow"
@@ -466,48 +525,66 @@ const HomePage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Right: Editorial Narrative */}
-                        <div className="lg:col-span-5 pt-8">
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.3 }}
+                            variants={staggerContainer}
+                            className="lg:col-span-5 pt-8"
+                        >
                             <div className="space-y-10">
                                 <div className="space-y-6">
-                                    <p className="text-gray-900 font-sans text-lg sm:text-xl leading-relaxed font-normal">
+                                    <motion.p variants={fadeUp} className="text-gray-900 font-sans text-lg sm:text-xl leading-relaxed font-normal">
                                         Launching is traditionally <span className="italic font-display">complex and resource-intensive</span>. We've optimized the process from the ground up.
-                                    </p>
-                                    <p className="text-gray-700 font-sans text-base sm:text-lg leading-relaxed">
+                                    </motion.p>
+                                    <motion.p variants={fadeUp} className="text-gray-700 font-sans text-base sm:text-lg leading-relaxed">
                                         By seamlessly merging smart technology with market expertise, we enable founders to make faster, more confident decisions without sacrificing clarity or conviction.
-                                    </p>
+                                    </motion.p>
                                 </div>
-                                <div className="pt-8 border-t border-gray-100 w-fit">
+                                <motion.div variants={fadeUp} className="pt-8 border-t border-gray-100 w-fit">
                                     <p className="text-gray-900 font-bold text-[11px] tracking-widest mb-2">OUR PHILOSOPHY</p>
                                     <p className="text-gray-900 font-sans text-base italic">"Execution is nothing without validation."</p>
-                                </div>
+                                </motion.div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Bottom Section: CTA & Stats */}
                     <div className="flex flex-col lg:flex-row items-end justify-between gap-20">
                         {/* Stats Cluster */}
-                        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20">
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.3 }}
+                            variants={staggerContainer}
+                            className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20"
+                        >
                             {[
                                 { number: '150+', label: 'Global Founders', desc: 'Trusted by entrepreneurs around the world.' },
                                 { number: '40%', label: 'Launch Readiness', desc: 'Increase in speed to market implementation.' },
                                 { number: '95%', label: 'Market Accuracy', desc: 'Highest precision rate in trend analysis.' }
                             ].map((stat, idx) => (
-                                <div key={idx} className="flex flex-col group py-4 md:py-0">
+                                <motion.div variants={fadeUp} key={idx} className="flex flex-col group py-4 md:py-0">
                                     <div className="mb-2 md:mb-4 overflow-hidden">
                                         <p className="text-5xl md:text-7xl font-display font-normal text-gray-900 leading-none tracking-tightest group-hover:translate-y-[-5px] transition-transform duration-500">{stat.number}</p>
                                     </div>
                                     <p className="text-gray-900 font-bold text-[11px] md:text-[13px] mb-2 md:mb-3 uppercase tracking-wider">{stat.label}</p>
                                     <p className="text-[13px] md:text-[14px] text-gray-700 font-sans leading-relaxed max-w-[180px]">{stat.desc}</p>
-                                </div>
+                                </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
 
                         {/* CTA Unit */}
-                        <div className="flex flex-col items-center lg:items-end gap-6">
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.3 }}
+                            variants={fadeUp}
+                            className="flex flex-col items-center lg:items-end gap-6"
+                        >
                             <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-md font-bold text-[14px] tracking-tight hover:shadow-card active:scale-[0.98] transition-all duration-300 shadow-md flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.8)]"></span>
                                 Request a demo
@@ -515,7 +592,7 @@ const HomePage = () => {
                             <Link to="/plans" className="text-gray-700 hover:text-[var(--brand-accent)] font-bold text-[14px] tracking-tight transition-all border-b border-transparent hover:border-[var(--brand-accent)] pb-0.5 uppercase">
                                 Explore pricing
                             </Link>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
@@ -545,16 +622,22 @@ const HomePage = () => {
             {/* === FOOTER === */}
             <footer className="w-full bg-white py-12 border-t border-gray-100">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4">
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={staggerContainer}
+                        className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-4"
+                    >
                         {/* Copyright */}
-                        <div className="order-3 md:order-1">
+                        <motion.div variants={fadeUp} className="order-3 md:order-1">
                             <p className="text-[12px] text-gray-700 font-sans tracking-tight">
                                 © 2025 Capable Labs. All rights reserved.
                             </p>
-                        </div>
+                        </motion.div>
 
                         {/* Social Icons */}
-                        <div className="flex items-center gap-8 order-1 md:order-2">
+                        <motion.div variants={fadeUp} className="flex items-center gap-8 order-1 md:order-2">
                             {[
                                 { icon: 'X', path: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.045 4.126H5.078z' },
                                 { icon: 'LinkedIn', path: 'M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z' },
@@ -564,15 +647,15 @@ const HomePage = () => {
                                     <svg className="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24"><path d={item.path} /></svg>
                                 </a>
                             ))}
-                        </div>
+                        </motion.div>
 
                         {/* Made with Tagline */}
-                        <div className="flex items-center gap-2 order-2 md:order-3">
+                        <motion.div variants={fadeUp} className="flex items-center gap-2 order-2 md:order-3">
                             <p className="text-[12px] text-gray-700 font-sans tracking-tight">
                                 Build by <span className="font-bold text-gray-900 tracking-tight">Harish 💙</span>
                             </p>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 </div>
             </footer>
         </div >
