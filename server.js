@@ -934,24 +934,7 @@ app.post('/api/checkout', async (req, res) => {
 
         const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID;
 
-        console.log("--- Dodo Debug ---");
-        console.log("dodoPayments defined?", !!dodoPayments);
-        console.log("dodoPayments keys:", Object.keys(dodoPayments || {}));
-        if (dodoPayments && dodoPayments.checkoutSessions) {
-            console.log("checkoutSessions keys:", Object.getOwnPropertyNames(Object.getPrototypeOf(dodoPayments.checkoutSessions)));
-        } else {
-            console.log("WARNING: checkoutSessions is UNDEFINED on dodoPayments instance");
-        }
-
-        // Use product_cart as recommended by Dodo v2 SDK
-        // Attempting with fallback if checkoutSessions is missing
-        const checkoutHandler = dodoPayments.checkoutSessions || dodoPayments.checkouts || dodoPayments.checkout;
-
-        if (!checkoutHandler) {
-            throw new Error("Dodo SDK initialized but no checkout handler (checkoutSessions/checkouts) found.");
-        }
-
-        const session = await checkoutHandler.create({
+        const session = await dodoPayments.checkoutSessions.create({
             product_cart: [{
                 product_id: targetProductId,
                 quantity: quantity
@@ -971,18 +954,28 @@ app.post('/api/checkout', async (req, res) => {
     } catch (err) {
         console.error("--- DODO CHECKOUT ERROR DETAILS ---");
         console.error("Message:", err.message);
-        console.error("Status Code (err.status):", err.status);
-        console.error("Status (err.statusCode):", err.statusCode);
-        if (err.response) {
-            console.error("Response Data:", err.response.data);
-            console.error("Response Status:", err.response.status);
-        }
         res.status(err.status || 500).json({
             error: "Failed to create checkout session",
             details: err.message,
             code: err.status
         });
     }
+});
+
+app.get('/api/checkout/verify/:sessionId', async (req, res) => {
+    const { sessionId } = req.params;
+    try {
+        if (!dodoPayments) throw new Error("Dodo SDK not initialized");
+        const session = await dodoPayments.checkoutSessions.retrieve(sessionId);
+        res.json(session);
+    } catch (err) {
+        console.error("Verification failed:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/webhook/dodo', (req, res) => {
+    res.status(200).send("Dodo Webhook endpoint is active. Use POST to send webhooks.");
 });
 
 app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -1009,11 +1002,11 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                     console.log(`💰 FULFILLING: User ${userId} -> Plan: ${planType}`);
                     try {
                         // Attempt to find existing profile
-                        const { data: profile, error: fetchError } = await insforge.from('profiles').select('id').eq('id', userId).single();
+                        const { data: profile, error: fetchError } = await insforge.database.from('profiles').select('id').eq('id', userId).single();
                         
                         if (fetchError || !profile) {
                             console.log(`Creating new profile for user ${userId}`);
-                            const { error: insertError } = await insforge.from('profiles').insert([{ 
+                            const { error: insertError } = await insforge.database.from('profiles').insert([{ 
                                 id: userId,
                                 email: event.data.customer?.email,
                                 subscription_status: 'pro',
@@ -1022,7 +1015,7 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                             if (insertError) console.error("Profile Insert Error:", insertError.message);
                             else console.log(`✅ Profile created for user ${userId}.`);
                         } else {
-                            const { error: updateError } = await insforge.from('profiles').update({ 
+                            const { error: updateError } = await insforge.database.from('profiles').update({ 
                                 subscription_status: 'pro',
                                 dodo_customer_id: event.data.customer?.id,
                                 updated_at: new Date()

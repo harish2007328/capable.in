@@ -20,9 +20,20 @@ const CheckoutResult = () => {
         // Simulating a verification step or just assuming success if Dodo redirected here
         // In a real app, you might call your backend to verify the session status
         const verifySession = async () => {
-            // Mock verification delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            setStatus('success');
+            try {
+                const response = await axios.get(`/api/checkout/verify/${sessionId}`);
+                if (response.data.payment_status === 'succeeded' || response.data.payment_status === 'processing') {
+                    setStatus('success');
+                } else if (response.data.payment_status === 'failed') {
+                    setStatus('error');
+                } else {
+                    // Still waiting or other status
+                    setTimeout(verifySession, 3000);
+                }
+            } catch (err) {
+                console.error("Verification error:", err);
+                setStatus('error');
+            }
         };
 
         verifySession();

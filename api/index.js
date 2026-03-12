@@ -907,6 +907,10 @@ app.post('/api/checkout', async (req, res) => {
     }
 });
 
+app.get('/api/webhook/dodo', (req, res) => {
+    res.status(200).send("Dodo Webhook endpoint is active. Use POST to send webhooks.");
+});
+
 app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['x-dodo-signature'];
     const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
@@ -931,11 +935,11 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                 if (userId) {
                     console.log(`💰 FULFILLING: User ${userId} -> Plan: ${planType}`);
                     try {
-                        const { data: profile, error: fetchError } = await insforge.from('profiles').select('id').eq('id', userId).single();
+                        const { data: profile, error: fetchError } = await insforge.database.from('profiles').select('id').eq('id', userId).single();
                         
                         if (fetchError || !profile) {
                             console.log(`Creating new profile for user ${userId}`);
-                            const { error: insertError } = await insforge.from('profiles').insert([{ 
+                             const { error: insertError } = await insforge.database.from('profiles').insert([{ 
                                 id: userId,
                                 email: event.data.customer?.email,
                                 subscription_status: 'pro',
@@ -944,7 +948,7 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                             if (insertError) console.error("Profile Insert Error:", insertError.message);
                             else console.log(`✅ Profile created for user ${userId}.`);
                         } else {
-                            const { error: updateError } = await insforge.from('profiles').update({ 
+                             const { error: updateError } = await insforge.database.from('profiles').update({ 
                                 subscription_status: 'pro',
                                 dodo_customer_id: event.data.customer?.id,
                                 updated_at: new Date()

@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data: existingProfile, error: fetchError } = await supabase.database
                 .from('profiles')
-                .select('id, avatar_url')
+                .select('*')
                 .eq('id', currentUser.id)
                 .maybeSingle();
             
@@ -123,6 +123,12 @@ export const AuthProvider = ({ children }) => {
                         name: finalName || existingProfile.name 
                     })
                     .eq('id', currentUser.id);
+                
+                // Update local state with the rich profile data
+                if (existingProfile) {
+                    currentUser.profile = { ...currentUser.profile, ...existingProfile };
+                    setUser({ ...currentUser });
+                }
             }
         } catch (dbErr) {
             console.warn("Database profile sync failed:", dbErr.message);

@@ -101,9 +101,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     </div>
                     <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1.5">Go Unlimited</p>
                     <p className="text-[9px] text-white/60 font-bold mb-4 leading-relaxed">Unlock advanced market analysis and AI depth.</p>
-                    <button className="w-full py-2 bg-white text-[var(--brand-accent)] rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-lg shadow-blue-900/10">
+                    <Link 
+                        to="/pricing"
+                        className="w-full py-3 bg-white text-[var(--brand-accent)] rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-lg shadow-blue-900/10 flex items-center justify-center"
+                    >
                         Upgrade to Pro
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -122,7 +125,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                             {user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || 'Founder'}
                         </p>
                         <p className="text-[9px] font-bold text-white/60 truncate uppercase tracking-widest">
-                            Starter Plan
+                            {user?.profile?.subscription_status === 'pro' ? 'Pro Plan' : 'Free Plan'}
                         </p>
                     </div>
                 </div>
