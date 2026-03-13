@@ -22,6 +22,17 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    const oldStatus = res.status;
+    res.status = function(code) {
+        if (code === 401) {
+            console.log(`⚠️ SERVER SENDING 401 for ${req.method} ${req.url}`);
+        }
+        return oldStatus.apply(res, arguments);
+    };
+    next();
+});
 app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET || 'capable-secret-key-123',
@@ -925,6 +936,7 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
 // --- DODO PAYMENTS ENDPOINTS ---
 
 app.post('/api/checkout', async (req, res) => {
+    console.log("🚀 Incoming checkout request:", req.body);
     const { productId, quantity = 1, userEmail, userId, metadata, planType } = req.body;
 
     try {
@@ -953,7 +965,11 @@ app.post('/api/checkout', async (req, res) => {
         res.json({ checkout_url: session.checkout_url });
     } catch (err) {
         console.error("--- DODO CHECKOUT ERROR DETAILS ---");
-        console.error("Message:", err.message);
+        console.log("Error status:", err.status || err.statusCode);
+        console.log("Error message:", err.message);
+        if (err.response) {
+            console.log("Response data:", JSON.stringify(err.response.data, null, 2));
+        }
         res.status(err.status || 500).json({
             error: "Failed to create checkout session",
             details: err.message,

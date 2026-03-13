@@ -4,30 +4,42 @@ import { motion } from 'framer-motion';
 import { CheckCircle, XCircle, Loader2, ArrowRight, Home } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+import axios from 'axios';
+
 const CheckoutResult = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { refreshSession } = useAuth();
     const [status, setStatus] = useState('loading'); // loading, success, error
     const sessionId = searchParams.get('session_id');
+    const paramStatus = searchParams.get('status');
 
     useEffect(() => {
-        if (!sessionId) {
-            setStatus('error');
+        // If the URL explicitly says active or succeeded, we can trust Dodo's redirect
+        if (paramStatus === 'active' || paramStatus === 'succeeded') {
+            setStatus('success');
+            // Refresh session to get updated Pro status in Sidebar
+            if (refreshSession) refreshSession();
             return;
         }
 
-        // Simulating a verification step or just assuming success if Dodo redirected here
-        // In a real app, you might call your backend to verify the session status
+        if (!sessionId || sessionId === '{checkout_session_id}') {
+            if (!paramStatus) {
+                setStatus('error');
+            }
+            return;
+        }
+
         const verifySession = async () => {
             try {
                 const response = await axios.get(`/api/checkout/verify/${sessionId}`);
-                if (response.data.payment_status === 'succeeded' || response.data.payment_status === 'processing') {
+                const data = response.data;
+                if (data.status === 'succeeded' || data.status === 'active' || data.payment_status === 'succeeded') {
                     setStatus('success');
-                } else if (response.data.payment_status === 'failed') {
+                    if (refreshSession) refreshSession();
+                } else if (data.status === 'failed' || data.payment_status === 'failed') {
                     setStatus('error');
                 } else {
-                    // Still waiting or other status
                     setTimeout(verifySession, 3000);
                 }
             } catch (err) {
@@ -37,78 +49,71 @@ const CheckoutResult = () => {
         };
 
         verifySession();
-    }, [sessionId]);
+    }, [sessionId, paramStatus, refreshSession]);
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-10 text-center border border-slate-100"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100"
             >
-                {status === 'loading' && (
-                    <div className="py-12 flex flex-col items-center">
-                        <Loader2 className="w-16 h-16 text-blue-600 animate-spin mb-6" />
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Verifying Payment</h2>
-                        <p className="text-slate-500">Please wait while we confirm your subscription...</p>
-                    </div>
-                )}
-
-                {status === 'success' && (
-                    <div className="py-8">
-                        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
-                            <CheckCircle className="w-10 h-10 text-green-500" />
+                <div className="p-8">
+                    {status === 'loading' && (
+                        <div className="flex flex-col items-center py-6">
+                            <Loader2 className="w-12 h-12 text-slate-900 animate-spin mb-4" />
+                            <h2 className="text-xl font-bold text-slate-900">Confirming...</h2>
+                            <p className="text-sm text-slate-500 mt-1">Setting up your access</p>
                         </div>
-                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Welcome to Pro!</h2>
-                        <p className="text-slate-600 mb-10 leading-relaxed">
-                            Your payment was successful. Your account has been upgraded and you now have full access to all Pro features.
-                        </p>
+                    )}
 
-                        <div className="space-y-4">
-                            <Link
-                                to="/dashboard"
-                                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                    {status === 'success' && (
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <CheckCircle className="w-8 h-8 text-green-600" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Upgrade Complete</h2>
+                            <p className="text-slate-500 text-sm leading-relaxed mb-8">
+                                Welcome to the Pro family. Your subscription is now active.
+                            </p>
+
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-black transition-all"
                             >
                                 Go to Dashboard
                                 <ArrowRight className="w-4 h-4" />
-                            </Link>
-                            <Link
-                                to="/"
-                                className="w-full py-4 text-slate-500 hover:text-slate-800 font-medium text-sm transition-all"
-                            >
-                                Back to Home
-                            </Link>
-                        </div>
-                    </div>
-                )}
-
-                {status === 'error' && (
-                    <div className="py-8">
-                        <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8">
-                            <XCircle className="w-10 h-10 text-red-500" />
-                        </div>
-                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Payment Failed</h2>
-                        <p className="text-slate-600 mb-10 leading-relaxed">
-                            Something went wrong with your transaction. No charges were made. Please try again or contact support if the issue persists.
-                        </p>
-
-                        <div className="space-y-4">
-                            <button
-                                onClick={() => navigate('/pricing')}
-                                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-all"
-                            >
-                                Try Again
                             </button>
-                            <Link
-                                to="/"
-                                className="w-full py-4 text-slate-500 hover:text-slate-800 font-medium text-sm transition-all flex items-center justify-center gap-2"
-                            >
-                                <Home className="w-4 h-4" />
-                                Return Home
-                            </Link>
                         </div>
-                    </div>
-                )}
+                    )}
+
+                    {status === 'error' && (
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <XCircle className="w-8 h-8 text-red-600" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Issue</h2>
+                            <p className="text-slate-500 text-sm leading-relaxed mb-8">
+                                We couldn't verify your payment. Please try again or check your bank account.
+                            </p>
+
+                            <div className="space-y-3">
+                                <button
+                                    onClick={() => navigate('/pricing')}
+                                    className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-black transition-all"
+                                >
+                                    Retry Payment
+                                </button>
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="w-full py-3.5 text-slate-500 hover:text-slate-900 font-medium text-sm transition-all"
+                                >
+                                    Return Home
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </motion.div>
         </div>
     );
