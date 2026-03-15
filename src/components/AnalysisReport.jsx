@@ -9,6 +9,23 @@ import {
 import { ExportService } from '../services/exportService';
 import LogoIcon from '../assets/LOGO ICON.svg';
 
+// --- Simplified Loading Skeleton for Sections ---
+const SectionSkeleton = () => (
+    <div className="space-y-6 animate-pulse">
+        <div className="h-32 bg-slate-100 rounded-xl w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="h-40 bg-slate-50 rounded-xl" />
+            <div className="h-40 bg-slate-50 rounded-xl" />
+            <div className="h-40 bg-slate-50 rounded-xl" />
+        </div>
+        <div className="h-24 bg-slate-50 rounded-xl w-full" />
+        <div className="grid grid-cols-2 gap-4">
+            <div className="h-32 bg-slate-50 rounded-xl" />
+            <div className="h-32 bg-slate-50 rounded-xl" />
+        </div>
+    </div>
+);
+
 // --- Polished Chart Components ---
 
 const LineChart = ({ data }) => {
@@ -228,7 +245,7 @@ const MetricBox = ({ label, value, subtext, icon: Icon, isCompact = false }) => 
     </div>
 );
 
-const AnalysisReport = ({ report, onAccept, planLoading = false }) => {
+const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading = false, hasPlan = false, onRestart }) => {
     const reportRef = React.useRef(null);
     const [exporting, setExporting] = useState(null);
     const [copied, setCopied] = useState(false);
@@ -264,7 +281,11 @@ const AnalysisReport = ({ report, onAccept, planLoading = false }) => {
     };
 
     const renderPageContent = (page) => {
-        const { id, content } = page;
+        const { id, content, isPlaceholder } = page;
+
+        if (isPlaceholder || !content) {
+            return <SectionSkeleton />;
+        }
 
         switch (id) {
             case 'executive':
@@ -460,9 +481,9 @@ const AnalysisReport = ({ report, onAccept, planLoading = false }) => {
     };
 
     return (
-        <div className="w-full h-full bg-[#f1f5f9] overflow-y-auto custom-scrollbar pt-10 pb-32">
-            <div className="mx-auto w-full px-6 flex justify-center">
-                <div className="flex w-full gap-6 max-w-[1500px] items-start relative">
+        <div className="w-full h-full bg-[#f1f5f9] overflow-y-auto custom-scrollbar pt-10 pb-48">
+            <div className="mx-auto w-full px-6 flex justify-center pb-20">
+                <div className="flex w-full gap-6 max-w-[1500px] items-start relative min-h-screen">
 
                     {/* LEFT SIDE: THE DOCUMENT PAGES */}
                     <div ref={reportRef} className="flex-1 space-y-6 min-w-0">
@@ -559,6 +580,19 @@ const AnalysisReport = ({ report, onAccept, planLoading = false }) => {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Generation Progress Indicator */}
+                            {reportLoading && (
+                                <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 animate-pulse">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500">System Generating</span>
+                                    </div>
+                                    <p className="text-[10px] text-indigo-400 leading-relaxed font-medium">
+                                        Assembling strategic sections in real-time. Do not close this session.
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Initiate Plan — Bottom Card */}
                             <div className="bg-slate-900 rounded-2xl p-5 shadow-2xl shadow-slate-200 relative overflow-hidden group">

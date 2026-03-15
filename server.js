@@ -615,6 +615,107 @@ app.post('/api/analyze', async (req, res) => {
     }
 });
 
+// --- CHUNKED REPORT GENERATION ---
+
+app.post('/api/generate-report-structure', async (req, res) => {
+    const { idea, webSignals } = req.body;
+    try {
+        const prompt = `
+          IDEA: "${idea}"
+          MARKET SIGNALS: ${JSON.stringify(webSignals)}
+          
+          TASK:
+          Define the HIGH-LEVEL identity for a Strategic Analysis Report.
+          You must provide a brand name and list 4 standard section titles.
+          
+          JSON SCHEMA:
+          {
+            "project_name": "Modern Brand Name",
+            "pages": [
+              { "id": "executive", "title": "Executive Manifesto", "isPlaceholder": true },
+              { "id": "market", "title": "Competitive Deep-Dive", "isPlaceholder": true },
+              { "id": "technical", "title": "Technical Blueprint", "isPlaceholder": true },
+              { "id": "risk", "title": "Strategy & Risk", "isPlaceholder": true }
+            ]
+          }
+        `;
+
+        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+            messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
+            model: "llama-3.1-8b-instant",
+            response_format: { type: "json_object" },
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-report-section', async (req, res) => {
+    const { idea, webSignals, answers, sectionId, sectionTitle } = req.body;
+    try {
+        const prompt = `
+          ROLE: Elite Strategic Analyst.
+          IDEA: "${idea}"
+          CONTEXT: ${JSON.stringify(webSignals)}
+          ANSWERS: ${answers}
+          
+          TASK: Generate the COMPLETE content for the section: "${sectionTitle}" (ID: ${sectionId}).
+          BE VERBOSE and insightful. Include data projections and deep tactical advice.
+          
+          Return ONLY the data object following the exact schema for this ID.
+          
+          ID-SPECIFIC SCHEMAS (MANDATORY FIELDS):
+          - If "executive": { 
+              "explanation": "Deep 2-paragraph summary", 
+              "target_user": "Specific demographics/psychographics", 
+              "value_prop": "Unique selling point", 
+              "market_demand": { "score": (1-10), "analysis": "Reasoning" }, 
+              "chart_data": [{"label": "Month 1", "value": 10}, {"label": "Month 3", "value": 40}, {"label": "Month 6", "value": 75}, {"label": "Month 12", "value": 100}]
+            }
+          - If "market": { 
+              "competitors": [{"name": "Brand", "analysis": "Detailed assessment", "weakness_to_exploit": "Specific gap"}], 
+              "competitiveness_score": (1-10), 
+              "the_gap": "Market opportunity depth", 
+              "differentiation": "The moat strategy", 
+              "chart_data": [{"label": "Competitor A", "value": 40}, {"label": "Competitor B", "value": 35}, {"label": "You", "value": 25}]
+            }
+          - If "technical": { 
+              "viability_score": (1-10), 
+              "suggested_stack": "Comma, separated, technologies", 
+              "architecture": "High-level schematic description", 
+              "complexity": "Feasibility thesis and challenges", 
+              "est_mvp_cost": "$X,XXX - $XX,XXX", 
+              "chart_data": [{"label": "Infra", "value": 20}, {"label": "Dev", "value": 50}, {"label": "AI", "value": 30}]
+            }
+          - If "risk": { 
+              "risks": { "market": "...", "technical": "...", "financial": "...", "legal": "..." }, 
+              "mentor_advice": { "appreciate": "...", "criticize": "...", "advice": "..." }, 
+              "immediate_actions": ["Must-do 1", "Must-do 2", "Must-do 3"], 
+              "chart_data": [
+                { "label": "Market", "value": 1-10 },
+                { "label": "Technical", "value": 1-10 },
+                { "label": "Financial", "value": 1-10 },
+                { "label": "Operational", "value": 1-10 },
+                { "label": "Regulatory", "value": 1-10 }
+              ]
+            }
+        `;
+
+        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+            messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
+            model: "llama-3.3-70b-versatile",
+            response_format: { type: "json_object" },
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 
 
 app.post('/api/generate-plan-structure', async (req, res) => {

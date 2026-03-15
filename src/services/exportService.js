@@ -137,6 +137,7 @@ export const ExportService = {
 
             // --- CONTENT PAGES ---
             for (const page of (report.pages || [])) {
+                if (!page.content) continue;
                 drawSectionHeader(page.title);
 
                 const lines = extractText(page.content);
@@ -179,6 +180,7 @@ export const ExportService = {
             ];
 
             for (const page of (report.pages || [])) {
+                if (!page.content) continue;
                 children.push(new Paragraph({ text: page.title, heading: HeadingLevel.HEADING_1, spacing: { before: 500, after: 200 } }));
                 const addContent = (obj) => {
                     for (const [key, val] of Object.entries(obj || {})) {
@@ -219,6 +221,7 @@ export const ExportService = {
         try {
             let text = `${report.project_name || 'Venture Report'}\n${'='.repeat(50)}\n\n`;
             for (const page of (report.pages || [])) {
+                if (!page.content) continue;
                 text += `\n## ${page.title}\n\n`;
                 const lines = extractText(page.content);
                 for (const line of lines) {

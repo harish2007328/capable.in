@@ -29,8 +29,44 @@ export const generateAnalysisQuestions = async (idea, location) => {
 };
 
 /**
+ * Strategic Assessment Service (Chunked Phase 1: Structure)
+ */
+export const generateReportStructure = async (idea, webSignals) => {
+    try {
+        const response = await axios.post('/api/generate-report-structure', {
+            idea,
+            webSignals
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error generating report structure:', error);
+        throw error;
+    }
+};
+
+/**
+ * Strategic Assessment Service (Chunked Phase 2: Section Content)
+ */
+export const generateReportSection = async (idea, webSignals, answers, sectionId, sectionTitle) => {
+    try {
+        const response = await axios.post('/api/generate-report-section', {
+            idea,
+            webSignals,
+            answers,
+            sectionId,
+            sectionTitle
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error generating report section ${sectionId}:`, error);
+        throw error;
+    }
+};
+
+/**
  * Strategic Assessment Service
  * Generates the analytical report once questions are answered.
+ * @deprecated Use generateReportStructure and generateReportSection for chunked loading
  */
 export const generateAnalysisReport = async (idea, answers, webSignals = {}) => {
     try {

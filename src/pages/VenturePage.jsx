@@ -7,7 +7,7 @@ import AnalysisReport from '../components/AnalysisReport';
 import TaskView from '../components/TaskView';
 import SkeletonWizard from '../components/SkeletonWizard';
 import SkeletonReport from '../components/SkeletonReport';
-import { generateAnalysisQuestions, generateAnalysisReport, generatePlanStructure, generatePhaseTasks } from '../services/ai';
+import { generateAnalysisQuestions, generateAnalysisReport, generatePlanStructure, generatePhaseTasks, generateReportStructure, generateReportSection } from '../services/ai';
 import { ProjectStorage } from '../services/projectStorage';
 import FullScreenLoader from '../components/FullScreenLoader';
 
@@ -163,16 +163,50 @@ const VenturePage = () => {
 
         const idea = project.data.idea;
         const answers = completedAnswers;
+        const webSignals = project.data.webSignals || {};
 
         try {
-            let contextString = Array.isArray(answers)
+            const contextString = Array.isArray(answers)
                 ? answers.map(a => `Q: ${a.question} | A: ${a.answer}`).join('\n')
                 : String(answers);
 
-            const rep = await generateAnalysisReport(idea, contextString);
+            // Step 1: Generate Structure
+            const structure = await generateReportStructure(idea, webSignals);
             if (isMounted.current) {
-                setReport(rep);
-                await ProjectStorage.updateData(currentId, { report: rep });
+                setReport(structure);
+                await ProjectStorage.updateData(currentId, { report: structure });
+            }
+
+            // Step 2: Generate Content for each section
+            let updatedReport = { ...structure };
+            for (const page of structure.pages) {
+                if (!isMounted.current) break;
+
+                try {
+                    let sectionContent = await generateReportSection(
+                        idea, 
+                        webSignals, 
+                        contextString, 
+                        page.id, 
+                        page.title
+                    );
+
+                    // Robust Unwrapping: if the AI nested it under "content" or the section ID
+                    if (sectionContent && typeof sectionContent === 'object') {
+                        if (sectionContent.content) sectionContent = sectionContent.content;
+                        else if (sectionContent[page.id]) sectionContent = sectionContent[page.id];
+                    }
+
+                    if (isMounted.current) {
+                        updatedReport.pages = updatedReport.pages.map(p => 
+                            p.id === page.id ? { ...p, content: sectionContent, isPlaceholder: false } : p
+                        );
+                        setReport({ ...updatedReport });
+                        await ProjectStorage.updateData(currentId, { report: { ...updatedReport } });
+                    }
+                } catch (secErr) {
+                    console.error(`Failed to generate section ${page.id}:`, secErr);
+                }
             }
         } catch (e) {
             console.error("Strategy generation failed", e);
@@ -391,16 +425,17 @@ const VenturePage = () => {
                 ) : activeTab === 'strategy' ? (
                     <div className="flex-1 min-h-0 overflow-hidden">
                         <div className="w-full h-full animate-in fade-in zoom-in-95 duration-500 fill-mode-both">
-                            {reportLoading ? <SkeletonReport /> : (
-                                report ? (
-                                    <AnalysisReport
-                                        report={report}
-                                        onRestart={() => { setReport(null); }}
-                                        onAccept={handleAcceptStrategy}
-                                        hasPlan={hasPlan}
-                                        planLoading={planLoading}
-                                    />
-                                ) : <SkeletonReport />
+                            {report ? (
+                                <AnalysisReport
+                                    report={report}
+                                    onRestart={() => { setReport(null); }}
+                                    onAccept={handleAcceptStrategy}
+                                    hasPlan={hasPlan}
+                                    planLoading={planLoading}
+                                    reportLoading={reportLoading}
+                                />
+                            ) : (
+                                <SkeletonReport />
                             )}
                         </div>
                     </div>
