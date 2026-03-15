@@ -406,7 +406,7 @@ const VenturePage = () => {
                     </div>
                 ) : (
                     <div className="flex-1 min-h-0 overflow-hidden">
-                        <TaskView plan={actionPlan} projectId={currentId} />
+                        <TaskView plan={actionPlan} report={report} projectId={currentId} />
                     </div>
                 )}
             </main>

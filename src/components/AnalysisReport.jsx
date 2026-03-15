@@ -1,309 +1,601 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-    TrendingUp, ShieldAlert, Target, Award,
-    CheckCircle2, Zap, AlertTriangle, Users, BarChart3,
-    Globe, Calendar, Sparkles, ChevronRight, FileText,
-    ArrowRight, Rocket, ShieldCheck, RotateCcw
+    FileText, Download, ArrowRight,
+    Target, Shield, Zap, BarChart3,
+    Cpu, Activity, AlertTriangle, Layers,
+    Clock, Globe, TrendingUp, PieChart
 } from 'lucide-react';
+import { ExportService } from '../services/exportService';
+import LogoIcon from '../assets/LOGO ICON.svg';
 
-const MetricCard = ({ score, label, color, icon: Icon, gradientFrom, gradientTo }) => {
-    const radius = 30;
-    const stroke = 5;
-    const normalizedRadius = radius - stroke * 2;
-    const circumference = normalizedRadius * 2 * Math.PI;
-    const strokeDashoffset = circumference - ((score / 10) * circumference);
-    const uniqueId = `grad-${label.replace(/\s+/g, '-').toLowerCase()}`;
+// --- Polished Chart Components ---
+
+const LineChart = ({ data }) => {
+    if (!data || data.length === 0) return null;
+    const maxVal = Math.max(...data.map(d => d.value));
+    const W = 400, H = 190;
+    const padX = 28, padY = 28;
+    const chartH = H - padY;  // bottom boundary for the chart area
+
+    const pts = data.map((d, i) => ({
+        x: padX + (i / (data.length - 1)) * (W - 2 * padX),
+        y: padY + ((maxVal - d.value) / maxVal) * (chartH - padY),
+        value: d.value,
+        label: d.label
+    }));
+
+    const line = pts.reduce((acc, p, i, arr) => {
+        if (i === 0) return `M${p.x},${p.y}`;
+        const prev = arr[i - 1];
+        const cx = (prev.x + p.x) / 2;
+        return `${acc} C${cx},${prev.y} ${cx},${p.y} ${p.x},${p.y}`;
+    }, '');
+
+    const area = `${line} L${pts[pts.length - 1].x},${chartH} L${pts[0].x},${chartH} Z`;
 
     return (
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 flex flex-col items-center justify-between text-center hover:shadow-lg hover:border-blue-100 transition-all duration-300 group shrink-0 relative overflow-hidden aspect-square">
+        <div className="w-full rounded-xl bg-slate-900 overflow-hidden">
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
+                <defs>
+                    <linearGradient id="lcg" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
+                    </linearGradient>
+                </defs>
 
-            {/* Top Label & Icon */}
-            <div className="flex items-center gap-1.5 mb-1 relative z-10 opacity-70 group-hover:opacity-100 transition-opacity">
-                <Icon size={12} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest group-hover:text-slate-600 transition-colors">{label}</span>
-            </div>
+                {/* Horizontal guides */}
+                {[0.33, 0.66].map(t => {
+                    const y = padY + t * (chartH - padY - padY);
+                    return <line key={t} x1={padX} y1={y} x2={W - padX} y2={y}
+                        stroke="white" strokeOpacity="0.04" strokeWidth="0.8" />;
+                })}
 
-            {/* Centered Circular Progress */}
-            <div className="relative flex items-center justify-center flex-1 w-full">
-                <svg
-                    height={radius * 2}
-                    width={radius * 2}
-                    className="transform -rotate-90 origin-center overflow-visible"
-                >
-                    <defs>
-                        <linearGradient id={uniqueId} x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor={gradientFrom || color} />
-                            <stop offset="100%" stopColor={gradientTo || color} />
-                        </linearGradient>
-                    </defs>
+                <motion.path d={area} fill="url(#lcg)"
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} />
 
-                    {/* Track */}
-                    <circle
-                        stroke="#f1f5f9"
-                        strokeWidth={stroke}
-                        fill="transparent"
-                        r={normalizedRadius}
-                        cx={radius}
-                        cy={radius}
-                    />
+                <motion.path d={line} fill="none" stroke="#60a5fa" strokeWidth="1.8" strokeLinecap="round"
+                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.5, ease: 'easeInOut' }} />
 
-                    {/* Progress */}
-                    <circle
-                        stroke={`url(#${uniqueId})`}
-                        strokeWidth={stroke}
-                        strokeDasharray={circumference + ' ' + circumference}
-                        style={{ strokeDashoffset }}
-                        strokeLinecap="round"
-                        fill="transparent"
-                        r={normalizedRadius}
-                        cx={radius}
-                        cy={radius}
-                    />
-                </svg>
+                {pts.map((p, i) => (
+                    <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 + i * 0.1 }}>
+                        <circle cx={p.x} cy={p.y} r="3.5" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.4" />
+                        <circle cx={p.x} cy={p.y} r="1.3" fill="#60a5fa" />
+                        {/* % value above the dot */}
+                        <text x={p.x} y={p.y - 8} textAnchor="middle"
+                            fill="white" fontSize="9" fontWeight="700"
+                            fontFamily="ui-monospace, monospace" opacity="0.9">
+                            {p.value}%
+                        </text>
+                        {/* Month label at bottom */}
+                        <text x={p.x} y={H - 8} textAnchor="middle"
+                            fill="#64748b" fontSize="8" fontWeight="600"
+                            fontFamily="system-ui, sans-serif">
+                            {p.label}
+                        </text>
+                    </motion.g>
+                ))}
+            </svg>
+        </div>
+    );
+};
 
-                {/* Centered Score */}
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                    <span className="text-xl font-black text-slate-800 tracking-tighter leading-none">{score}</span>
+const SimpleBarChart = ({ data }) => {
+    if (!data || data.length === 0) return null;
+    const maxVal = Math.max(...data.map(d => d.value));
+
+    return (
+        <div className="space-y-4 mt-4">
+            {data.map((d, i) => (
+                <div key={i} className="group">
+                    <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">{d.label}</span>
+                        <span className="text-[10px] font-bold text-slate-900 tabular-nums">{d.value}%</span>
+                    </div>
+                    <div className="h-1 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(d.value / maxVal) * 100}%` }}
+                            transition={{ duration: 1 }}
+                            className="h-full bg-slate-900"
+                        />
+                    </div>
                 </div>
+            ))}
+        </div>
+    );
+};
+
+const RadarChart = ({ data }) => {
+    if (!data || data.length === 0) return null;
+    const cx = 100, cy = 100;
+    const radius = 70;
+    const pointsCount = 5;
+
+    const chartData = data.slice(0, pointsCount);
+
+    const pts = chartData.map((d, i) => {
+        const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
+        const r = (d.value / 10) * radius;
+        return {
+            x: cx + r * Math.cos(angle),
+            y: cy + r * Math.sin(angle),
+            lx: cx + (radius + 18) * Math.cos(angle),
+            ly: cy + (radius + 18) * Math.sin(angle),
+            value: d.value,
+            label: d.label
+        };
+    });
+
+    const path = `M ${pts.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
+
+    return (
+        <div className="w-full mt-4 rounded-2xl overflow-hidden bg-slate-900 p-4 shadow-lg">
+            <svg viewBox="0 0 200 200" className="w-full" style={{ height: 260 }}>
+                {/* Concentric pentagon grids */}
+                {[0.2, 0.4, 0.6, 0.8, 1].map(scale => {
+                    const gPts = Array.from({ length: pointsCount }).map((_, i) => {
+                        const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
+                        return `${cx + radius * scale * Math.cos(angle)},${cy + radius * scale * Math.sin(angle)}`;
+                    }).join(' ');
+                    return <polygon key={scale} points={gPts} fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="0.8" />;
+                })}
+
+                {/* Radial axes */}
+                {Array.from({ length: pointsCount }).map((_, i) => {
+                    const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
+                    return <line key={i} x1={cx} y1={cy}
+                        x2={cx + radius * Math.cos(angle)} y2={cy + radius * Math.sin(angle)}
+                        stroke="white" strokeOpacity="0.06" strokeWidth="0.8" />;
+                })}
+
+                {/* Data polygon */}
+                <motion.path
+                    d={path}
+                    fill="rgba(96, 165, 250, 0.2)"
+                    stroke="#60a5fa"
+                    strokeWidth="1.8"
+                    strokeLinejoin="round"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    style={{ transformOrigin: `${cx}px ${cy}px` }}
+                />
+
+                {/* Vertex dots + labels */}
+                {pts.map((p, i) => (
+                    <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 + i * 0.1 }}>
+                        <circle cx={p.x} cy={p.y} r="4" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.5" />
+                        <circle cx={p.x} cy={p.y} r="1.5" fill="#60a5fa" />
+                        {/* Value */}
+                        <text x={p.x} y={p.y - 8} textAnchor="middle"
+                            fill="white" fontSize="7" fontWeight="700"
+                            fontFamily="ui-monospace, monospace" opacity="0.9">
+                            {p.value}
+                        </text>
+                        {/* Label */}
+                        <text x={p.lx} y={p.ly} textAnchor="middle" dominantBaseline="middle"
+                            fill="#94a3b8" fontSize="7" fontWeight="600"
+                            fontFamily="system-ui, sans-serif">
+                            {p.label}
+                        </text>
+                    </motion.g>
+                ))}
+            </svg>
+
+            {/* Legend row */}
+            <div className="flex justify-center flex-wrap gap-x-4 gap-y-1 px-2 mt-1">
+                {chartData.map((d, i) => (
+                    <span key={i} className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">
+                        {d.label}
+                    </span>
+                ))}
             </div>
         </div>
     );
 };
 
-const AnalysisReport = ({ report, onRestart, onAccept, hasPlan = false, planLoading = false }) => {
+
+// --- Container Components ---
+
+const InfoBox = ({ icon: Icon, title, content, className = "" }) => (
+    <div className={`p-6 rounded-xl bg-slate-50 border border-slate-100 ${className}`}>
+        <div className="flex items-center gap-3 mb-3">
+            <div className="w-7 h-7 rounded bg-white shadow-sm flex items-center justify-center text-slate-900 border border-slate-100">
+                <Icon size={14} />
+            </div>
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{title}</h4>
+        </div>
+        <p className="text-[14px] text-slate-700 leading-relaxed font-medium">
+            {content}
+        </p>
+    </div>
+);
+
+const MetricBox = ({ label, value, subtext, icon: Icon, isCompact = false }) => (
+    <div className={`p-6 rounded-xl bg-white border border-slate-100 shadow-sm flex flex-col justify-between ${isCompact ? 'min-h-[120px]' : 'min-h-[150px]'}`}>
+        <div className="flex justify-between items-start">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">{label}</span>
+            <Icon size={14} className="text-slate-300" />
+        </div>
+        <div>
+            <div className={`font-bold text-slate-900 mb-1 ${value?.length > 15 ? 'text-lg' : 'text-2xl'}`}>
+                {value}
+            </div>
+            <div className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">{subtext}</div>
+        </div>
+    </div>
+);
+
+const AnalysisReport = ({ report, onAccept, planLoading = false }) => {
+    const reportRef = React.useRef(null);
+    const [exporting, setExporting] = useState(null);
+    const [copied, setCopied] = useState(false);
+    const [planInitiated, setPlanInitiated] = useState(false);
+
     if (!report) return null;
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    const pages = report.pages || [];
+
+    const handleExportPDF = async () => {
+        setExporting('pdf');
+        await ExportService.exportReportToPDF(report, `${report.project_name || 'Venture'}_Report.pdf`);
+        setExporting(null);
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 10 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }
+    const handleExportDocx = async () => {
+        setExporting('docx');
+        await ExportService.exportToDocx(report, `${report.project_name || 'Venture'}_Report.docx`);
+        setExporting(null);
+    };
+
+    const handleCopy = async () => {
+        const ok = await ExportService.copyToClipboard(report);
+        if (ok) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2500);
+        }
+    };
+
+    const handleInitiatePlan = () => {
+        setPlanInitiated(true);
+        onAccept();
+    };
+
+    const renderPageContent = (page) => {
+        const { id, content } = page;
+
+        switch (id) {
+            case 'executive':
+                return (
+                    <div className="space-y-3">
+
+                        {/* Summary */}
+                        <div className="p-5 rounded-xl bg-slate-900 text-white">
+                            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/30 mb-2 block">Executive Summary</span>
+                            <p className="text-sm font-medium leading-relaxed font-serif italic text-slate-200">{content.explanation}</p>
+                        </div>
+
+                        {/* Chart + Market Demand — same row */}
+                        <div className="grid grid-cols-3 gap-3 items-stretch">
+                            <div className="col-span-2 p-4 rounded-xl bg-white border border-slate-100">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><TrendingUp size={10}/> Traction Projection</span>
+                                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">12-Month</span>
+                                </div>
+                                <LineChart data={content.chart_data} />
+                            </div>
+                            <div className="p-5 rounded-xl bg-white border border-slate-100 flex flex-col justify-center gap-1.5">
+                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Market Demand</div>
+                                <div className="text-4xl font-bold text-slate-900 tabular-nums leading-none">
+                                    {content.market_demand?.score}<span className="text-lg text-slate-300">/10</span>
+                                </div>
+                                <div className="text-[8px] text-slate-400 uppercase tracking-widest">Interest Score</div>
+                            </div>
+                        </div>
+
+                        {/* Info row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-1"><Globe size={9}/> Target Demographic</div>
+                                <p className="text-sm text-slate-600 leading-relaxed">{content.target_user}</p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-white border border-slate-100">
+                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Strategic Impact</div>
+                                <p className="text-sm text-slate-500 leading-relaxed italic border-l-2 border-slate-100 pl-3">"{content.market_demand?.analysis}"</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            case 'market':
+                return (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="md:col-span-2 space-y-4">
+                                {content.competitors?.map((comp, i) => (
+                                    <div key={i} className="p-5 rounded-xl bg-slate-50 border border-slate-100 flex gap-4 items-start">
+                                        <div className="w-8 h-8 rounded bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100">
+                                            <Shield size={14} className="text-slate-400" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <h3 className="text-sm font-bold text-slate-900">{comp.name}</h3>
+                                                <span className="text-[8px] font-black text-slate-300 uppercase">0{i + 1}</span>
+                                            </div>
+                                            <p className="text-[13px] text-slate-500 leading-relaxed mb-2">{comp.analysis}</p>
+                                            <div className="flex items-center gap-2 text-[9px] font-bold text-rose-500 uppercase tracking-wide">
+                                                <AlertTriangle size={10} />
+                                                <span>Weakness: {comp.weakness_to_exploit}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                    <PieChart size={12} /> Competitive Share
+                                </h4>
+                                <SimpleBarChart data={content.chart_data} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <InfoBox icon={Activity} title="Market Gap" content={content.the_gap} />
+                            <InfoBox icon={Target} title="Defensibility" content={content.differentiation} />
+                        </div>
+                    </div>
+                );
+            case 'technical':
+                return (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="flex flex-col gap-4">
+                                <MetricBox label="Viability" value={`${content.viability_score}/10`} subtext="Build feasibility" icon={Cpu} isCompact />
+                                <MetricBox label="Capital" value={content.est_mvp_cost} subtext="Projected launch" icon={Layers} isCompact />
+                            </div>
+                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                    <Layers size={12} /> Capital Allocation
+                                </h4>
+                                <SimpleBarChart data={content.chart_data} />
+                            </div>
+                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                    <Clock size={12} /> Dev Timeline
+                                </h4>
+                                <div className="h-full flex flex-col justify-center items-center py-6">
+                                    <div className="relative">
+                                        <svg className="w-20 h-20 transform -rotate-90">
+                                            <circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-slate-50" />
+                                            <motion.circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="6" fill="transparent" strokeDasharray="213.6"
+                                                initial={{ strokeDashoffset: 213.6 }} animate={{ strokeDashoffset: 213.6 * 0.4 }} transition={{ duration: 1.5 }}
+                                                className="text-slate-900" />
+                                        </svg>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                            <span className="text-2xl font-bold text-slate-900">6</span>
+                                            <span className="text-[8px] font-bold text-slate-400 uppercase">Mo.</span>
+                                        </div>
+                                    </div>
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-3">Target Launch</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <InfoBox icon={Layers} title="Feasibility Thesis" content={content.complexity} />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                                    <Cpu size={12} /> Tech Stack
+                                </h4>
+                                <div className="space-y-2">
+                                    {content.suggested_stack?.split(',').map((item, i) => (
+                                        <div key={i} className="flex items-center gap-3 py-1.5 border-b border-slate-50 last:border-0 text-[13px] font-bold text-slate-700">
+                                            <div className="w-1 h-1 bg-slate-100 rounded-full" />
+                                            {item.trim()}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                                    <Layers size={12} /> System Schematic
+                                </h4>
+                                <div className="text-[10px] font-mono p-4 bg-slate-50 rounded text-slate-500 uppercase leading-relaxed border border-slate-100">
+                                    {content.architecture}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            case 'risk':
+                return (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                {Object.entries(content.risks || {}).map(([key, val], i) => (
+                                    <div key={i} className="flex items-center justify-between p-4 px-6 rounded-xl bg-white border border-slate-100 hover:border-slate-300 transition-colors">
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 w-20">{key}</span>
+                                            <p className="text-[13px] font-medium text-slate-600 italic">"{val}"</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="p-8 rounded-xl bg-white border border-slate-100 shadow-sm flex flex-col items-center">
+                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">Exposure Profile</h4>
+                                <div className="w-full max-w-[400px]">
+                                    <RadarChart data={content.chart_data} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <InfoBox icon={Shield} title="Strengths" content={content.mentor_advice?.appreciate} />
+                            <InfoBox icon={AlertTriangle} title="Critique" content={content.mentor_advice?.criticize} />
+                            <InfoBox icon={ArrowRight} title="Guidance" content={content.mentor_advice?.advice} />
+                        </div>
+
+                        <div className="p-8 rounded-xl bg-slate-900 text-white shadow-xl">
+                            <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-8">Success Roadmap</h3>
+                            <div className="space-y-4">
+                                {content.immediate_actions?.map((action, i) => (
+                                    <div key={i} className="flex gap-4 items-center group">
+                                        <div className="w-7 h-7 rounded bg-white/5 flex items-center justify-center text-[10px] font-bold text-white/30 border border-white/5 uppercase">
+                                            Step 0{i + 1}
+                                        </div>
+                                        <p className="text-sm font-bold tracking-tight uppercase group-hover:text-white transition-colors">
+                                            {action}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
     };
 
     return (
-        <div className="w-full h-full bg-[#FAFAFA] overflow-y-auto custom-scrollbar">
-            <div className="max-w-[1600px] mx-auto px-6 py-6 pb-32">
+        <div className="w-full h-full bg-[#f1f5f9] overflow-y-auto custom-scrollbar pt-10 pb-32">
+            <div className="mx-auto w-full px-6 flex justify-center">
+                <div className="flex w-full gap-6 max-w-[1500px] items-start relative">
 
-                {/* Header - Compact */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-8 border-b border-slate-200 pb-5 flex items-center justify-between gap-4"
-                >
-                    <div>
-                        <div className="flex items-center gap-2 mb-1.5">
-                            <div className="p-1 px-1.5 bg-blue-50 rounded text-[9px] font-black text-[var(--brand-accent)] uppercase tracking-[0.2em] border border-blue-100">
-                                Intelligence Hub
-                            </div>
-                        </div>
-                        <h2 className="text-2xl font-normal text-slate-900 tracking-tight">
-                            {report.project_name || "Venture Blueprint"}
-                        </h2>
-                    </div>
-
-                </motion.div>
-
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="space-y-6"
-                >
-                    {/* ROW 1: Manifesto (Left) + Metrics (Right) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        {/* Executive Summary */}
-                        <motion.section variants={itemVariants} className="lg:col-span-8 bg-white border border-slate-100 rounded-xl p-8 shadow-sm relative overflow-hidden group min-h-[160px] flex flex-col justify-center">
-                            <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:scale-110 transition-transform pointer-events-none">
-                                <Target size={120} />
-                            </div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Executive Manifesto</span>
-                            </div>
-                            <p className="text-lg font-medium text-slate-700 leading-relaxed italic">
-                                "{report.explanation}"
-                            </p>
-                        </motion.section>
-
-                        {/* Metrics Grid - REDESIGNED: Centered & Inline Icons */}
-                        <motion.section variants={itemVariants} className="lg:col-span-4 flex flex-col justify-center">
-                            <div className="grid grid-cols-3 gap-3 h-full">
-                                <MetricCard
-                                    score={report.market_demand?.score || 0}
-                                    label="Demand"
-                                    color="var(--brand-accent)"
-                                    gradientFrom="var(--brand-accent)"
-                                    gradientTo="#06b6d4"
-                                    icon={TrendingUp}
-                                />
-                                <MetricCard
-                                    score={report.feasibility?.score || 0}
-                                    label="Viability"
-                                    color="#8b5cf6"
-                                    gradientFrom="#8b5cf6"
-                                    gradientTo="#d946ef"
-                                    icon={Rocket}
-                                />
-                                <MetricCard
-                                    score={report.competitiveness_score || 0}
-                                    label="Moat"
-                                    color="#db2777"
-                                    gradientFrom="#db2777"
-                                    gradientTo="#f43f5e"
-                                    icon={ShieldCheck}
-                                />
-                            </div>
-                        </motion.section>
-                    </div>
-
-                    {/* ROW 2: Competitive Landscape (Left) + Expert Advice (Right) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        {/* Competitive Radar - RENAMED */}
-                        <motion.section variants={itemVariants} className="lg:col-span-8 space-y-4">
-                            <div className="flex items-center gap-3 px-1">
-                                <div className="p-1 px-2.5 bg-slate-900 text-white rounded text-[10px] font-black uppercase tracking-widest">
-                                    Competitive Landscape
+                    {/* LEFT SIDE: THE DOCUMENT PAGES */}
+                    <div ref={reportRef} className="flex-1 space-y-6 min-w-0">
+                        {/* Compact Header */}
+                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                                <div className="w-11 h-11 bg-slate-900 rounded-lg flex items-center justify-center p-2.5">
+                                    <img src={LogoIcon} className="w-full h-full invert brightness-0" alt="Logo" />
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {report.competitors?.map((comp, idx) => (
-                                    <div key={idx} className="bg-white border border-slate-100 rounded-xl p-6 hover:border-blue-100 transition-all hover:shadow-md group flex flex-col h-full">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <h4 className="text-base font-normal text-slate-900 tracking-tight">{comp.name}</h4>
-                                            <span className="px-2 py-0.5 bg-slate-50 text-slate-400 rounded text-[9px] font-black uppercase tracking-widest border border-slate-100">Rival</span>
-                                        </div>
-                                        <p className="text-[13px] text-slate-600 font-medium leading-relaxed italic line-clamp-3 mb-6 flex-1">
-                                            "{comp.what_they_do}"
-                                        </p>
-                                        <div className="mt-auto pt-4 border-t border-slate-50">
-                                            <div className="p-4 bg-blue-50/40 rounded-lg border border-blue-50/50 group-hover:border-blue-100">
-                                                <span className="text-[9px] font-black text-[var(--brand-accent)] uppercase tracking-widest block mb-2">Gap Opportunity</span>
-                                                <p className="text-[12px] text-blue-800 font-bold leading-relaxed">{comp.weaknesses}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </motion.section>
-
-                        {/* Expert Advice - REDESIGNED */}
-                        <motion.section variants={itemVariants} className="lg:col-span-4 flex flex-col h-full">
-                            <div className="flex-1 p-8 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl text-white relative overflow-hidden group flex flex-col shadow-lg border border-slate-700/50">
-                                {/* Abstract Geometric Pattern */}
-                                <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:rotate-12 transition-transform duration-700">
-                                    <Sparkles size={120} strokeWidth={1} />
-                                </div>
-
-                                <div className="flex items-center gap-3 mb-8 relative z-10 border-b border-white/10 pb-4">
-                                    <h4 className="text-sm font-normal text-blue-200 uppercase tracking-widest">Strategic Insight</h4>
-                                </div>
-
-                                <div className="relative z-10 flex-1 flex flex-col justify-center">
-                                    <div className="text-4xl text-blue-500/20 absolute -top-4 -left-2 font-serif">"</div>
-                                    <p className="text-[16px] font-medium leading-relaxed text-slate-200 relative pl-4 border-l-2 border-blue-500/50">
-                                        {report.mentor_perspective?.advice}
+                                <div className="flex flex-col">
+                                    <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none mb-1">
+                                        {report.project_name || "Venture Strategy"}
+                                    </h1>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                        System-Generated Analysis • {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </p>
                                 </div>
                             </div>
-                        </motion.section>
-                    </div>
-
-                    {/* ROW 3: Risks (Left) + Directives (Right) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        {/* Risks - 4 Grid Layout */}
-                        <motion.section variants={itemVariants} className="lg:col-span-6 space-y-4">
-                            <div className="flex items-center gap-3 px-1">
-                                <div className="p-1 px-2.5 bg-rose-100 text-rose-600 rounded text-[10px] font-black uppercase tracking-widest">
-                                    Risk Guardrails
+                            <div className="hidden lg:flex items-center gap-4 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg">
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Protocol Audit</span>
+                                    <span className="text-[10px] font-bold text-slate-900 uppercase tabular-nums">VERIFIED_3.02</span>
                                 </div>
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                {Object.entries(report.risks || {}).slice(0, 4).map(([key, value], idx) => (
-                                    <div key={idx} className="flex gap-4 p-5 bg-white rounded-xl border border-slate-100 hover:border-rose-100 transition-all h-full group">
-                                        <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-400 shrink-0 border border-rose-100 group-hover:bg-rose-100 transition-colors">
-                                            <AlertTriangle size={14} />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">{key}</span>
-                                            <p className="text-[12px] text-slate-600 font-medium leading-relaxed line-clamp-3">{value}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </motion.section>
+                        </div>
 
-                        {/* Execution Directives - 3 Step Layout */}
-                        <motion.section variants={itemVariants} className="lg:col-span-6 space-y-4">
-                            <div className="flex items-center gap-3 px-1">
-                                <div className="p-1 px-2.5 bg-blue-50 text-[var(--brand-accent)] rounded text-[10px] font-black uppercase tracking-widest border border-blue-100">
-                                    Directives
-                                </div>
-                            </div>
-                            <div className="relative pl-6 border-l-2 border-slate-200/50 space-y-4">
-                                {report.next_steps?.immediate.slice(0, 3).map((step, idx) => (
-                                    <div key={idx} className="relative group">
-                                        <div className="absolute -left-[31px] top-[14px] w-4 h-4 rounded-full bg-white border-[3px] border-slate-200 group-hover:border-[var(--brand-accent)] transition-all z-10 shadow-sm" />
-                                        <div className="bg-white p-5 rounded-xl border border-slate-100 group-hover:shadow-md transition-all hover:border-blue-100">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-[9px] font-black text-slate-300">STEP 0{idx + 1}</span>
-                                            </div>
-                                            <p className="text-[13px] text-slate-800 font-bold leading-relaxed">{step}</p>
-                                        </div>
+                        {/* Analysis Modules */}
+                        {pages.map((page, idx) => (
+                            <motion.div
+                                key={page.id}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="bg-white rounded-xl border border-slate-200 p-10 relative flex flex-col shadow-sm"
+                            >
+                                <header className="mb-10 flex justify-between items-center bg-slate-50/80 p-5 rounded-lg border border-slate-100">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
+                                        <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">{page.title}</h2>
                                     </div>
-                                ))}
-                            </div>
-                        </motion.section>
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest border-l border-slate-200 pl-4 ml-4">
+                                        Mod {idx + 1}
+                                    </span>
+                                </header>
+
+                                <main className="flex-1">
+                                    {renderPageContent(page)}
+                                </main>
+
+                                <footer className="mt-14 pt-6 border-t border-slate-50 flex justify-between items-center text-[8px] font-bold text-slate-300 uppercase tracking-widest">
+                                    <span>Capable Intelligence • Internal Protocol</span>
+                                    <span>{idx + 1} / {pages.length}</span>
+                                </footer>
+                            </motion.div>
+                        ))}
                     </div>
 
-                </motion.div>
+                    {/* RIGHT SIDE: SIDEBAR */}
+                    <div className="w-[200px] shrink-0 sticky top-0 h-screen flex flex-col">
+                        <div className="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden mt-4 mb-10">
 
-                {/* Footer Branding */}
-                <div className="mt-16 pt-8 border-t border-slate-100 flex flex-col items-center gap-3 text-slate-300">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1 px-1.5 border border-slate-200 rounded text-[10px] font-black">AI</div>
-                        <span className="text-[9px] font-black uppercase tracking-[0.4em]">Capable Discovery System v2.2 Grid Edition</span>
-                    </div>
-                </div>
-
-
-                {/* Floating Action Dock */}
-                <motion.div
-                    initial={{ y: 100, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.8, type: "spring", stiffness: 200, damping: 20 }}
-                    className="fixed bottom-8 left-0 right-0 flex justify-center z-50 pointer-events-none"
-                >
-                    <div className="pointer-events-auto flex items-center gap-2 p-2 bg-white/80 backdrop-blur-xl border border-white/40 shadow-2xl shadow-slate-200/50 rounded-2xl ring-1 ring-slate-900/5 text-center">
-                        <button
-                            onClick={onRestart}
-                            className="group flex items-center gap-2 px-4 py-2.5 text-[10px] font-black text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white/50 rounded-xl uppercase tracking-widest transition-all"
-                        >
-                            <span className="group-hover:-rotate-180 transition-transform duration-500">
-                                <RotateCcw size={14} className="text-slate-400 group-hover:text-slate-600" />
-                            </span>
-                            Refine
-                        </button>
-                        <div className="w-px h-4 bg-slate-200 mx-1"></div>
-                        <button
-                            onClick={onAccept}
-                            disabled={planLoading}
-                            className="group flex items-center gap-2 px-6 py-2.5 bg-[var(--brand-accent)] text-white rounded-xl font-bold hover:bg-[var(--brand-accent-hover)] transition-all active:scale-95 disabled:opacity-70 text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30"
-                        >
-                            {planLoading ? (
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <span className="flex items-center gap-2">
-                                    EXECUTE PROTOCOL <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                            {/* Copy — top */}
+                            <button onClick={handleCopy}
+                                className={`flex items-center gap-3 w-full px-5 py-4 text-left transition-colors border-b border-slate-100
+                                    ${copied ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-slate-50 text-slate-700'}`}>
+                                <span className="text-base leading-none">⎘</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest">
+                                    {copied ? 'Copied ✓' : 'Copy Report'}
                                 </span>
-                            )}
-                        </button>
+                            </button>
+
+                            {/* Export */}
+                            <button onClick={handleExportPDF} disabled={exporting === 'pdf'}
+                                className="flex items-center gap-3 w-full px-5 py-3.5 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 disabled:opacity-40">
+                                <FileText size={12} className="text-slate-400 shrink-0" />
+                                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                                    {exporting === 'pdf' ? 'Generating…' : 'PDF'}
+                                </span>
+                            </button>
+
+                            <button onClick={handleExportDocx} disabled={exporting === 'docx'}
+                                className="flex items-center gap-3 w-full px-5 py-3.5 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 disabled:opacity-40">
+                                <Download size={12} className="text-slate-400 shrink-0" />
+                                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
+                                    {exporting === 'docx' ? 'Generating…' : 'Word / DOCX'}
+                                </span>
+                            </button>
+
+                            {/* Spacer */}
+                            <div className="flex-1" />
+
+                            {/* Initiate Plan — bottom */}
+                            <div className="p-4 border-t border-slate-100">
+                                <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-4">
+                                    <div>
+                                        <div className="flex items-center gap-1.5 mb-2">
+                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors
+                                                ${planInitiated ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                                            <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-white/25">
+                                                {planInitiated ? 'Phase 2 Active' : 'Phase 1 Done'}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-white leading-snug">
+                                            {planInitiated ? 'Your plan is ready' : 'Build your roadmap'}
+                                        </p>
+                                        <p className="text-[9px] text-slate-500 mt-1 leading-relaxed">
+                                            {planInitiated ? 'Go to the task board.' : 'Generate a precision execution plan.'}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={handleInitiatePlan}
+                                        disabled={planLoading}
+                                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50
+                                            ${planInitiated ? 'bg-emerald-500 hover:bg-emerald-400 text-white' : 'bg-white hover:bg-slate-100 text-slate-900'}`}>
+                                        <span>
+                                            {planLoading ? 'Generating…' : planInitiated ? 'Go to Plan' : 'Initiate Plan'}
+                                        </span>
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center transition-all group-hover:translate-x-0.5
+                                            ${planInitiated ? 'bg-white/20' : 'bg-slate-900 text-white'}`}>
+                                            {planLoading
+                                                ? <div className="w-2 h-2 border border-current/30 border-t-current rounded-full animate-spin" />
+                                                : <ArrowRight size={10} />}
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </motion.div>
-            </div >
-        </div >
+
+
+                </div>
+            </div>
+        </div>
     );
 };
 

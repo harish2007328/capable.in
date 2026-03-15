@@ -483,83 +483,131 @@ app.post('/api/analyze', async (req, res) => {
       USER INTERVIEW SUMMARY: ${answers}
 
       TASK:
-      Generate an Investor-Ready Strategic Report based HEAVILY on the PROVIDE Market Research Signals (DuckDuckGo, Reddit, Trends) and User Interview.
-      
-      COMPETITOR EXTRACTION RULES:
-      - Scan the "competitionSignals" in the MARKET RESEARCH CONTEXT.
-      - If a location is provided, prioritize competitors operating in that region.
-      - Extract EXACT names of companies or services mentioned in the search results.
-      - If the signals show no direct competitors, identify "Indirect Competitors" (e.g., manual processes, traditional methods).
+      Generate an exhaustive, 4-page Strategic Blueprint. Break down the content into 4 distinct, highly detailed sections (pages). 
+      BE VERBOSE: Provide deep tactical insight, data-backed projections, and industry-specific metrics.
 
-      REQUIRED SECTIONS (STRICT SCHEMA):
-      1. Idea Summary: Clear explanation, target user, core value proposition.
-      2. Market Demand Analysis: Demand score (1-10) based on URGENCY (High=Hair on fire, Low=Nice to have) and actual market signals (Reddit pain points, search volume).
-      3. Competitive Landscape: List STRICTLY 2-3 specific competitors found in research. Include their strengths/weaknesses. Provide a Competitiveness Score (1-10) where 10=Blue Ocean/Unique and 1=Red Ocean/Saturated.
-      4. Market Gap & Differentiation: Specific gap identified from competitor weaknesses and why this idea is meaningfully different.
-      5. Risk Analysis: STRICTLY 4 points (Market, Execution, Adoption, Financial).
-      6. Feasibility Analysis: Feasibility Score (1-10) where 10=MVP in weeks, 1=Requires Millions/R&D.
-      7. Mentor / Investor Perspective: CRITICAL & REALISTIC feedback. What they would appreciate, criticize, and advise.
-      8. Strategic Next Steps: STRICTLY 3 Immediate actions and things to avoid.
+      PAGE STRUCTURE:
+      1. Executive Manifesto & Market Urgency: 
+         - Deep explanation of why this works NOW.
+         - Target Persona breakdown (demographics, psychographics).
+         - Core Value Proposition and specific "Magic Moment".
+         - Market Demand Score with 2-3 paragraph justification.
+
+      2. Competitive Deep-Dive & Market Gap:
+         - Minimum 3 specific competitors from research.
+         - Detailed SWAT (Strengths, Weaknesses, Opportunities, Threats) for each.
+         - Identification of the "Structural Gap" in the current market.
+         - Specific Differentiation Strategy (The "Moat").
+
+      3. Technical Blueprint & Feasibility:
+         - Technical Viability score.
+         - Suggested Tech Stack (Backend, Frontend, AI/Data tools).
+         - High-level architecture suggestion.
+         - Development Complexity Analysis.
+         - Preliminary Cost Estimate (MVP).
+
+      4. Execution Strategy & Risk Mitigation:
+         - Strategic Roadmap (High level).
+         - Deep Risk Analysis (Market, Execution, Financial, Legal/Compliance).
+         - Mentor's Brutal Perspective (Appreciation, Criticism, Pivot Advice).
+         - Immediate Tactical Directives.
 
       STRICT RULES:
-      - BE CRITICAL AND REALISTIC. Do not be overly optimistic.
-      - USE DATA: Reference specific trends or "reddit discussions" mentioned in the signals (without URLs).
-      - NEVER mention specific website names or source URLs. Use "market signals" or "internet research".
-      - NEVER hallucinate competitors as facts. Use the signals provided.
-      - COMPETITOR NAMES: You must provide specific names (e.g., "Slack", "Discord") or distinct categories (e.g., "Traditional Spreadsheets").
-      - Scores must be integers from 1-10.
-      - Format: Return ONLY valid JSON.
+      - Total length should be approx 1500-2000 words across all pages.
+      - USE DATA: Reference search trends, reddit sentiment, and user location context.
+      - COMPETITOR NAMES: You MUST use real, specific brand names found in the MARKET RESEARCH CONTEXT. 
+      - DO NOT use generic placeholders like "Competitor A", "Competitor B", or "Brand X". This is a CRITICAL REQUIREMENT.
+      - Format: Return ONLY valid JSON matching the schema below.
+      - Scores must be integers 1-10.
 
       JSON SCHEMA:
       {
-        "project_name": "Short clean name",
-        "explanation": "Clear explanation of the idea",
-        "target_user": "Primary persona",
-        "value_prop": "Core value proposition",
-        "market_demand": { 
-          "score": 8, 
-          "justification": "Why this score? (based on size, urgency, signals)" 
-        },
-        "competitors": [
-          { "name": "Competitor 1", "what_they_do": "Brief desc", "strengths": "...", "weaknesses": "..." }
-        ],
-        "competitiveness_score": 6,
-        "market_gap": "The gap being addressed",
-        "differentiation": "Why this is different",
-        "risks": {
-          "market": "Risk detail",
-          "execution": "Risk detail",
-          "adoption": "Risk detail",
-          "financial": "Risk detail"
-        },
-        "feasibility": {
-          "score": 7,
-          "analysis": "Analysis based on resources/skills"
-        },
-        "mentor_perspective": {
-          "appreciate": "Positive point",
-          "criticize": "Critical point",
-          "advice": "Next move advice"
-        },
-        "next_steps": {
-          "immediate": ["Step 1", "Step 2", "Step 3"],
-          "avoid": ["Pitfall 1", "Pitfall 2"]
-        }
+        "project_name": "Brand Name",
+        "pages": [
+          {
+            "id": "executive",
+            "title": "Executive Manifesto",
+            "content": {
+               "explanation": "...",
+               "target_user": "...",
+               "value_prop": "...",
+               "market_demand": { "score": 8, "analysis": "..." },
+               "chart_data": [
+                 { "label": "Month 1", "value": 10 },
+                 { "label": "Month 3", "value": 35 },
+                 { "label": "Month 6", "value": 65 },
+                 { "label": "Month 12", "value": 100 }
+               ]
+            }
+          },
+          {
+            "id": "market",
+            "title": "Competitive Deep-Dive",
+            "content": {
+               "competitors": [
+                  { "name": "REAL_BRAND_NAME_1", "analysis": "...", "weakness_to_exploit": "..." },
+                  { "name": "REAL_BRAND_NAME_2", "analysis": "...", "weakness_to_exploit": "..." },
+                  { "name": "REAL_BRAND_NAME_3", "analysis": "...", "weakness_to_exploit": "..." }
+               ],
+               "competitiveness_score": 7,
+               "the_gap": "...",
+               "differentiation": "...",
+               "chart_data": [
+                  { "label": "REAL_BRAND_1", "value": 45 },
+                  { "label": "REAL_BRAND_2", "value": 30 },
+                  { "label": "You (Projected)", "value": 25 }
+               ]
+            }
+          },
+          {
+            "id": "technical",
+            "title": "Technical Blueprint",
+            "content": {
+               "viability_score": 9,
+               "suggested_stack": "...",
+               "architecture": "...",
+               "complexity": "...",
+               "est_mvp_cost": "...",
+               "chart_data": [
+                  { "label": "Infrastructure", "value": 20 },
+                  { "label": "Development", "value": 50 },
+                  { "label": "AI Engine", "value": 30 }
+               ]
+            }
+          },
+          {
+            "id": "risk",
+            "title": "Strategy & Risk",
+            "content": {
+               "risks": { "market": "...", "technical": "...", "financial": "...", "legal": "..." },
+               "mentor_advice": { "appreciate": "...", "criticize": "...", "advice": "..." },
+               "immediate_actions": ["...", "...", "..."],
+                "chart_data": [
+                  { "label": "Market", "value": 4 },
+                  { "label": "Technical", "value": 6 },
+                  { "label": "Financial", "value": 3 },
+                  { "label": "Operational", "value": 7 },
+                  { "label": "Regulatory", "value": 5 }
+                ]
+            }
+          }
+        ]
       }
     `;
 
         const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
             messages: [
-                { role: "system", content: "You are a world-class mentor. You provide pithy, actionable, and data-backed advice. Output valid JSON. If user answers are vague, focus on helping them gain clarity." },
+                { role: "system", content: "You are a world-class strategic consultant. You provide exhaustive, data-backed analysis. Output ONLY valid JSON." },
                 { role: "user", content: prompt }
             ],
             model: "llama-3.3-70b-versatile",
             response_format: { type: "json_object" },
-            max_tokens: 6000, // Balanced for quality and limits
+            max_tokens: 8000, 
         }));
 
         const report = JSON.parse(completion.choices[0].message.content);
         res.json(report);
+
     } catch (err) {
         console.error("ANALYSIS FAILED:", err.message);
         res.status(500).json({ error: "Analysis failed", details: err.message });
