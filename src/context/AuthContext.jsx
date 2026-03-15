@@ -126,14 +126,20 @@ export const AuthProvider = ({ children }) => {
                 
                 // Update local state with the rich profile data
                 if (existingProfile) {
-                    currentUser.profile = { ...currentUser.profile, ...existingProfile };
-                    setUser({ ...currentUser });
+                    const hasAvatarChange = existingProfile.avatar_url && existingProfile.avatar_url !== currentUser.profile?.avatar_url;
+                    const hasNameChange = existingProfile.name && existingProfile.name !== currentUser.profile?.name;
+                    
+                    if (hasAvatarChange || hasNameChange) {
+                        console.log("✅ Applying database profile updates to local state");
+                        currentUser.profile = { ...currentUser.profile, ...existingProfile };
+                        setUser({ ...currentUser });
+                    }
                 }
             }
         } catch (dbErr) {
             console.warn("Database profile sync failed:", dbErr.message);
         }
-    }, [updateUser]);
+    }, []); // Removed [updateUser] to prevent unnecessary re-creations
 
     const checkSession = React.useCallback(async () => {
         try {

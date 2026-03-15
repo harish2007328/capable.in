@@ -520,78 +520,85 @@ const AnalysisReport = ({ report, onAccept, planLoading = false }) => {
                         ))}
                     </div>
 
-                    {/* RIGHT SIDE: SIDEBAR — fixed to viewport */}
-                    <div className="w-[200px] shrink-0" /> {/* flex placeholder */}
-                    <div className="fixed right-6 top-10 w-[200px] h-screen flex flex-col z-10">
-                        <div className="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden mt-10 mb-16 shadow-sm">
+                    {/* RIGHT SIDE: SIDEBAR — Sticky within column */}
+                    <div className="w-[200px] shrink-0">
+                        <div className="sticky top-20 flex flex-col gap-6">
+                            
+                            {/* Action Card */}
+                            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-sm bg-white/90">
+                                {/* Copy — top */}
+                                <button onClick={handleCopy}
+                                    className={`flex items-center gap-3 w-full px-5 py-4 text-left transition-all active:scale-[0.98] border-b border-slate-100
+                                        ${copied ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-slate-50 text-slate-700'}`}>
+                                    <span className="text-sm font-bold">⎘</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]">
+                                        {copied ? 'Copied ✓' : 'Copy Report'}
+                                    </span>
+                                </button>
 
-                            {/* Copy — top */}
-                            <button onClick={handleCopy}
-                                className={`flex items-center gap-3 w-full px-5 py-4 text-left transition-colors border-b border-slate-100
-                                    ${copied ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-slate-50 text-slate-700'}`}>
-                                <span className="text-base leading-none">⎘</span>
-                                <span className="text-[10px] font-bold uppercase tracking-widest">
-                                    {copied ? 'Copied ✓' : 'Copy Report'}
-                                </span>
-                            </button>
-
-                            {/* Export */}
-                            <button onClick={handleExportPDF} disabled={exporting === 'pdf'}
-                                className="flex items-center gap-3 w-full px-5 py-3.5 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 disabled:opacity-40">
-                                <FileText size={12} className="text-slate-400 shrink-0" />
-                                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
-                                    {exporting === 'pdf' ? 'Generating…' : 'PDF'}
-                                </span>
-                            </button>
-
-                            <button onClick={handleExportDocx} disabled={exporting === 'docx'}
-                                className="flex items-center gap-3 w-full px-5 py-3.5 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 disabled:opacity-40">
-                                <Download size={12} className="text-slate-400 shrink-0" />
-                                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">
-                                    {exporting === 'docx' ? 'Generating…' : 'Word / DOCX'}
-                                </span>
-                            </button>
-
-                            {/* Spacer */}
-                            <div className="flex-1" />
-
-                            {/* Initiate Plan — bottom */}
-                            <div className="p-4 border-t border-slate-100">
-                                <div className="bg-slate-900 rounded-xl p-4 flex flex-col gap-4">
-                                    <div>
-                                        <div className="flex items-center gap-1.5 mb-2">
-                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors
-                                                ${planInitiated ? 'bg-emerald-400' : 'bg-white/20'}`} />
-                                            <span className="text-[7px] font-bold uppercase tracking-[0.2em] text-white/25">
-                                                {planInitiated ? 'Phase 2 Active' : 'Phase 1 Done'}
-                                            </span>
+                                {/* Export Group */}
+                                <div className="p-1">
+                                    <button onClick={handleExportPDF} disabled={exporting === 'pdf'}
+                                        className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40">
+                                        <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-500">
+                                            <FileText size={12} />
                                         </div>
-                                        <p className="text-[11px] font-bold text-white leading-snug">
-                                            {planInitiated ? 'Your plan is ready' : 'Build your roadmap'}
-                                        </p>
-                                        <p className="text-[9px] text-slate-500 mt-1 leading-relaxed">
-                                            {planInitiated ? 'Go to the task board.' : 'Generate a precision execution plan.'}
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={handleInitiatePlan}
-                                        disabled={planLoading}
-                                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50
-                                            ${planInitiated ? 'bg-emerald-500 hover:bg-emerald-400 text-white' : 'bg-white hover:bg-slate-100 text-slate-900'}`}>
-                                        <span>
-                                            {planLoading ? 'Generating…' : planInitiated ? 'Go to Plan' : 'Initiate Plan'}
+                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">
+                                            {exporting === 'pdf' ? 'Busy…' : 'PDF'}
                                         </span>
-                                        <div className={`w-5 h-5 rounded flex items-center justify-center transition-all group-hover:translate-x-0.5
-                                            ${planInitiated ? 'bg-white/20' : 'bg-slate-900 text-white'}`}>
-                                            {planLoading
-                                                ? <div className="w-2 h-2 border border-current/30 border-t-current rounded-full animate-spin" />
-                                                : <ArrowRight size={10} />}
+                                    </button>
+
+                                    <button onClick={handleExportDocx} disabled={exporting === 'docx'}
+                                        className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40">
+                                        <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
+                                            <Download size={12} />
                                         </div>
+                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">
+                                            {exporting === 'docx' ? 'Busy…' : 'Word'}
+                                        </span>
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Initiate Plan — Bottom Card */}
+                            <div className="bg-slate-900 rounded-2xl p-5 shadow-2xl shadow-slate-200 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.03] rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-white/[0.05] transition-colors" />
+                                
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${planInitiated ? 'bg-emerald-400' : 'bg-blue-400'} shadow-[0_0_8px_rgba(52,211,153,0.5)]`} />
+                                        <span className="text-[8px] font-black uppercase tracking-[0.25em] text-white/30">
+                                            {planInitiated ? 'System Ready' : 'Planning'}
+                                        </span>
+                                    </div>
+                                    
+                                    <h4 className="text-white text-[13px] font-bold leading-tight mb-2">
+                                        {planInitiated ? 'Blueprint Generated' : 'Ready to Execute?'}
+                                    </h4>
+                                    
+                                    <p className="text-slate-400 text-[10px] leading-relaxed mb-5">
+                                        {planInitiated ? 'Access the task board and start building.' : 'Turn this analysis into a granular 60-day roadmap.'}
+                                    </p>
+
+                                    <button
+                                        onClick={handleInitiatePlan}
+                                        disabled={planLoading}
+                                        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 disabled:opacity-50
+                                            ${planInitiated 
+                                                ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20' 
+                                                : 'bg-white hover:bg-slate-100 text-slate-900 shadow-lg shadow-white/5'}`}>
+                                        <span>
+                                            {planLoading ? 'Working…' : planInitiated ? 'Go to Tasks' : 'Start Roadmap'}
+                                        </span>
+                                        {!planLoading && <ArrowRight size={12} />}
+                                        {planLoading && <div className="w-3 h-3 border-2 border-slate-900/10 border-t-slate-900 rounded-full animate-spin" />}
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
+
 
 
                 </div>

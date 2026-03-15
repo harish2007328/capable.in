@@ -61,6 +61,15 @@
           event.preventDefault();
         }
       }, true);
+
+      // Handle promise rejections as well
+      window.addEventListener('unhandledrejection', (event) => {
+        const msg = (event.reason?.message || String(event.reason)).toLowerCase();
+        if (noisePatterns.some(p => msg.includes(p))) {
+          event.stopImmediatePropagation();
+          event.preventDefault();
+        }
+      }, true);
     })();
   </script>
 </head>
