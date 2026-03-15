@@ -13,20 +13,27 @@ const CheckoutResult = () => {
     const [status, setStatus] = useState('loading'); // loading, success, error
     const sessionId = searchParams.get('session_id');
     const paramStatus = searchParams.get('status');
+    const videoRef = React.useRef(null);
+
+    const heroVideo = "/hero-bg2-compressed.mp4";
+    const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
 
     useEffect(() => {
-        // If the URL explicitly says active or succeeded, we can trust Dodo's redirect
+        if (videoRef.current) videoRef.current.playbackRate = 0.75;
+
         if (paramStatus === 'active' || paramStatus === 'succeeded') {
             setStatus('success');
-            // Refresh session to get updated Pro status in Sidebar
             if (refreshSession) refreshSession();
             return;
         }
 
+        if (paramStatus === 'failed' || paramStatus === 'cancelled') {
+            setStatus('error');
+            return;
+        }
+
         if (!sessionId || sessionId === '{checkout_session_id}') {
-            if (!paramStatus) {
-                setStatus('error');
-            }
+            if (!paramStatus) setStatus('error');
             return;
         }
 
@@ -52,68 +59,79 @@ const CheckoutResult = () => {
     }, [sessionId, paramStatus, refreshSession]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm">
+        <div className="relative w-full h-[100dvh] flex items-center justify-center overflow-hidden bg-black">
+            {/* Background Video (Same as Homepage) */}
+            <div className="absolute inset-0 z-0">
+                <video
+                    ref={videoRef}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    poster={heroPoster}
+                    className="h-full w-full object-cover scale-[1.05]"
+                    style={{ filter: 'brightness(0.6)' }}
+                >
+                    <source src={heroVideo} type="video/mp4" />
+                </video>
+                <div className="absolute inset-0 bg-blue-900/40 backdrop-blur-[2px]"></div>
+            </div>
+
+            {/* Ultra-Minimal Content Card */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative z-10 w-full max-w-[340px] px-8 py-10 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl text-center"
             >
-                <div className="p-8">
-                    {status === 'loading' && (
-                        <div className="flex flex-col items-center py-6">
-                            <Loader2 className="w-12 h-12 text-slate-900 animate-spin mb-4" />
-                            <h2 className="text-xl font-bold text-slate-900">Confirming...</h2>
-                            <p className="text-sm text-slate-500 mt-1">Setting up your access</p>
+                {status === 'loading' && (
+                    <div className="flex flex-col items-center">
+                        <Loader2 className="w-10 h-10 text-white animate-spin mb-4" />
+                        <h2 className="text-xl font-display text-white tracking-tight">Verifying Payment...</h2>
+                    </div>
+                )}
+
+                {status === 'success' && (
+                    <>
+                        <div className="w-12 h-12 bg-sky-400/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle className="w-6 h-6 text-sky-400" />
                         </div>
-                    )}
+                        <h2 className="text-2xl font-display text-white mb-2 leading-tight">Welcome to Pro</h2>
+                        <p className="text-white/60 text-sm mb-8">Your subscription is now active.</p>
 
-                    {status === 'success' && (
-                        <div className="text-center">
-                            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <CheckCircle className="w-8 h-8 text-green-600" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Upgrade Complete</h2>
-                            <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                                Welcome to the Pro family. Your subscription is now active.
-                            </p>
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="w-full py-3.5 bg-white text-slate-900 rounded-xl font-bold text-sm tracking-wide hover:bg-sky-50 transition-all flex items-center justify-center gap-2"
+                        >
+                            Go to Dashboard
+                            <ArrowRight className="w-4 h-4" />
+                        </button>
+                    </>
+                )}
 
+                {status === 'error' && (
+                    <>
+                        <div className="w-12 h-12 bg-red-400/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <XCircle className="w-6 h-6 text-red-400" />
+                        </div>
+                        <h2 className="text-2xl font-display text-white mb-2 leading-tight">Payment Failed</h2>
+                        <p className="text-white/60 text-sm mb-8">Something went wrong. No charges were made.</p>
+
+                        <div className="space-y-3">
                             <button
-                                onClick={() => navigate('/dashboard')}
-                                className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-black transition-all"
+                                onClick={() => navigate('/pricing')}
+                                className="w-full py-3.5 bg-white text-slate-900 rounded-xl font-bold text-sm tracking-wide hover:bg-slate-100 transition-all"
                             >
-                                Go to Dashboard
-                                <ArrowRight className="w-4 h-4" />
+                                Try Again
+                            </button>
+                            <button
+                                onClick={() => navigate('/')}
+                                className="w-full py-3 text-white/50 hover:text-white font-medium text-xs transition-all tracking-wider uppercase"
+                            >
+                                Return to Home
                             </button>
                         </div>
-                    )}
-
-                    {status === 'error' && (
-                        <div className="text-center">
-                            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <XCircle className="w-8 h-8 text-red-600" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Issue</h2>
-                            <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                                We couldn't verify your payment. Please try again or check your bank account.
-                            </p>
-
-                            <div className="space-y-3">
-                                <button
-                                    onClick={() => navigate('/pricing')}
-                                    className="w-full py-3.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-black transition-all"
-                                >
-                                    Retry Payment
-                                </button>
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className="w-full py-3.5 text-slate-500 hover:text-slate-900 font-medium text-sm transition-all"
-                                >
-                                    Return Home
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                    </>
+                )}
             </motion.div>
         </div>
     );
