@@ -40,7 +40,8 @@ app.use(session({
     saveUninitialized: true,
     cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
-app.use(express.static(path.join(__dirname, 'dist')));
+
+
 
 // --- AUTH UTILS ---
 const oauth2Client = new OAuth2Client(
@@ -614,8 +615,7 @@ app.post('/api/analyze', async (req, res) => {
     }
 });
 
-// --- SERVE FRONTEND ---
-app.use(express.static(path.join(__dirname, 'dist')));
+
 
 app.post('/api/generate-plan-structure', async (req, res) => {
     const { idea, report, answers } = req.body;
@@ -1388,10 +1388,11 @@ app.get('/api/admin/projects', async (req, res) => {
 });
 
 
+// --- SERVE FRONTEND ---
+app.use(express.static(path.join(__dirname, 'dist')));
+
 // The "catch-all" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-// In Express 5, the directory-style wildcard syntax has changed.
-// Using a Regular Expression to catch all routes safely.
 app.get(/^(?!\/api).+/, (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
