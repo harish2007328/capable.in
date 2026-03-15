@@ -628,14 +628,16 @@ app.post('/api/generate-report-structure', async (req, res) => {
           Define the HIGH-LEVEL identity for a Strategic Analysis Report.
           You must provide a brand name and list 4 standard section titles.
           
+          CRITICAL: You MUST use the exact IDs: "executive", "market", "technical", "risk".
+          
           JSON SCHEMA:
           {
             "project_name": "Modern Brand Name",
             "pages": [
-              { "id": "executive", "title": "Executive Manifesto", "isPlaceholder": true },
-              { "id": "market", "title": "Competitive Deep-Dive", "isPlaceholder": true },
-              { "id": "technical", "title": "Technical Blueprint", "isPlaceholder": true },
-              { "id": "risk", "title": "Strategy & Risk", "isPlaceholder": true }
+              { "id": "executive", "title": "Highly creative title for Executive summary", "isPlaceholder": true },
+              { "id": "market", "title": "Highly creative title for Market analysis", "isPlaceholder": true },
+              { "id": "technical", "title": "Highly creative title for Tech/Product model", "isPlaceholder": true },
+              { "id": "risk", "title": "Highly creative title for Risk/Strategy", "isPlaceholder": true }
             ]
           }
         `;
@@ -663,6 +665,10 @@ app.post('/api/generate-report-section', async (req, res) => {
           
           TASK: Generate the COMPLETE content for the section: "${sectionTitle}" (ID: ${sectionId}).
           BE VERBOSE and insightful. Include data projections and deep tactical advice.
+          
+          CRITICAL: Return ONLY the raw data object fields. DO NOT wrap the response in a top-level key like "${sectionId}" or "content".
+          Example of WRONG format: { "${sectionId}": { ... } }
+          Example of CORRECT format: { "field_1": "...", "field_2": "..." }
           
           Return ONLY the data object following the exact schema for this ID.
           

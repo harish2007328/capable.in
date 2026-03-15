@@ -476,7 +476,35 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                     </div>
                 );
             default:
-                return null;
+                // Generic Fallback: Render any available text/lists if ID doesn't match
+                return (
+                    <div className="space-y-6">
+                        <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 italic text-slate-500 text-sm">
+                            Extended Strategic Module: {id.replace(/_/g, ' ')}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(content).map(([key, val], i) => {
+                                if (['chart_data', 'radar_data', 'isPlaceholder'].includes(key)) return null;
+                                return (
+                                    <div key={i} className="p-5 rounded-xl bg-white border border-slate-100">
+                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{key.replace(/_/g, ' ')}</h4>
+                                        <div className="text-sm text-slate-600 leading-relaxed">
+                                            {Array.isArray(val) ? (
+                                                <ul className="space-y-1">
+                                                    {val.map((item, j) => <li key={j}>• {typeof item === 'object' ? JSON.stringify(item) : item}</li>)}
+                                                </ul>
+                                            ) : typeof val === 'object' ? (
+                                                <pre className="text-[10px] whitespace-pre-wrap">{JSON.stringify(val, null, 2)}</pre>
+                                            ) : (
+                                                val
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                );
         }
     };
 

@@ -90,7 +90,7 @@ const VenturePage = () => {
                 setShowSummary(true);
             }
 
-            if (data.report) setReport(data.report);
+            if (data.report && !reportLoading) setReport(data.report);
 
             if (data.plan) {
                 const normalized = normalizePlan(data.plan);
@@ -191,17 +191,30 @@ const VenturePage = () => {
                         page.title
                     );
 
-                    // Robust Unwrapping: if the AI nested it under "content" or the section ID
-                    if (sectionContent && typeof sectionContent === 'object') {
-                        if (sectionContent.content) sectionContent = sectionContent.content;
-                        else if (sectionContent[page.id]) sectionContent = sectionContent[page.id];
+                    // Aggressive Resolver: Always unwrap if there's exactly one key that is an object
+                    if (sectionContent && typeof sectionContent === 'object' && !Array.isArray(sectionContent)) {
+                        const keys = Object.keys(sectionContent);
+                        if (keys.length === 1 && typeof sectionContent[keys[0]] === 'object' && !Array.isArray(sectionContent[keys[0]])) {
+                            // Only unwrap if the internal object has more than 1 key (to avoid unwrapping real data that just happens to have 1 key)
+                            // OR if the key matches common wrapper patterns
+                            const wrapperKey = keys[0].toLowerCase();
+                            const matchesId = wrapperKey === page.id.toLowerCase();
+                            const isGeneric = ['content', 'data', 'section', 'result'].includes(wrapperKey);
+                            const hasSubKeys = Object.keys(sectionContent[keys[0]]).length > 1;
+
+                            if (matchesId || isGeneric || hasSubKeys) {
+                                sectionContent = sectionContent[keys[0]];
+                            }
+                        }
                     }
 
                     if (isMounted.current) {
                         updatedReport.pages = updatedReport.pages.map(p => 
                             p.id === page.id ? { ...p, content: sectionContent, isPlaceholder: false } : p
                         );
+                        // State update first
                         setReport({ ...updatedReport });
+                        // Database update second
                         await ProjectStorage.updateData(currentId, { report: { ...updatedReport } });
                     }
                 } catch (secErr) {
