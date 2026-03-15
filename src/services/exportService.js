@@ -29,139 +29,346 @@ const extractText = (obj, lines = [], depth = 0) => {
 };
 
 export const ExportService = {
-    /**
-     * Text-based PDF using jsPDF — real selectable text, proper pages, no image artifacts.
-     */
     async exportToPDF(element, fileName = "report.pdf") {
         try {
             const report = element?._reportData;
-            // If no report data attached, fallback signal
             if (!report) {
-                // Trigger print as fallback
                 window.print();
                 return true;
             }
-            return false;
+            return await this.exportReportToPDF(report, fileName);
         } catch (e) {
             console.error(e);
             return false;
         }
     },
 
-    /**
-     * Accepts the raw report object directly for text-based PDF
-     */
     async exportReportToPDF(report, fileName = "report.pdf") {
         try {
+            // Sanitize filename: remove illegal characters for Windows/Mac/Linux
+            const sanitizedFileName = (fileName || 'report.pdf').replace(/[<>:"/\\|?*]/g, '_');
+
             const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
             const PW = 210, PH = 297;
             const marginL = 20, marginR = 20, marginT = 25, marginB = 25;
             const contentW = PW - marginL - marginR;
             let y = marginT;
 
+            // --- HELPER FUNCTIONS ---
             const checkPage = (needed = 12) => {
                 if (y + needed > PH - marginB) {
                     pdf.addPage();
                     y = marginT;
-                    // Draw header line on new page too
-                    pdf.setDrawColor(241, 245, 249);
-                    pdf.setLineWidth(0.2);
-                    pdf.line(marginL, y - 10, PW - marginR, y - 10);
+                    drawGlobalHeader();
                 }
             };
 
-            const writeLine = (text, opts = {}) => {
-                const { fontSize = 10, bold = false, color = [30, 41, 59], indent = 0, lineHeightMult = 1.6 } = opts;
+            const writeLines = (text, opts = {}) => {
+                const safeText = String(text || "");
+                const { fontSize = 10, bold = false, color = [30, 41, 59], indent = 0, lineHeightMult = 1.6, gap = 2.5 } = opts;
                 pdf.setFontSize(fontSize);
                 pdf.setFont('helvetica', bold ? 'bold' : 'normal');
                 pdf.setTextColor(...color);
-                const lines = pdf.splitTextToSize(text, contentW - indent);
+                const splitText = pdf.splitTextToSize(safeText, contentW - indent);
                 const lineH = (fontSize / 72) * 25.4 * lineHeightMult;
-                checkPage(lines.length * lineH + 2);
-                pdf.text(lines, marginL + indent, y);
-                y += lines.length * lineH + (opts.gap ?? 2.5);
+                checkPage(splitText.length * lineH + gap);
+                pdf.text(splitText, marginL + indent, y);
+                y += splitText.length * lineH + gap;
             };
 
-            const drawSectionHeader = (title) => {
-                checkPage(25);
-                y += 5;
-                // Accent Bar
-                pdf.setFillColor(79, 70, 229); // Indigo-600
-                pdf.rect(marginL, y, 3, 6, 'F');
-                
-                pdf.setFontSize(11);
+            const drawGlobalHeader = () => {
+                pdf.setDrawColor(226, 232, 240); // slate-200
+                pdf.setLineWidth(0.2);
+                pdf.line(marginL, 15, PW - marginR, 15);
+                pdf.setFontSize(8);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(148, 163, 184); // slate-400
+                const headerTitle = String(report.project_name || 'STRATEGIC REPORT').toUpperCase();
+                pdf.text(headerTitle, marginL, 12);
+                pdf.text('CONFIDENTIAL — CAPABLE INTELLIGENCE', PW - marginR, 12, { align: 'right' });
+            };
+
+            const drawScoreBar = (label, score, maxScore = 10) => {
+                const safeScore = Number(score) || 0;
+                checkPage(15);
+                pdf.setFontSize(9);
                 pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(15, 23, 42); // Slate-900
-                pdf.text(title.toUpperCase(), marginL + 6, y + 4.5);
-                y += 10;
+                pdf.setTextColor(71, 85, 105);
+                pdf.text(String(label).toUpperCase(), marginL, y);
                 
-                pdf.setDrawColor(241, 245, 249);
-                pdf.setLineWidth(0.4);
-                pdf.line(marginL, y - 2, PW - marginR, y - 2);
-                y += 4;
+                const barY = y + 2;
+                const barW = contentW;
+                const barH = 2;
+                
+                // Track
+                pdf.setFillColor(241, 245, 249);
+                pdf.rect(marginL, barY, barW, barH, 'F');
+                
+                // Fill
+                const fillW = Math.max(0, Math.min(barW, (safeScore / maxScore) * barW));
+                pdf.setFillColor(79, 70, 229); // indigo
+                pdf.rect(marginL, barY, fillW, barH, 'F');
+                
+                pdf.setFontSize(9);
+                pdf.setTextColor(15, 23, 42);
+                pdf.text(`${safeScore}/${maxScore}`, PW - marginR, y, { align: 'right' });
+                y += 12;
+            };
+
+            const drawCard = (title, body, footer = null) => {
+                const safeTitle = String(title || "");
+                const safeBody = String(body || "");
+                const bodyLines = pdf.splitTextToSize(safeBody, contentW - 10);
+                const height = 15 + (bodyLines.length * 5) + (footer ? 8 : 0);
+                checkPage(height);
+                
+                // Background
+                pdf.setFillColor(248, 250, 252);
+                pdf.rect(marginL, y, contentW, height, 'F');
+                
+                // Accent Line
+                pdf.setDrawColor(79, 70, 229);
+                pdf.setLineWidth(0.5);
+                pdf.line(marginL, y, marginL, y + height);
+
+                // Content
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(15, 23, 42);
+                pdf.text(safeTitle, marginL + 5, y + 7);
+                
+                pdf.setFontSize(9);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(51, 65, 85);
+                pdf.text(bodyLines, marginL + 5, y + 14);
+                
+                if (footer) {
+                    pdf.setFontSize(8);
+                    pdf.setFont('helvetica', 'italic');
+                    pdf.setTextColor(79, 70, 229);
+                    pdf.text(`Focus: ${footer}`, marginL + 5, y + height - 4);
+                }
+                
+                y += height + 5;
+            };
+
+            const drawMiniChart = (data) => {
+                if (!data || !Array.isArray(data) || data.length === 0) return;
+                const chartH = 40;
+                checkPage(chartH + 10);
+                
+                const count = data.length;
+                const barW = (contentW / count) * 0.7;
+                const spacing = (contentW / count) * 0.3;
+                const maxVal = Math.max(...data.map(d => Number(d.value) || 0), 10);
+                
+                pdf.setDrawColor(226, 232, 240);
+                pdf.line(marginL, y + chartH, PW - marginR, y + chartH); // X axis
+                
+                data.forEach((d, i) => {
+                    const val = Number(d.value) || 0;
+                    const h = Math.max(0.5, (val / maxVal) * (chartH - 5)); // Ensure bar has minimum height
+                    const bx = marginL + (i * (barW + spacing)) + (spacing / 2);
+                    const by = y + chartH - h;
+                    
+                    const label = String(d.label || "");
+                    if (label.toLowerCase().includes('you')) {
+                        pdf.setFillColor(79, 70, 229);
+                    } else {
+                        pdf.setFillColor(165, 180, 252); // Lighter indigo
+                    }
+                    pdf.rect(bx, by, barW, h, 'F');
+                    
+                    pdf.setFontSize(7);
+                    pdf.setTextColor(100, 116, 139);
+                    pdf.text(label, bx + (barW/2), y + chartH + 4, { align: 'center', maxWidth: barW + 2 });
+                });
+                
+                y += chartH + 15;
             };
 
             // --- COVER PAGE ---
-            pdf.setFillColor(15, 23, 42);
+            // Full background color
+            pdf.setFillColor(15, 23, 42); // slate-900
             pdf.rect(0, 0, PW, PH, 'F');
             
-            // Decorative elements
-            pdf.setFillColor(79, 70, 229, 0.1);
-            pdf.circle(PW, 0, 80, 'F');
-
-            pdf.setFontSize(32);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(255, 255, 255);
-            pdf.text(report.project_name || 'Venture Blueprint', marginL, 80);
+            // Geometric Accents
+            pdf.setFillColor(30, 41, 59); // Slightly lighter slate
+            pdf.rect(PW - 100, PH - 80, 100, 80, 'F');
+            pdf.circle(0, 0, 90, 'F');
             
+            // Top Accent Line
+            pdf.setFillColor(79, 70, 229);
+            pdf.rect(marginL, 40, 15, 1.5, 'F');
+
             pdf.setFontSize(10);
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(79, 70, 229);
-            pdf.text('PRECISION MARKET ANALYSIS & EXECUTION ROADMAP', marginL, 65);
+            pdf.text('MISSION-READY STRATEGIC ANALYSIS', marginL, 55);
 
-            pdf.setDrawColor(255, 255, 255, 0.1);
-            pdf.line(marginL, 95, 60, 95);
+            pdf.setFontSize(42);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(255, 255, 255);
+            pdf.text(String(report.project_name || 'Venture Blueprint'), marginL, 75, { maxWidth: contentW });
 
-            pdf.setFontSize(12);
+            pdf.setFontSize(14);
             pdf.setFont('helvetica', 'normal');
-            pdf.setTextColor(148, 163, 184);
-            pdf.text(`Generated for ${report.project_name || 'the project'}`, marginL, 110);
-            pdf.text(new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }), marginL, 118);
+            pdf.setTextColor(148, 163, 184); // slate-400
+            pdf.text('Intelligence-Led Foundation for High-Growth Ventures', marginL, 95);
 
+            // Confidence Badge
+            const badgeX = PW - 60;
+            const badgeY = PH - 60;
+            pdf.setDrawColor(79, 70, 229);
+            pdf.setLineWidth(0.5);
+            pdf.circle(badgeX, badgeY, 20, 'D');
             pdf.setFontSize(8);
+            pdf.setTextColor(79, 70, 229);
+            pdf.text('AUDITED BY', badgeX, badgeY - 5, { align: 'center' });
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(255, 255, 255);
+            pdf.text('CAPABLE', badgeX, badgeY + 2, { align: 'center' });
+            pdf.setFontSize(7);
+            pdf.text('INTERNAL ENGINE V1.0', badgeX, badgeY + 6, { align: 'center' });
+
+            pdf.setFontSize(9);
+            pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(71, 85, 105);
-            pdf.text('CAPABLE INTELLIGENCE ENGINE V1.0', marginL, PH - 20);
+            pdf.text('DATE GENERATED', marginL, PH - 35);
+            pdf.setFontSize(11);
+            pdf.setTextColor(255, 255, 255);
+            pdf.text(new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(), marginL, PH - 28);
 
             pdf.addPage();
             y = marginT;
+            drawGlobalHeader();
+            y += 10;
 
-            // --- CONTENT PAGES ---
+            // --- SECTIONS ---
             for (const page of (report.pages || [])) {
                 if (!page.content) continue;
-                drawSectionHeader(page.title);
+                
+                checkPage(30);
+                // Section Title Block
+                pdf.setFillColor(248, 250, 252);
+                pdf.rect(marginL, y, contentW, 12, 'F');
+                pdf.setFillColor(79, 70, 229);
+                pdf.rect(marginL, y, 1.5, 12, 'F');
+                
+                pdf.setFontSize(12);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(15, 23, 42);
+                pdf.text(page.title.toUpperCase(), marginL + 6, y + 8);
+                y += 20;
 
-                const lines = extractText(page.content);
-                for (const line of lines) {
-                    if (line.type === 'label') {
-                        y += 2;
-                        writeLine(line.text.toUpperCase(), { fontSize: 7, bold: true, color: [100, 116, 139], gap: 1 });
-                    } else if (line.type === 'body') {
-                        writeLine(line.text, { fontSize: 10, color: [51, 65, 85], gap: 6 });
-                    } else if (line.type === 'bullet') {
-                        writeLine(line.text, { fontSize: 9.5, color: [71, 85, 105], indent: 5, gap: 2.5 });
+                const content = page.content;
+                
+                if (page.id === 'executive') {
+                    writeLines("Vision Overview", { fontSize: 8, bold: true, color: [148, 163, 184] });
+                    writeLines(content.explanation || "", { fontSize: 10, gap: 10 });
+                    
+                    if (content.market_demand) {
+                        drawScoreBar("Current Market Demand", content.market_demand.score || 0);
+                        writeLines(content.market_demand.analysis || "", { fontSize: 9.5, color: [71, 85, 105], gap: 10 });
+                    }
+                    if (content.chart_data) {
+                        writeLines("Growth Projection", { fontSize: 8, bold: true, color: [148, 163, 184], gap: 5 });
+                        drawMiniChart(content.chart_data);
+                    }
+                } 
+                else if (page.id === 'market') {
+                    if (content.competitors) {
+                        writeLines("Primary Ecosystem Players", { fontSize: 8, bold: true, color: [148, 163, 184], gap: 5 });
+                        content.competitors.forEach(comp => {
+                            drawCard(comp.name, comp.analysis, comp.weakness_to_exploit);
+                        });
+                    }
+                    if (content.chart_data) {
+                        writeLines("Market Share Distribution", { fontSize: 8, bold: true, color: [148, 163, 184], gap: 5 });
+                        drawMiniChart(content.chart_data);
+                    }
+                    if (content.the_gap) {
+                        writeLines("The Structural Gap", { fontSize: 8, bold: true, color: [148, 163, 184] });
+                        writeLines(content.the_gap, { fontSize: 9.5, gap: 8 });
+                    }
+                } 
+                else if (page.id === 'technical') {
+                    if (content.viability_score) {
+                        drawScoreBar("Technical Viability Audit", content.viability_score);
+                    }
+                    
+                    checkPage(40);
+                    writeLines("Infrastructure Blueprint", { fontSize: 8, bold: true, color: [148, 163, 184] });
+                    writeLines(content.architecture || "", { fontSize: 9.5, gap: 8 });
+                    
+                    if (content.chart_data) {
+                        writeLines("Budget Allocation", { fontSize: 8, bold: true, color: [148, 163, 184], gap: 5 });
+                        drawMiniChart(content.chart_data);
+                    }
+                    
+                    writeLines("MVP Development Strategy", { fontSize: 8, bold: true, color: [148, 163, 184] });
+                    writeLines(content.complexity || "", { fontSize: 9.5, gap: 8 });
+                } 
+                else if (page.id === 'risk') {
+                    writeLines("Strategic Risk Assessment", { fontSize: 8, bold: true, color: [148, 163, 184], gap: 5 });
+                    if (content.risks) {
+                        Object.entries(content.risks).forEach(([key, val]) => {
+                            writeLines(`${key.toUpperCase()}: ${val}`, { fontSize: 9, color: [30, 41, 59], indent: 5, gap: 3 });
+                        });
+                    }
+                    y += 10;
+                    if (content.mentor_advice) {
+                        drawCard("Strategic Advisor Take", content.mentor_advice.advice, content.mentor_advice.criticize);
                     }
                 }
-                y += 10;
+                else {
+                    // Fallback for custom or unknown pages
+                    const lines = extractText(content);
+                    for (const line of lines) {
+                        if (line.type === 'label') {
+                            y += 2;
+                            writeLines(line.text.toUpperCase(), { fontSize: 7, bold: true, color: [148, 163, 184], gap: 1 });
+                        } else if (line.type === 'body') {
+                            writeLines(line.text, { fontSize: 10, color: [51, 65, 85], gap: 6 });
+                        } else if (line.type === 'bullet') {
+                            writeLines(line.text, { fontSize: 9.5, color: [71, 85, 105], indent: 5, gap: 2.5 });
+                        }
+                    }
+                }
+                
+                y += 10; // Extra spacing between sections
             }
 
-            // Footer numbering
+            // --- FINAL PAGE ---
+            pdf.addPage();
+            pdf.setFillColor(15, 23, 42); // slate-900
+            pdf.rect(0, 0, PW, PH, 'F');
+            
+            pdf.setFontSize(24);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(255, 255, 255);
+            pdf.text('Next Steps: From Analysis to Action', marginL, 60);
+            
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(148, 163, 184);
+            pdf.text('This strategic report is the first step in your journey. The foundation has been laid.', marginL, 75);
+            
+            pdf.setFillColor(79, 70, 229);
+            pdf.rect(marginL, 90, 40, 10, 'F');
+            pdf.setFontSize(10);
+            pdf.setTextColor(255, 255, 255);
+            pdf.text('GO CAPABLE', marginL + 20, 96.5, { align: 'center' });
+
+            // Footer numbering on all pages except cover and end
             const totalPages = pdf.internal.getNumberOfPages();
-            for (let i = 2; i <= totalPages; i++) {
+            for (let i = 2; i < totalPages; i++) {
                 pdf.setPage(i);
                 pdf.setFontSize(7);
                 pdf.setTextColor(148, 163, 184);
-                pdf.text(`Page ${i-1} of ${totalPages-1}`, PW - marginR, PH - 10, { align: 'right' });
-                pdf.text(`${report.project_name} — Capable Intelligence`, marginL, PH - 10);
+                pdf.text(`REPORT ID: CP-${Math.random().toString(36).substr(2, 9).toUpperCase()}`, marginL, PH - 10);
+                pdf.text(`Page ${i-1} of ${totalPages-2}`, PW - marginR, PH - 10, { align: 'right' });
             }
 
             pdf.save(fileName);

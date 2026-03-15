@@ -128,7 +128,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                             transition={{ duration: 0.2 }}
                             className="max-w-xl mx-auto w-full"
                         >
-                            <h1 className="text-2xl font-bold text-slate-900 leading-tight tracking-tight mb-8">
+                            <h1 className="text-3xl font-medium text-slate-900 leading-tight tracking-tight mb-8">
                                 {typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text}
                             </h1>
 
@@ -216,7 +216,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                                                     `}>
                                                         {isSelected && !isManual && <CheckCircle2 size={10} />}
                                                     </div>
-                                                    <span className="text-xs font-bold uppercase tracking-wider">
+                                                     <span className="text-sm font-semibold uppercase tracking-wider">
                                                         {option}
                                                     </span>
                                                 </button>

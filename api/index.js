@@ -25,7 +25,7 @@ app.use(express.json());
 const oauth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.NODE_ENV === 'production' 
+    process.env.NODE_ENV === 'production'
         ? `${process.env.FRONTEND_URL}/api/auth/google/callback`
         : `http://localhost:3001/api/auth/google/callback`
 );
@@ -237,13 +237,13 @@ app.get('/api/auth/google/callback', async (req, res) => {
         // 1. Try to Login to InsForge with even more aggressive fallback salts & identifiers
         const basisToTry = [googleId, email];
         const saltsToTry = [
-            '__DEFAULT_SALT__',              
-            'capable-auth-salt',            
-            'capable-app-salt',             
-            '',                             
-            null,                           
-            process.env.SESSION_SECRET       
-        ].filter((s, i, a) => a.indexOf(s) === i); 
+            '__DEFAULT_SALT__',
+            'capable-auth-salt',
+            'capable-app-salt',
+            '',
+            null,
+            process.env.SESSION_SECRET
+        ].filter((s, i, a) => a.indexOf(s) === i);
 
         let authData = null;
         for (const basis of basisToTry) {
@@ -254,13 +254,13 @@ app.get('/api/auth/google/callback', async (req, res) => {
                         email: email,
                         password: testPassword
                     });
-                    
+
                     if (data?.accessToken) {
                         authData = data;
                         break;
                     }
                 } catch (err) {
-                    continue; 
+                    continue;
                 }
             }
             if (authData) break;
@@ -362,39 +362,38 @@ app.post('/api/research', async (req, res) => {
       IDEA: "${idea}"${locationContext}
       RESEARCH DATA: ${JSON.stringify(optimizedSignals)}
 
-      TASK:
-      You are a friendly, down-to-earth Co-founder helping a new entrepreneur.
-      Your goal is to understand their idea fully so we can build a business plan.
-      
-      CRITICAL INSTRUCTION:
-      - Use SIMPLE, LAYMAN language. No business jargon. Speak like you're talking to a friend.
-      - If the user's idea ALREADY explains a specific point (e.g., they said "I have $50k"), DO NOT ASK that question.
-
-      COMPULSORY QUESTIONS (Ask these UNLESS already answered):
-      1. Precise Problem: What specific pain point are they solving?
-      2. The Gap: Why do current solutions fail?
-      3. Investment: How much initial capital do they have? (Range options)
-      4. Funding Source: Where is the money coming from? (Savings, Loan, Investors, etc.)
-      5. Location: Ask "Where are you initially focusing?". (This is mandatory)
-      6. Contextual: One dynamic question specific to their domain/idea.
-
-      STRICT RULES:
-      - Total questions: Give BETWEEN 5 and 10 questions. Never always give exactly 5.
-      - Question Format: Return EXACTLY the question text alone. NEVER add tags, prefixes, or headers like "Specific milk problem: " or "Topic: ".
-      - Options per question: EXACTLY 3 simple options.
-      - Format: Return ONLY valid JSON.
-      - Questions must be simple and easy to answer for a beginner.
-      - Project Title: Generate a "project_title" that is STRICTLY TWO WORDS representing the essence of the idea (e.g., "Solar Bloom", "Quick Craft").
-      - Project Description: Generate a "project_description" that is STRICTLY ONE SENTENCE (max 15 words) describing the business core.
-      
-      JSON SCHEMA:
-      {
-        "project_title": "Two Words",
-        "project_description": "One sentence description.",
-        "questions": [
-          { "text": "Question text?", "options": ["Option 1", "Option 2", "Option 3"], "theme": "Theme Name" }
-        ]
-      }
+            TASK:
+       You are a precise Strategic Onboarding Specialist.
+       Your goal is to extract deep, unique insights about this specific idea through a targeted interview.
+       
+       CRITICAL INSTRUCTIONS:
+       - TOTAL QUESTIONS: You must generate EXACTLY 8 to 10 questions. NO more, NO less.
+       - REPETITION: Do NOT repeat questions. Every question must explore a DIFFERENT angle of the idea (Operations, Target User, Logistics, Monetization, USP, Tech, Scale, Local challenges).
+       - WORD COUNT: Each question text MUST be between 8 and 15 words long. Ensure they are meaningful and professional sentences.
+       - STRICT RELEVANCE: Every single question must be STICKLY based on the provided idea. No generic template questions.
+       - OPTIONS: Provide 3 high-quality, SPECIFIC options per question. Never use generic labels like "Option 1" or "Standard". The options must represent actual tactical choices.
+       - NO JARGON: Use simple, effective language that an entrepreneur can easily navigate.
+       
+       MANDATORY TOPICS TO COVER (Strictly based on idea):
+       1. Core Mechanics: How does the primary service/product function?
+       2. Market Gap: Why is this better than current local alternatives?
+       3. Distribution: How will you reach your first 100 users?
+       4. Capital Allocation: What is the primary use of the initial funds?
+       5. Scaling: What is the biggest hurdle to growing this in 6 months?
+       6. Location Strategy: How does the specific city/country context influence the startup?
+       
+       JSON SCHEMA:
+       {
+         "project_title": "Descriptive Simple Title (e.g. 'Cafe Project' or 'Blind Navigation App')",
+         "project_description": "ONE precise sentence (max 15 words) describing the mission.",
+         "questions": [
+           { 
+             "text": "The full question text (must be 8-15 words long)?", 
+             "options": ["Specific Tactical Choice A", "Specific Tactical Choice B", "Specific Tactical Choice C"], 
+             "theme": "Operational Focus" 
+           }
+         ]
+       }
     `;
 
         const completion = await withRetry(() => getGroqClient().chat.completions.create({
@@ -433,13 +432,13 @@ app.post('/api/generate-report-structure', async (req, res) => {
           
           TASK:
           Define the HIGH-LEVEL identity for a Strategic Analysis Report.
-          You must provide a brand name and list 4 standard section titles.
+          You must provide a generic project name (descriptive summary) and list 4 standard section titles.
           
           CRITICAL: You MUST use the exact IDs: "executive", "market", "technical", "risk".
           
           JSON SCHEMA:
           {
-            "project_name": "Modern Brand Name",
+            "project_name": "Descriptive Project Name",
             "pages": [
               { "id": "executive", "title": "Highly creative title for Executive summary", "isPlaceholder": true },
               { "id": "market", "title": "Highly creative title for Market analysis", "isPlaceholder": true },
@@ -518,12 +517,13 @@ app.post('/api/generate-report-section', async (req, res) => {
 
         const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
-            model: "llama-3.3-70b-versatile",
+            model: "meta-llama/llama-4-scout-17b-16e-instruct",
             response_format: { type: "json_object" },
         }));
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
+        console.error(`Section generation failed for ${sectionId}:`, err.message);
         res.status(500).json({ error: err.message });
     }
 });
@@ -1173,10 +1173,10 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                     console.log(`💰 FULFILLING: User ${userId} -> Plan: ${planType}`);
                     try {
                         const { data: profile, error: fetchError } = await insforge.database.from('profiles').select('id').eq('id', userId).single();
-                        
+
                         if (fetchError || !profile) {
                             console.log(`Creating new profile for user ${userId}`);
-                             const { error: insertError } = await insforge.database.from('profiles').insert([{ 
+                            const { error: insertError } = await insforge.database.from('profiles').insert([{
                                 id: userId,
                                 email: event.data.customer?.email,
                                 subscription_status: 'pro',
@@ -1185,12 +1185,12 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                             if (insertError) console.error("Profile Insert Error:", insertError.message);
                             else console.log(`✅ Profile created for user ${userId}.`);
                         } else {
-                             const { error: updateError } = await insforge.database.from('profiles').update({ 
+                            const { error: updateError } = await insforge.database.from('profiles').update({
                                 subscription_status: 'pro',
                                 dodo_customer_id: event.data.customer?.id,
                                 updated_at: new Date()
                             }).eq('id', userId);
-                            
+
                             if (updateError) console.error("Profile Update Error:", updateError.message);
                             else console.log(`✅ User ${userId} profile updated to Pro.`);
                         }

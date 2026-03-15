@@ -626,13 +626,13 @@ app.post('/api/generate-report-structure', async (req, res) => {
           
           TASK:
           Define the HIGH-LEVEL identity for a Strategic Analysis Report.
-          You must provide a brand name and list 4 standard section titles.
+          You must provide a generic project name (descriptive summary) and list 4 standard section titles.
           
           CRITICAL: You MUST use the exact IDs: "executive", "market", "technical", "risk".
           
           JSON SCHEMA:
           {
-            "project_name": "Modern Brand Name",
+            "project_name": "Descriptive Project Name",
             "pages": [
               { "id": "executive", "title": "Highly creative title for Executive summary", "isPlaceholder": true },
               { "id": "market", "title": "Highly creative title for Market analysis", "isPlaceholder": true },

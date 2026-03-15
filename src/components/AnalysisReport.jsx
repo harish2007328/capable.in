@@ -127,7 +127,7 @@ const SimpleBarChart = ({ data }) => {
 const RadarChart = ({ data }) => {
     if (!data || data.length === 0) return null;
     const cx = 100, cy = 100;
-    const radius = 70;
+    const radius = 65;
     const pointsCount = 5;
 
     const chartData = data.slice(0, pointsCount);
@@ -138,8 +138,8 @@ const RadarChart = ({ data }) => {
         return {
             x: cx + r * Math.cos(angle),
             y: cy + r * Math.sin(angle),
-            lx: cx + (radius + 18) * Math.cos(angle),
-            ly: cy + (radius + 18) * Math.sin(angle),
+            lx: cx + (radius + 22) * Math.cos(angle),
+            ly: cy + (radius + 22) * Math.sin(angle),
             value: d.value,
             label: d.label
         };
@@ -148,15 +148,32 @@ const RadarChart = ({ data }) => {
     const path = `M ${pts.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
 
     return (
-        <div className="w-full mt-4 rounded-2xl overflow-hidden bg-slate-900 p-4 shadow-lg">
-            <svg viewBox="0 0 200 200" className="w-full" style={{ height: 260 }}>
+        <div className="w-full h-full p-8 rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl relative overflow-hidden group">
+            {/* Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px]" />
+
+            <svg viewBox="0 0 200 200" className="w-full h-auto max-h-[380px] relative z-10">
+                <defs>
+                    <linearGradient id="rcg" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.6" />
+                        <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                        <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                    </filter>
+                </defs>
+
                 {/* Concentric pentagon grids */}
                 {[0.2, 0.4, 0.6, 0.8, 1].map(scale => {
                     const gPts = Array.from({ length: pointsCount }).map((_, i) => {
                         const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
                         return `${cx + radius * scale * Math.cos(angle)},${cy + radius * scale * Math.sin(angle)}`;
                     }).join(' ');
-                    return <polygon key={scale} points={gPts} fill="none" stroke="white" strokeOpacity="0.06" strokeWidth="0.8" />;
+                    return <polygon key={scale} points={gPts} fill="none" stroke="rgba(165, 180, 252, 0.25)" strokeWidth="1" />;
                 })}
 
                 {/* Radial axes */}
@@ -164,51 +181,43 @@ const RadarChart = ({ data }) => {
                     const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
                     return <line key={i} x1={cx} y1={cy}
                         x2={cx + radius * Math.cos(angle)} y2={cy + radius * Math.sin(angle)}
-                        stroke="white" strokeOpacity="0.06" strokeWidth="0.8" />;
+                        stroke="rgba(165, 180, 252, 0.25)" strokeWidth="1" />;
                 })}
 
                 {/* Data polygon */}
                 <motion.path
                     d={path}
-                    fill="rgba(96, 165, 250, 0.2)"
+                    fill="url(#rcg)"
                     stroke="#60a5fa"
-                    strokeWidth="1.8"
+                    strokeWidth="2.5"
                     strokeLinejoin="round"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    style={{ transformOrigin: `${cx}px ${cy}px` }}
+                    style={{ filter: 'drop-shadow(0 0 12px rgba(96, 165, 250, 0.5))', transformOrigin: `${cx}px ${cy}px` }}
                 />
 
                 {/* Vertex dots + labels */}
                 {pts.map((p, i) => (
                     <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 + i * 0.1 }}>
-                        <circle cx={p.x} cy={p.y} r="4" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.5" />
-                        <circle cx={p.x} cy={p.y} r="1.5" fill="#60a5fa" />
+                        <circle cx={p.x} cy={p.y} r="4.5" fill="#0f172a" stroke="#60a5fa" strokeWidth="2.5" />
+                        <circle cx={p.x} cy={p.y} r="1.5" fill="#60a5fa" filter="url(#glow)" />
                         {/* Value */}
-                        <text x={p.x} y={p.y - 8} textAnchor="middle"
-                            fill="white" fontSize="7" fontWeight="700"
-                            fontFamily="ui-monospace, monospace" opacity="0.9">
+                        <text x={p.x} y={p.y - 12} textAnchor="middle"
+                            fill="white" fontSize="9" fontWeight="900"
+                            className="drop-shadow-sm"
+                            fontFamily="ui-monospace, monospace">
                             {p.value}
                         </text>
                         {/* Label */}
                         <text x={p.lx} y={p.ly} textAnchor="middle" dominantBaseline="middle"
-                            fill="#94a3b8" fontSize="7" fontWeight="600"
+                            fill="#94a3b8" fontSize="8" fontWeight="700"
                             fontFamily="system-ui, sans-serif">
                             {p.label}
                         </text>
                     </motion.g>
                 ))}
             </svg>
-
-            {/* Legend row */}
-            <div className="flex justify-center flex-wrap gap-x-4 gap-y-1 px-2 mt-1">
-                {chartData.map((d, i) => (
-                    <span key={i} className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">
-                        {d.label}
-                    </span>
-                ))}
-            </div>
         </div>
     );
 };
@@ -217,33 +226,32 @@ const RadarChart = ({ data }) => {
 // --- Container Components ---
 
 const InfoBox = ({ icon: Icon, title, content, className = "" }) => (
-    <div className={`p-6 rounded-xl bg-slate-50 border border-slate-100 ${className}`}>
-        <div className="flex items-center gap-3 mb-3">
-            <div className="w-7 h-7 rounded bg-white shadow-sm flex items-center justify-center text-slate-900 border border-slate-100">
-                <Icon size={14} />
+    <div className={`p-8 rounded-2xl bg-white border border-slate-100 shadow-sm ${className}`}>
+        <div className="flex items-center gap-4 mb-4">
+            <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100 shadow-sm">
+                <Icon size={16} />
             </div>
-            <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{title}</h4>
+            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">{title}</h4>
         </div>
-        <p className="text-[14px] text-slate-700 leading-relaxed font-medium">
+        <p className="text-base text-slate-700 leading-relaxed font-medium">
             {content}
         </p>
     </div>
 );
 
 const MetricBox = ({ label, value, subtext, icon: Icon, isCompact = false }) => (
-    <div className={`p-6 rounded-xl bg-white border border-slate-100 shadow-sm flex flex-col justify-between ${isCompact ? 'min-h-[120px]' : 'min-h-[150px]'}`}>
-        <div className="flex justify-between items-start">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">{label}</span>
-            <Icon size={14} className="text-slate-300" />
+    <div className={`p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col justify-center relative overflow-hidden group`}>
+        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Icon size={40} />
         </div>
-        <div>
-            <div className={`font-bold text-slate-900 mb-1 ${value?.length > 15 ? 'text-lg' : 'text-2xl'}`}>
-                {value}
-            </div>
-            <div className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">{subtext}</div>
+        <div className="relative z-10">
+            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{label}</div>
+            <div className="text-2xl font-black text-slate-900 leading-none mb-2">{value}</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{subtext}</div>
         </div>
     </div>
 );
+
 
 const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading = false, hasPlan = false, onRestart }) => {
     const reportRef = React.useRef(null);
@@ -295,31 +303,45 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         {/* Summary */}
                         <div className="p-5 rounded-xl bg-slate-900 text-white">
                             <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/30 mb-2 block">Executive Summary</span>
-                            <p className="text-sm font-medium leading-relaxed font-serif italic text-slate-200">{content.explanation}</p>
+                            <p className="text-xl leading-relaxed font-serif italic text-slate-100">{content.explanation}</p>
                         </div>
 
                         {/* Chart + Market Demand — same row */}
-                        <div className="grid grid-cols-3 gap-3 items-stretch">
-                            <div className="col-span-2 p-4 rounded-xl bg-white border border-slate-100">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><TrendingUp size={10}/> Traction Projection</span>
-                                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">12-Month</span>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+                            <div className="md:col-span-2 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2"><TrendingUp size={12} /> Traction Projection</span>
+                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">12-Month</span>
                                 </div>
                                 <LineChart data={content.chart_data} />
                             </div>
-                            <div className="p-5 rounded-xl bg-white border border-slate-100 flex flex-col justify-center gap-1.5">
-                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400">Market Demand</div>
-                                <div className="text-4xl font-bold text-slate-900 tabular-nums leading-none">
-                                    {content.market_demand?.score}<span className="text-lg text-slate-300">/10</span>
+                            <div className="p-8 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-100/50 transition-colors" />
+                                <div className="relative z-10 w-full">
+                                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">Market Demand</div>
+                                    <div className="relative w-32 h-32 mx-auto mb-6">
+                                        <svg className="w-full h-full transform -rotate-90">
+                                            <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-50" />
+                                            <motion.circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray="364.4"
+                                                initial={{ strokeDashoffset: 364.4 }} animate={{ strokeDashoffset: 364.4 * (1 - content.market_demand?.score / 10) }} transition={{ duration: 1.5, ease: "easeOut" }}
+                                                className="text-indigo-600" />
+                                        </svg>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                            <span className="text-4xl font-black text-slate-900 leading-none">{content.market_demand?.score}</span>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Score</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 py-1.5 px-3 rounded-full inline-block uppercase tracking-wider">
+                                        High Potential
+                                    </div>
                                 </div>
-                                <div className="text-[8px] text-slate-400 uppercase tracking-widest">Interest Score</div>
                             </div>
                         </div>
 
                         {/* Info row */}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-1"><Globe size={9}/> Target Demographic</div>
+                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-1"><Globe size={9} /> Target Demographic</div>
                                 <p className="text-sm text-slate-600 leading-relaxed">{content.target_user}</p>
                             </div>
                             <div className="p-4 rounded-xl bg-white border border-slate-100">
@@ -335,33 +357,35 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-2 space-y-4">
                                 {content.competitors?.map((comp, i) => (
-                                    <div key={i} className="p-5 rounded-xl bg-slate-50 border border-slate-100 flex gap-4 items-start">
-                                        <div className="w-8 h-8 rounded bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100">
-                                            <Shield size={14} className="text-slate-400" />
+                                    <div key={i} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex gap-6 items-start hover:bg-white hover:shadow-md transition-all duration-300">
+                                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-200">
+                                            <Shield size={18} className="text-slate-900" />
                                         </div>
                                         <div className="flex-1">
-                                            <div className="flex justify-between items-center mb-1">
-                                                <h3 className="text-sm font-bold text-slate-900">{comp.name}</h3>
-                                                <span className="text-[8px] font-black text-slate-300 uppercase">0{i + 1}</span>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h3 className="text-base font-bold text-slate-900 tracking-tight">{comp.name}</h3>
+                                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Comp_0{i + 1}</span>
                                             </div>
-                                            <p className="text-[13px] text-slate-500 leading-relaxed mb-2">{comp.analysis}</p>
-                                            <div className="flex items-center gap-2 text-[9px] font-bold text-rose-500 uppercase tracking-wide">
-                                                <AlertTriangle size={10} />
-                                                <span>Weakness: {comp.weakness_to_exploit}</span>
+                                            <p className="text-sm text-slate-600 leading-relaxed mb-4">{comp.analysis}</p>
+                                            <div className="flex items-center gap-3 px-3 py-2 bg-rose-50 rounded-lg border border-rose-100 text-[10px] font-bold text-rose-600 uppercase tracking-widest">
+                                                <AlertTriangle size={12} />
+                                                <span>Exploit: {comp.weakness_to_exploit}</span>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                                    <PieChart size={12} /> Competitive Share
+                            <div className="p-8 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col">
+                                <h4 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                                    <PieChart size={14} /> Competitive Share
                                 </h4>
-                                <SimpleBarChart data={content.chart_data} />
+                                <div className="flex-1 flex flex-col justify-center">
+                                    <SimpleBarChart data={content.chart_data} />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <InfoBox icon={Activity} title="Market Gap" content={content.the_gap} />
                             <InfoBox icon={Target} title="Defensibility" content={content.differentiation} />
                         </div>
@@ -410,10 +434,9 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
                                     <Cpu size={12} /> Tech Stack
                                 </h4>
-                                <div className="space-y-2">
+                                <div className="flex flex-wrap gap-2">
                                     {content.suggested_stack?.split(',').map((item, i) => (
-                                        <div key={i} className="flex items-center gap-3 py-1.5 border-b border-slate-50 last:border-0 text-[13px] font-bold text-slate-700">
-                                            <div className="w-1 h-1 bg-slate-100 rounded-full" />
+                                        <div key={i} className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-[11px] font-bold text-slate-700 uppercase tracking-wide">
                                             {item.trim()}
                                         </div>
                                     ))}
@@ -444,10 +467,12 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                     </div>
                                 ))}
                             </div>
-                            <div className="p-8 rounded-xl bg-white border border-slate-100 shadow-sm flex flex-col items-center">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">Exposure Profile</h4>
-                                <div className="w-full max-w-[400px]">
-                                    <RadarChart data={content.chart_data} />
+                            <div className="p-8 rounded-2xl bg-slate-900 border border-slate-700 shadow-sm flex flex-col items-center min-h-[450px]">
+                                <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-8 flex items-center gap-3">
+                                    <Activity size={14} className="text-slate-500" /> Risk Profile Analysis
+                                </h4>
+                                <div className="w-full flex-1 flex items-center justify-center">
+                                    <RadarChart data={content.chart_data} darkTheme gridLines visibleValues />
                                 </div>
                             </div>
                         </div>
@@ -457,18 +482,28 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             <InfoBox icon={AlertTriangle} title="Critique" content={content.mentor_advice?.criticize} />
                             <InfoBox icon={ArrowRight} title="Guidance" content={content.mentor_advice?.advice} />
                         </div>
-
-                        <div className="p-8 rounded-xl bg-slate-900 text-white shadow-xl">
-                            <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-8">Success Roadmap</h3>
-                            <div className="space-y-4">
+                        <div className="p-10 rounded-2xl bg-slate-900 text-white shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[100px] -mr-32 -mt-32" />
+                            <h3 className="text-[11px] font-bold uppercase tracking-[0.4em] text-white/30 mb-10 relative z-10 flex items-center gap-3">
+                                <Zap size={14} className="text-amber-400" /> Success Roadmap
+                            </h3>
+                            <div className="space-y-6 relative z-10">
                                 {content.immediate_actions?.map((action, i) => (
-                                    <div key={i} className="flex gap-4 items-center group">
-                                        <div className="w-7 h-7 rounded bg-white/5 flex items-center justify-center text-[10px] font-bold text-white/30 border border-white/5 uppercase">
-                                            Step 0{i + 1}
+                                    <div key={i} className="flex gap-6 items-start group">
+                                        <div className="flex flex-col items-center shrink-0">
+                                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[12px] font-black text-white border border-white/10 group-hover:bg-indigo-500 group-hover:border-indigo-400 transition-all duration-300">
+                                                0{i + 1}
+                                            </div>
+                                            {i < content.immediate_actions.length - 1 && (
+                                                <div className="w-0.5 h-10 bg-white/5 group-hover:bg-indigo-500/30 transition-colors" />
+                                            )}
                                         </div>
-                                        <p className="text-sm font-bold tracking-tight uppercase group-hover:text-white transition-colors">
-                                            {action}
-                                        </p>
+                                        <div className="pt-2">
+                                            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/20 mb-1 block">Phase 0{i + 1}</span>
+                                            <p className="text-base font-medium text-slate-300 group-hover:text-white transition-colors leading-relaxed">
+                                                {action}
+                                            </p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -509,12 +544,12 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
     };
 
     return (
-        <div className="w-full h-full bg-[#f1f5f9] overflow-y-auto custom-scrollbar pt-10 pb-48">
-            <div className="mx-auto w-full px-6 flex justify-center pb-20">
-                <div className="flex w-full gap-6 max-w-[1500px] items-start relative min-h-screen">
+        <div className="w-full h-full bg-[#f8fafc] overflow-y-auto custom-scrollbar pt-10 pb-20">
+            <div className="mx-auto w-full px-6 flex justify-center pb-10">
+                <div className="flex w-full gap-8 max-w-[1500px] items-start relative min-h-screen">
 
                     {/* LEFT SIDE: THE DOCUMENT PAGES */}
-                    <div ref={reportRef} className="flex-1 space-y-6 min-w-0">
+                    <div ref={reportRef} className="flex-1 space-y-6 min-w-0 relative">
                         {/* Compact Header */}
                         <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex justify-between items-center">
                             <div className="flex items-center gap-4">
@@ -522,7 +557,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                     <img src={LogoIcon} className="w-full h-full invert brightness-0" alt="Logo" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none mb-1">
+                                    <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">
                                         {report.project_name || "Venture Strategy"}
                                     </h1>
                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
@@ -547,34 +582,32 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 animate={{ opacity: 1 }}
                                 className="bg-white rounded-xl border border-slate-200 p-10 relative flex flex-col shadow-sm"
                             >
-                                <header className="mb-10 flex justify-between items-center bg-slate-50/80 p-5 rounded-lg border border-slate-100">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
-                                        <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">{page.title}</h2>
+                                <header className="mb-12 flex justify-between items-center bg-slate-50/50 p-6 rounded-2xl border border-slate-100 backdrop-blur-sm">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-2 h-8 bg-slate-900 rounded-full" />
+                                        <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 uppercase tracking-tight">{page.title}</h2>
                                     </div>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest border-l border-slate-200 pl-4 ml-4">
-                                        Mod {idx + 1}
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-l border-slate-200 pl-6 ml-6">
+                                        Module {idx + 1}
                                     </span>
                                 </header>
 
                                 <main className="flex-1">
                                     {renderPageContent(page)}
                                 </main>
-
-                                <footer className="mt-14 pt-6 border-t border-slate-50 flex justify-between items-center text-[8px] font-bold text-slate-300 uppercase tracking-widest">
-                                    <span>Capable Intelligence • Internal Protocol</span>
-                                    <span>{idx + 1} / {pages.length}</span>
-                                </footer>
                             </motion.div>
                         ))}
                     </div>
 
-                    {/* RIGHT SIDE: SIDEBAR — Sticky within column */}
-                    <div className="w-[200px] shrink-0">
-                        <div className="sticky top-20 flex flex-col gap-6">
-                            
+                    {/* RIGHT SIDE: SIDEBAR — Fixed Implementation */}
+                    <div className="w-[340px] shrink-0 lg:block hidden">
+                        <div className="fixed top-28 w-[340px] flex flex-col gap-6" 
+                             style={{ 
+                                 right: 'calc(max(24px, (100vw - 1600px) / 2 + 24px))'
+                             }}>
+
                             {/* Action Card */}
-                            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-sm bg-white/90">
+                            <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-slate-200/60 overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.04)]">
                                 {/* Copy — top */}
                                 <button onClick={handleCopy}
                                     className={`flex items-center gap-3 w-full px-5 py-4 text-left transition-all active:scale-[0.98] border-b border-slate-100
@@ -586,24 +619,24 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 </button>
 
                                 {/* Export Group */}
-                                <div className="p-1">
+                                <div className="p-2 space-y-1">
                                     <button onClick={handleExportPDF} disabled={exporting === 'pdf'}
-                                        className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40">
-                                        <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-500">
-                                            <FileText size={12} />
+                                        className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group">
+                                        <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                                            <FileText size={14} />
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">
-                                            {exporting === 'pdf' ? 'Busy…' : 'PDF'}
+                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                                            {exporting === 'pdf' ? 'Generating…' : 'Export Report as PDF'}
                                         </span>
                                     </button>
 
                                     <button onClick={handleExportDocx} disabled={exporting === 'docx'}
-                                        className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40">
-                                        <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
-                                            <Download size={12} />
+                                        className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group">
+                                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                            <Download size={14} />
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">
-                                            {exporting === 'docx' ? 'Busy…' : 'Word'}
+                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                                            {exporting === 'docx' ? 'Generating…' : 'Export Report as Word'}
                                         </span>
                                     </button>
                                 </div>
@@ -621,48 +654,45 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                     </p>
                                 </div>
                             )}
-
-                            {/* Initiate Plan — Bottom Card */}
-                            <div className="bg-slate-900 rounded-2xl p-5 shadow-2xl shadow-slate-200 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.03] rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-white/[0.05] transition-colors" />
-                                
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <div className={`w-1.5 h-1.5 rounded-full ${planInitiated ? 'bg-emerald-400' : 'bg-blue-400'} shadow-[0_0_8px_rgba(52,211,153,0.5)]`} />
-                                        <span className="text-[8px] font-black uppercase tracking-[0.25em] text-white/30">
-                                            {planInitiated ? 'System Ready' : 'Planning'}
-                                        </span>
+                            {/* Next Phase Navigation Bridge — Streamlined */}
+                            <motion.div 
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.6 }}
+                                className="rounded-2xl bg-gradient-to-br from-[#0066CC] to-[#073B99] overflow-hidden shadow-xl relative group"
+                            >
+                                <div className="p-8 relative z-10">
+                                    <div className="flex flex-col gap-2 mb-6">
+                                        <span className="text-[9px] font-black text-white/50 uppercase tracking-[0.2em]">Next Phase</span>
+                                        <h4 className="text-white text-2xl font-display tracking-tight leading-none">
+                                            Roadmap Engine
+                                        </h4>
                                     </div>
-                                    
-                                    <h4 className="text-white text-[13px] font-bold leading-tight mb-2">
-                                        {planInitiated ? 'Blueprint Generated' : 'Ready to Execute?'}
-                                    </h4>
-                                    
-                                    <p className="text-slate-400 text-[10px] leading-relaxed mb-5">
-                                        {planInitiated ? 'Access the task board and start building.' : 'Turn this analysis into a granular 60-day roadmap.'}
+
+                                    <p className="text-white/80 text-[14px] leading-relaxed mb-8">
+                                        Transform this analysis into an actionable, 60-day strategic roadmap.
                                     </p>
 
                                     <button
                                         onClick={handleInitiatePlan}
                                         disabled={planLoading}
-                                        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] transition-all active:scale-95 disabled:opacity-50
-                                            ${planInitiated 
-                                                ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/20' 
-                                                : 'bg-white hover:bg-slate-100 text-slate-900 shadow-lg shadow-white/5'}`}>
-                                        <span>
-                                            {planLoading ? 'Working…' : planInitiated ? 'Go to Tasks' : 'Start Roadmap'}
+                                        className="w-full group relative flex items-center justify-between p-1 bg-white hover:bg-slate-50 text-slate-900 rounded-xl transition-all duration-300 shadow-lg active:scale-[0.98] disabled:opacity-50"
+                                    >
+                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] pl-6 py-3.5">
+                                            {planLoading ? 'Compiling...' : planInitiated ? 'Open Roadmap' : 'Initialize'}
                                         </span>
-                                        {!planLoading && <ArrowRight size={12} />}
-                                        {planLoading && <div className="w-3 h-3 border-2 border-slate-900/10 border-t-slate-900 rounded-full animate-spin" />}
+                                        <div className="w-11 h-11 bg-slate-900 rounded-lg flex items-center justify-center text-white mr-1 shadow-sm">
+                                            {planLoading ? (
+                                                <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                            ) : (
+                                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                            )}
+                                        </div>
                                     </button>
                                 </div>
-                            </div>
-
+                            </motion.div>
                         </div>
                     </div>
-
-
-
                 </div>
             </div>
         </div>

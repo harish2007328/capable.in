@@ -436,7 +436,7 @@ const VenturePage = () => {
                         </div>
                     </div>
                 ) : activeTab === 'strategy' ? (
-                    <div className="flex-1 min-h-0 overflow-hidden">
+                    <div className="flex-1 min-h-0">
                         <div className="w-full h-full animate-in fade-in zoom-in-95 duration-500 fill-mode-both">
                             {report ? (
                                 <AnalysisReport
