@@ -6,19 +6,28 @@ const anonKey = import.meta.env.VITE_INSFORGE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsI
 const client = createClient({ baseUrl, anonKey });
 
 // --- AUTH STATE NOTIFIER ---
+let lastSessionId = null;
 const authListeners = new Set();
 const notifyListeners = (event, session) => {
+    const currentId = session?.user?.id || session?.id || null;
+    if (event === 'SIGNED_IN' && currentId === lastSessionId) return; // Skip redundant
+    if (session) lastSessionId = currentId;
+    else lastSessionId = null;
+    
     authListeners.forEach(cb => cb(event, session));
 };
 
 // Patch getSession to work with InsForge SDK
 client.auth.getSession = async () => {
     try {
-        // Attempt standard SDK session (automatic token detection from URL/cookies)
         const { data, error } = await client.auth.getCurrentSession();
         
         if (data?.session) {
-            notifyListeners('SIGNED_IN', data.session);
+            // Only notify if we haven't already known about this session
+            const currentId = data.session.user?.id || data.session.id;
+            if (currentId !== lastSessionId) {
+                notifyListeners('SIGNED_IN', data.session);
+            }
             return { data, error: null };
         }
         

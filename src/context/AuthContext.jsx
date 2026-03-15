@@ -64,38 +64,43 @@ export const AuthProvider = ({ children }) => {
         return data;
     }, []);
 
+    const lastSyncRef = React.useRef({ id: null, time: 0 });
+
     const syncProfileFromMetadata = React.useCallback(async (currentUser) => {
         if (!currentUser) return;
         
+        // Anti-loop: Only sync once every 5 minutes per user unless forced
+        const now = Date.now();
+        if (lastSyncRef.current.id === currentUser.id && (now - lastSyncRef.current.time) < 300000) {
+            return;
+        }
+        lastSyncRef.current = { id: currentUser.id, time: now };
+        
         console.log("🔄 Syncing profile for:", currentUser.email);
 
-        // 1. Fetch the full profile from the auth service to be sure
-        const { data: fullProfile } = await supabase.auth.getProfile(currentUser.id);
-        console.log("- Auth.getProfile result:", fullProfile);
-
-        const metadata = currentUser.user_metadata || currentUser.metadata || {};
-        const profile = { ...(currentUser.profile || {}), ...(fullProfile || {}) };
-        
-        // 2. Look deep into identities if metadata is empty
-        let avatarFromIdentity = null;
-        let nameFromIdentity = null;
-        
-        if (currentUser.identities && currentUser.identities.length > 0) {
-            for (const identity of currentUser.identities) {
-                const idData = identity.identity_data || identity.metadata || {};
-                if (!avatarFromIdentity) avatarFromIdentity = idData.picture || idData.avatar_url;
-                if (!nameFromIdentity) nameFromIdentity = idData.full_name || idData.name;
-            }
-        }
-
-        const finalName = profile.name || nameFromIdentity || metadata.full_name || metadata.name;
-        const finalAvatar = profile.avatar_url || avatarFromIdentity || metadata.avatar_url || metadata.picture || profile.picture;
-
-        console.log("- Final Resolved Name:", finalName);
-        console.log("- Final Resolved Avatar:", finalAvatar);
-
-        // 3. Ensure a row exists in the 'profiles' table
         try {
+            // 1. Fetch the full profile from the auth service to be sure
+            const { data: fullProfile } = await supabase.auth.getProfile(currentUser.id);
+            
+            const metadata = currentUser.user_metadata || currentUser.metadata || {};
+            const profile = { ...(currentUser.profile || {}), ...(fullProfile || {}) };
+            
+            // 2. Look deep into identities if metadata is empty
+            let avatarFromIdentity = null;
+            let nameFromIdentity = null;
+            
+            if (currentUser.identities && currentUser.identities.length > 0) {
+                for (const identity of currentUser.identities) {
+                    const idData = identity.identity_data || identity.metadata || {};
+                    if (!avatarFromIdentity) avatarFromIdentity = idData.picture || idData.avatar_url;
+                    if (!nameFromIdentity) nameFromIdentity = idData.full_name || idData.name;
+                }
+            }
+
+            const finalName = profile.name || nameFromIdentity || metadata.full_name || metadata.name;
+            const finalAvatar = profile.avatar_url || avatarFromIdentity || metadata.avatar_url || metadata.picture || profile.picture;
+
+            // 3. Ensure a row exists in the 'profiles' table
             const { data: existingProfile, error: fetchError } = await supabase.database
                 .from('profiles')
                 .select('*')
@@ -123,23 +128,24 @@ export const AuthProvider = ({ children }) => {
                         name: finalName || existingProfile.name 
                     })
                     .eq('id', currentUser.id);
+            }
+            
+            // Update local state with the rich profile data
+            if (existingProfile) {
+                const hasAvatarChange = existingProfile.avatar_url && existingProfile.avatar_url !== currentUser.profile?.avatar_url;
+                const hasNameChange = existingProfile.name && existingProfile.name !== currentUser.profile?.name;
                 
-                // Update local state with the rich profile data
-                if (existingProfile) {
-                    const hasAvatarChange = existingProfile.avatar_url && existingProfile.avatar_url !== currentUser.profile?.avatar_url;
-                    const hasNameChange = existingProfile.name && existingProfile.name !== currentUser.profile?.name;
-                    
-                    if (hasAvatarChange || hasNameChange) {
-                        console.log("✅ Applying database profile updates to local state");
-                        currentUser.profile = { ...currentUser.profile, ...existingProfile };
-                        setUser({ ...currentUser });
-                    }
+                if (hasAvatarChange || hasNameChange) {
+                    console.log("✅ Applying database profile updates to local state");
+                    currentUser.profile = { ...currentUser.profile, ...existingProfile };
+                    setUser({ ...currentUser });
                 }
             }
         } catch (dbErr) {
             console.warn("Database profile sync failed:", dbErr.message);
         }
-    }, []); // Removed [updateUser] to prevent unnecessary re-creations
+    }, [setUser]); 
+
 
     const checkSession = React.useCallback(async () => {
         try {
