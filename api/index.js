@@ -367,7 +367,7 @@ app.post('/api/research', async (req, res) => {
        Your goal is to extract deep, unique insights about this specific idea through a targeted interview.
        
        CRITICAL INSTRUCTIONS:
-       - TOTAL QUESTIONS: You must generate EXACTLY 8 to 10 questions. NO more, NO less.
+       - TOTAL QUESTIONS: You must generate EXACTLY 10 to 12 questions. NO more, NO less.
        - REPETITION: Do NOT repeat questions. Every question must explore a DIFFERENT angle of the idea (Operations, Target User, Logistics, Monetization, USP, Tech, Scale, Local challenges).
        - WORD COUNT: Each question text MUST be between 8 and 15 words long. Ensure they are meaningful and professional sentences.
        - STRICT RELEVANCE: Every single question must be STICKLY based on the provided idea. No generic template questions.
@@ -381,6 +381,8 @@ app.post('/api/research', async (req, res) => {
        4. Capital Allocation: What is the primary use of the initial funds?
        5. Scaling: What is the biggest hurdle to growing this in 6 months?
        6. Location Strategy: How does the specific city/country context influence the startup?
+       7. Tech Requirements: What specific technological stack or physical infrastructure is needed?
+       8. Revenue Model: How exactly will the money be made (Subscription, commission, ads)?
        
        JSON SCHEMA:
        {

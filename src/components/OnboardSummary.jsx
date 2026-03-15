@@ -71,7 +71,7 @@ const OnboardSummary = ({ questions, answers, onProceed, isReadonly = false }) =
                                 Project Brief
                             </span>
                         </div>
-                        <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+                        <h2 className="text-3xl font-normal text-gray-900 tracking-tight">
                             Discovery Context
                         </h2>
                         <p className="text-gray-500 mt-1 max-w-xl text-sm">
@@ -118,7 +118,7 @@ const OnboardSummary = ({ questions, answers, onProceed, isReadonly = false }) =
                                     </span>
                                 </div>
 
-                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide leading-relaxed mb-4 min-h-[3rem]">
+                                <h3 className="text-xl font-medium text-black uppercase tracking-wide leading-relaxed mb-4 min-h-[4rem]">
                                     {questionText}
                                 </h3>
 
