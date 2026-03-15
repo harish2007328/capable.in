@@ -20,7 +20,9 @@ const Layout = ({ children }) => {
 
     // Focus Pages (No Sidebar, No Header)
     const focusRoutes = ['/task', '/wizard', '/report', '/project', '/login', '/checkout-result'];
-    if (focusRoutes.some(route => location.pathname.startsWith(route))) {
+    const isFocusPage = focusRoutes.some(route => location.pathname.startsWith(route));
+    
+    if (isFocusPage) {
         return (
             <div className="relative h-screen w-full bg-slate-50 overflow-hidden">
                 {children}

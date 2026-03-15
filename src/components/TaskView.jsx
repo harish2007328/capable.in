@@ -5,7 +5,8 @@ import {
     LayoutGrid,
     List,
     ChevronRight,
-    Target,
+    Layers,
+    Activity,
     Zap,
     Clock,
     Flame,
@@ -35,7 +36,8 @@ const PHASE_COLORS = [
 const TaskView = ({ plan, projectId }) => {
     const [selectedDayData, setSelectedDayData] = useState(null);
     const [completionStatuses, setCompletionStatuses] = useState({});
-    const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+    const [stepProgress, setStepProgress] = useState({}); // { [dayId]: { [stepIdx]: boolean } }
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     // Helper to get phases safely
@@ -47,7 +49,10 @@ const TaskView = ({ plan, projectId }) => {
         const load = async () => {
             const project = await ProjectStorage.getById(projectId);
             const savedProgress = project?.data?.progress || {};
+            const savedSteps = project?.data?.stepProgress || {};
+            
             setCompletionStatuses(savedProgress);
+            setStepProgress(savedSteps);
 
             const firstIncomplete = plan.days.find(day => !savedProgress[day.id]);
             setSelectedDayData(firstIncomplete || plan.days[0]);
@@ -66,21 +71,50 @@ const TaskView = ({ plan, projectId }) => {
         }
     }, [selectedDayData]);
 
-    const toggleCompletion = async (dayId) => {
+    const toggleCompletion = async (dayId, forceValue = null) => {
         const isCurrentlyDone = !!completionStatuses[dayId];
-        const next = { ...completionStatuses, [dayId]: isCurrentlyDone ? false : new Date().toISOString() };
-
+        const shouldBeDone = forceValue !== null ? forceValue : !isCurrentlyDone;
+        
+        // Optimistic Update
+        const next = { ...completionStatuses, [dayId]: shouldBeDone ? new Date().toISOString() : false };
         setCompletionStatuses(next);
-        await ProjectStorage.updateData(projectId, { progress: next });
+        
+        // Background Save
+        ProjectStorage.updateData(projectId, { progress: next });
 
         // Auto-advance to next task if marking as complete
-        if (!isCurrentlyDone) {
+        if (shouldBeDone) {
             const currentIndex = plan.days.findIndex(d => d.id === dayId);
             if (currentIndex !== -1 && currentIndex < plan.days.length - 1) {
-                // Small delay to allow the user to see the checkmark animation
+                // Slightly faster transition
                 setTimeout(() => {
                     setSelectedDayData(plan.days[currentIndex + 1]);
-                }, 300);
+                }, 200);
+            }
+        }
+    };
+
+    const toggleStep = async (dayId, stepIdx) => {
+        const currentSteps = stepProgress[dayId] || {};
+        const isDayAlreadyDone = !!completionStatuses[dayId];
+        
+        const nextSteps = {
+            ...stepProgress,
+            [dayId]: {
+                ...currentSteps,
+                [stepIdx]: !currentSteps[stepIdx]
+            }
+        };
+
+        setStepProgress(nextSteps);
+        ProjectStorage.updateData(projectId, { stepProgress: nextSteps });
+
+        // Check if all steps are now completed for this specific day
+        const dayData = plan.days.find(d => d.id === dayId);
+        if (dayData && dayData.details) {
+            const allChecked = dayData.details.every((_, idx) => nextSteps[dayId]?.[idx]);
+            if (allChecked && !isDayAlreadyDone) {
+                toggleCompletion(dayId, true);
             }
         }
     };
@@ -125,7 +159,7 @@ const TaskView = ({ plan, projectId }) => {
                             {/* Header Section - Unified Style */}
                             <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <Target size={14} /> Task Details
+                                    <Layers size={14} className="text-slate-400" /> Task Details
                                 </span>
                                 <div className="flex items-center gap-2">
                                     <span className="px-2 py-0.5 bg-blue-50 text-[var(--brand-accent)] text-[10px] font-bold rounded-full uppercase tracking-wide border border-blue-100">
@@ -141,42 +175,114 @@ const TaskView = ({ plan, projectId }) => {
 
                             {/* Scrollable Content */}
                             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-6">
-                                <h2 className="text-xl font-normal text-slate-900 leading-snug font-display">
-                                    {selectedDayData.title}
-                                </h2>
-
-                                <section>
-                                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                                        Objective
-                                    </h3>
-                                    <p className="text-sm text-slate-700 leading-relaxed font-medium">
-                                        {selectedDayData.task}
-                                    </p>
-                                </section>
-
-                                <section>
-                                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Action Steps</h3>
-                                    <div className="space-y-3">
-                                        {selectedDayData.details?.map((detail, idx) => (
-                                            <div key={idx} className="flex gap-3 text-sm text-slate-600 leading-relaxed group">
-                                                <div className="flex-none w-5 h-5 rounded-full bg-slate-50 border border-slate-200 text-slate-400 flex items-center justify-center text-[10px] font-bold group-hover:border-[var(--brand-accent)]/30 group-hover:bg-blue-50 group-hover:text-[var(--brand-accent)] transition-colors">
-                                                    {idx + 1}
-                                                </div>
-                                                <span className="pt-0.5 text-xs font-medium">{detail}</span>
+                                {selectedDayData.isPlaceholder ? (
+                                    <div className="space-y-6 animate-pulse">
+                                        <div className="h-8 bg-slate-100 rounded-md w-3/4"></div>
+                                        <section>
+                                            <div className="h-3 bg-slate-50 rounded w-20 mb-3"></div>
+                                            <div className="space-y-2">
+                                                <div className="h-4 bg-slate-50 rounded w-full"></div>
+                                                <div className="h-4 bg-slate-50 rounded w-5/6"></div>
                                             </div>
-                                        ))}
+                                        </section>
+                                        <section>
+                                            <div className="h-3 bg-slate-50 rounded w-24 mb-3"></div>
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} className="flex gap-3 mb-3">
+                                                    <div className="w-5 h-5 rounded-full bg-slate-50 shrink-0"></div>
+                                                    <div className="h-4 bg-slate-50 rounded w-full mt-0.5"></div>
+                                                </div>
+                                            ))}
+                                        </section>
                                     </div>
-                                </section>
+                                ) : (
+                                    <>
+                                        <h2 className="text-xl font-normal text-slate-900 leading-snug font-display">
+                                            {selectedDayData.title}
+                                        </h2>
 
-                                {selectedDayData.deliverable && (
-                                    <section className="bg-blue-50/50 rounded-lg p-4 border border-blue-100/50">
-                                        <h3 className="text-[10px] font-bold text-[var(--brand-accent)]/70 uppercase tracking-wider mb-1 flex items-center gap-2">
-                                            <Target size={12} /> Key Deliverable
-                                        </h3>
-                                        <p className="text-sm font-bold text-[var(--brand-accent)]">
-                                            {selectedDayData.deliverable}
-                                        </p>
-                                    </section>
+                                        <div className="flex items-center gap-6 py-1">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Strategic Impact</span>
+                                                <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 uppercase">{selectedDayData.impact}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time Commitment</span>
+                                                <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5 border border-slate-100 px-2 py-0.5 rounded-full"><Clock size={12} /> {selectedDayData.est_time}</span>
+                                            </div>
+                                        </div>
+
+                                        <section>
+                                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                                Objective
+                                            </h3>
+                                            <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                                                {selectedDayData.task}
+                                            </p>
+                                        </section>
+
+                                        <section>
+                                            <div className="flex items-center justify-between mb-3">
+                                                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Action Steps</h3>
+                                                {selectedDayData.details?.length > 0 && (
+                                                    <span className="text-[10px] font-medium text-slate-400">
+                                                        {Object.values(stepProgress[selectedDayData.id] || {}).filter(Boolean).length} / {selectedDayData.details.length} Completed
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="space-y-3">
+                                                {selectedDayData.details?.map((detail, idx) => {
+                                                    const isChecked = !!stepProgress[selectedDayData.id]?.[idx];
+                                                    return (
+                                                        <div 
+                                                            key={idx} 
+                                                            onClick={() => toggleStep(selectedDayData.id, idx)}
+                                                            className={`flex items-start gap-3 text-sm leading-relaxed group cursor-pointer p-2 rounded-lg transition-colors relative ${isChecked ? 'bg-slate-50/50' : 'hover:bg-slate-50'}`}
+                                                        >
+                                                            <div className={`mt-0.5 flex-none w-5 h-5 rounded flex items-center justify-center transition-all ${isChecked ? 'bg-indigo-600 text-white' : 'bg-slate-50 border border-slate-200 text-slate-400 group-hover:border-indigo-200'}`}>
+                                                                {isChecked && <CheckCircle2 size={12} />}
+                                                                {!isChecked && <div className="text-[10px] font-bold">{idx + 1}</div>}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0 pr-16">
+                                                                <span className={`text-xs font-medium transition-colors ${isChecked ? 'text-slate-400 line-through decoration-slate-300' : 'text-slate-600'}`}>
+                                                                    {detail}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Ask AI Button - Visible on Hover */}
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    window.dispatchEvent(new CustomEvent('add-task-mention', {
+                                                                        detail: { 
+                                                                            id: selectedDayData.day, 
+                                                                            title: selectedDayData.title,
+                                                                            stepIdx: idx + 1,
+                                                                            stepText: detail
+                                                                        }
+                                                                    }));
+                                                                }}
+                                                                className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all flex items-center px-2 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-md hover:bg-indigo-100 active:scale-95"
+                                                            >
+                                                                <span className="text-[10px] font-bold uppercase tracking-tight">Ask AI</span>
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </section>
+
+                                        {selectedDayData.deliverable && (
+                                            <section className="bg-blue-50/50 rounded-lg p-4 border border-blue-100/50">
+                                                <h3 className="text-[10px] font-bold text-[var(--brand-accent)]/70 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                                    <Activity size={12} /> Key Deliverable
+                                                </h3>
+                                                <p className="text-sm font-bold text-[var(--brand-accent)]">
+                                                    {selectedDayData.deliverable}
+                                                </p>
+                                            </section>
+                                        )}
+                                    </>
                                 )}
                             </div>
 
@@ -233,8 +339,8 @@ const TaskView = ({ plan, projectId }) => {
                         </div>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-center p-10 opacity-40">
-                            <Target size={40} className="text-slate-300 mb-4" />
-                            <p className="text-sm font-bold text-slate-400">Select a task to view details</p>
+                            <Layers size={40} className="text-slate-300 mb-4" />
+                            <p className="text-sm font-bold text-slate-400 tracking-tight">Select a task from the roadmap</p>
                         </div>
                     )}
                 </div>
@@ -310,10 +416,12 @@ const TaskView = ({ plan, projectId }) => {
                                                 borderColor: isSelected && !isDone ? pColor : (isDone ? pColor : `${pColor}30`),
                                                 borderWidth: isSelected && !isDone ? '2px' : '1px',
                                                 color: text,
-                                                boxShadow: shadow
+                                                boxShadow: shadow,
+                                                filter: day.isPlaceholder ? 'blur(1px)' : 'none',
+                                                opacity: day.isPlaceholder ? 0.4 : 1
                                             }}
-                                            className="aspect-square rounded-md flex items-center justify-center text-xs font-bold transition-transform hover:scale-105"
-                                            title={`Day ${day.day_number}: ${day.title}`}
+                                            className={`aspect-square rounded-md flex items-center justify-center text-xs font-bold transition-transform hover:scale-105 ${day.isPlaceholder ? 'cursor-wait animate-pulse' : ''}`}
+                                            title={day.isPlaceholder ? `Day ${day.day_number}: Content generating...` : `Day ${day.day_number}: ${day.title}`}
                                         >
                                             {isDone ? <CheckCircle2 size={14} /> : day.day_number}
                                         </button>
@@ -340,9 +448,11 @@ const TaskView = ({ plan, projectId }) => {
                                         style={{
                                             backgroundColor: listBg,
                                             border: listBorder,
-                                            boxShadow: listShadow
+                                            boxShadow: listShadow,
+                                            filter: day.isPlaceholder ? 'blur(1.5px)' : 'none',
+                                            opacity: day.isPlaceholder ? 0.5 : 1
                                         }}
-                                        className="w-full px-4 py-3 rounded-lg flex items-center gap-4 text-left group transition-all"
+                                        className={`w-full px-4 py-3 rounded-lg flex items-center gap-4 text-left group transition-all ${day.isPlaceholder ? 'cursor-wait' : ''}`}
                                     >
                                         <div
                                             className="w-6 h-6 rounded flex-none flex items-center justify-center text-[10px] font-bold transition-colors"
@@ -354,11 +464,12 @@ const TaskView = ({ plan, projectId }) => {
                                             <p className={`
                                                 font-bold leading-tight text-xs truncate
                                                 ${isDone ? 'text-slate-400 line-through decoration-slate-300' : 'text-slate-700'}
+                                                ${day.isPlaceholder ? 'italic' : ''}
                                             `}>
                                                 {day.title}
                                             </p>
                                         </div>
-                                        {isSelected && <ChevronRight size={14} style={{ color: pColor }} />}
+                                        {isSelected && !day.isPlaceholder && <ChevronRight size={14} style={{ color: pColor }} />}
                                     </button>
                                 );
                             })}

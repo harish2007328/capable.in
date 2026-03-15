@@ -47,6 +47,42 @@ export const generateAnalysisReport = async (idea, answers, webSignals = {}) => 
 };
 
 /**
+ * Execution Roadmap Service (Phase 1: Structure)
+ */
+export const generatePlanStructure = async (idea, report, answers) => {
+    try {
+        const response = await axios.post('/api/generate-plan-structure', {
+            idea,
+            report,
+            answers
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error generating plan structure:', error);
+        throw error;
+    }
+};
+
+/**
+ * Execution Roadmap Service (Phase 2: Task Generation per Phase)
+ */
+export const generatePhaseTasks = async (idea, report, answers, phase, allPreviousTasks) => {
+    try {
+        const response = await axios.post('/api/generate-phase-tasks', {
+            idea,
+            report,
+            answers,
+            phase,
+            allPreviousTasks
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error generating tasks for phase ${phase?.name}:`, error);
+        throw error;
+    }
+};
+
+/**
  * Execution Roadmap Service
  * Generates the 60-day action plan based on the assessment.
  */

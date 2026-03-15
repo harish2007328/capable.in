@@ -292,7 +292,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
 
                 <div className="relative z-10 w-full h-full">
                     <img
-                        src="/bauhaus_last_gen.png"
+                        src="/bauhaus_last_gen.webp"
                         alt="Strategic Bauhaus Geometry"
                         className="w-full h-full object-cover pointer-events-none select-none"
                         onError={(e) => {
@@ -302,11 +302,23 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent"></div>
                 </div>
 
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center w-full px-12 z-20">
-                    <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md tracking-tight">Intelligence Synthesis</h3>
-                    <p className="text-white/90 text-xs font-medium max-w-xs mx-auto leading-relaxed drop-shadow-sm">
-                        Data signals are being processed to construct your market entry protocol. Each answer refines the tactical roadmap.
-                    </p>
+                {/* Refined Glass + White Box Design (Matches Reference Image) */}
+                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-20">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
+                        className="p-2 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[32px] shadow-[0_24px_80px_rgba(0,0,0,0.4)]"
+                    >
+                        <div className="bg-white rounded-[24px] p-6 md:p-8 flex flex-col items-center text-center">
+                            <h3 className="text-slate-900 text-[11px] font-black tracking-[0.2em] uppercase mb-4 opacity-80">
+                                Creating Your Plan
+                            </h3>
+                            <p className="text-slate-600 text-xs font-semibold leading-relaxed max-w-[280px]">
+                                We're turning your vision into a clear, step-by-step roadmap. Every answer you provide helps us refine your path to success.
+                            </p>
+                        </div>
+                    </motion.div>
                 </div>
             </div>
 

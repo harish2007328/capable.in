@@ -38,63 +38,61 @@ const AdjustableRulesSection = () => (
                 </motion.div>
             </motion.div>
 
-            <motion.div 
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                variants={staggerContainer}
-                className="grid grid-cols-1 md:grid-cols-2 gap-8"
-            >
-                <motion.div variants={scaleIn} className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft hover:shadow-card transition-all duration-700 group flex flex-col">
-                    <div className="px-8 sm:px-10 pt-10 pb-8">
-                        <span className="inline-flex items-center px-4 py-1.5 rounded-[14px] bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 text-[11px] font-bold text-[var(--brand-accent)] uppercase tracking-widest mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="rounded-[32px] bg-gradient-to-br from-[#0066CC] to-[#073B99] overflow-hidden shadow-2xl transition-all duration-500 flex flex-col relative"
+                >
+                    <div className="px-8 sm:px-10 pt-10 pb-8 relative z-10">
+                        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-bold text-white uppercase tracking-widest mb-6">
                             Customisable
                         </span>
-                        <h3 className="text-2xl md:text-3xl font-display text-gray-900 mb-4 tracking-tight">Precise Logic</h3>
-                        <p className="text-gray-700 text-[16px] leading-relaxed max-w-sm mb-4">
+                        <h3 className="text-2xl md:text-3xl font-display text-white mb-4 tracking-tight">Precise Logic</h3>
+                        <p className="text-white/80 text-[16px] leading-relaxed max-w-sm mb-4">
                             Design paths that work for you, not the other way around.
                         </p>
                     </div>
-                    <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
-                        <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
+                    <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto relative z-10">
+                        <div className="w-full h-full rounded-tl-[32px] overflow-hidden bg-white/5 backdrop-blur-md relative transition-colors duration-500">
                             <img
                                 src="/mobile/market_analysis_vector.webp"
-                                srcSet="/mobile/market_analysis_vector.webp 640w, /market_analysis_vector.webp 1200w"
-                                sizes="(max-width: 640px) 100vw, 50vw"
-                                loading="lazy"
+                                className="w-full h-full object-cover"
                                 alt="Market Analysis"
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             />
-                            <div className="absolute inset-0 bg-blue-500/5 transition-all duration-700 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                         </div>
                     </div>
                 </motion.div>
 
-                <motion.div variants={scaleIn} className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft hover:shadow-card transition-all duration-700 group flex flex-col">
-                    <div className="px-8 sm:px-10 pt-10 pb-8">
-                        <span className="inline-flex items-center px-4 py-1.5 rounded-[14px] bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 text-[11px] font-bold text-[var(--brand-accent)] uppercase tracking-widest mb-6">
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                    className="rounded-[32px] bg-gradient-to-br from-[#0066CC] to-[#073B99] overflow-hidden shadow-2xl transition-all duration-500 flex flex-col relative"
+                >
+                    <div className="px-8 sm:px-10 pt-10 pb-8 relative z-10">
+                        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-bold text-white uppercase tracking-widest mb-6">
                             Workflows
                         </span>
-                        <h3 className="text-2xl md:text-3xl font-display text-gray-900 mb-4 tracking-tight">Insightful Coaching</h3>
-                        <p className="text-gray-700 text-[16px] leading-relaxed max-w-sm mb-4">
+                        <h3 className="text-2xl md:text-3xl font-display text-white mb-4 tracking-tight">Insightful Coaching</h3>
+                        <p className="text-white/80 text-[16px] leading-relaxed max-w-sm mb-4">
                             Simplify the complex work and focus on the results.
                         </p>
                     </div>
-                    <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto">
-                        <div className="w-full h-full rounded-tl-[24px] overflow-hidden border-t border-l border-gray-100 relative group-hover:border-blue-500/20 transition-colors duration-700">
+                    <div className="w-full aspect-[16/10] pl-10 pt-10 pr-0 pb-0 mt-auto relative z-10">
+                        <div className="w-full h-full rounded-tl-[32px] overflow-hidden bg-white/5 backdrop-blur-md relative transition-colors duration-500">
                             <img
                                 src="/mobile/action_roadmap_vector.webp"
-                                srcSet="/mobile/action_roadmap_vector.webp 640w, /action_roadmap_vector.webp 1200w"
-                                sizes="(max-width: 640px) 100vw, 50vw"
-                                loading="lazy"
+                                className="w-full h-full object-cover"
                                 alt="Action Roadmap"
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                             />
-                            <div className="absolute inset-0 bg-blue-500/5 transition-all duration-700 group-hover:opacity-0 group-hover:scale-105 pointer-events-none"></div>
                         </div>
                     </div>
                 </motion.div>
-            </motion.div>
+            </div>
         </div>
     </section>
 );

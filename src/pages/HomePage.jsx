@@ -457,14 +457,14 @@ const HomePage = () => {
                                         <span className="text-[11px] sm:text-[13px] font-bold text-white tracking-widest uppercase text-center whitespace-nowrap">{item}</span>
                                     </div>
                                 </motion.div>
-                                
+
                                 {/* Node connector lines between pills */}
                                 {idx < arr.length - 1 && (
-                                    <motion.div 
+                                    <motion.div
                                         variants={fadeUp}
                                         className="hidden xl:flex items-center w-10 -mx-1 z-0 relative"
                                     >
-                                        <motion.div 
+                                        <motion.div
                                             variants={{
                                                 hidden: { scaleX: 0 },
                                                 visible: { scaleX: 1, transition: { duration: 0.4, delay: 1.6 + (idx * 0.2), ease: "easeOut" } }

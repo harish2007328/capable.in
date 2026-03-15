@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { mentorChat } from '../services/ai';
-import { Send, Sparkles, Menu, Edit, Pin, MessageSquare, Zap, X, Trash2, Target } from 'lucide-react';
+import { Send, Zap, Menu, Edit, Pin, MessageSquare, X, Trash2, Flag } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ProjectStorage } from '../services/projectStorage';
@@ -12,9 +12,12 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     // Load initial data from ProjectStorage
+    const hasLoadedRef = useRef(false);
     useEffect(() => {
         const load = async () => {
-            if (!projectId) return;
+            if (!projectId || hasLoadedRef.current) return;
+            hasLoadedRef.current = true;
+            
             const project = await ProjectStorage.getById(projectId);
             const savedChats = project?.data?.chats;
 
@@ -48,9 +51,11 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
     // Event listener for adding task mentions from TaskView
     useEffect(() => {
         const handleMention = (e) => {
-            const { id, title } = e.detail;
-            if (!mentions.some(m => m.id === id)) {
-                setMentions(prev => [...prev, { id, title }]);
+            const { id, title, stepIdx, stepText } = e.detail;
+            const mentionKey = stepIdx ? `${id}-${stepIdx}` : `${id}`;
+            
+            if (!mentions.some(m => (m.stepIdx ? `${m.id}-${m.stepIdx}` : `${m.id}`) === mentionKey)) {
+                setMentions(prev => [...prev, { id, title, stepIdx, stepText }]);
             }
             // Focus input
             document.getElementById('mentor-chat-input')?.focus();
@@ -75,6 +80,17 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
     }, [sessions, projectId, isInitialLoad]);
 
     const handleCreateSession = () => {
+        // Find if there's already an 'empty' session at the top (no user messages)
+        const existingEmpty = sessions.find(s => 
+            s.messages.length === 1 && s.messages[0].role === 'assistant'
+        );
+
+        if (existingEmpty) {
+            setActiveSessionId(existingEmpty.id);
+            setIsOpen(false);
+            return;
+        }
+
         const newId = Date.now().toString();
         const newSession = {
             id: newId,
@@ -116,8 +132,11 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
         // Construct full message with mention context if any
         let fullQuery = queryText;
         if (mentions.length > 0) {
-            const mentionContext = mentions.map(m => `@${m.id} (${m.title})`).join(', ');
-            fullQuery = `[Context tasks: ${mentionContext}] ${queryText}`;
+            const mentionContext = mentions.map(m => {
+                if (m.stepIdx) return `@Day ${m.id} Step ${m.stepIdx} (${m.stepText})`;
+                return `@Day ${m.id} (${m.title})`;
+            }).join(', ');
+            fullQuery = `[Context tasks/steps: ${mentionContext}] ${queryText}`;
         }
 
         const userMsg = { role: 'user', type: 'text', content: queryText, mentions: [...mentions] };
@@ -135,7 +154,12 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
         try {
             const response = await mentorChat(idea, plan, [...activeSession.messages.map(m => {
                 // Attach context to last message if it's from user to help AI
-                return m.role === 'user' ? { ...m, content: m.mentions?.length ? `[Context tasks: ${m.mentions.map(mt => `@${mt.id}`).join(', ')}] ${m.content}` : m.content } : m;
+                return m.role === 'user' ? { 
+                    ...m, 
+                    content: m.mentions?.length 
+                        ? `[Context tasks/steps: ${m.mentions.map(mt => mt.stepIdx ? `@Day ${mt.id} Step ${mt.stepIdx}: ${mt.stepText}` : `@Day ${mt.id}`).join(', ')}] ${m.content}` 
+                        : m.content 
+                } : m;
             }), { role: 'user', content: fullQuery }], completedDays, currentTaskId);
             const assistantMessages = [{ role: 'assistant', type: 'text', content: response.message }];
             if (response.taskEdit) assistantMessages.push({ role: 'assistant', type: 'action', actionType: 'edit', data: response.taskEdit });
@@ -179,8 +203,8 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                 {/* Header */}
                 <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white z-20 shrink-0">
                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                            <Sparkles size={14} className="text-[var(--brand-accent)]" /> AI Mentor
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            AI Strategy Mentor
                         </span>
                     </div>
 
@@ -197,8 +221,8 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                 <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar scroll-smooth">
                     {isInitialLoad ? (
                         <div className="flex flex-col items-center justify-center h-full gap-4 opacity-30">
-                            <Sparkles size={24} className="animate-pulse text-[var(--brand-accent)]" />
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Strategy...</p>
+                            <div className="w-8 h-8 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Syncing Roadmap...</p>
                         </div>
                     ) : (
                         activeSession?.messages?.map((m, i) => (
@@ -217,21 +241,30 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                                         {m.actionType === 'add' && (
                                             <div className="bg-white border border-blue-100 rounded-xl shadow-sm p-4 flex flex-col gap-2">
                                                 <div className="flex items-center gap-2 text-blue-600 font-bold text-[10px] uppercase tracking-wider">
-                                                    <Sparkles size={12} fill="currentColor" />
-                                                    Refining Plan
+                                                    Plan Optimized
                                                 </div>
-                                                <div className="text-xs text-slate-500">{m.data.tasks.length} insights added.</div>
+                                                <div className="text-xs text-slate-500">{m.data.tasks.length} tactical tasks added.</div>
                                             </div>
                                         )}
                                     </div>
                                 ) : (
                                     <div className={`
-                                    max-w-[88%] p-4 text-sm leading-relaxed shadow-sm
+                                    max-w-[88%] p-4 text-sm leading-relaxed shadow-sm flex flex-col gap-2
                                     ${m.role === 'user'
                                             ? 'bg-[var(--brand-accent)] text-white rounded-2xl rounded-tr-sm'
                                             : 'bg-white text-slate-700 border border-slate-100 rounded-2xl rounded-tl-sm'
                                         }
                                 `}>
+                                        {/* Mentions Context Info in Bubble */}
+                                        {m.role === 'user' && m.mentions?.length > 0 && (
+                                            <div className="flex flex-wrap gap-1.5 pb-2 border-b border-white/20 mb-1">
+                                                {m.mentions.map((mt, idx) => (
+                                                    <div key={idx} className="flex items-center gap-1 px-1.5 py-0.5 bg-white/15 rounded-md text-[9px] font-bold uppercase tracking-tight">
+                                                        Day {mt.id}{mt.stepIdx && ` • Step ${mt.stepIdx}`}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                         <div className="markdown-content prose prose-slate prose-sm max-w-none">
                                             <ReactMarkdown
                                                 remarkPlugins={[remarkGfm]}
@@ -302,12 +335,13 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                     {
                         mentions.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
-                                {mentions.map(m => (
-                                    <div key={m.id} className="flex items-center gap-1.5 px-2 py-1 bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 rounded-lg text-[var(--brand-accent)] animate-in zoom-in-95 duration-150">
-                                        <Target size={10} />
-                                        <span className="text-[10px] font-black uppercase tracking-tighter">Day {m.id}</span>
+                                {mentions.map((m, idx) => (
+                                    <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 rounded-lg text-[var(--brand-accent)] animate-in zoom-in-95 duration-150">
+                                        <span className="text-[10px] font-black uppercase tracking-tighter">
+                                            Day {m.id}{m.stepIdx && ` • Step ${m.stepIdx}`}
+                                        </span>
                                         <button
-                                            onClick={() => setMentions(prev => prev.filter(item => item.id !== m.id))}
+                                            onClick={() => setMentions(prev => prev.filter((_, i) => i !== idx))}
                                             className="hover:bg-[var(--brand-accent)]/10 rounded-full p-0.5 transition-colors"
                                         >
                                             <X size={10} />
@@ -353,7 +387,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                             <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white z-20 shrink-0">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Sparkles size={14} className="text-[var(--brand-accent)]" /> Sessions
+                                        <MessageSquare size={14} className="text-[var(--brand-accent)]" /> Sessions
                                     </span>
                                 </div>
                                 <button

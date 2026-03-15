@@ -7,7 +7,7 @@ import AnalysisReport from '../components/AnalysisReport';
 import TaskView from '../components/TaskView';
 import SkeletonWizard from '../components/SkeletonWizard';
 import SkeletonReport from '../components/SkeletonReport';
-import { generateAnalysisQuestions, generateAnalysisReport, generateActionPlan } from '../services/ai';
+import { generateAnalysisQuestions, generateAnalysisReport, generatePlanStructure, generatePhaseTasks } from '../services/ai';
 import { ProjectStorage } from '../services/projectStorage';
 import FullScreenLoader from '../components/FullScreenLoader';
 
@@ -40,16 +40,20 @@ const VenturePage = () => {
     const isMounted = useRef(true);
     const hasInitialized = useRef(false);
 
+
+
     // --- HELPERS ---
     const normalizePlan = (plan) => {
-        if (!plan || !plan.days) return plan;
+        if (!plan) return plan;
+        const days = plan.days || [];
         return {
             ...plan,
-            days: plan.days.map(d => ({
+            days: days.map(d => ({
                 ...d,
                 id: d.id || d.day,
                 day_number: d.day_number || d.day,
-                title: d.title || d.task
+                title: d.title || d.task,
+                isPlaceholder: !d.task
             }))
         };
     };
@@ -177,13 +181,6 @@ const VenturePage = () => {
         }
     };
 
-    const handleWizardComplete = async (answers) => {
-        await ProjectStorage.updateData(currentId, { answers });
-        setCompletedAnswers(answers);
-        setShowSummary(true);
-        setActiveTab('strategy');
-    };
-
     const handleAcceptStrategy = async () => {
         if (planLoading) return;
         if (hasPlan && actionPlan) {
@@ -194,21 +191,101 @@ const VenturePage = () => {
         setPlanLoading(true);
         try {
             const idea = project.data.idea;
-            const answers = JSON.stringify(completedAnswers);
-            const result = await generateActionPlan(idea, JSON.stringify(report), answers);
+            const reportStr = JSON.stringify(report);
+            const answersStr = JSON.stringify(completedAnswers);
 
-            const normalized = normalizePlan(result);
-            await ProjectStorage.updateData(currentId, { plan: normalized });
-            setActionPlan(normalized);
+            // Step 1: Generate Structure (With local retry)
+            let structure;
+            let retryCount = 0;
+            while (retryCount < 2) {
+                try {
+                    structure = await generatePlanStructure(idea, reportStr, answersStr);
+                    if (structure) break;
+                } catch (e) {
+                    retryCount++;
+                    if (retryCount >= 2) throw e;
+                    console.warn(`Structure generation attempt ${retryCount} failed, retrying...`);
+                    await new Promise(res => setTimeout(res, 1000));
+                }
+            }
+            
+            // Create a skeleton plan with 60 days
+            const skeletonDays = Array.from({ length: 60 }, (_, i) => ({
+                day: i + 1,
+                day_number: i + 1,
+                id: i + 1,
+                title: `Task ${i + 1}...`,
+                task: '',
+                deliverable: '',
+                details: [],
+                phase_id: structure.phases.find(p => {
+                    const [s, e] = p.range.split('-').map(Number);
+                    return (i + 1) >= s && (i + 1) <= e;
+                })?.id || 1,
+                isPlaceholder: true
+            }));
+
+            const initialPlan = {
+                ...structure,
+                days: skeletonDays
+            };
+
+            setActionPlan(initialPlan);
             setHasPlan(true);
             setActiveTab('plan');
+            
+            // Step 2 & 3: Generate phases in order
+            let currentFullPlan = { ...initialPlan };
+            
+            for (const phase of structure.phases) {
+                try {
+                    const phaseResult = await generatePhaseTasks(
+                        idea, 
+                        reportStr, 
+                        answersStr, 
+                        phase, 
+                        currentFullPlan.days.filter(d => !d.isPlaceholder)
+                    );
+
+                    if (phaseResult?.days) {
+                        const updatedDays = currentFullPlan.days.map(existingDay => {
+                            const generatedDay = phaseResult.days.find(d => d.day === existingDay.day);
+                            if (generatedDay) {
+                                return {
+                                    ...generatedDay,
+                                    isPlaceholder: false,
+                                    id: generatedDay.day,
+                                    day_number: generatedDay.day
+                                };
+                            }
+                            return existingDay;
+                        });
+
+                        currentFullPlan = { ...currentFullPlan, days: updatedDays };
+                        setActionPlan({ ...currentFullPlan });
+                        await ProjectStorage.updateData(currentId, { plan: currentFullPlan });
+                    }
+                } catch (phaseErr) {
+                    console.error(`Failed to generate tasks for phase ${phase.name}`, phaseErr);
+                }
+            }
+
         } catch (error) {
-            console.error('Action plan failed', error);
+            console.error('Action plan structure failed', error);
             alert('Consultant unavailable. Please try again.');
         } finally {
             if (isMounted.current) setPlanLoading(false);
         }
     };
+
+    const handleWizardComplete = async (answers) => {
+        await ProjectStorage.updateData(currentId, { answers });
+        setCompletedAnswers(answers);
+        setShowSummary(true);
+        setActiveTab('strategy');
+    };
+
+
 
     if (loading) return <FullScreenLoader />;
 

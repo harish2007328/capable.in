@@ -101,16 +101,38 @@ const MODEL = "llama-3.1-8b-instant"; // Best balance of performance and high TP
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36';
 
-async function scrapeDuckDuckGo(query) {
+async function scrapeDuckDuckGo(query, location = null) {
     try {
-        const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+        // Map common country names to DuckDuckGo kl codes
+        const klMap = {
+            'india': 'in-en',
+            'united states': 'us-en',
+            'usa': 'us-en',
+            'united kingdom': 'uk-en',
+            'uk': 'uk-en',
+            'canada': 'ca-en',
+            'australia': 'au-en',
+            'germany': 'de-de',
+            'france': 'fr-fr',
+            'china': 'cn-zh',
+            'japan': 'jp-jp',
+            'brazil': 'br-pt'
+        };
+
+        let kl = '';
+        if (location && typeof location === 'object') {
+            const country = location.country?.toLowerCase();
+            kl = klMap[country] || '';
+        }
+
+        const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}${kl ? `&kl=${kl}` : ''}`;
         const { data } = await axios.get(url, {
             headers: { 'User-Agent': USER_AGENT }
         });
         const $ = cheerio.load(data);
         const results = [];
         $('.result__body').each((i, el) => {
-            if (i < 5) { // Limit to 5 results for better context
+            if (i < 8) { // Increased to 8 for better signals
                 results.push({
                     title: $(el).find('.result__title').text().trim(),
                     description: $(el).find('.result__snippet').text().trim(),
@@ -118,7 +140,7 @@ async function scrapeDuckDuckGo(query) {
                 });
             }
         });
-        console.log(`DDG results for "${query}": ${results.length}`);
+        console.log(`DDG results for "${query}" (kl=${kl}): ${results.length}`);
         return results;
     } catch (err) {
         console.error("DDG Scrape Error:", err.message);
@@ -128,8 +150,7 @@ async function scrapeDuckDuckGo(query) {
 
 async function fetchRedditSignals(query) {
     try {
-        // Reddit is strict with User-Agents and often requires a specific format
-        const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&limit=2&sort=relevance`;
+        const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&limit=5&sort=relevance`;
         const { data } = await axios.get(url, {
             headers: {
                 'User-Agent': 'CAPABLE-Audit-Bot/1.0.0',
@@ -138,7 +159,8 @@ async function fetchRedditSignals(query) {
         });
         const posts = data.data?.children?.map(child => ({
             title: child.data.title,
-            text: child.data.selftext?.substring(0, 200) || ""
+            text: child.data.selftext?.substring(0, 300) || "",
+            subreddit: child.data.subreddit_name_prefixed
         })) || [];
         console.log(`Reddit signals for "${query}": ${posts.length}`);
         return posts;
@@ -148,20 +170,23 @@ async function fetchRedditSignals(query) {
     }
 }
 
-async function collectMarketSignals(idea) {
-    console.log(`\n--- Researching: ${idea} ---`);
+async function collectMarketSignals(idea, location = null) {
+    const locStr = location ? ` in ${location.city || ''} ${location.country || ''}`.trim() : "";
+    console.log(`\n--- Researching: ${idea}${locStr} ---`);
 
-    const [searchSignals, competitionSignals, redditSignals] = await Promise.all([
-        scrapeDuckDuckGo(idea),
-        scrapeDuckDuckGo(`${idea} competitors alternative`),
-        fetchRedditSignals(idea)
+    const [searchSignals, competitionSignals, redditSignals, newsSignals] = await Promise.all([
+        scrapeDuckDuckGo(`${idea}${locStr}`, location),
+        scrapeDuckDuckGo(`${idea} competitors alternative ${locStr}`, location),
+        fetchRedditSignals(idea),
+        scrapeDuckDuckGo(`${idea} trends news 2024 2025`, location)
     ]);
 
     return {
         searchSignals: { organicResults: searchSignals },
-        trendSignals: { evidenceCount: searchSignals.length },
+        trendSignals: { evidenceCount: searchSignals.length + newsSignals.length, news: newsSignals },
         problemSignals: { redditDiscussions: redditSignals },
-        competitionSignals: { links: competitionSignals.map(c => c.domain) },
+        competitionSignals: { links: competitionSignals.map(c => ({ title: c.title, domain: c.domain })) },
+        location: location,
         timestamp: new Date().toISOString()
     };
 }
@@ -333,7 +358,7 @@ app.post('/api/research', async (req, res) => {
             return res.status(403).json({ error: moderation.reason, blocked: true });
         }
 
-        const webSignals = await collectMarketSignals(idea);
+        const webSignals = await collectMarketSignals(idea, location);
 
         // Strip all descriptions/text to stay under Rate Limits
         const optimizedSignals = {
@@ -458,13 +483,19 @@ app.post('/api/analyze', async (req, res) => {
       USER INTERVIEW SUMMARY: ${answers}
 
       TASK:
-      Generate an Investor-Ready Strategic Report based ONLY on the User Interview and Market Research.
+      Generate an Investor-Ready Strategic Report based HEAVILY on the PROVIDE Market Research Signals (DuckDuckGo, Reddit, Trends) and User Interview.
       
+      COMPETITOR EXTRACTION RULES:
+      - Scan the "competitionSignals" in the MARKET RESEARCH CONTEXT.
+      - If a location is provided, prioritize competitors operating in that region.
+      - Extract EXACT names of companies or services mentioned in the search results.
+      - If the signals show no direct competitors, identify "Indirect Competitors" (e.g., manual processes, traditional methods).
+
       REQUIRED SECTIONS (STRICT SCHEMA):
       1. Idea Summary: Clear explanation, target user, core value proposition.
-      2. Market Demand Analysis: Demand score (1-10) based on URGENCY (High=Hair on fire, Low=Nice to have) and justification.
-      3. Competitive Landscape: List STRICTLY 2 known competitors with Strengths/Weaknesses and a Competitiveness Score (1-10) where 10=Blue Ocean/Unique and 1=Red Ocean/Saturated.
-      4. Market Gap & Differentiation: Specific gap and why this idea is meaningfully different.
+      2. Market Demand Analysis: Demand score (1-10) based on URGENCY (High=Hair on fire, Low=Nice to have) and actual market signals (Reddit pain points, search volume).
+      3. Competitive Landscape: List STRICTLY 2-3 specific competitors found in research. Include their strengths/weaknesses. Provide a Competitiveness Score (1-10) where 10=Blue Ocean/Unique and 1=Red Ocean/Saturated.
+      4. Market Gap & Differentiation: Specific gap identified from competitor weaknesses and why this idea is meaningfully different.
       5. Risk Analysis: STRICTLY 4 points (Market, Execution, Adoption, Financial).
       6. Feasibility Analysis: Feasibility Score (1-10) where 10=MVP in weeks, 1=Requires Millions/R&D.
       7. Mentor / Investor Perspective: CRITICAL & REALISTIC feedback. What they would appreciate, criticize, and advise.
@@ -472,9 +503,10 @@ app.post('/api/analyze', async (req, res) => {
 
       STRICT RULES:
       - BE CRITICAL AND REALISTIC. Do not be overly optimistic.
+      - USE DATA: Reference specific trends or "reddit discussions" mentioned in the signals (without URLs).
       - NEVER mention specific website names or source URLs. Use "market signals" or "internet research".
-      - NEVER hallucinate competitors as facts. Use "Potential competitors in this space" if unknown.
-      - COMPETITOR NAMES: You must provide specific names (e.g., "Slack", "Discord") or distinct categories (e.g., "Traditional Spreadsheets"). NEVER use "Potential competitors in this space" or "Rival 1" as a name.
+      - NEVER hallucinate competitors as facts. Use the signals provided.
+      - COMPETITOR NAMES: You must provide specific names (e.g., "Slack", "Discord") or distinct categories (e.g., "Traditional Spreadsheets").
       - Scores must be integers from 1-10.
       - Format: Return ONLY valid JSON.
 
@@ -537,89 +569,149 @@ app.post('/api/analyze', async (req, res) => {
 // --- SERVE FRONTEND ---
 app.use(express.static(path.join(__dirname, 'dist')));
 
-app.post('/api/generate-plan', async (req, res) => {
+app.post('/api/generate-plan-structure', async (req, res) => {
     const { idea, report, answers } = req.body;
     try {
         const prompt = `
       ROLE: Elite Startup Operations Expert.
       IDEA: "${idea}"
-      LOCATION: ${answers.includes('Country') ? answers : 'Global'}
       STRATEGIC ASSESSMENT: ${JSON.stringify(report)}
-      USER INTERVIEW: ${answers}
-
-      TASK:
-      Generate a HYPER-PERSONALIZED 60-Day Execution Calendar. 
-      Every day must have a UNIQUE, non-repetitive task tailored to the specific market, location, and product.
       
-      STRUCTURE:
-      1. Divide 60 days into logical PHASES (e.g., Week 1: Groundwork, Week 2: Local Validation, etc.).
-      2. For EVERY DAY (1 to 60), provide:
-         - A specific task (high-leverage).
-         - A clear deliverable (to check off).
-         - The phase it belongs to (for color coding).
-
-      STRICT RULES:
-      - TASKS must be tactical. e.g., "Visit 3 competitors in [Location]", "Setup landing page for [Idea]".
-      - PHASES should group days together (e.g., Days 1-7 = Phase 1).
-      - NO REPETITION. No "Continue working on...". Every day is a new step.
-      - Use location data to define specific local tasks.
-
+      TASK:
+      Generate the HIGH-LEVEL STRUCTURE for a 60-Day Execution Roadmap.
+      Divide 60 days into 4 logical PHASES (approx 15 days each).
+      
       JSON SCHEMA:
       {
         "short_title": "3-5 word concise mission name",
         "phases": [
-            { "id": 1, "name": "Research", "color": "#8B5CF6", "range": "1-7" },
-            { "id": 2, "name": "Local Validation", "color": "#3B82F6", "range": "8-21" },
-            { "id": 3, "name": "Minimum Build", "color": "#10B981", "range": "22-45" },
-            { "id": 4, "name": "Launch and Feedback", "color": "#F59E0B", "range": "46-60" }
-        ],
-        "days": [
-          { 
-            "day": 1, 
-            "phase_id": 1,
-            "title": "Short 3-5 word action name (e.g. 'Competitor Price Analysis')",
-            "task": "Detailed objective sentence (e.g. 'Visit 3 local competitors to document their pricing tiers and identifying gaps.')", 
-            "deliverable": "Specific proof of work",
-            "details": ["Tactical sub-step 1", "Tactical sub-step 2", "Tactical sub-step 3"],
-            "impact": "High",
-            "est_time": "2-4 hours"
-          }
-          // ... up to 60
+            { "id": 1, "name": "Deep Research", "color": "#8B5CF6", "range": "1-15" },
+            { "id": 2, "name": "Local Validation", "color": "#3B82F6", "range": "16-30" },
+            { "id": 3, "name": "Minimum Build", "color": "#10B981", "range": "31-45" },
+            { "id": 4, "name": "Launch & Feedback", "color": "#F59E0B", "range": "46-60" }
         ]
       }
     `;
 
         const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
             messages: [
-                { role: "system", content: "You are an operations-focused mentor. Provide a 60-day sequence of high-leverage actions. Output valid JSON. Ensure exactly 60 days are generated. Keep descriptions CONCISE but tactical to ensure you stay under output token limits." },
+                { role: "system", content: "Output valid JSON only." },
                 { role: "user", content: prompt }
             ],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-phase-tasks', async (req, res) => {
+    const { idea, report, answers, phase, allPreviousTasks = [] } = req.body;
+    try {
+        const [start, end] = phase.range.split('-').map(Number);
+        const dayCount = end - start + 1;
+
+        const prompt = `
+      ROLE: Elite Startup Operations Expert & Silicon Valley Builder.
+      IDEA: "${idea}"
+      STRATEGIC ASSESSMENT: ${JSON.stringify(report)}
+      USER ANSWERS (LOCATION/CONTEXT): ${JSON.stringify(answers)}
+      PHASE: "${phase.name}" (Days ${phase.range})
+      
+      PREVIOUS TASKS SUMMARY:
+      ${allPreviousTasks.map(t => `Day ${t.day}: ${t.title}`).join('\n')}
+
+      TASK:
+      Generate EXACTLY ${dayCount} ULTRA-DETAILED, tactical tasks for this phase.
+      
+      CRITICAL INSTRUCTIONS FOR DEPTH:
+      - MAXIMIZE OUTPUT: Use roughly 300-500 words of tactical advice per day if needed. 
+      - NO INTERNAL DAY MENTIONS: Strictly avoid phrases like "Day 1", "Day 2", or "In the first two days" inside the details or task description. Refer to them only as "tasks".
+      - NO GENERIC STEPS: Instead of "Analyze competitors", say "Go to snov.io or builtwith.com to identify the tech stack of [Competitor Name from report] and check their LinkedIn 'People' tab to see their hiring velocity."
+      - TOOL RECOMMENDATIONS: Suggest specific free tools, templates, or platforms (e.g. Canva, Trello, MailerLite, Vercel).
+      - ACTION STEPS: Provide exactly 5-7 granular sub-steps for every single day.
+      - DOCUMENTATION & LEGAL: Integrate tasks for business documentation (SOPs, contract templates, financial trackers).
+      - BUSINESS SUITABILITY: In Phase 1 or 2, allocate tasks to evaluate which business structure (e.g., Sole Proprietorship, LLC, Pvt Ltd) suits this specific idea and location.
+      - LOCATION SPECIFIC: Use the user's location from the answers (if available) to suggest specific local registrations (e.g., GST in India, EIN in US, Companies House in UK).
+      - IMPACT: Must be exactly "Low", "Medium", or "High" only. Strictly avoid any bracketed explanations or extra words.
+      - EST_TIME: Be realistic (e.g., "4-6 hours").
+
+      JSON SCHEMA:
+      {
+        "days": [
+          { 
+            "day": ${start}, 
+            "phase_id": ${phase.id},
+            "title": "Punchy 5-word action name",
+            "task": "A 2-3 sentence deep-dive into exactly WHAT needs to be achieved and WHY it is critical for this specific ${idea}.", 
+            "deliverable": "A tangible, verifiable output (e.g. 'A CSV of 50 local leads with verified emails')",
+            "details": [
+                "Granular step 1 with tool recommendation",
+                "Granular step 2 with specific target or metric",
+                "Granular step 3 with 'How-to' shortcut",
+                "Granular step 4 focusing on a specific risk",
+                "Granular step 5 focusing on documentation",
+                "Granular step 6 (Optional/Pro tip)"
+            ],
+            "impact": "High",
+            "est_time": "Real-world time estimate"
+          }
+          // ... up to Day ${end}
+        ]
+      }
+    `;
+
+        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+            messages: [
+                { role: "system", content: "You are an obsessive operations mentor. You hate fluff and love data. Provide massive value in your JSON. Ensure every task is unique and deeply connected to the business idea." },
+                { role: "user", content: prompt }
+            ],
+            model: "llama-3.1-8b-instant",
+            response_format: { type: "json_object" },
+            max_tokens: 8000
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-plan', async (req, res) => {
+    // Legacy support or fallback
+    const { idea, report, answers } = req.body;
+    try {
+        const prompt = `
+      ROLE: Elite Startup Operations Expert.
+      IDEA: "${idea}"
+      STRATEGIC ASSESSMENT: ${JSON.stringify(report)}
+
+      TASK:
+      Generate a 60-Day Execution Calendar. 
+      JSON SCHEMA:
+      {
+        "short_title": "Concise mission name",
+        "phases": [...],
+        "days": [...]
+      }
+    `;
+
+        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+            messages: [
+                { role: "system", content: "Output valid JSON. Ensure exactly 60 days are generated." },
+                { role: "user", content: prompt }
+            ],
+            model: MODEL,
+            response_format: { type: "json_object" },
             max_tokens: 8000,
         }));
 
-        const content = completion.choices[0].message.content;
-
-        console.log(`Plan Generation received ${content.length} chars.`);
-
-        let plan;
-        try {
-            plan = JSON.parse(content);
-        } catch (parseErr) {
-            console.error("JSON PARSE FAILED for plan generation.");
-            // Write to a temp file for inspection
-            const fs = await import('fs');
-            const tmpDir = path.join(__dirname, 'tmp');
-            if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
-            fs.writeFileSync(path.join(tmpDir, 'failed_plan_response.json'), content);
-            throw new Error("Invalid structure returned from AI. The plan was too complex.");
-        }
-
-        res.json(plan);
+        res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
-        console.error("PLAN GENERATION FAILED:", err.message);
-        res.status(500).json({ error: "Plan generation failed", details: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -695,10 +787,11 @@ ${webContext}
 
 🧠 **RULES (STRICT):**
 1. **No Repetition**: NEVER say "Task Task 1". Just say "Task @1" or "Step @1".
-2. **Sandwich Content**: Start with a warm focus check, provide data/comparison in a **TABLE**, and end with a tactical tip.
-3. **Markdown Tables**: Use standard | pipes for all data.
-4. **Interactive**: Use @dayNumber frequently to link your advice to the roadmap.
-5. **Concise**: Under 120 words.
+2. **Step Context**: If the user mentions a specific **Step** (e.g. "@Day 5 Step 2"), give **ultra-granular, tactical advice** specifically for that sub-task.
+3. **Sandwich Content**: Start with a warm focus check, provide data/comparison in a **TABLE**, and end with a tactical tip.
+4. **Markdown Tables**: Use standard | pipes for all data.
+5. **Interactive**: Use @dayNumber frequently to link your advice to the roadmap.
+6. **Concise**: Under 120 words.
 
 🛠️ **CAPABILITIES:**
 1. **Edit Tasks**: [EDIT_TASK:@taskNumber] ... [/EDIT_TASK]
