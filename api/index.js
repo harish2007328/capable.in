@@ -82,16 +82,38 @@ const MODEL = "llama-3.1-8b-instant"; // Best balance of performance and high TP
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36';
 
-async function scrapeDuckDuckGo(query) {
+async function scrapeDuckDuckGo(query, location = null) {
     try {
-        const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+        // Map common country names to DuckDuckGo kl codes
+        const klMap = {
+            'india': 'in-en',
+            'united states': 'us-en',
+            'usa': 'us-en',
+            'united kingdom': 'uk-en',
+            'uk': 'uk-en',
+            'canada': 'ca-en',
+            'australia': 'au-en',
+            'germany': 'de-de',
+            'france': 'fr-fr',
+            'china': 'cn-zh',
+            'japan': 'jp-jp',
+            'brazil': 'br-pt'
+        };
+
+        let kl = '';
+        if (location && typeof location === 'object') {
+            const country = location.country?.toLowerCase();
+            kl = klMap[country] || '';
+        }
+
+        const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}${kl ? `&kl=${kl}` : ''}`;
         const { data } = await axios.get(url, {
             headers: { 'User-Agent': USER_AGENT }
         });
         const $ = cheerio.load(data);
         const results = [];
         $('.result__body').each((i, el) => {
-            if (i < 5) { // Limit to 5 results for better context
+            if (i < 8) { // Increased for better signals
                 results.push({
                     title: $(el).find('.result__title').text().trim(),
                     description: $(el).find('.result__snippet').text().trim(),
@@ -109,7 +131,6 @@ async function scrapeDuckDuckGo(query) {
 
 async function fetchRedditSignals(query) {
     try {
-        // Reddit is strict with User-Agents and often requires a specific format
         const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&limit=2&sort=relevance`;
         const { data } = await axios.get(url, {
             headers: {
@@ -121,28 +142,29 @@ async function fetchRedditSignals(query) {
             title: child.data.title,
             text: child.data.selftext?.substring(0, 200) || ""
         })) || [];
-        console.log(`Reddit signals for "${query}": ${posts.length}`);
         return posts;
     } catch (err) {
-        console.warn("Reddit Fetch Error (likely 403):", err.message);
         return [];
     }
 }
 
-async function collectMarketSignals(idea) {
-    console.log(`\n--- Researching: ${idea} ---`);
+async function collectMarketSignals(idea, location = null) {
+    const locStr = location ? ` in ${location.city || ''} ${location.country || ''}`.trim() : "";
+    console.log(`\n--- Researching: ${idea}${locStr} ---`);
 
-    const [searchSignals, competitionSignals, redditSignals] = await Promise.all([
-        scrapeDuckDuckGo(idea),
-        scrapeDuckDuckGo(`${idea} competitors alternative`),
-        fetchRedditSignals(idea)
+    const [searchSignals, competitionSignals, redditSignals, newsSignals] = await Promise.all([
+        scrapeDuckDuckGo(`${idea}${locStr}`, location),
+        scrapeDuckDuckGo(`${idea} competitors alternative ${locStr}`, location),
+        fetchRedditSignals(idea),
+        scrapeDuckDuckGo(`${idea} trends news 2024 2025`, location)
     ]);
 
     return {
         searchSignals: { organicResults: searchSignals },
-        trendSignals: { evidenceCount: searchSignals.length },
+        trendSignals: { evidenceCount: searchSignals.length + newsSignals.length, news: newsSignals },
         problemSignals: { redditDiscussions: redditSignals },
-        competitionSignals: { links: competitionSignals.map(c => c.domain) },
+        competitionSignals: { links: competitionSignals.map(c => ({ title: c.title, domain: c.domain })) },
+        location: location,
         timestamp: new Date().toISOString()
     };
 }
@@ -316,7 +338,7 @@ app.post('/api/enhance-idea', async (req, res) => {
 app.post('/api/research', async (req, res) => {
     const { idea, location } = req.body;
     try {
-        const webSignals = await collectMarketSignals(idea);
+        const webSignals = await collectMarketSignals(idea, location);
 
         // Strip all descriptions/text to stay under Rate Limits
         const optimizedSignals = {
@@ -375,7 +397,7 @@ app.post('/api/research', async (req, res) => {
       }
     `;
 
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [
                 { role: "system", content: "You are a startup scout focusing on operations and market fit. Output valid JSON." },
                 { role: "user", content: prompt }
@@ -399,6 +421,221 @@ app.post('/api/research', async (req, res) => {
             return res.status(429).json({ error: "Rate limit exceeded. Please wait a moment and try again." });
         }
         res.status(500).json({ error: "Research phase failed", details: err.message });
+    }
+});
+
+app.post('/api/generate-report-structure', async (req, res) => {
+    const { idea, webSignals } = req.body;
+    try {
+        const prompt = `
+          IDEA: "${idea}"
+          MARKET SIGNALS: ${JSON.stringify(webSignals)}
+          
+          TASK:
+          Define the HIGH-LEVEL identity for a Strategic Analysis Report.
+          You must provide a brand name and list 4 standard section titles.
+          
+          CRITICAL: You MUST use the exact IDs: "executive", "market", "technical", "risk".
+          
+          JSON SCHEMA:
+          {
+            "project_name": "Modern Brand Name",
+            "pages": [
+              { "id": "executive", "title": "Highly creative title for Executive summary", "isPlaceholder": true },
+              { "id": "market", "title": "Highly creative title for Market analysis", "isPlaceholder": true },
+              { "id": "technical", "title": "Highly creative title for Tech/Product model", "isPlaceholder": true },
+              { "id": "risk", "title": "Highly creative title for Risk/Strategy", "isPlaceholder": true }
+            ]
+          }
+        `;
+
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
+            model: "llama-3.1-8b-instant",
+            response_format: { type: "json_object" },
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-report-section', async (req, res) => {
+    const { idea, webSignals, answers, sectionId, sectionTitle } = req.body;
+    try {
+        const prompt = `
+          ROLE: Elite Strategic Analyst.
+          IDEA: "${idea}"
+          CONTEXT: ${JSON.stringify(webSignals)}
+          ANSWERS: ${answers}
+          
+          TASK: Generate the COMPLETE content for the section: "${sectionTitle}" (ID: ${sectionId}).
+          BE VERBOSE and insightful. Include data projections and deep tactical advice.
+          
+          CRITICAL: Return ONLY the raw data object fields. DO NOT wrap the response in a top-level key like "${sectionId}" or "content".
+          Example of WRONG format: { "${sectionId}": { ... } }
+          Example of CORRECT format: { "field_1": "...", "field_2": "..." }
+          
+          Return ONLY the data object following the exact schema for this ID.
+          
+          ID-SPECIFIC SCHEMAS (MANDATORY FIELDS):
+          - If "executive": { 
+              "explanation": "Deep 2-paragraph summary", 
+              "target_user": "Specific demographics/psychographics", 
+              "value_prop": "Unique selling point", 
+              "market_demand": { "score": (1-10), "analysis": "Reasoning" }, 
+              "chart_data": [{"label": "Month 1", "value": 10}, {"label": "Month 3", "value": 40}, {"label": "Month 6", "value": 75}, {"label": "Month 12", "value": 100}]
+            }
+          - If "market": { 
+              "competitors": [{"name": "Brand", "analysis": "Detailed assessment", "weakness_to_exploit": "Specific gap"}], 
+              "competitiveness_score": (1-10), 
+              "the_gap": "Market opportunity depth", 
+              "differentiation": "The moat strategy", 
+              "chart_data": [{"label": "Competitor A", "value": 40}, {"label": "Competitor B", "value": 35}, {"label": "You", "value": 25}]
+            }
+          - If "technical": { 
+              "viability_score": (1-10), 
+              "suggested_stack": "Comma, separated, technologies", 
+              "architecture": "High-level schematic description", 
+              "complexity": "Feasibility thesis and challenges", 
+              "est_mvp_cost": "$X,XXX - $XX,XXX", 
+              "chart_data": [{"label": "Infra", "value": 20}, {"label": "Dev", "value": 50}, {"label": "AI", "value": 30}]
+            }
+          - If "risk": { 
+              "risks": { "market": "...", "technical": "...", "financial": "...", "legal": "..." }, 
+              "mentor_advice": { "appreciate": "...", "criticize": "...", "advice": "..." }, 
+              "immediate_actions": ["Must-do 1", "Must-do 2", "Must-do 3"], 
+              "chart_data": [
+                { "label": "Market", "value": 5 },
+                { "label": "Technical", "value": 5 },
+                { "label": "Financial", "value": 5 },
+                { "label": "Operational", "value": 5 },
+                { "label": "Regulatory", "value": 5 }
+              ]
+            }
+        `;
+
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
+            model: "llama-3.3-70b-versatile",
+            response_format: { type: "json_object" },
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-plan-structure', async (req, res) => {
+    const { idea, report, answers } = req.body;
+    try {
+        const prompt = `
+          ROLE: Elite Startup Operations Expert.
+          IDEA: "${idea}"
+          STRATEGIC ASSESSMENT: ${JSON.stringify(report)}
+          
+          TASK:
+          Generate the HIGH-LEVEL STRUCTURE for a 60-Day Execution Roadmap.
+          Divide 60 days into 4 logical PHASES (approx 15 days each).
+          
+          JSON SCHEMA:
+          {
+            "short_title": "3-5 word concise mission name",
+            "phases": [
+                { "id": 1, "name": "Deep Research", "color": "#8B5CF6", "range": "1-15" },
+                { "id": 2, "name": "Local Validation", "color": "#3B82F6", "range": "16-30" },
+                { "id": 3, "name": "Minimum Build", "color": "#10B981", "range": "31-45" },
+                { "id": 4, "name": "Launch & Feedback", "color": "#F59E0B", "range": "46-60" }
+            ]
+          }
+        `;
+
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [
+                { role: "system", content: "Output valid JSON only." },
+                { role: "user", content: prompt }
+            ],
+            model: "llama-3.1-8b-instant",
+            response_format: { type: "json_object" },
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-phase-tasks', async (req, res) => {
+    const { idea, report, answers, phase, allPreviousTasks = [] } = req.body;
+    try {
+        const [start, end] = phase.range.split('-').map(Number);
+        const dayCount = end - start + 1;
+
+        const prompt = `
+      ROLE: Elite Startup Operations Expert & Silicon Valley Builder.
+      IDEA: "${idea}"
+      STRATEGIC ASSESSMENT: ${JSON.stringify(report)}
+      USER ANSWERS (LOCATION/CONTEXT): ${JSON.stringify(answers)}
+      PHASE: "${phase.name}" (Days ${phase.range})
+      
+      PREVIOUS TASKS SUMMARY:
+      ${allPreviousTasks.map(t => `Day ${t.day}: ${t.title}`).join('\n')}
+
+      TASK:
+      Generate EXACTLY ${dayCount} ULTRA-DETAILED, tactical tasks for this phase.
+      
+      CRITICAL INSTRUCTIONS FOR DEPTH:
+      - MAXIMIZE OUTPUT: Use roughly 300-500 words of tactical advice per day if needed. 
+      - NO INTERNAL DAY MENTIONS: Strictly avoid phrases like "Day 1", "Day 2", or "In the first two days" inside the details or task description. Refer to them only as "tasks".
+      - NO GENERIC STEPS: Instead of "Analyze competitors", say "Go to snov.io or builtwith.com to identify the tech stack of [Competitor Name from report] and check their LinkedIn 'People' tab to see their hiring velocity."
+      - TOOL RECOMMENDATIONS: Suggest specific free tools, templates, or platforms (e.g. Canva, Trello, MailerLite, Vercel).
+      - ACTION STEPS: Provide exactly 5-7 granular sub-steps for every single day.
+      - DOCUMENTATION & LEGAL: Integrate tasks for business documentation (SOPs, contract templates, financial trackers).
+      - BUSINESS SUITABILITY: In Phase 1 or 2, allocate tasks to evaluate which business structure (e.g., Sole Proprietorship, LLC, Pvt Ltd) suits this specific idea and location.
+      - LOCATION SPECIFIC: Use the user's location from the answers (if available) to suggest specific local registrations (e.g., GST in India, EIN in US, Companies House in UK).
+      - IMPACT: Must be exactly "Low", "Medium", or "High" only. Strictly avoid any bracketed explanations or extra words.
+      - EST_TIME: Be realistic (e.g., "4-6 hours").
+
+      JSON SCHEMA:
+      {
+        "days": [
+          { 
+            "day": ${start}, 
+            "phase_id": ${phase.id},
+            "title": "Punchy 5-word action name",
+            "task": "A 2-3 sentence deep-dive into exactly WHAT needs to be achieved and WHY it is critical for this specific ${idea}.", 
+            "deliverable": "A tangible, verifiable output (e.g. 'A CSV of 50 local leads with verified emails')",
+            "details": [
+                "Granular step 1 with tool recommendation",
+                "Granular step 2 with specific target or metric",
+                "Granular step 3 with 'How-to' shortcut",
+                "Granular step 4 focusing on a specific risk",
+                "Granular step 5 focusing on documentation",
+                "Granular step 6 (Optional/Pro tip)"
+            ],
+            "impact": "High",
+            "est_time": "Real-world time estimate"
+          }
+          // ... up to Day ${end}
+        ]
+      }
+    `;
+
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [
+                { role: "system", content: "You are an obsessive operations mentor. You hate fluff and love data. Provide massive value in your JSON. Ensure every task is unique and deeply connected to the business idea." },
+                { role: "user", content: prompt }
+            ],
+            model: "llama-3.1-8b-instant",
+            response_format: { type: "json_object" },
+            max_tokens: 8000
+        }));
+
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
