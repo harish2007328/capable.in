@@ -520,9 +520,10 @@ const AnalysisReport = ({ report, onAccept, planLoading = false }) => {
                         ))}
                     </div>
 
-                    {/* RIGHT SIDE: SIDEBAR */}
-                    <div className="w-[200px] shrink-0 sticky top-0 h-screen flex flex-col">
-                        <div className="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden mt-4 mb-10">
+                    {/* RIGHT SIDE: SIDEBAR — fixed to viewport */}
+                    <div className="w-[200px] shrink-0" /> {/* flex placeholder */}
+                    <div className="fixed right-6 top-10 w-[200px] h-screen flex flex-col z-10">
+                        <div className="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden mt-10 mb-16 shadow-sm">
 
                             {/* Copy — top */}
                             <button onClick={handleCopy}
