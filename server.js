@@ -1344,13 +1344,21 @@ app.get('/api/auth/google', (req, res) => {
     // Covers both local environments and hosted production deployments automatically
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
     const host = req.headers.host;
-    const dynamicRedirectUri = `${protocol}://${host}/api/auth/google/callback`;
+    // Strip www. to strictly match Google Console's allowed redirect URIs
+    const cleanHost = host ? host.replace(/^www\./, '') : 'localhost:3001';
+    const dynamicRedirectUri = `${protocol}://${cleanHost}/api/auth/google/callback`;
 
-    const url = oauth2Client.generateAuthUrl({
+    // Create a new client instance per request to bind the correct redirect URI
+    const client = new OAuth2Client(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        dynamicRedirectUri
+    );
+
+    const url = client.generateAuthUrl({
         access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-        prompt: 'consent',
-        redirect_uri: dynamicRedirectUri
+        prompt: 'consent'
     });
     console.log("Redirecting to Google Auth:", url);
     res.redirect(url);
@@ -1361,16 +1369,20 @@ app.get('/api/auth/google/callback', async (req, res) => {
     try {
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
         const host = req.headers.host;
-        const dynamicRedirectUri = `${protocol}://${host}/api/auth/google/callback`;
+        const cleanHost = host ? host.replace(/^www\./, '') : 'localhost:3001';
+        const dynamicRedirectUri = `${protocol}://${cleanHost}/api/auth/google/callback`;
 
-        const { tokens } = await oauth2Client.getToken({
-            code: code,
-            redirect_uri: dynamicRedirectUri
-        });
-        oauth2Client.setCredentials(tokens);
+        const client = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            dynamicRedirectUri
+        );
+
+        const { tokens } = await client.getToken(code);
+        client.setCredentials(tokens);
 
         // Fetch User Info from Google
-        const ticket = await oauth2Client.verifyIdToken({
+        const ticket = await client.verifyIdToken({
             idToken: tokens.id_token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
