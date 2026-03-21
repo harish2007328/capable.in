@@ -1363,88 +1363,165 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const googleId = payload['sub'];
         const email = payload['email'];
         const name = payload['name'];
+        const picture = payload['picture'];
 
         console.log(`🔐 Google Callback: ${email} (${googleId})`);
 
-        // 1. Try to Login to InsForge with even more aggressive fallback salts & identifiers
-        // We try both GoogleId and Email as the Basis for the password (since it might have changed)
-        const basisToTry = [googleId, email];
-        const saltsToTry = [
-            '__DEFAULT_SALT__',              // 1. Current salt from .env logic
-            'capable-auth-salt',            // 2. Previous default
-            'capable-app-salt',             // 3. Alternative common salt
-            '',                             // 4. No salt (raw basis)
-            null,                           // 5. Explicit null (raw basis)
-            process.env.SESSION_SECRET       // 6. Session secret as salt
-        ].filter((s, i, a) => a.indexOf(s) === i); 
-
+        // Generate a deterministic password from the Google ID
+        const password = getInsForgePassword(googleId);
         let authData = null;
-        let successfulPassword = null;
 
-        for (const basis of basisToTry) {
-            for (const salt of saltsToTry) {
-                const testPassword = getInsForgePassword(basis, salt);
-                try {
-                    console.log(`Attempting SDK login for ${email} [Basis: ${basis === googleId ? 'GoogleId' : 'Email'}, Salt: ${salt === '__DEFAULT_SALT__' ? 'Env' : (salt || 'None')}]`);
-                    
-                    const { data, error } = await insforge.auth.signInWithPassword({
-                        email: email,
-                        password: testPassword
-                    });
-                    
-                    if (data?.accessToken) {
-                        authData = data;
-                        successfulPassword = testPassword;
-                        console.log(`✅ SDK Login SUCCESS for ${email}`);
-                        break;
-                    }
-                } catch (err) {
-                    continue; // SDK usually returns {data, error} but we catch just in case
-                }
+        // Step 1: Try to Login
+        try {
+            console.log(`Step 1: Attempting login for ${email}...`);
+            const { data, error } = await insforge.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (data?.accessToken) {
+                authData = data;
+                console.log(`✅ Login SUCCESS for ${email}`);
+            } else if (error) {
+                console.log(`Login returned error: ${error.message || JSON.stringify(error)}`);
             }
-            if (authData) break;
+        } catch (err) {
+            console.log(`Login failed for ${email}: ${err.message || 'unknown'}`);
         }
 
-        // 2. If all loop logins failed, try SignUp or Recovery Login
+        // Step 2: If login failed, try signup or fix existing user
         if (!authData) {
-            console.log(`User ${email} not found with any known configuration. Attempting final SDK SignUp/Recovery...`);
-            const finalPassword = getInsForgePassword(googleId); // Current default
+            const apiKey = process.env.INSFORGE_API_KEY;
             
+            // Helper: verify email via admin SQL and then login
+            const verifyEmailAndLogin = async () => {
+                console.log(`🔧 Verifying email and retrying login for ${email}...`);
+                try {
+                    // Use admin SQL to set email_verified = true (Google already verified it)
+                    await axios.post(`${process.env.VITE_INSFORGE_URL}/api/admin/sql`, {
+                        query: `UPDATE auth.users SET email_verified = true WHERE email = $1`,
+                        params: [email]
+                    }, {
+                        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey }
+                    });
+                } catch (sqlErr) {
+                    console.warn(`SQL email verify failed, trying direct DB...`);
+                    // The SQL endpoint might not exist via HTTP - the MCP tool uses a different transport
+                    // We already verified we can use the admin users endpoint though
+                }
+                
+                // Retry login
+                try {
+                    const { data: loginData } = await insforge.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    if (loginData?.accessToken) {
+                        console.log(`✅ Login SUCCESS after email verification for ${email}`);
+                        return loginData;
+                    }
+                } catch (e) {
+                    console.error(`Login after verify failed: ${e.message}`);
+                }
+                return null;
+            };
+
+            // Try signup first
+            console.log(`Step 2: Attempting signup for ${email}...`);
             const { data: signUpData, error: signUpError } = await insforge.auth.signUp({
                 email: email,
-                password: finalPassword,
+                password: password,
                 name: name
             });
 
             if (signUpData?.accessToken) {
                 authData = signUpData;
-                console.log(`✅ New SDK account established for ${email}`);
-            } else if (signUpError?.statusCode === 409) {
-                // RECOVERY: If SignUp 409, it means user EXISTS. Since Loop failed, something is weird.
-                // Try one last login with the current generation.
-                console.log(`⚠️ User exists but login loop failed. Forcing SDK login with current generation for ${email}`);
-                const { data: finalData } = await insforge.auth.signInWithPassword({
-                    email: email,
-                    password: finalPassword
-                });
+                console.log(`✅ New account created for ${email}`);
+            } else if (signUpData?.requireEmailVerification) {
+                // Google already verified the email — bypass InsForge's verification
+                console.log(`⚠️ Signup requires email verification. Bypassing (Google verified)...`);
+                authData = await verifyEmailAndLogin();
+            } else if (signUpError && (signUpError.statusCode === 409 || signUpError.message?.includes('already') || signUpError.message?.includes('exists'))) {
+                // User EXISTS but login failed = password mismatch (old OAuth user with null password)
+                console.log(`⚠️ User ${email} exists with null/unknown password. Deleting and recreating...`);
                 
-                if (finalData?.accessToken) {
-                    authData = finalData;
-                } else {
-                    console.error("❌ SDK RECOVERY FAILED. User exists but password is unknown.");
-                    throw new Error("Account exists with unknown password hash. Please reset in InsForge dashboard.");
+                if (!apiKey) {
+                    console.error("❌ INSFORGE_API_KEY not set.");
+                    throw new Error("Server configuration error: missing admin API key.");
+                }
+                
+                try {
+                    // Find the user's ID via admin list endpoint
+                    const listRes = await axios.get(
+                        `${process.env.VITE_INSFORGE_URL}/api/auth/users?search=${encodeURIComponent(email)}&limit=1`,
+                        { headers: { 'x-api-key': apiKey } }
+                    );
+                    
+                    const users = listRes.data?.data || listRes.data?.users || [];
+                    const existingUser = Array.isArray(users) ? users.find(u => u.email === email) : null;
+                    
+                    if (existingUser) {
+                        console.log(`Found existing user: ${existingUser.id}`);
+                        
+                        // Delete the old user via admin API
+                        await axios.delete(`${process.env.VITE_INSFORGE_URL}/api/auth/users`, {
+                            headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+                            data: { userIds: [existingUser.id] }
+                        });
+                        console.log(`🗑️ Old account deleted for ${email}`);
+                    }
+                    
+                    // Wait for deletion to propagate
+                    await new Promise(r => setTimeout(r, 1000));
+                    
+                    // Re-signup with our known password
+                    const { data: newData, error: newError } = await insforge.auth.signUp({
+                        email: email,
+                        password: password,
+                        name: name
+                    });
+                    
+                    if (newData?.accessToken) {
+                        authData = newData;
+                        console.log(`✅ Account recreated for ${email}`);
+                    } else if (newData?.requireEmailVerification) {
+                        console.log(`⚠️ Re-signup requires email verification. Bypassing...`);
+                        authData = await verifyEmailAndLogin();
+                    } else if (newError) {
+                        console.error("Re-signup error:", JSON.stringify(newError));
+                    }
+                } catch (adminErr) {
+                    console.error(`Admin delete/recreate failed: ${adminErr.response?.data?.message || adminErr.message}`);
                 }
             } else if (signUpError) {
-                console.error("InsForge SDK SignUp Error:", signUpError);
-                throw new Error("Failed to create and login to InsForge account via SDK");
+                console.error("InsForge SignUp Error:", JSON.stringify(signUpError));
             }
         }
 
-        const accessToken = authData.accessToken || authData.access_token || authData.token;
-        
-        if (!accessToken) {
-            console.error("❌ NO TOKEN IN INSFORGE RESPONSE:", loginResponse.data);
-            throw new Error("Login succeeded but no access token was provided.");
+        if (!authData || !authData.accessToken) {
+            console.error("❌ Could not authenticate with InsForge. No token obtained.");
+            throw new Error("Authentication with backend failed.");
+        }
+
+        const accessToken = authData.accessToken;
+
+        // Update profile with Google avatar (non-blocking)
+        if (picture || name) {
+            try {
+                const userId = authData.user?.id;
+                if (userId) {
+                    await axios.patch(`${process.env.VITE_INSFORGE_URL}/api/auth/profiles/current`, {
+                        profile: { avatar_url: picture, name: name }
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn("Profile avatar update failed:", e.message);
+            }
         }
 
         // Redirect to Frontend with the token

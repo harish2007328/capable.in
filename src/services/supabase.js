@@ -18,20 +18,47 @@ const notifyListeners = (event, session) => {
 };
 
 // Patch getSession to work with InsForge SDK
+// For server-side auth (Google OAuth), the SDK's getCurrentSession() fails because
+// there's no httpOnly refresh cookie. So we first try to validate the stored token directly.
 client.auth.getSession = async () => {
     try {
-        const { data, error } = await client.auth.getCurrentSession();
+        // Step 1: Check for a stored access token (set by Google OAuth callback)
+        const storedToken = localStorage.getItem('insforge_session_token');
         
-        if (data?.session) {
-            // Only notify if we haven't already known about this session
-            const currentId = data.session.user?.id || data.session.id;
-            if (currentId !== lastSessionId) {
-                notifyListeners('SIGNED_IN', data.session);
+        if (storedToken) {
+            try {
+                // Validate the token directly against the InsForge API
+                const response = await fetch(`${baseUrl}/api/auth/sessions/current`, {
+                    headers: { 'Authorization': `Bearer ${storedToken}` }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    const user = result.user || result;
+                    const session = {
+                        accessToken: storedToken,
+                        user: user
+                    };
+                    
+                    const currentId = user?.id;
+                    if (currentId !== lastSessionId) {
+                        notifyListeners('SIGNED_IN', session);
+                    }
+                    return { data: { session }, error: null };
+                } else {
+                    // Token is invalid/expired — remove it
+                    console.warn("Stored token is invalid, clearing...");
+                    localStorage.removeItem('insforge_session_token');
+                }
+            } catch (fetchErr) {
+                console.warn("Token validation fetch failed:", fetchErr.message);
             }
-            return { data, error: null };
         }
         
-        return { data: { session: null }, error: error || null };
+        // No stored token = no session. 
+        // We intentionally skip getCurrentSession() because it tries /api/auth/refresh 
+        // with httpOnly cookies, which don't exist when auth is done server-side (Google OAuth).
+        return { data: { session: null }, error: null };
     } catch (err) {
         return { data: { session: null }, error: err };
     }

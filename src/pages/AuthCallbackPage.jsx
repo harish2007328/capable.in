@@ -19,8 +19,18 @@ const AuthCallbackPage = () => {
         params.forEach((v, k) => console.log(`- Query Param [${k}]:`, v));
         if (window.location.hash) console.log("- Hash Fragment:", window.location.hash);
         
+        // If access_token is in the URL (from our custom Google OAuth server flow),
+        // store it in localStorage so the InsForge SDK can use it
+        const accessToken = params.get('access_token');
+        if (accessToken) {
+            console.log("🔑 Storing access token from Google OAuth callback...");
+            localStorage.setItem('insforge_session_token', accessToken);
+            // Clean the URL to remove the token
+            window.history.replaceState(null, '', '/auth/callback');
+        }
+
         // Trigger refresh in context. 
-        // InsForge SDK will automatically detect the token in the URL.
+        // InsForge SDK will detect the token from localStorage.
         refreshSession().then(async (user) => {
             if (user) {
                 console.log("✅ Welcome!", user.email);

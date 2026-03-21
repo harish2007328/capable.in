@@ -51,6 +51,13 @@ const LoginPage = () => {
         if (location.state?.mode) {
             setMode(location.state.mode);
         }
+        // Handle Google OAuth error redirect
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('error') === 'auth_failed') {
+            setError('Google authentication failed. Please try again.');
+            // Clean the URL
+            window.history.replaceState(null, '', '/login');
+        }
     }, [location.state]);
 
     const from = location.state?.from?.pathname || '/dashboard';

@@ -230,11 +230,22 @@ export const AuthProvider = ({ children }) => {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
         localStorage.removeItem('capable_cached_user');
+        localStorage.removeItem('insforge_session_token');
         if (window.ProjectStorage?.logout) window.ProjectStorage.logout();
         setUser(null);
     };
 
     const loginWithOAuth = async (provider) => {
+        if (provider === 'google') {
+            // Use our own Express server's Google OAuth flow
+            // The server handles Google sign-in and creates/logs into InsForge account
+            const serverUrl = import.meta.env.PROD
+                ? '' // Same origin in production (server serves the frontend)
+                : 'http://localhost:3001';
+            window.location.href = `${serverUrl}/api/auth/google`;
+            return;
+        }
+        // Fallback for other providers (if any) - use InsForge's built-in OAuth
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider,
             redirectTo: `${window.location.origin}/auth/callback`,
