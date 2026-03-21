@@ -26,20 +26,7 @@ export const AuthProvider = ({ children }) => {
 
     const [loading, setLoading] = useState(!user);
 
-    // DEBUG: Log user state changes with deep inspection
-    useEffect(() => {
-        if (user) {
-            console.log("👤 Auth User Object:", JSON.stringify(user, null, 2));
-            
-            // Check for identities which often hide the metadata
-            if (user.identities) {
-                console.log("- Identities found:", user.identities.length);
-                user.identities.forEach((id, i) => {
-                    console.log(`  Identity [${i}] (${id.provider}):`, id.identity_data || id.metadata);
-                });
-            }
-        }
-    }, [user]);
+
 
     const updateUser = React.useCallback(async (attributes) => {
         const payload = attributes?.data || attributes || {};
@@ -76,7 +63,7 @@ export const AuthProvider = ({ children }) => {
         }
         lastSyncRef.current = { id: currentUser.id, time: now };
         
-        console.log("🔄 Syncing profile for:", currentUser.email);
+
 
         try {
             // 1. Fetch the full profile from the auth service to be sure
@@ -110,17 +97,27 @@ export const AuthProvider = ({ children }) => {
             if (fetchError) throw fetchError;
 
             if (!existingProfile) {
-                console.log("🌱 Creating missing profile record in database...");
-                await supabase.database
-                    .from('profiles')
-                    .insert({
-                        id: currentUser.id,
-                        email: currentUser.email,
-                        name: finalName,
-                        avatar_url: finalAvatar
-                    });
+                try {
+                    await supabase.database
+                        .from('profiles')
+                        .insert({
+                            id: currentUser.id,
+                            email: currentUser.email,
+                            name: finalName,
+                            avatar_url: finalAvatar
+                        });
+                } catch (insertErr) {
+                    // 409 = profile already exists (race condition), just update instead
+                    await supabase.database
+                        .from('profiles')
+                        .update({ 
+                            avatar_url: finalAvatar, 
+                            name: finalName 
+                        })
+                        .eq('id', currentUser.id);
+                }
             } else if ((!existingProfile.avatar_url && finalAvatar) || (finalName && !existingProfile.name)) {
-                console.log("🔄 Updating profile record in database...");
+
                 await supabase.database
                     .from('profiles')
                     .update({ 
@@ -136,7 +133,6 @@ export const AuthProvider = ({ children }) => {
                 const hasNameChange = existingProfile.name && existingProfile.name !== currentUser.profile?.name;
                 
                 if (hasAvatarChange || hasNameChange) {
-                    console.log("✅ Applying database profile updates to local state");
                     currentUser.profile = { ...currentUser.profile, ...existingProfile };
                     setUser({ ...currentUser });
                 }

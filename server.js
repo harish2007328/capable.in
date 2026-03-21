@@ -47,9 +47,10 @@ app.use(session({
 const oauth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.NODE_ENV === 'production' 
-        ? `${process.env.FRONTEND_URL}/api/auth/google/callback`
-        : `http://localhost:3001/api/auth/google/callback`
+    process.env.GOOGLE_REDIRECT_URI || 
+        (process.env.NODE_ENV === 'production' 
+            ? 'https://capable.website/api/auth/google/callback'
+            : 'http://localhost:3001/api/auth/google/callback')
 );
 
 const getInsForgePassword = (sub, customSalt = '__DEFAULT_SALT__') => {
@@ -1339,10 +1340,17 @@ app.get('/api/auth/sessions/current', async (req, res) => {
 // --- GOOGLE CUSTOM AUTH ENDPOINTS ---
 
 app.get('/api/auth/google', (req, res) => {
+    // Generate dynamic redirect URI based on the actual request host
+    // Covers both local environments and hosted production deployments automatically
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    const host = req.headers.host;
+    const dynamicRedirectUri = `${protocol}://${host}/api/auth/google/callback`;
+
     const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-        prompt: 'consent'
+        prompt: 'consent',
+        redirect_uri: dynamicRedirectUri
     });
     console.log("Redirecting to Google Auth:", url);
     res.redirect(url);
@@ -1351,7 +1359,14 @@ app.get('/api/auth/google', (req, res) => {
 app.get('/api/auth/google/callback', async (req, res) => {
     const { code } = req.query;
     try {
-        const { tokens } = await oauth2Client.getToken(code);
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+        const host = req.headers.host;
+        const dynamicRedirectUri = `${protocol}://${host}/api/auth/google/callback`;
+
+        const { tokens } = await oauth2Client.getToken({
+            code: code,
+            redirect_uri: dynamicRedirectUri
+        });
         oauth2Client.setCredentials(tokens);
 
         // Fetch User Info from Google
@@ -1525,13 +1540,23 @@ app.get('/api/auth/google/callback', async (req, res) => {
         }
 
         // Redirect to Frontend with the token
-        const frontendRedirect = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?access_token=${accessToken}`;
-        console.log("✅ Success! Token secured. Redirecting...");
+        let frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+            frontendBaseUrl = `${protocol}://${host}`; // fallback to same origin in prod
+        }
+        const frontendRedirect = `${frontendBaseUrl}/auth/callback?access_token=${accessToken}`;
+        console.log("✅ Success! Token secured. Redirecting to:", frontendRedirect);
         res.redirect(frontendRedirect);
 
     } catch (err) {
         console.error("GOOGLE AUTH ERROR:", err.message);
-        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
+        
+        let errorBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+            const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+            errorBaseUrl = `${protocol}://${req.headers.host}`;
+        }
+        res.redirect(`${errorBaseUrl}/login?error=auth_failed`);
     }
 });
 

@@ -98,7 +98,7 @@ const MissionSection = ({ heroVideo }) => {
     });
 
     return (
-        <section className="w-full bg-[#f9f9f9] py-16 md:py-24">
+        <section className="relative w-full bg-[#f9f9f9] py-16 md:py-24">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="rounded-[24px] overflow-hidden relative group border border-gray-100 shadow-soft min-h-[500px] md:min-h-[700px] flex items-center justify-center py-16 px-4 md:py-24 md:px-12">
                     <video

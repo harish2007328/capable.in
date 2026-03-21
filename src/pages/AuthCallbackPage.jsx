@@ -13,19 +13,13 @@ const AuthCallbackPage = () => {
         if (processed.current) return;
         processed.current = true;
 
-        console.log("🔄 Processing authentication callback...");
-        console.log("📍 Current URL:", window.location.href);
         const params = new URLSearchParams(window.location.search);
-        params.forEach((v, k) => console.log(`- Query Param [${k}]:`, v));
-        if (window.location.hash) console.log("- Hash Fragment:", window.location.hash);
         
         // If access_token is in the URL (from our custom Google OAuth server flow),
         // store it in localStorage so the InsForge SDK can use it
         const accessToken = params.get('access_token');
         if (accessToken) {
-            console.log("🔑 Storing access token from Google OAuth callback...");
             localStorage.setItem('insforge_session_token', accessToken);
-            // Clean the URL to remove the token
             window.history.replaceState(null, '', '/auth/callback');
         }
 
@@ -33,7 +27,6 @@ const AuthCallbackPage = () => {
         // InsForge SDK will detect the token from localStorage.
         refreshSession().then(async (user) => {
             if (user) {
-                console.log("✅ Welcome!", user.email);
                 const from = sessionStorage.getItem('auth_redirect_to') || '/dashboard';
                 sessionStorage.removeItem('auth_redirect_to');
                 
@@ -49,14 +42,13 @@ const AuthCallbackPage = () => {
                     navigate(from, { replace: true });
                 }
             } else {
-                console.error("❌ Authentication failed: No session established.");
                 navigate('/login', { 
                     replace: true, 
                     state: { error: 'Authentication failed. Please try again.' } 
                 });
             }
         }).catch(err => {
-            console.error("❌ Callback error:", err);
+            console.error("Auth callback error:", err);
             navigate('/login', { replace: true });
         });
     }, [refreshSession, navigate]);
