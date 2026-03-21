@@ -1342,11 +1342,14 @@ app.get('/api/auth/sessions/current', async (req, res) => {
 app.get('/api/auth/google', (req, res) => {
     // Generate dynamic redirect URI based on the actual request host
     // Covers both local environments and hosted production deployments automatically
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-    const host = req.headers.host;
-    // Strip www. to strictly match Google Console's allowed redirect URIs
-    const cleanHost = host ? host.replace(/^www\./, '') : 'localhost:3001';
-    const dynamicRedirectUri = `${protocol}://${cleanHost}/api/auth/google/callback`;
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
+    const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
+
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+    const finalHost = (isProduction && cleanHost.includes('vercel.app')) ? 'capable.website' : cleanHost;
+
+    const dynamicRedirectUri = `${protocol}://${finalHost}/api/auth/google/callback`;
 
     // Create a new client instance per request to bind the correct redirect URI
     const client = new OAuth2Client(
@@ -1367,10 +1370,14 @@ app.get('/api/auth/google', (req, res) => {
 app.get('/api/auth/google/callback', async (req, res) => {
     const { code } = req.query;
     try {
-        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-        const host = req.headers.host;
-        const cleanHost = host ? host.replace(/^www\./, '') : 'localhost:3001';
-        const dynamicRedirectUri = `${protocol}://${cleanHost}/api/auth/google/callback`;
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+        const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
+        const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
+
+        const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+        const finalHost = (isProduction && cleanHost.includes('vercel.app')) ? 'capable.website' : cleanHost;
+
+        const dynamicRedirectUri = `${protocol}://${finalHost}/api/auth/google/callback`;
 
         const client = new OAuth2Client(
             process.env.GOOGLE_CLIENT_ID,

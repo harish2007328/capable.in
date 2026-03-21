@@ -21,14 +21,7 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// --- AUTH UTILS ---
-const oauth2Client = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.NODE_ENV === 'production'
-        ? `${process.env.FRONTEND_URL}/api/auth/google/callback`
-        : `http://localhost:3001/api/auth/google/callback`
-);
+// oauth2client is instantiated dynamically inside routes now
 
 const getInsForgePassword = (sub, customSalt = '__DEFAULT_SALT__') => {
     // If explicit null or empty string, use NO salt (raw hash or raw string)
@@ -209,9 +202,25 @@ app.get('/api/auth/sessions/current', async (req, res) => {
     }
 });
 
-// --- GOOGLE CUSTOM AUTH ENDPOINTS ---
 app.get('/api/auth/google', (req, res) => {
-    const url = oauth2Client.generateAuthUrl({
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
+    const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
+    
+    // Explicit production override to guarantee Google Console compliance
+    // Even on Vercel Preview URLs, this forces OAuth to route safely through the whitelisted domain.
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+    const finalHost = (isProduction && cleanHost.includes('vercel.app')) ? 'capable.website' : cleanHost;
+
+    const dynamicRedirectUri = `${protocol}://${finalHost}/api/auth/google/callback`;
+
+    const client = new OAuth2Client(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        dynamicRedirectUri
+    );
+
+    const url = client.generateAuthUrl({
         access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
         prompt: 'consent'
@@ -222,10 +231,25 @@ app.get('/api/auth/google', (req, res) => {
 app.get('/api/auth/google/callback', async (req, res) => {
     const { code } = req.query;
     try {
-        const { tokens } = await oauth2Client.getToken(code);
-        oauth2Client.setCredentials(tokens);
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+        const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
+        const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
+        
+        const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+        const finalHost = (isProduction && cleanHost.includes('vercel.app')) ? 'capable.website' : cleanHost;
 
-        const ticket = await oauth2Client.verifyIdToken({
+        const dynamicRedirectUri = `${protocol}://${finalHost}/api/auth/google/callback`;
+
+        const client = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            dynamicRedirectUri
+        );
+
+        const { tokens } = await client.getToken(code);
+        client.setCredentials(tokens);
+
+        const ticket = await client.verifyIdToken({
             idToken: tokens.id_token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
@@ -233,71 +257,113 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const googleId = payload['sub'];
         const email = payload['email'];
         const name = payload['name'];
+        const picture = payload['picture'];
 
-        // 1. Try to Login to InsForge with even more aggressive fallback salts & identifiers
-        const basisToTry = [googleId, email];
-        const saltsToTry = [
-            '__DEFAULT_SALT__',
-            'capable-auth-salt',
-            'capable-app-salt',
-            '',
-            null,
-            process.env.SESSION_SECRET
-        ].filter((s, i, a) => a.indexOf(s) === i);
-
+        const password = getInsForgePassword(googleId);
         let authData = null;
-        for (const basis of basisToTry) {
-            for (const salt of saltsToTry) {
-                const testPassword = getInsForgePassword(basis, salt);
-                try {
-                    const { data } = await insforge.auth.signInWithPassword({
-                        email: email,
-                        password: testPassword
-                    });
 
-                    if (data?.accessToken) {
-                        authData = data;
-                        break;
-                    }
-                } catch (err) {
-                    continue;
-                }
-            }
-            if (authData) break;
-        }
-
-        // 2. If all loop logins failed, try SignUp or Recovery Login
-        if (!authData) {
-            const finalPassword = getInsForgePassword(googleId);
-            const { data: signUpData, error: signUpError } = await insforge.auth.signUp({
+        // Step 1: Try login
+        try {
+            const { data } = await insforge.auth.signInWithPassword({
                 email: email,
-                password: finalPassword,
-                name: name
+                password: password
+            });
+            if (data?.accessToken) authData = data;
+        } catch (err) {}
+
+        // Step 2: Try signup or repair
+        if (!authData) {
+            const apiKey = process.env.INSFORGE_API_KEY;
+            
+            const verifyEmailAndLogin = async () => {
+                try {
+                    await axios.post(`${process.env.VITE_INSFORGE_URL}/api/admin/sql`, {
+                        query: `UPDATE auth.users SET email_verified = true WHERE email = $1`,
+                        params: [email]
+                    }, { headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey } });
+                } catch (e) {}
+                
+                try {
+                    const { data } = await insforge.auth.signInWithPassword({ email, password });
+                    if (data?.accessToken) return data;
+                } catch (e) {}
+                return null;
+            };
+
+            const { data: signUpData, error: signUpError } = await insforge.auth.signUp({
+                email: email, password: password, name: name
             });
 
             if (signUpData?.accessToken) {
                 authData = signUpData;
-            } else if (signUpError?.statusCode === 409) {
-                const { data: finalData } = await insforge.auth.signInWithPassword({
-                    email: email,
-                    password: finalPassword
-                });
-                authData = finalData;
+            } else if (signUpData?.requireEmailVerification) {
+                authData = await verifyEmailAndLogin();
+            } else if (signUpError && (signUpError.statusCode === 409 || signUpError.message?.includes('exists'))) {
+                // Delete and recreate existing unlinked user exactly like in server.js
+                if (apiKey) {
+                    try {
+                        const listRes = await axios.get(
+                            `${process.env.VITE_INSFORGE_URL}/api/auth/users?search=${encodeURIComponent(email)}&limit=1`,
+                            { headers: { 'x-api-key': apiKey } }
+                        );
+                        const users = listRes.data?.data || listRes.data?.users || [];
+                        const existingUser = Array.isArray(users) ? users.find(u => u.email === email) : null;
+                        
+                        if (existingUser) {
+                            await axios.delete(`${process.env.VITE_INSFORGE_URL}/api/auth/users`, {
+                                headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+                                data: { userIds: [existingUser.id] }
+                            });
+                            await new Promise(r => setTimeout(r, 1000));
+                            
+                            const { data: newData } = await insforge.auth.signUp({
+                                email: email, password: password, name: name
+                            });
+                            
+                            if (newData?.accessToken) {
+                                authData = newData;
+                            } else if (newData?.requireEmailVerification) {
+                                authData = await verifyEmailAndLogin();
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Re-create user failed', e.message);
+                    }
+                }
             }
         }
 
-        if (!authData?.accessToken) {
-            throw new Error("Conflict: User exists with an unknown password hash.");
+        if (!authData || !authData.accessToken) {
+            throw new Error("Authentication failed.");
         }
 
-        const accessToken = authData.accessToken || authData.access_token || authData.token;
-        if (!accessToken) throw new Error("No access token provided.");
+        const accessToken = authData.accessToken;
+        
+        // Update profile
+        if (picture || name) {
+            try {
+                if (authData.user?.id) {
+                    await axios.patch(`${process.env.VITE_INSFORGE_URL}/api/auth/profiles/current`, {
+                        profile: { avatar_url: picture, name: name }
+                    }, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` } });
+                }
+            } catch (e) {}
+        }
 
-        const frontendRedirect = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?access_token=${accessToken}`;
-        res.redirect(frontendRedirect);
+        let frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        if ((process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') && !process.env.FRONTEND_URL) {
+            frontendBaseUrl = `${protocol}://${finalHost}`;
+        }
+        res.redirect(`${frontendBaseUrl}/auth/callback?access_token=${accessToken}`);
     } catch (err) {
         console.error("GOOGLE AUTH ERROR:", err.message);
-        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=auth_failed`);
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+        const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
+        let frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        if ((process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') && !process.env.FRONTEND_URL) {
+            frontendBaseUrl = `${protocol}://${trueHost}`;
+        }
+        res.redirect(`${frontendBaseUrl}/login?error=auth_failed`);
     }
 });
 
