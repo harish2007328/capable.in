@@ -26,6 +26,10 @@ client.auth.getSession = async () => {
         const storedToken = localStorage.getItem('insforge_session_token');
         
         if (storedToken) {
+            // Push token into SDK's internal http client so .database requests work seamlessly!
+            if (client.http) {
+                client.http.userToken = storedToken;
+            }
             try {
                 // Validate the token directly against the InsForge API
                 const response = await fetch(`${baseUrl}/api/auth/sessions/current`, {
@@ -49,17 +53,21 @@ client.auth.getSession = async () => {
                     // Token is invalid/expired — remove it
                     console.warn("Stored token is invalid, clearing...");
                     localStorage.removeItem('insforge_session_token');
+                    if (client.http) client.http.userToken = null;
                 }
             } catch (fetchErr) {
                 console.warn("Token validation fetch failed:", fetchErr.message);
             }
         }
         
-        // No stored token = no session. 
+        // No stored token = no session
+        if (client.http) client.http.userToken = null;
+        
         // We intentionally skip getCurrentSession() because it tries /api/auth/refresh 
         // with httpOnly cookies, which don't exist when auth is done server-side (Google OAuth).
         return { data: { session: null }, error: null };
     } catch (err) {
+        if (client.http) client.http.userToken = null;
         return { data: { session: null }, error: err };
     }
 };

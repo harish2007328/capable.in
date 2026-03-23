@@ -227,6 +227,7 @@ export const AuthProvider = ({ children }) => {
         if (error) throw error;
         localStorage.removeItem('capable_cached_user');
         localStorage.removeItem('insforge_session_token');
+        if (supabase.http) supabase.http.userToken = null;
         if (window.ProjectStorage?.logout) window.ProjectStorage.logout();
         setUser(null);
     };
