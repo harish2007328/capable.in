@@ -100,7 +100,7 @@ export const generatePlanStructure = async (idea, report, answers) => {
 };
 
 /**
- * Execution Roadmap Service (Phase 2: Task Generation per Phase)
+ * Execution Roadmap Service (Phase 2: Task Generation - single batch)
  */
 export const generatePhaseTasks = async (idea, report, answers, phase, allPreviousTasks) => {
     try {
@@ -113,7 +113,7 @@ export const generatePhaseTasks = async (idea, report, answers, phase, allPrevio
         });
         return response.data;
     } catch (error) {
-        console.error(`Error generating tasks for phase ${phase?.name}:`, error);
+        console.error(`Error generating tasks for days ${phase?.range}:`, error);
         throw error;
     }
 };

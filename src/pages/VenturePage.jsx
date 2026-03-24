@@ -281,22 +281,31 @@ const VenturePage = () => {
             setHasPlan(true);
             setActiveTab('plan');
             
-            // Step 2 & 3: Generate phases in order
+            // Step 2: Generate all 60 days in batches of 10
             let currentFullPlan = { ...initialPlan };
+            const BATCH_SIZE = 10;
             
-            for (const phase of structure.phases) {
+            for (let batchStart = 1; batchStart <= 60; batchStart += BATCH_SIZE) {
+                const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, 60);
+                
+                // Find which phase this batch falls into for context
+                const relevantPhase = structure.phases.find(p => {
+                    const [s, e] = p.range.split('-').map(Number);
+                    return batchStart >= s && batchStart <= e;
+                }) || structure.phases[0];
+
                 try {
-                    const phaseResult = await generatePhaseTasks(
+                    const batchResult = await generatePhaseTasks(
                         idea, 
                         reportStr, 
                         answersStr, 
-                        phase, 
+                        { ...relevantPhase, range: `${batchStart}-${batchEnd}` },
                         currentFullPlan.days.filter(d => !d.isPlaceholder)
                     );
 
-                    if (phaseResult?.days) {
+                    if (batchResult?.days) {
                         const updatedDays = currentFullPlan.days.map(existingDay => {
-                            const generatedDay = phaseResult.days.find(d => d.day === existingDay.day);
+                            const generatedDay = batchResult.days.find(d => d.day === existingDay.day);
                             if (generatedDay) {
                                 return {
                                     ...generatedDay,
@@ -312,8 +321,8 @@ const VenturePage = () => {
                         setActionPlan({ ...currentFullPlan });
                         await ProjectStorage.updateData(currentId, { plan: currentFullPlan });
                     }
-                } catch (phaseErr) {
-                    console.error(`Failed to generate tasks for phase ${phase.name}`, phaseErr);
+                } catch (batchErr) {
+                    console.error(`Failed to generate tasks for days ${batchStart}-${batchEnd}`, batchErr);
                 }
             }
 
