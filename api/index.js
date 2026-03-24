@@ -516,11 +516,11 @@ app.post('/api/generate-report-structure', async (req, res) => {
           }
         `;
 
-        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+        const completion = await getGroqClient().chat.completions.create({
             messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-        }));
+        });
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
@@ -531,11 +531,13 @@ app.post('/api/generate-report-structure', async (req, res) => {
 app.post('/api/generate-report-section', async (req, res) => {
     const { idea, webSignals, answers, sectionId, sectionTitle } = req.body;
     try {
+        const signalsSummary = JSON.stringify(webSignals || {}).substring(0, 800);
+        const answersSummary = typeof answers === 'string' ? answers.substring(0, 600) : JSON.stringify(answers).substring(0, 600);
         const prompt = `
           ROLE: Elite Strategic Analyst.
           IDEA: "${idea}"
-          CONTEXT: ${JSON.stringify(webSignals)}
-          ANSWERS: ${answers}
+          CONTEXT: ${signalsSummary}
+          ANSWERS: ${answersSummary}
           
           TASK: Generate the COMPLETE content for the section: "${sectionTitle}" (ID: ${sectionId}).
           BE VERBOSE and insightful. Include data projections and deep tactical advice.
@@ -583,15 +585,18 @@ app.post('/api/generate-report-section', async (req, res) => {
             }
         `;
 
-        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+        const completion = await getGroqClient().chat.completions.create({
             messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
             model: "meta-llama/llama-4-scout-17b-16e-instruct",
             response_format: { type: "json_object" },
-        }));
+        });
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
-        console.error(`Section generation failed for ${sectionId}:`, err.message);
+        console.error(`Section generation failed for ${sectionId}:`, err.message, err.status || '');
+        if (err.status === 429) {
+            return res.status(429).json({ error: "Rate limit exceeded. Please wait a moment." });
+        }
         res.status(500).json({ error: err.message });
     }
 });
@@ -599,10 +604,11 @@ app.post('/api/generate-report-section', async (req, res) => {
 app.post('/api/generate-plan-structure', async (req, res) => {
     const { idea, report, answers } = req.body;
     try {
+        let reportSummary = ''; try { const parsed = typeof report === 'string' ? JSON.parse(report) : report; if (parsed && parsed.pages) { reportSummary = parsed.pages.map(function(p) { return p.title; }).join(', '); } else { reportSummary = JSON.stringify(parsed).substring(0, 600); } } catch (e) { reportSummary = String(report).substring(0, 600); }
         const prompt = `
           ROLE: Elite Startup Operations Expert.
           IDEA: "${idea}"
-          STRATEGIC ASSESSMENT: ${JSON.stringify(report)}
+          REPORT TOPICS: ${reportSummary}
           
           TASK:
           Generate the HIGH-LEVEL STRUCTURE for a 60-Day Execution Roadmap.
@@ -620,17 +626,21 @@ app.post('/api/generate-plan-structure', async (req, res) => {
           }
         `;
 
-        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+        const completion = await getGroqClient().chat.completions.create({
             messages: [
                 { role: "system", content: "Output valid JSON only." },
                 { role: "user", content: prompt }
             ],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-        }));
+        });
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
+        console.error('Plan structure generation failed:', err.message, err.status || '');
+        if (err.status === 429) {
+            return res.status(429).json({ error: "Rate limit exceeded. Please wait a moment." });
+        }
         res.status(500).json({ error: err.message });
     }
 });
