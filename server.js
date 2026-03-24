@@ -770,30 +770,39 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
         const [start, end] = phase.range.split('-').map(Number);
         const dayCount = end - start + 1;
 
-        const prompt = `
-      ROLE: Elite Startup Operations Expert & Silicon Valley Builder.
-      IDEA: "${idea}"
-      STRATEGIC ASSESSMENT: ${JSON.stringify(report)}
-      USER ANSWERS (LOCATION/CONTEXT): ${JSON.stringify(answers)}
-      PHASE: "${phase.name}" (Days ${phase.range})
-      
-      PREVIOUS TASKS SUMMARY:
-      ${allPreviousTasks.map(t => `Day ${t.day}: ${t.title}`).join('\n')}
+        let reportSummary = '';
+        try {
+            const parsed = typeof report === 'string' ? JSON.parse(report) : report;
+            if (parsed?.pages) {
+                reportSummary = parsed.pages.map(p => p.title).join(', ');
+            } else {
+                reportSummary = JSON.stringify(parsed).substring(0, 600);
+            }
+        } catch { reportSummary = String(report).substring(0, 600); }
 
-      TASK:
-      Generate EXACTLY ${dayCount} ULTRA-DETAILED, tactical tasks for this phase.
+        const answersSummary = typeof answers === 'string' 
+            ? answers.substring(0, 500) 
+            : JSON.stringify(answers).substring(0, 500);
+
+        const prevSummary = allPreviousTasks.slice(-10).map(t => `Day ${t.day}: ${t.title}`).join('\n');
+
+        const prompt = `
+      ROLE: Startup Operations Expert.
+      IDEA: "${idea}"
+      REPORT TOPICS: ${reportSummary}
+      CONTEXT: ${answersSummary}
+      PHASE: "${phase.name}" (Days ${phase.range})
+      PREVIOUS: ${prevSummary || 'None'}
+
+      Generate EXACTLY ${dayCount} tactical daily tasks.
       
-      CRITICAL INSTRUCTIONS FOR DEPTH:
-      - MAXIMIZE OUTPUT: Use roughly 300-500 words of tactical advice per day if needed. 
-      - NO INTERNAL DAY MENTIONS: Strictly avoid phrases like "Day 1", "Day 2", or "In the first two days" inside the details or task description. Refer to them only as "tasks".
-      - NO GENERIC STEPS: Instead of "Analyze competitors", say "Go to snov.io or builtwith.com to identify the tech stack of [Competitor Name from report] and check their LinkedIn 'People' tab to see their hiring velocity."
-      - TOOL RECOMMENDATIONS: Suggest specific free tools, templates, or platforms (e.g. Canva, Trello, MailerLite, Vercel).
-      - ACTION STEPS: Provide exactly 5-7 granular sub-steps for every single day.
-      - DOCUMENTATION & LEGAL: Integrate tasks for business documentation (SOPs, contract templates, financial trackers).
-      - BUSINESS SUITABILITY: In Phase 1 or 2, allocate tasks to evaluate which business structure (e.g., Sole Proprietorship, LLC, Pvt Ltd) suits this specific idea and location.
-      - LOCATION SPECIFIC: Use the user's location from the answers (if available) to suggest specific local registrations (e.g., GST in India, EIN in US, Companies House in UK).
-      - IMPACT: Must be exactly "Low", "Medium", or "High" only. Strictly avoid any bracketed explanations or extra words.
-      - EST_TIME: Be realistic (e.g., "4-6 hours").
+      RULES:
+      - No day references inside descriptions (no "Day 1" etc.)
+      - Suggest specific tools (Canva, Trello, Vercel, etc.)
+      - 3-5 actionable sub-steps per day
+      - Location-aware registrations if context available
+      - IMPACT: exactly "Low", "Medium", or "High"
+      - EST_TIME: realistic (e.g., "4-6 hours")
 
       JSON SCHEMA:
       {
@@ -801,37 +810,33 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
           { 
             "day": ${start}, 
             "phase_id": ${phase.id},
-            "title": "Punchy 5-word action name",
-            "task": "A 2-3 sentence deep-dive into exactly WHAT needs to be achieved and WHY it is critical for this specific ${idea}.", 
-            "deliverable": "A tangible, verifiable output (e.g. 'A CSV of 50 local leads with verified emails')",
-            "details": [
-                "Granular step 1 with tool recommendation",
-                "Granular step 2 with specific target or metric",
-                "Granular step 3 with 'How-to' shortcut",
-                "Granular step 4 focusing on a specific risk",
-                "Granular step 5 focusing on documentation",
-                "Granular step 6 (Optional/Pro tip)"
-            ],
+            "title": "5-word action name",
+            "task": "2-3 sentences on WHAT and WHY.", 
+            "deliverable": "Tangible output",
+            "details": ["Step 1", "Step 2", "Step 3"],
             "impact": "High",
-            "est_time": "Real-world time estimate"
+            "est_time": "Time estimate"
           }
-          // ... up to Day ${end}
         ]
       }
     `;
 
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+        const completion = await getGroqClient(req).chat.completions.create({
             messages: [
-                { role: "system", content: "You are an obsessive operations mentor. You hate fluff and love data. Provide massive value in your JSON. Ensure every task is unique and deeply connected to the business idea." },
+                { role: "system", content: "You are a startup operations mentor. Return only valid JSON. Each task must be unique and specific to the business idea." },
                 { role: "user", content: prompt }
             ],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
             max_tokens: 1800
-        }));
+        });
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
+        console.error(`Phase tasks generation failed for days ${phase?.range}:`, err.message, err.status || '');
+        if (err.status === 429) {
+            return res.status(429).json({ error: "Rate limit exceeded. Please wait a moment and try again." });
+        }
         res.status(500).json({ error: err.message });
     }
 });
