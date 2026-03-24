@@ -281,9 +281,9 @@ const VenturePage = () => {
             setHasPlan(true);
             setActiveTab('plan');
             
-            // Step 2: Generate all 60 days in batches of 10
+            // Step 2: Generate all 60 days in batches of 5 to avoid timeouts
             let currentFullPlan = { ...initialPlan };
-            const BATCH_SIZE = 10;
+            const BATCH_SIZE = 5;
             
             for (let batchStart = 1; batchStart <= 60; batchStart += BATCH_SIZE) {
                 const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, 60);

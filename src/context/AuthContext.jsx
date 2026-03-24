@@ -97,17 +97,25 @@ export const AuthProvider = ({ children }) => {
             if (fetchError) throw fetchError;
 
             if (!existingProfile) {
-                // Use upsert to handle race condition where Google OAuth callback
-                // already created the profile server-side (prevents 409)
-                const { error: upsertErr } = await supabase.database
+                const { data: emailCheck } = await supabase.database
                     .from('profiles')
-                    .upsert([{
-                        id: currentUser.id,
-                        email: currentUser.email,
-                        name: finalName,
-                        avatar_url: finalAvatar
-                    }]);
-                if (upsertErr) console.warn('Profile upsert warning:', upsertErr.message);
+                    .select('id')
+                    .eq('email', currentUser.email)
+                    .maybeSingle();
+
+                if (!emailCheck) {
+                    const { error: upsertErr } = await supabase.database
+                        .from('profiles')
+                        .upsert([{
+                            id: currentUser.id,
+                            email: currentUser.email,
+                            name: finalName,
+                            avatar_url: finalAvatar
+                        }]);
+                    if (upsertErr) console.warn('Profile upsert warning:', upsertErr.message);
+                } else {
+                    console.log('Profile with this email exists under another ID. Skipping insert to avoid 409.');
+                }
             } else if ((!existingProfile.avatar_url && finalAvatar) || (finalName && !existingProfile.name)) {
 
                 await supabase.database

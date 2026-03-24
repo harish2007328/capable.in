@@ -469,6 +469,8 @@ app.post('/api/analyze', async (req, res) => {
 
     // Content moderation gate (post-questions check)
     try {
+        const signalsSummary = JSON.stringify(webSignals || {}).substring(0, 1000);
+        const answersSummary = typeof answers === 'string' ? answers.substring(0, 800) : JSON.stringify(answers).substring(0, 800);
         const moderation = await moderateContent(idea);
         if (moderation.blocked) {
             return res.status(403).json({ error: moderation.reason, blocked: true });
@@ -481,8 +483,8 @@ app.post('/api/analyze', async (req, res) => {
         const prompt = `
       ROLE: Elite Strategic Co-founder & Market Analyst.
       USER IDEA: "${idea}"
-      MARKET RESEARCH CONTEXT: ${JSON.stringify(webSignals, null, 2)}
-      USER INTERVIEW SUMMARY: ${answers}
+      MARKET RESEARCH CONTEXT: ${signalsSummary}
+      USER INTERVIEW SUMMARY: ${answersSummary}
 
       TASK:
       Generate an exhaustive, 4-page Strategic Blueprint. Break down the content into 4 distinct, highly detailed sections (pages). 
@@ -680,18 +682,18 @@ app.post('/api/generate-report-section', async (req, res) => {
               "explanation": "Deep 2-paragraph summary", 
               "target_user": "Specific demographics/psychographics", 
               "value_prop": "Unique selling point", 
-              "market_demand": { "score": (1-10), "analysis": "Reasoning" }, 
+              "market_demand": { "score": 8, "analysis": "Reasoning" }, 
               "chart_data": [{"label": "Month 1", "value": 10}, {"label": "Month 3", "value": 40}, {"label": "Month 6", "value": 75}, {"label": "Month 12", "value": 100}]
             }
           - If "market": { 
               "competitors": [{"name": "Brand", "analysis": "Detailed assessment", "weakness_to_exploit": "Specific gap"}], 
-              "competitiveness_score": (1-10), 
+              "competitiveness_score": 7, 
               "the_gap": "Market opportunity depth", 
               "differentiation": "The moat strategy", 
               "chart_data": [{"label": "Competitor A", "value": 40}, {"label": "Competitor B", "value": 35}, {"label": "You", "value": 25}]
             }
           - If "technical": { 
-              "viability_score": (1-10), 
+              "viability_score": 8, 
               "suggested_stack": "Comma, separated, technologies", 
               "architecture": "High-level schematic description", 
               "complexity": "Feasibility thesis and challenges", 
