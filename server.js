@@ -327,104 +327,21 @@ app.post('/api/enhance-idea', async (req, res) => {
             INPUT IDEA: "${idea}"
             
             TASK:
-            Rewrite this business idea into ONE or TWO short, punchy sentence.
-            Keep it strictly under 10 words. No fluff.
-            
-            OUTPUT:
-            Just the refined text.
-        `;
-
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
-            messages: [
-                { role: "system", content: "Output only the refined idea text. Max 2 sentences." },
-                { role: "user", content: prompt }
+          Generate the HIGH-LEVEL STRUCTURE for a 60-Day Execution Roadmap.
+          Divide 60 days into 4 logical PHASES (approx 15 days each).
+          Crucially, you MUST also generate EXACTLY 60 short task titles for every single day.
+          
+          JSON SCHEMA:
+          {
+            "short_title": "3-5 word concise mission name",
+            "phases": [
+                { "id": 1, "name": "Deep Research", "color": "#8B5CF6", "range": "1-15" },
+                { "id": 2, "name": "Local Validation", "color": "#3B82F6", "range": "16-30" },
+                { "id": 3, "name": "Minimum Build", "color": "#10B981", "range": "31-45" },
+                { "id": 4, "name": "Launch & Feedback", "color": "#F59E0B", "range": "46-60" }
             ],
-            model: MODEL,
-            max_tokens: 60,
-        }));
-
-        const enhancedIdea = completion.choices[0].message.content.trim();
-        res.json({ enhancedIdea });
-    } catch (err) {
-        console.error("ENHANCE FAILED:", err.message);
-        res.status(500).json({ error: "Enhancement failed" });
-    }
-});
-
-app.post('/api/research', async (req, res) => {
-    const { idea, location } = req.body;
-    try {
-        // Content moderation gate
-        const moderation = await moderateContent(idea);
-        if (moderation.blocked) {
-            return res.status(403).json({ error: moderation.reason, blocked: true });
-        }
-
-        const webSignals = await collectMarketSignals(idea, location);
-
-        // Strip all descriptions/text to stay under Rate Limits
-        const optimizedSignals = {
-            ...webSignals,
-            searchSignals: {
-                organicResults: webSignals.searchSignals.organicResults.map(r => ({
-                    title: r.title,
-                    domain: r.domain
-                }))
-            },
-            problemSignals: {
-                redditDiscussions: webSignals.problemSignals.redditDiscussions.map(p => ({
-                    title: p.title
-                }))
-            }
-        };
-
-        const locationContext = location ? `\n      USER LOCATION: ${location.city}, ${location.state}, ${location.country}` : "";
-
-        const prompt = `
-      IDEA: "${idea}"${locationContext}
-      RESEARCH DATA: ${JSON.stringify(optimizedSignals)}
-
-      SAFETY GUARDRAIL:
-      If the idea involves ANY illegal activity (drug dealing, weapons trafficking, fraud, scams, hacking, human trafficking, terrorism, etc.),
-      DO NOT generate questions. Instead return: { "blocked": true, "reason": "This idea involves illegal activities." }
-
-      TASK:
-      You are a friendly, down-to-earth Co-founder helping a new entrepreneur.
-      Your goal is to understand their idea fully so we can build a business plan.
-      
-      CRITICAL INSTRUCTION:
-      - Use SIMPLE, LAYMAN language. No business jargon. Speak like you're talking to a friend.
-      - If the user's idea ALREADY explains a specific point (e.g., they said "I have $50k"), DO NOT ASK that question.
-
-      COMPULSORY QUESTIONS (Ask these UNLESS already answered):
-      1. Precise Problem: What specific pain point are they solving?
-      2. The Gap: Why do current solutions fail?
-      3. Investment: How much initial capital do they have? (Range options)
-      4. Funding Source: Where is the money coming from? (Savings, Loan, Investors, etc.)
-      5. Location: Ask "Where are you initially focusing?". (This is mandatory)
-      6. Contextual: One dynamic question specific to their domain/idea.
-
-      QUESTION ANALYSIS:
-      For each question, include a brief "why" field explaining why you're asking this question.
-      This helps the user understand the reasoning behind each question.
-
-      STRICT RULES:
-      - Total questions: Give BETWEEN 5 and 10 questions. Never always give exactly 5.
-      - Question Format: Return EXACTLY the question text alone. NEVER add tags, prefixes, or headers like "Specific milk problem: " or "Topic: ".
-      - Options per question: EXACTLY 3 simple options.
-      - Format: Return ONLY valid JSON.
-      - Questions must be simple and easy to answer for a beginner.
-      - Project Title: Generate a "project_title" that is STRICTLY TWO WORDS representing the essence of the idea (e.g., "Solar Bloom", "Quick Craft").
-      - Project Description: Generate a "project_description" that is STRICTLY ONE SENTENCE (max 15 words) describing the business core.
-      
-      JSON SCHEMA:
-      {
-        "project_title": "Two Words",
-        "project_description": "One sentence description.",
-        "questions": [
-          { "text": "Question text?", "options": ["Option 1", "Option 2", "Option 3"], "theme": "Theme Name", "why": "Brief reason why this question matters" }
-        ]
-      }
+            "day_titles": ["Title Day 1", "Title Day 2", "Title Day 3", "Title Day 4", "Title Day 5", "Title Day 6", "Title Day 7", "Title Day 8", "Title Day 9", "Title Day 10", "Title Day 11", "Title Day 12", "Title Day 13", "Title Day 14", "Title Day 15", "Title Day 16", "Title Day 17", "Title Day 18", "Title Day 19", "Title Day 20", "Title Day 21", "Title Day 22", "Title Day 23", "Title Day 24", "Title Day 25", "Title Day 26", "Title Day 27", "Title Day 28", "Title Day 29", "Title Day 30", "Title Day 31", "Title Day 32", "Title Day 33", "Title Day 34", "Title Day 35", "Title Day 36", "Title Day 37", "Title Day 38", "Title Day 39", "Title Day 40", "Title Day 41", "Title Day 42", "Title Day 43", "Title Day 44", "Title Day 45", "Title Day 46", "Title Day 47", "Title Day 48", "Title Day 49", "Title Day 50", "Title Day 51", "Title Day 52", "Title Day 53", "Title Day 54", "Title Day 55", "Title Day 56", "Title Day 57", "Title Day 58", "Title Day 59", "Title Day 60"]
+          }
     `;
 
         const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
@@ -770,7 +687,7 @@ app.post('/api/generate-plan-structure', async (req, res) => {
 });
 
 app.post('/api/generate-phase-tasks', async (req, res) => {
-    const { idea, report, answers, phase, allPreviousTasks = [] } = req.body;
+    const { idea, report, answers, phase, allPreviousTasks = [], predefined_titles = [] } = req.body;
     try {
         const [start, end] = phase.range.split('-').map(Number);
         const dayCount = end - start + 1;
@@ -799,7 +716,11 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
       PHASE: "${phase.name}" (Days ${phase.range})
       PREVIOUS: ${prevSummary || 'None'}
 
-      Generate EXACTLY ${dayCount} tactical daily tasks.
+      Generate EXACTLY ${dayCount} tactical daily tasks FOR EVERY SINGLE DAY from Day ${start} to Day ${end} INCLUSIVE.
+      You MUST NOT skip any days. Output an array of exactly ${dayCount} items.
+      
+      CRITICAL INSTRUCTION: You MUST use these exact predefined titles for these specific days:
+      ${predefined_titles.map((t, i) => `Day ${start + i}: ${t}`).join('\n')}
       
       RULES:
       - No day references inside descriptions (no "Day 1" etc.)

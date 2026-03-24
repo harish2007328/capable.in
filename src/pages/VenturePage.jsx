@@ -280,7 +280,7 @@ const VenturePage = () => {
                 day: i + 1,
                 day_number: i + 1,
                 id: i + 1,
-                title: `Task ${i + 1}...`,
+                title: (structure.day_titles && structure.day_titles[i]) ? structure.day_titles[i] : `Task ${i + 1}...`,
                 task: '',
                 deliverable: '',
                 details: [],
@@ -302,7 +302,7 @@ const VenturePage = () => {
             
             // Step 2: Generate all 60 days in batches of 5 to avoid timeouts
             let currentFullPlan = { ...initialPlan };
-            const BATCH_SIZE = 5;
+            const BATCH_SIZE = 15; // User requested single-shot phases
             
             for (let batchStart = 1; batchStart <= 60; batchStart += BATCH_SIZE) {
                 const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, 60);
@@ -319,7 +319,8 @@ const VenturePage = () => {
                         reportStr, 
                         answersStr, 
                         { ...relevantPhase, range: `${batchStart}-${batchEnd}` },
-                        currentFullPlan.days.filter(d => !d.isPlaceholder)
+                        currentFullPlan.days.filter(d => !d.isPlaceholder),
+                        currentFullPlan.days.slice(batchStart - 1, batchEnd).map(d => d.title)
                     );
 
                     if (batchResult?.days) {

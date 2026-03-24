@@ -102,7 +102,8 @@ export const generatePlanStructure = async (idea, report, answers) => {
 /**
  * Execution Roadmap Service (Phase 2: Task Generation - single batch)
  */
-export const generatePhaseTasks = async (idea, report, answers, phase, allPreviousTasks) => {
+export const generatePhaseTasks = async (idea, report, answers, phase, allPreviousTasks,
+            predefined_titles, predefined_titles) => {
     try {
         const response = await axios.post('/api/generate-phase-tasks', {
             idea,
