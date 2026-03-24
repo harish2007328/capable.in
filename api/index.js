@@ -587,7 +587,7 @@ app.post('/api/generate-report-section', async (req, res) => {
 
         const completion = await getGroqClient().chat.completions.create({
             messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
-            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+            model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
         });
 
@@ -712,7 +712,7 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
             ],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-            max_tokens: 1800
+            max_tokens: 3500
         });
 
         res.json(JSON.parse(completion.choices[0].message.content));

@@ -602,7 +602,7 @@ app.post('/api/analyze', async (req, res) => {
                 { role: "system", content: "You are a world-class strategic consultant. You provide exhaustive, data-backed analysis. Output ONLY valid JSON." },
                 { role: "user", content: prompt }
             ],
-            model: "llama-3.3-70b-versatile",
+            model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
             max_tokens: 8000, 
         }));
@@ -643,11 +643,11 @@ app.post('/api/generate-report-structure', async (req, res) => {
           }
         `;
 
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+        const completion = await getGroqClient(req).chat.completions.create({
             messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-        }));
+        });
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
@@ -703,20 +703,20 @@ app.post('/api/generate-report-section', async (req, res) => {
               "mentor_advice": { "appreciate": "...", "criticize": "...", "advice": "..." }, 
               "immediate_actions": ["Must-do 1", "Must-do 2", "Must-do 3"], 
               "chart_data": [
-                { "label": "Market", "value": 1-10 },
-                { "label": "Technical", "value": 1-10 },
-                { "label": "Financial", "value": 1-10 },
-                { "label": "Operational", "value": 1-10 },
-                { "label": "Regulatory", "value": 1-10 }
+                { "label": "Market", "value": 5 },
+                { "label": "Technical", "value": 5 },
+                { "label": "Financial", "value": 5 },
+                { "label": "Operational", "value": 5 },
+                { "label": "Regulatory", "value": 5 }
               ]
             }
         `;
 
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+        const completion = await getGroqClient(req).chat.completions.create({
             messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
-            model: "llama-3.3-70b-versatile",
+            model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-        }));
+        });
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
@@ -831,7 +831,7 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
             ],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-            max_tokens: 1800
+            max_tokens: 3500
         });
 
         res.json(JSON.parse(completion.choices[0].message.content));
