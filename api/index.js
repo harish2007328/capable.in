@@ -698,11 +698,15 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
             ],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-            max_tokens: 8000
+            max_tokens: 4096
         }));
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
+        console.error(`Phase tasks generation failed for ${phase?.name}:`, err.message, err.status || '');
+        if (err.status === 429) {
+            return res.status(429).json({ error: "Rate limit exceeded. Please wait a moment and try again." });
+        }
         res.status(500).json({ error: err.message });
     }
 });

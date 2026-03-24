@@ -50,13 +50,43 @@ client.auth.getSession = async () => {
                     }
                     return { data: { session }, error: null };
                 } else {
-                    // Token is invalid/expired — remove it
+                    // Token expired or invalid. Try to decode the JWT payload 
+                    // to keep the user contextually logged in.
+                    try {
+                        const payload = JSON.parse(atob(storedToken.split('.')[1]));
+                        const now = Math.floor(Date.now() / 1000);
+                        
+                        if (payload.exp && payload.exp < now) {
+                            // Token IS expired - clear it but provide session from JWT data
+                            // so the user doesn't get logged out mid-session
+                            console.warn("Token expired, using cached session data. Re-login on next page load.");
+                            localStorage.removeItem('insforge_session_token');
+                            if (client.http) client.http.userToken = null;
+                            
+                            // Return a "degraded" session from the JWT payload
+                            // This keeps the UI showing the user as logged in
+                            // but database operations requiring auth will fail gracefully
+                            const cachedUser = {
+                                id: payload.sub,
+                                email: payload.email,
+                                role: payload.role
+                            };
+                            return { data: { session: { accessToken: null, user: cachedUser, expired: true } }, error: null };
+                        }
+                    } catch (decodeErr) {
+                        // Can't decode - genuinely invalid token
+                    }
+                    
+                    // Truly invalid token (not just expired)
                     console.warn("Stored token is invalid, clearing...");
                     localStorage.removeItem('insforge_session_token');
                     if (client.http) client.http.userToken = null;
                 }
             } catch (fetchErr) {
+                // Network error - don't clear the token, user might be offline
                 console.warn("Token validation fetch failed:", fetchErr.message);
+                // Try to use the token as-is for database operations
+                return { data: { session: { accessToken: storedToken, user: null } }, error: null };
             }
         }
         
