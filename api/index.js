@@ -678,9 +678,11 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
       PHASE: "${phase.name}" (Days ${phase.range})
       PREVIOUS: ${prevSummary || 'None'}
 
-      Generate EXACTLY ${dayCount} tactical daily tasks.
+      Generate EXACTLY ${dayCount} tactical daily tasks FOR EVERY SINGLE DAY from Day ${start} to Day ${end} INCLUSIVE.
+      You MUST NOT skip any days. Output an array of exactly ${dayCount} items.
       
       RULES:
+      - Start with day ${start} and go sequentially.
       - No day references inside descriptions (no "Day 1" etc.)
       - Suggest specific tools (Canva, Trello, Vercel, etc.)
       - 3-5 actionable sub-steps per day

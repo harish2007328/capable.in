@@ -255,6 +255,25 @@ const VenturePage = () => {
                     await new Promise(res => setTimeout(res, 1000));
                 }
             }
+
+            // Intelligent unwrap if AI nested the JSON
+            if (structure && structure.plan && Array.isArray(structure.plan.phases)) {
+                structure = structure.plan;
+            }
+
+            // Ensure structure is valid
+            if (!structure || !structure.phases || !Array.isArray(structure.phases) || structure.phases.length === 0) {
+                console.warn('AI structure returned incorrectly, applying robust default schema.');
+                structure = {
+                    short_title: "Strategic Execution",
+                    phases: [
+                        { id: 1, name: "Deep Research", color: "#8B5CF6", range: "1-15" },
+                        { id: 2, name: "Local Validation", color: "#3B82F6", range: "16-30" },
+                        { id: 3, "name": "Build & Pre-Launch", "color": "#10B981", "range": "31-45" },
+                        { id: 4, "name": "Launch & Iterate", "color": "#F59E0B", "range": "46-60" }
+                    ]
+                };
+            }
             
             // Create a skeleton plan with 60 days
             const skeletonDays = Array.from({ length: 60 }, (_, i) => ({
