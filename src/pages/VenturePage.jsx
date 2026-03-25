@@ -100,6 +100,7 @@ const VenturePage = () => {
 
             // Logical Routing
             if (data.plan) setActiveTab('plan');
+            if (isMounted.current) setPlanLoading(false); // Progressive UX - dismiss loader instantly!
             else if (data.report) setActiveTab('strategy');
             else setActiveTab('context');
 
@@ -299,10 +300,11 @@ const VenturePage = () => {
             setActionPlan(initialPlan);
             setHasPlan(true);
             setActiveTab('plan');
+            if (isMounted.current) setPlanLoading(false);
             
             // Step 2: Generate all 60 days in batches of 5 to avoid timeouts
             let currentFullPlan = { ...initialPlan };
-            const BATCH_SIZE = 15; // User requested single-shot phases
+            const BATCH_SIZE = 3; // Progressive streaming (3 per 1s)
             
             for (let batchStart = 1; batchStart <= 60; batchStart += BATCH_SIZE) {
                 const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, 60);
@@ -344,13 +346,14 @@ const VenturePage = () => {
                 } catch (batchErr) {
                     console.error(`Failed to generate tasks for days ${batchStart}-${batchEnd}`, batchErr);
                 }
+                await new Promise(r => setTimeout(r, 600)); // Rate limit breathing room
             }
 
         } catch (error) {
             console.error('Action plan structure failed', error);
             alert('Consultant unavailable. Please try again.');
         } finally {
-            if (isMounted.current) setPlanLoading(false);
+            // Loader already dismissed earlier progressively
         }
     };
 
