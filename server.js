@@ -316,55 +316,58 @@ Respond with ONLY valid JSON: {"safe": true} or {"safe": false, "category": "bri
 app.post('/api/enhance-idea', async (req, res) => {
     const { idea } = req.body;
     try {
-        // Content moderation gate
-        const moderation = await moderateContent(idea);
-        if (moderation.blocked) {
-            return res.status(403).json({ error: moderation.reason, blocked: true });
-        }
-
         const prompt = `
             ROLE: Expert Business Consultant.
             INPUT IDEA: "${idea}"
             
-            TASK:
-          Generate the HIGH-LEVEL STRUCTURE for a 60-Day Execution Roadmap.
-          Divide 60 days into 4 logical PHASES (approx 15 days each).
-          Crucially, you MUST also generate EXACTLY 60 short task titles for every single day.
-          
-          JSON SCHEMA:
-          {
-            "short_title": "3-5 word concise mission name",
-            "phases": [
-                { "id": 1, "name": "Deep Research", "color": "#8B5CF6", "range": "1-15" },
-                { "id": 2, "name": "Local Validation", "color": "#3B82F6", "range": "16-30" },
-                { "id": 3, "name": "Minimum Build", "color": "#10B981", "range": "31-45" },
-                { "id": 4, "name": "Launch & Feedback", "color": "#F59E0B", "range": "46-60" }
-            ],
-            "day_titles": ["Title Day 1", "Title Day 2", "Title Day 3", "Title Day 4", "Title Day 5", "Title Day 6", "Title Day 7", "Title Day 8", "Title Day 9", "Title Day 10", "Title Day 11", "Title Day 12", "Title Day 13", "Title Day 14", "Title Day 15", "Title Day 16", "Title Day 17", "Title Day 18", "Title Day 19", "Title Day 20", "Title Day 21", "Title Day 22", "Title Day 23", "Title Day 24", "Title Day 25", "Title Day 26", "Title Day 27", "Title Day 28", "Title Day 29", "Title Day 30", "Title Day 31", "Title Day 32", "Title Day 33", "Title Day 34", "Title Day 35", "Title Day 36", "Title Day 37", "Title Day 38", "Title Day 39", "Title Day 40", "Title Day 41", "Title Day 42", "Title Day 43", "Title Day 44", "Title Day 45", "Title Day 46", "Title Day 47", "Title Day 48", "Title Day 49", "Title Day 50", "Title Day 51", "Title Day 52", "Title Day 53", "Title Day 54", "Title Day 55", "Title Day 56", "Title Day 57", "Title Day 58", "Title Day 59", "Title Day 60"]
-          }
-    `;
+            TASK: Shorten and punchify this business idea into a professional 1-sentence value proposition.
+            JSON SCHEMA: { "enhanced_idea": "The punched up sentence" }
+        `;
 
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
-            messages: [
-                { role: "system", content: "You are a startup scout focusing on operations and market fit. Output valid JSON. IMPORTANT: If the idea involves any illegal or harmful activity, return {\"blocked\": true, \"reason\": \"explanation\"}. Never assist with illegal business ideas." },
-                { role: "user", content: prompt }
-            ],
-            model: MODEL,
-            response_format: { type: "json_object" },
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [{ role: "system", content: "Output valid JSON." }, { role: "user", content: prompt }],
+            model: "llama-3.1-8b-instant",
+            response_format: { type: "json_object" }
         }));
 
-        const content = completion.choices[0].message.content;
+        res.json(JSON.parse(completion.choices[0].message.content));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/research', async (req, res) => {
+    const { idea, location } = req.body;
+    try {
+        const webSignals = await collectMarketSignals(idea, location);
+        const signalsSummary = JSON.stringify(webSignals).substring(0, 800);
+        
+        const prompt = `
+            ROLE: Expert Business Strategy Consultant.
+            IDEA: "${idea}"
+            CONTEXT: ${signalsSummary}
+            
+            TASK: Generate 10-12 highly specific, profound discovery questions to ask the founder.
+            Also generate a working project title and 1-paragraph project description.
+            
+            JSON SCHEMA:
+            {
+               "project_title": "Cool startup name",
+               "project_description": "A 1-paragraph description",
+               "questions": [
+                 { "id": 1, "text": "A deep question...", "type": "text" }
+               ]
+            }
+        `;
+        
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [{ role: "system", content: "Output JSON." }, { role: "user", content: prompt }],
+            model: MODEL,
+            response_format: { type: "json_object" }
+        }));
+        
+        const parsed = JSON.parse(completion.choices[0].message.content);
         console.log("Research AI Answered Successfully.");
-        const parsed = JSON.parse(content);
-
-        // Check if AI flagged the idea
-        if (parsed.blocked) {
-            return res.status(403).json({
-                error: parsed.reason || "This idea involves activities that cannot be supported.",
-                blocked: true
-            });
-        }
-
         res.json({
             webSignals,
             questions: parsed.questions,
@@ -379,163 +382,6 @@ app.post('/api/enhance-idea', async (req, res) => {
         res.status(500).json({ error: "Research phase failed", details: err.message });
     }
 });
-
-app.post('/api/analyze', async (req, res) => {
-    const { idea, webSignals, answers } = req.body;
-    console.log(`\n--- FINAL ANALYSIS REQUEST ---`);
-
-    // Content moderation gate (post-questions check)
-    try {
-        const signalsSummary = JSON.stringify(webSignals || {}).substring(0, 1000);
-        const answersSummary = typeof answers === 'string' ? answers.substring(0, 800) : JSON.stringify(answers).substring(0, 800);
-        const moderation = await moderateContent(idea);
-        if (moderation.blocked) {
-            return res.status(403).json({ error: moderation.reason, blocked: true });
-        }
-    } catch (e) {
-        console.warn('Moderation check failed at analysis stage:', e.message);
-    }
-
-    try {
-        const prompt = `
-      ROLE: Elite Strategic Co-founder & Market Analyst.
-      USER IDEA: "${idea}"
-      MARKET RESEARCH CONTEXT: ${signalsSummary}
-      USER INTERVIEW SUMMARY: ${answersSummary}
-
-      TASK:
-      Generate an exhaustive, 4-page Strategic Blueprint. Break down the content into 4 distinct, highly detailed sections (pages). 
-      BE VERBOSE: Provide deep tactical insight, data-backed projections, and industry-specific metrics.
-
-      PAGE STRUCTURE:
-      1. Executive Manifesto & Market Urgency: 
-         - Deep explanation of why this works NOW.
-         - Target Persona breakdown (demographics, psychographics).
-         - Core Value Proposition and specific "Magic Moment".
-         - Market Demand Score with 2-3 paragraph justification.
-
-      2. Competitive Deep-Dive & Market Gap:
-         - Minimum 3 specific competitors from research.
-         - Detailed SWAT (Strengths, Weaknesses, Opportunities, Threats) for each.
-         - Identification of the "Structural Gap" in the current market.
-         - Specific Differentiation Strategy (The "Moat").
-
-      3. Technical Blueprint & Feasibility:
-         - Technical Viability score.
-         - Suggested Tech Stack (Backend, Frontend, AI/Data tools).
-         - High-level architecture suggestion.
-         - Development Complexity Analysis.
-         - Preliminary Cost Estimate (MVP).
-
-      4. Execution Strategy & Risk Mitigation:
-         - Strategic Roadmap (High level).
-         - Deep Risk Analysis (Market, Execution, Financial, Legal/Compliance).
-         - Mentor's Brutal Perspective (Appreciation, Criticism, Pivot Advice).
-         - Immediate Tactical Directives.
-
-      STRICT RULES:
-      - Total length should be approx 1500-2000 words across all pages.
-      - USE DATA: Reference search trends, reddit sentiment, and user location context.
-      - COMPETITOR NAMES: You MUST use real, specific brand names found in the MARKET RESEARCH CONTEXT. 
-      - DO NOT use generic placeholders like "Competitor A", "Competitor B", or "Brand X". This is a CRITICAL REQUIREMENT.
-      - Format: Return ONLY valid JSON matching the schema below.
-      - Scores must be integers 1-10.
-
-      JSON SCHEMA:
-      {
-        "project_name": "Brand Name",
-        "pages": [
-          {
-            "id": "executive",
-            "title": "Executive Manifesto",
-            "content": {
-               "explanation": "...",
-               "target_user": "...",
-               "value_prop": "...",
-               "market_demand": { "score": 8, "analysis": "..." },
-               "chart_data": [
-                 { "label": "Month 1", "value": 10 },
-                 { "label": "Month 3", "value": 35 },
-                 { "label": "Month 6", "value": 65 },
-                 { "label": "Month 12", "value": 100 }
-               ]
-            }
-          },
-          {
-            "id": "market",
-            "title": "Competitive Deep-Dive",
-            "content": {
-               "competitors": [
-                  { "name": "REAL_BRAND_NAME_1", "analysis": "...", "weakness_to_exploit": "..." },
-                  { "name": "REAL_BRAND_NAME_2", "analysis": "...", "weakness_to_exploit": "..." },
-                  { "name": "REAL_BRAND_NAME_3", "analysis": "...", "weakness_to_exploit": "..." }
-               ],
-               "competitiveness_score": 7,
-               "the_gap": "...",
-               "differentiation": "...",
-               "chart_data": [
-                  { "label": "REAL_BRAND_1", "value": 45 },
-                  { "label": "REAL_BRAND_2", "value": 30 },
-                  { "label": "You (Projected)", "value": 25 }
-               ]
-            }
-          },
-          {
-            "id": "technical",
-            "title": "Technical Blueprint",
-            "content": {
-               "viability_score": 9,
-               "suggested_stack": "...",
-               "architecture": "...",
-               "complexity": "...",
-               "est_mvp_cost": "...",
-               "chart_data": [
-                  { "label": "Infrastructure", "value": 20 },
-                  { "label": "Development", "value": 50 },
-                  { "label": "AI Engine", "value": 30 }
-               ]
-            }
-          },
-          {
-            "id": "risk",
-            "title": "Strategy & Risk",
-            "content": {
-               "risks": { "market": "...", "technical": "...", "financial": "...", "legal": "..." },
-               "mentor_advice": { "appreciate": "...", "criticize": "...", "advice": "..." },
-               "immediate_actions": ["...", "...", "..."],
-                "chart_data": [
-                  { "label": "Market", "value": 4 },
-                  { "label": "Technical", "value": 6 },
-                  { "label": "Financial", "value": 3 },
-                  { "label": "Operational", "value": 7 },
-                  { "label": "Regulatory", "value": 5 }
-                ]
-            }
-          }
-        ]
-      }
-    `;
-
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
-            messages: [
-                { role: "system", content: "You are a world-class strategic consultant. You provide exhaustive, data-backed analysis. Output ONLY valid JSON." },
-                { role: "user", content: prompt }
-            ],
-            model: "llama-3.1-8b-instant",
-            response_format: { type: "json_object" },
-            max_tokens: 8000, 
-        }));
-
-        const report = JSON.parse(completion.choices[0].message.content);
-        res.json(report);
-
-    } catch (err) {
-        console.error("ANALYSIS FAILED:", err.message);
-        res.status(500).json({ error: "Analysis failed", details: err.message });
-    }
-});
-
-// --- CHUNKED REPORT GENERATION ---
 
 app.post('/api/generate-report-structure', async (req, res) => {
     const { idea, webSignals } = req.body;

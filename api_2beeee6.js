@@ -376,54 +376,36 @@ app.post('/api/enhance-idea', async (req, res) => {
             ROLE: Expert Business Consultant.
             INPUT IDEA: "${idea}"
             
-            TASK: Shorten and punchify this business idea into a professional 1-sentence value proposition.
-            JSON SCHEMA: { "enhanced_idea": "The punched up sentence" }
-        `;
+            TASK:
+          Generate the HIGH-LEVEL STRUCTURE for a 60-Day Execution Roadmap.
+          Divide 60 days into 4 logical PHASES (approx 15 days each).
+          Crucially, you MUST also generate EXACTLY 60 short task titles for every single day.
+          
+          JSON SCHEMA:
+          {
+            "short_title": "3-5 word concise mission name",
+            "phases": [
+                { "id": 1, "name": "Deep Research", "color": "#8B5CF6", "range": "1-15" },
+                { "id": 2, "name": "Local Validation", "color": "#3B82F6", "range": "16-30" },
+                { "id": 3, "name": "Minimum Build", "color": "#10B981", "range": "31-45" },
+                { "id": 4, "name": "Launch & Feedback", "color": "#F59E0B", "range": "46-60" }
+            ],
+            "day_titles": ["Title Day 1", "Title Day 2", "Title Day 3", "Title Day 4", "Title Day 5", "Title Day 6", "Title Day 7", "Title Day 8", "Title Day 9", "Title Day 10", "Title Day 11", "Title Day 12", "Title Day 13", "Title Day 14", "Title Day 15", "Title Day 16", "Title Day 17", "Title Day 18", "Title Day 19", "Title Day 20", "Title Day 21", "Title Day 22", "Title Day 23", "Title Day 24", "Title Day 25", "Title Day 26", "Title Day 27", "Title Day 28", "Title Day 29", "Title Day 30", "Title Day 31", "Title Day 32", "Title Day 33", "Title Day 34", "Title Day 35", "Title Day 36", "Title Day 37", "Title Day 38", "Title Day 39", "Title Day 40", "Title Day 41", "Title Day 42", "Title Day 43", "Title Day 44", "Title Day 45", "Title Day 46", "Title Day 47", "Title Day 48", "Title Day 49", "Title Day 50", "Title Day 51", "Title Day 52", "Title Day 53", "Title Day 54", "Title Day 55", "Title Day 56", "Title Day 57", "Title Day 58", "Title Day 59", "Title Day 60"]
+          }
+    `;
 
         const completion = await withRetry(() => getGroqClient().chat.completions.create({
-            messages: [{ role: "system", content: "Output valid JSON." }, { role: "user", content: prompt }],
-            model: "llama-3.1-8b-instant",
-            response_format: { type: "json_object" }
-        }));
-
-        res.json(JSON.parse(completion.choices[0].message.content));
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.post('/api/research', async (req, res) => {
-    const { idea, location } = req.body;
-    try {
-        const webSignals = await collectMarketSignals(idea, location);
-        const signalsSummary = JSON.stringify(webSignals).substring(0, 800);
-        
-        const prompt = `
-            ROLE: Expert Business Strategy Consultant.
-            IDEA: "${idea}"
-            CONTEXT: ${signalsSummary}
-            
-            TASK: Generate 10-12 highly specific, profound discovery questions to ask the founder.
-            Also generate a working project title and 1-paragraph project description.
-            
-            JSON SCHEMA:
-            {
-               "project_title": "Cool startup name",
-               "project_description": "A 1-paragraph description",
-               "questions": [
-                 { "id": 1, "text": "A deep question...", "type": "text" }
-               ]
-            }
-        `;
-        
-        const completion = await withRetry(() => getGroqClient().chat.completions.create({
-            messages: [{ role: "system", content: "Output JSON." }, { role: "user", content: prompt }],
+            messages: [
+                { role: "system", content: "You are a startup scout focusing on operations and market fit. Output valid JSON." },
+                { role: "user", content: prompt }
+            ],
             model: MODEL,
-            response_format: { type: "json_object" }
+            response_format: { type: "json_object" },
         }));
-        
-        const parsed = JSON.parse(completion.choices[0].message.content);
+
+        const content = completion.choices[0].message.content;
         console.log("Research AI Answered Successfully.");
+        const parsed = JSON.parse(content);
         res.json({
             webSignals,
             questions: parsed.questions,
