@@ -350,12 +350,22 @@ app.post('/api/research', async (req, res) => {
             TASK: Generate 10-12 highly specific, profound discovery questions to ask the founder.
             Also generate a working project title and 1-paragraph project description.
             
+            STRICT RULES FOR QUESTIONS:
+            - If a question has multiple choice options, they MUST be descriptive and unique (e.g., "Solely my savings" vs "Small bank loan").
+            - NEVER use generic placeholders like "Option 1", "Option 2", "Option 3", "Choice A", etc.
+            - Every option must reflect a realistic business scenario related to the idea.
+
             JSON SCHEMA:
             {
                "project_title": "Cool startup name",
                "project_description": "A 1-paragraph description",
                "questions": [
-                 { "id": 1, "text": "A deep question...", "type": "text" }
+                 { 
+                   "id": 1, 
+                   "text": "A deep question...", 
+                   "type": "text | select", 
+                   "options": ["Specific Option A", "Specific Option B"] 
+                 }
                ]
             }
         `;
