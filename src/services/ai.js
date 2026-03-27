@@ -1,5 +1,18 @@
 import axios from 'axios';
 
+// --- API CONFIGURATION ---
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+axios.defaults.baseURL = API_BASE_URL;
+
+// Ensure authentication token is sent if available
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem('insforge_session_token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
 /**
  * Enhanced Idea Service
  * Shortens and punchifies a business idea.

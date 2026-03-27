@@ -1287,7 +1287,13 @@ app.post('/api/portal', async (req, res) => {
     }
 });
 
-// --- SERVE FRONTEND (Removed for Vercel Serverless) ---
-// Vercel handles static file serving via the Build Output API automatically.
+// --- SERVE FRONTEND (Restored for Render) ---
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+app.listen(port, () => {
+    console.log(`🚀 Capable Server (Render) active on port ${port}`);
+});
 
 export default app;
