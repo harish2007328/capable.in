@@ -21,6 +21,7 @@ const port = process.env.PORT || 3001;
 const ALLOWED_ORIGINS = [
     'https://www.capable.website',
     'https://capable.website',
+    'https://capable-website.onrender.com',
     'http://localhost:5173',
     'http://localhost:3000'
 ];
