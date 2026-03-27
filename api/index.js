@@ -1176,7 +1176,6 @@ app.post('/api/checkout', async (req, res) => {
 
         const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID;
 
-        // Use product_cart as recommended by Dodo
         const session = await dodoPayments.checkoutSessions.create({
             product_cart: [{
                 product_id: targetProductId,
@@ -1205,15 +1204,7 @@ app.get('/api/webhook/dodo', (req, res) => {
 });
 
 app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (req, res) => {
-    const sig = req.headers['x-dodo-signature'];
-    const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
-
     try {
-        if (webhookSecret && sig) {
-            // TODO: In production, verify the signature here
-            // console.log("Verifying webhook signature...");
-        }
-
         const event = JSON.parse(req.body);
         console.log(`✅ Dodo Webhook: ${event.type}`, event.data?.id || '');
 
@@ -1226,38 +1217,27 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                 const planType = data.metadata?.planType || 'pro';
 
                 if (userId) {
-                    console.log(`💰 FULFILLING: User ${userId} -> Plan: ${planType}`);
                     try {
                         const { data: profile, error: fetchError } = await insforge.database.from('profiles').select('id').eq('id', userId).single();
 
                         if (fetchError || !profile) {
-                            console.log(`Creating new profile for user ${userId}`);
-                            const { error: insertError } = await insforge.database.from('profiles').insert([{
+                            await insforge.database.from('profiles').insert([{
                                 id: userId,
                                 email: event.data.customer?.email,
                                 subscription_status: 'pro',
                                 dodo_customer_id: event.data.customer?.id
                             }]);
-                            if (insertError) console.error("Profile Insert Error:", insertError.message);
-                            else console.log(`✅ Profile created for user ${userId}.`);
                         } else {
-                            const { error: updateError } = await insforge.database.from('profiles').update({
+                            await insforge.database.from('profiles').update({
                                 subscription_status: 'pro',
                                 dodo_customer_id: event.data.customer?.id,
                                 updated_at: new Date()
                             }).eq('id', userId);
-
-                            if (updateError) console.error("Profile Update Error:", updateError.message);
-                            else console.log(`✅ User ${userId} profile updated to Pro.`);
                         }
                     } catch (dbErr) {
-                        console.warn("DB fulfillment check failure:", dbErr.message);
+                        console.warn("DB fulfillment failure:", dbErr.message);
                     }
                 }
-                break;
-            case 'subscription.cancelled':
-            case 'subscription.expired':
-                console.log(`🚫 REVOKING: User ${event.data?.metadata?.userId} subscription ended`);
                 break;
             default:
                 console.log(`ℹ️ Dodo Info: Received ${event.type}`);
@@ -1288,12 +1268,16 @@ app.post('/api/portal', async (req, res) => {
 });
 
 // --- SERVE FRONTEND (Restored for Render) ---
-app.get('*', (req, res) => {
+app.get('(.*)', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-app.listen(port, () => {
-    console.log(`🚀 Capable Server (Render) active on port ${port}`);
-});
+// Only start the server if not running in a serverless environment (Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(port, () => {
+        console.log(`🚀 Capable Server active on port ${port}`);
+    });
+}
 
 export default app;
+
