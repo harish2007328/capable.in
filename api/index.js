@@ -146,7 +146,8 @@ async function fetchRedditSignals(query) {
             headers: {
                 'User-Agent': 'CAPABLE-Audit-Bot/1.0.0',
                 'Accept': 'application/json'
-            }
+            },
+            timeout: 5000 // 5 second timeout
         });
         const posts = data.data?.children?.map(child => ({
             title: child.data.title,
@@ -604,16 +605,17 @@ app.post('/api/generate-plan-structure', async (req, res) => {
           }
         `;
 
-        const completion = await getGroqClient().chat.completions.create({
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [
                 { role: "system", content: "Output valid JSON only." },
                 { role: "user", content: prompt }
             ],
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-        });
+        }));
 
-        res.json(JSON.parse(completion.choices[0].message.content));
+        const content = completion.choices[0].message.content;
+        res.json(JSON.parse(content));
     } catch (err) {
         console.error('Plan structure generation failed:', err.message, err.status || '');
         if (err.status === 429) {
