@@ -117,7 +117,8 @@ async function scrapeDuckDuckGo(query, location = null) {
 
         const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}${kl ? `&kl=${kl}` : ''}`;
         const { data } = await axios.get(url, {
-            headers: { 'User-Agent': USER_AGENT }
+            headers: { 'User-Agent': USER_AGENT },
+            timeout: 5000 // 5 second timeout to prevent hangs
         });
         const $ = cheerio.load(data);
         const results = [];
@@ -161,12 +162,11 @@ async function collectMarketSignals(idea, location = null) {
     const locStr = location ? ` in ${location.city || ''} ${location.country || ''}`.trim() : "";
     console.log(`\n--- Researching: ${idea}${locStr} ---`);
 
-    const [searchSignals, competitionSignals, redditSignals, newsSignals] = await Promise.all([
-        scrapeDuckDuckGo(`${idea}${locStr}`, location),
-        scrapeDuckDuckGo(`${idea} competitors alternative ${locStr}`, location),
-        fetchRedditSignals(idea),
-        scrapeDuckDuckGo(`${idea} trends news 2024 2025`, location)
-    ]);
+    // Sequential collection to avoid multiple simultaneous timeouts/hangs
+    const searchSignals = await scrapeDuckDuckGo(`${idea}${locStr}`, location);
+    const competitionSignals = await scrapeDuckDuckGo(`${idea} competitors alternative ${locStr}`, location);
+    const redditSignals = await fetchRedditSignals(idea);
+    const newsSignals = await scrapeDuckDuckGo(`${idea} trends news 2024 2025`, location);
 
     return {
         searchSignals: { organicResults: searchSignals },
