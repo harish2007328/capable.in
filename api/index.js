@@ -224,7 +224,6 @@ app.get('/api/auth/google', (req, res) => {
     const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
     
     // Explicit production override to guarantee Google Console compliance
-    // Even on Vercel Preview URLs, this forces OAuth to route safely through the whitelisted domain.
     const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
     const finalHost = (isProduction && cleanHost.includes('vercel.app')) ? 'capable.website' : cleanHost;
 
@@ -245,8 +244,8 @@ app.get('/api/auth/google', (req, res) => {
 });
 
 app.get('/api/auth/google/callback', async (req, res) => {
-    const { code } = req.query;
     try {
+        const { code } = req.query;
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
         const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
         const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
@@ -266,7 +265,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
         client.setCredentials(tokens);
 
         const ticket = await client.verifyIdToken({
-            idToken: tokens.id_token,
+            id_token: tokens.id_token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
         const payload = ticket.getPayload();
@@ -671,7 +670,6 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
       - No day references inside descriptions (no "Day 1" etc.)
       - Suggest specific tools (Canva, Trello, Vercel, etc.)
       - 3-5 actionable sub-steps per day
-      - Location-aware registrations if context available
       - IMPACT: exactly "Low", "Medium", or "High"
       - EST_TIME: realistic (e.g., "4-6 hours")
 
@@ -692,7 +690,7 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
       }
     `;
 
-        const completion = await getGroqClient().chat.completions.create({
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [
                 { role: "system", content: "You are a startup operations mentor. Return only valid JSON. Each task must be unique and specific to the business idea." },
                 { role: "user", content: prompt }
@@ -700,13 +698,13 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
             model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
             max_tokens: 3500
-        });
+        }));
 
         res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
-        console.error(`Phase tasks generation failed for days ${phase?.range}:`, err.message, err.status || '');
+        console.error(`Phase tasks generation failed:`, err.message);
         if (err.status === 429) {
-            return res.status(429).json({ error: "Rate limit exceeded. Please wait a moment and try again." });
+            return res.status(429).json({ error: "Rate limit exceeded. Please wait a moment." });
         }
         res.status(500).json({ error: err.message });
     }
@@ -728,82 +726,56 @@ app.post('/api/analyze', async (req, res) => {
       TASK:
       Generate an Investor-Ready Strategic Report based ONLY on the User Interview and Market Research.
       
-      REQUIRED SECTIONS (STRICT SCHEMA):
-      1. Idea Summary: Clear explanation, target user, core value proposition.
-      2. Market Demand Analysis: Demand score (1-10) based on URGENCY (High=Hair on fire, Low=Nice to have) and justification.
-      3. Competitive Landscape: List STRICTLY 2 known competitors with Strengths/Weaknesses and a Competitiveness Score (1-10) where 10=Blue Ocean/Unique and 1=Red Ocean/Saturated.
-      4. Market Gap & Differentiation: Specific gap and why this idea is meaningfully different.
-      5. Risk Analysis: STRICTLY 4 points (Market, Execution, Adoption, Financial).
-      6. Feasibility Analysis: Feasibility Score (1-10) where 10=MVP in weeks, 1=Requires Millions/R&D.
-      7. Mentor / Investor Perspective: CRITICAL & REALISTIC feedback. What they would appreciate, criticize, and advise.
-      8. Strategic Next Steps: STRICTLY 3 Immediate actions and things to avoid.
+      REQUIRED SECTIONS:
+      1. Idea Summary
+      2. Market Demand Analysis
+      3. Competitive Landscape
+      4. Market Gap & Differentiation
+      5. Risk Analysis
+      6. Feasibility Analysis
+      7. Mentor / Investor Perspective
+      8. Strategic Next Steps
 
       STRICT RULES:
-      - BE CRITICAL AND REALISTIC. Do not be overly optimistic.
-      - NEVER mention specific website names or source URLs. Use "market signals" or "internet research".
-      - NEVER hallucinate competitors as facts. Use "Potential competitors in this space" if unknown.
-      - COMPETITOR NAMES: You must provide specific names (e.g., "Slack", "Discord") or distinct categories (e.g., "Traditional Spreadsheets"). NEVER use "Potential competitors in this space" or "Rival 1" as a name.
+      - BE CRITICAL AND REALISTIC.
+      - NEVER mention specific website names or source URLs.
+      - COMPETITOR NAMES: Provide specific names.
       - Scores must be integers from 1-10.
-      - Format: Return ONLY valid JSON.
 
       JSON SCHEMA:
       {
         "project_name": "Short clean name",
-        "explanation": "Clear explanation of the idea",
+        "explanation": "Clear explanation",
         "target_user": "Primary persona",
         "value_prop": "Core value proposition",
-        "market_demand": { 
-          "score": 8, 
-          "justification": "Why this score? (based on size, urgency, signals)" 
-        },
-        "competitors": [
-          { "name": "Competitor 1", "what_they_do": "Brief desc", "strengths": "...", "weaknesses": "..." }
-        ],
+        "market_demand": { "score": 8, "justification": "..." },
+        "competitors": [{ "name": "...", "what_they_do": "...", "strengths": "...", "weaknesses": "..." }],
         "competitiveness_score": 6,
-        "market_gap": "The gap being addressed",
-        "differentiation": "Why this is different",
-        "risks": {
-          "market": "Risk detail",
-          "execution": "Risk detail",
-          "adoption": "Risk detail",
-          "financial": "Risk detail"
-        },
-        "feasibility": {
-          "score": 7,
-          "analysis": "Analysis based on resources/skills"
-        },
-        "mentor_perspective": {
-          "appreciate": "Positive point",
-          "criticize": "Critical point",
-          "advice": "Next move advice"
-        },
-        "next_steps": {
-          "immediate": ["Step 1", "Step 2", "Step 3"],
-          "avoid": ["Pitfall 1", "Pitfall 2"]
-        }
+        "market_gap": "...",
+        "differentiation": "...",
+        "risks": { "market": "...", "execution": "...", "adoption": "...", "financial": "..." },
+        "feasibility": { "score": 7, "analysis": "..." },
+        "mentor_perspective": { "appreciate": "...", "criticize": "...", "advice": "..." },
+        "next_steps": { "immediate": ["Step 1", "Step 2", "Step 3"], "avoid": ["Pitfall 1", "Pitfall 2"] }
       }
     `;
 
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [
-                { role: "system", content: "You are a world-class mentor. You provide pithy, actionable, and data-backed advice. Output valid JSON. If user answers are vague, focus on helping them gain clarity." },
+                { role: "system", content: "You are a world-class mentor. Output valid JSON." },
                 { role: "user", content: prompt }
             ],
-            model: MODEL,
+            model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" },
-            max_tokens: 8000, // Increased for full editorial reports
+            max_tokens: 4000
         }));
 
-        const report = JSON.parse(completion.choices[0].message.content);
-        res.json(report);
+        res.json(JSON.parse(completion.choices[0].message.content));
     } catch (err) {
         console.error("ANALYSIS FAILED:", err.message);
         res.status(500).json({ error: "Analysis failed", details: err.message });
     }
 });
-
-// --- SERVE FRONTEND ---
-app.use(express.static(path.join(__dirname, 'dist')));
 
 app.post('/api/generate-plan', async (req, res) => {
     const { idea, report, answers } = req.body;
@@ -852,12 +824,11 @@ app.post('/api/generate-plan', async (req, res) => {
             "impact": "High",
             "est_time": "2-4 hours"
           }
-          // ... up to 60
         ]
       }
     `;
 
-        const completion = await withRetry(() => getGroqClient(req).chat.completions.create({
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [
                 { role: "system", content: "You are an operations-focused mentor. Provide a 60-day sequence of high-leverage actions. Output valid JSON. Ensure exactly 60 days are generated." },
                 { role: "user", content: prompt }
@@ -1299,4 +1270,3 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
 }
 
 export default app;
-

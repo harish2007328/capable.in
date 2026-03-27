@@ -4,6 +4,8 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 axios.defaults.baseURL = API_BASE_URL;
 
+console.log('API Base URL:', API_BASE_URL || 'Current Origin');
+
 // Ensure authentication token is sent if available
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('insforge_session_token');
