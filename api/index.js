@@ -656,35 +656,34 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
       PHASE: "${phase.name}" (Days ${phase.range})
       PREVIOUS: ${prevSummary || 'None'}
 
-      Generate EXACTLY ${dayCount} tactical daily tasks for Day ${start} to Day ${end}.
-      
-      CRITICAL: For each day, you MUST use the EXACT title provided below.
+      TASK:
+      Generate a valid JSON object containing exactly ${dayCount} task objects for Day ${start} to Day ${end}.
       
       TITLES TO USE:
       ${predefined_titles.map((t, i) => `Day ${start + i}: ${t}`).join('\n')}
       
-      Your output "days" array must contain exactly ${dayCount} objects, one for each specific title above in order. NO PLACEHOLDERS. NO SKIPPING.
+      STRICT RULES:
+      1. Return ONE single JSON object with a "days" array.
+      2. The "days" array must have exactly ${dayCount} items.
+      3. Each item must have a unique "day" number (Day ${start} to Day ${end}).
+      4. DO NOT repeat day numbers (e.g. do not output Day ${start} three times).
+      5. DO NOT break the list into multiple objects outside the "days" array. 
+      6. Use the EXACT titles provided above.
+      7. Use specific tools (Canva, Trello, Vercel, etc.)
+      8. IMPACT: "Low", "Medium", or "High".
       
-      RULES:
-      - Start with day ${start} and go sequentially.
-      - No day references inside descriptions (no "Day 1" etc.)
-      - Suggest specific tools (Canva, Trello, Vercel, etc.)
-      - 3-5 actionable sub-steps per day
-      - IMPACT: exactly "Low", "Medium", or "High"
-      - EST_TIME: realistic (e.g., "4-6 hours")
-
       JSON SCHEMA:
       {
         "days": [
           { 
             "day": ${start}, 
-            "phase_id": ${phase.id},
-            "title": "5-word action name",
-            "task": "2-3 sentences on WHAT and WHY.", 
-            "deliverable": "Tangible output",
-            "details": ["Step 1", "Step 2", "Step 3"],
+            "phase_id": "${phase.id}",
+            "title": "Exact Title Provided",
+            "task": "2-3 strategic sentences.", 
+            "deliverable": "Specific output",
+            "details": ["Action 1", "Action 2", "Action 3"],
             "impact": "High",
-            "est_time": "Time estimate"
+            "est_time": "2-4 hours"
           }
         ]
       }
@@ -692,7 +691,7 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
 
         const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [
-                { role: "system", content: "You are a startup operations mentor. Return only valid JSON. Each task must be unique and specific to the business idea." },
+                { role: "system", content: "You are a startup operations mentor. Output ONLY valid JSON. Ensure the 'days' array contains every single requested day in a single flat list." },
                 { role: "user", content: prompt }
             ],
             model: "llama-3.1-8b-instant",
