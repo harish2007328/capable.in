@@ -423,11 +423,14 @@ app.post('/api/research', async (req, res) => {
             Also generate a working project title and 1-paragraph project description.
             
             STRICT RULES FOR QUESTIONS:
-            - If a question has multiple choice options, they MUST be descriptive and unique (e.g., "Solely my savings" vs "Small bank loan").
-            - NEVER use generic placeholders like "Option 1", "Option 2", "Option 3", "Choice A", etc.
-            - Every option must reflect a realistic business scenario related to the idea.
+            - Generate 10-12 questions total.
+            - If a question is "type": "select", it MUST have EXACTLY 4 options.
+            - Options MUST be descriptive, profound, and unique (e.g., "Solely my personal savings" instead of "Savings").
+            - NEVER use generic placeholders like "Option 1", "Option 2", "Option 3", "Option 4", "Choice A", "Other", etc.
+            - Every option must reflect a realistic business scenario specifically related to the IDEA: "${idea}".
+            - The language should be professional, insightful, and challenging to help the founder think deeply.
 
-            JSON SCHEMA:
+             JSON SCHEMA:
             {
                "project_title": "Cool startup name",
                "project_description": "A 1-paragraph description",
@@ -436,7 +439,7 @@ app.post('/api/research', async (req, res) => {
                    "id": 1, 
                    "text": "A deep question...", 
                    "type": "text | select", 
-                   "options": ["Specific Option A", "Specific Option B"] 
+                   "options": ["High-quality descriptive option 1", "High-quality descriptive option 2", "High-quality descriptive option 3", "High-quality descriptive option 4"] 
                  }
                ]
             }
