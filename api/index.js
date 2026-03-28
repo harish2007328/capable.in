@@ -414,41 +414,46 @@ app.post('/api/research', async (req, res) => {
     try {
         const webSignals = await collectMarketSignals(idea, location);
         const signalsSummary = JSON.stringify(webSignals).substring(0, 800);
-        
         const prompt = `
-            ROLE: Expert Business Strategy Consultant.
-            IDEA: "${idea}"
-            CONTEXT: ${signalsSummary}
+            ROLE: Obsessive Elite Business Analyst.
+            STARTUP IDEA: "${idea}"
+            MARKET DATA FOUND: ${signalsSummary}
             
-            TASK: Generate 10-12 highly specific, profound discovery questions to ask the founder.
-            Also generate a working project title and 1-paragraph project description.
+            TASK: Generate EXACTLY 12 profound, multiple-choice discovery questions for this specific entrepreneur.
             
-            STRICT RULES FOR QUESTIONS:
-            - Generate 10-12 questions total.
-            - If a question is "type": "select", it MUST have EXACTLY 4 options.
-            - Options MUST be descriptive, profound, and unique (e.g., "Solely my personal savings" instead of "Savings").
-            - NEVER use generic placeholders like "Option 1", "Option 2", "Option 3", "Option 4", "Choice A", "Other", etc.
-            - Every option must reflect a realistic business scenario specifically related to the IDEA: "${idea}".
-            - The language should be professional, insightful, and challenging to help the founder think deeply.
-
-             JSON SCHEMA:
+            STRICTEST RULES:
+            1. ALL questions MUST be of type "select". DO NOT use type "text".
+            2. For EVERY question, you MUST provide EXACTLY 4 unique options.
+            3. NO OPTION can be generic. NO "Option 1", "Option 2", NO "Other", NO "Custom", NO "N/A".
+            4. Each option MUST be a full, sophisticated strategic sentence (15-25 words) that describes a REAListic business path tailored specifically to the IDEA: "${idea}".
+            5. The options must represent DIFFERENT strategic schools of thought (e.g., Lean vs Scale, Premium vs Mass, Tech-first vs Service-first).
+            
+            JSON OUTPUT STRUCTURE:
             {
-               "project_title": "Cool startup name",
-               "project_description": "A 1-paragraph description",
+               "project_title": "String (Elite Name)",
+               "project_description": "String (Sophisticated)",
                "questions": [
                  { 
                    "id": 1, 
-                   "text": "A deep question...", 
-                   "type": "text | select", 
-                   "options": ["High-quality descriptive option 1", "High-quality descriptive option 2", "High-quality descriptive option 3", "High-quality descriptive option 4"] 
+                   "text": "The strategic question...", 
+                   "type": "select", 
+                   "options": [
+                      "Full strategic sentence path A uniquely for this business idea",
+                      "Full strategic sentence path B uniquely for this business idea",
+                      "Full strategic sentence path C uniquely for this business idea",
+                      "Full strategic sentence path D uniquely for this business idea"
+                   ] 
                  }
                ]
             }
         `;
         
         const completion = await withRetry(() => getGroqClient().chat.completions.create({
-            messages: [{ role: "system", content: "Output JSON." }, { role: "user", content: prompt }],
-            model: MODEL,
+            messages: [
+                { role: "system", content: "You are an elite business mentor. You NEVER use placeholders like 'Option 1'. You only provide 4 high-value, specific strategy choices per question. All questions are select type." },
+                { role: "user", content: prompt }
+            ],
+            model: "llama-3.1-8b-instant",
             response_format: { type: "json_object" }
         }));
         
