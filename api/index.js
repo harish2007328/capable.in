@@ -417,59 +417,69 @@ app.post('/api/research', async (req, res) => {
     try {
         const webSignals = await collectMarketSignals(idea, location);
         const signalsSummary = JSON.stringify(webSignals).substring(0, 800);
-        const prompt = `
-            ROLE: Strategic Oracle & Business Architect.
-            STARTUP IDEA: "${idea}"
-            MARKET DATA FOUND: ${signalsSummary}
+        const generateQuestions = async () => {
+            const prompt = `
+                ROLE: Strategic Architect & Elite Startup Mentor.
+                STARTUP IDEA: "${idea}"
+                SIGNALS: ${signalsSummary}
+                
+                CRITICAL TASK:
+                Generate between 5 and 12 profound, high-impact MULTIPLE-CHOICE discovery questions.
+                
+                ABSOTULE FORMAT RULES:
+                1. NO "text", "number", or "date" types. 100% of questions MUST have "type": "select".
+                2. EVERY question MUST have exactly 4 specific strategic options (15-25 words each).
+                3. NO placeholders. NO "Option 1", NO "Other", NO "Custom".
+                4. Options must be unique strategic directions tailored specifically to: "${idea}".
+                
+                JSON OUTPUT STRUCTURE:
+                {
+                   "project_title": "Elite Business Name",
+                   "project_description": "Sophisticated value proposition",
+                   "questions": [
+                     { 
+                       "id": 1, 
+                       "text": "The strategic question...", 
+                       "type": "select", 
+                       "options": [
+                          "Detailed strategic direction A unique to this idea",
+                          "Detailed strategic direction B unique to this idea",
+                          "Detailed strategic direction C unique to this idea",
+                          "Detailed strategic direction D unique to this idea"
+                       ] 
+                     }
+                   ]
+                }
+            `;
             
-            TASK: Generate between 5 and 12 profound, high-impact MULTIPLE-CHOICE discovery questions.
+            const completion = await withRetry(() => getGroqClient().chat.completions.create({
+                messages: [
+                    { role: "system", content: "You are a master business analyst. You only output 100% valid JSON. You NEVER output text or number inputs. You only provide select-type questions with 4 unique, strategic options." },
+                    { role: "user", content: prompt }
+                ],
+                model: MODEL,
+                response_format: { type: "json_object" }
+            }));
             
-            DIRE WARNING: 
-            - DO NOT return ANY "text" type questions. 100% of questions MUST be "select" type.
-            - Failure to provide exactly 4 sophisticated strategic options per question will result in a system rejection.
+            const parsed = JSON.parse(completion.choices[0].message.content);
             
-            STRICTEST RULES:
-            1. QUESTION TYPE: Every single question object MUST have "type": "select". "text" is FORBIDDEN.
-            2. OPTIONS: Every question MUST have exactly 4 options in an array.
-            3. CONTENT: Options must be specific, 15-25 word strategic directions tailored to "${idea}". No placeholders like "Option 1".
-            4. DIVERSITY: Options must represent distinct paths (e.g., Bootstrap vs VC, Niche vs Mass).
-            
-            JSON OUTPUT STRUCTURE:
-            {
-               "project_title": "Elite Name",
-               "project_description": "Sophisticated Summary",
-               "questions": [
-                 { 
-                   "id": 1, 
-                   "text": "The strategic question...", 
-                   "type": "select", 
-                   "options": [
-                      "Specific strategic path A for this idea...",
-                      "Specific strategic path B for this idea...",
-                      "Specific strategic path C for this idea...",
-                      "Specific strategic path D for this idea..."
-                   ] 
-                 }
-               ]
+            // Check if any question is not a "select" type or missing options
+            const needsRedo = parsed.questions.some(q => q.type !== 'select' || !q.options || q.options.length < 3);
+            if (needsRedo) {
+                console.log("AI failed to provide select options. Redoing generation...");
+                throw { code: 'json_validate_failed', message: 'AI failed to provide strategic options.' };
             }
-        `;
-        
-        const completion = await withRetry(() => getGroqClient().chat.completions.create({
-            messages: [
-                { role: "system", content: "You are an elite business mentor. You NEVER use placeholders like 'Option 1'. You only provide 4 high-value, specific strategy choices per question. All questions are select type." },
-                { role: "user", content: prompt }
-            ],
-            model: MODEL,
-            response_format: { type: "json_object" }
-        }));
-        
-        const parsed = JSON.parse(completion.choices[0].message.content);
+            
+            return parsed;
+        };
+
+        const result = await generateQuestions();
         console.log("Research AI Answered Successfully.");
         res.json({
             webSignals,
-            questions: parsed.questions,
-            projectTitle: parsed.project_title,
-            projectDescription: parsed.project_description
+            questions: result.questions || [],
+            projectTitle: result.project_title || "New Venture",
+            projectDescription: result.project_description || "Ready for discovery."
         });
     } catch (err) {
         console.error("Research Phase ERROR:", err.message);
