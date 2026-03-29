@@ -541,7 +541,7 @@ const MetricsView = ({ projects }) => {
                 if (!phaseMap[phase.title || phase.name]) {
                     phaseMap[phase.title || phase.name] = { total: 0, completed: 0 };
                 }
-                const phaseDays = plan.days.filter(d => d.phase_id === phase.id);
+                const phaseDays = plan.days.filter(d => String(d.phase_id) === String(phase.id));
                 phaseMap[phase.title || phase.name].total += phaseDays.length;
                 phaseMap[phase.title || phase.name].completed += phaseDays.filter(d => progress[d.id]).length;
             });

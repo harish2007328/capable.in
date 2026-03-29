@@ -233,7 +233,7 @@ const TaskPage = () => {
     }
 
     const progress = plan.days?.length > 0 ? Math.round((completedDays.length / plan.days.length) * 100) : 0;
-    const currentPhase = selectedDay ? plan.phases.find(p => p.id === selectedDay.phase_id) : plan.phases[0];
+    const currentPhase = selectedDay ? plan.phases.find(p => String(p.id) === String(selectedDay.phase_id)) : plan.phases[0];
 
     return (
         <div className="w-full max-w-[1400px] mx-auto pb-20 px-4 md:px-8">
@@ -388,7 +388,7 @@ const TaskPage = () => {
                             {plan.days.map((d) => {
                                 const isCompleted = completedDays.includes(d.day);
                                 const isSelected = selectedDay?.day === d.day;
-                                const phase = plan.phases.find(p => p.id === d.phase_id);
+                                const phase = plan.phases.find(p => String(p.id) === String(d.phase_id));
                                 const phaseColor = phase?.color || '#305eff';
 
                                 return (
@@ -415,7 +415,7 @@ const TaskPage = () => {
                         <h4 className="text-[10px] font-bold text-slate-400 uppercase mb-4">Phase Progress</h4>
                         <div className="grid grid-cols-2 gap-4">
                             {plan.phases.map(p => {
-                                const phaseDays = plan.days.filter(d => d.phase_id === p.id);
+                                const phaseDays = plan.days.filter(d => String(d.phase_id) === String(p.id));
                                 const completedPhaseDays = phaseDays.filter(d => completedDays.includes(d.day));
                                 const total = phaseDays.length;
                                 const done = completedPhaseDays.length;
