@@ -297,19 +297,214 @@ const VenturePage = () => {
                 days: skeletonDays
             };
 
+            else setActiveTab('context');
+
+            setLoading(false);
+
+            // Fetch questions if missing and we have an idea
+            if (!data.questions && data.idea) {
+                fetchQuestions(data.idea);
+            }
+        };
+
+        const fetchQuestions = async (idea) => {
+            setWizardLoading(true);
+            setIsTitleGenerating(true);
+            try {
+                const result = await generateAnalysisQuestions(idea);
+                if (result?.questions && isMounted.current) {
+                    await ProjectStorage.updateData(currentId, {
+                        questions: result.questions,
+                        projectTitle: result.projectTitle || p?.title,
+                        projectDescription: result.projectDescription
+                    });
+                    setQuestions(result.questions);
+                    // Refresh project state to show new title/desc
+                    const updatedProject = await ProjectStorage.getById(currentId);
+                    setProject(updatedProject);
+                }
+            } catch (e) {
+                console.error("Discovery failed", e);
+                // Check if this is a content moderation block
+                if (e.response?.status === 403 && e.response?.data?.blocked) {
+                    setBlockedMessage(e.response.data.error || "This idea has been flagged and cannot be processed.");
+                }
+            } finally {
+                if (isMounted.current) {
+                    setWizardLoading(false);
+                    setIsTitleGenerating(false);
+                }
+            }
+        };
+
+        loadProjectData();
+
+        return () => {
+            isMounted.current = false;
+        };
+    }, [currentId, navigate]);
+
+    // 2. Report Generation Trigger
+    useEffect(() => {
+        if (activeTab === 'strategy' && !report && !reportLoading && completedAnswers) {
+            fetchReport();
+        }
+    }, [activeTab, report, reportLoading, completedAnswers]);
+
+    // --- ACTIONS ---
+
+    const fetchReport = async () => {
+        if (reportLoading || !project) return;
+        setReportLoading(true);
+
+        const idea = project.data.idea;
+        const answers = completedAnswers;
+        const webSignals = project.data.webSignals || {};
+
+        try {
+            const contextString = Array.isArray(answers)
+                ? answers.map(a => `Q: ${a.question} | A: ${a.answer}`).join('\n')
+                : String(answers);
+
+            // Step 1: Generate Structure
+            const structure = await generateReportStructure(idea, webSignals);
+            if (isMounted.current) {
+                setReport(structure);
+                await ProjectStorage.updateData(currentId, { report: structure });
+            }
+
+            // Step 2: Generate Content for each section
+            let updatedReport = { ...structure };
+            for (const page of structure.pages) {
+                if (!isMounted.current) break;
+
+                try {
+                    let sectionContent = await generateReportSection(
+                        idea, 
+                        webSignals, 
+                        contextString, 
+                        page.id, 
+                        page.title
+                    );
+
+                    // Aggressive Resolver: Always unwrap if there's exactly one key that is an object
+                    if (sectionContent && typeof sectionContent === 'object' && !Array.isArray(sectionContent)) {
+                        const keys = Object.keys(sectionContent);
+                        if (keys.length === 1 && typeof sectionContent[keys[0]] === 'object' && !Array.isArray(sectionContent[keys[0]])) {
+                            // Only unwrap if the internal object has more than 1 key (to avoid unwrapping real data that just happens to have 1 key)
+                            // OR if the key matches common wrapper patterns
+                            const wrapperKey = keys[0].toLowerCase();
+                            const matchesId = wrapperKey === page.id.toLowerCase();
+                            const isGeneric = ['content', 'data', 'section', 'result'].includes(wrapperKey);
+                            const hasSubKeys = Object.keys(sectionContent[keys[0]]).length > 1;
+
+                            if (matchesId || isGeneric || hasSubKeys) {
+                                sectionContent = sectionContent[keys[0]];
+                            }
+                        }
+                    }
+
+                    if (isMounted.current) {
+                        updatedReport.pages = updatedReport.pages.map(p => 
+                            p.id === page.id ? { ...p, content: sectionContent, isPlaceholder: false } : p
+                        );
+                        // State update first
+                        setReport({ ...updatedReport });
+                        // Database update second
+                        await ProjectStorage.updateData(currentId, { report: { ...updatedReport } });
+                    }
+                } catch (secErr) {
+                    console.error(`Failed to generate section ${page.id}:`, secErr);
+                }
+            }
+        } catch (e) {
+            console.error("Strategy generation failed", e);
+        } finally {
+            if (isMounted.current) setReportLoading(false);
+        }
+    };
+
+    const handleAcceptStrategy = async () => {
+        if (planLoading) return;
+        if (hasPlan && actionPlan) {
+            setActiveTab('plan');
+            return;
+        }
+
+        setPlanLoading(true);
+        try {
+            const idea = project.data.idea;
+            const reportStr = JSON.stringify(report);
+            const answersStr = JSON.stringify(completedAnswers);
+
+            // Step 1: Generate Structure (With local retry)
+            let structure;
+            let retryCount = 0;
+            while (retryCount < 2) {
+                try {
+                    structure = await generatePlanStructure(idea, reportStr, answersStr);
+                    if (structure) break;
+                } catch (e) {
+                    retryCount++;
+                    if (retryCount >= 2) throw e;
+                    console.warn(`Structure generation attempt ${retryCount} failed, retrying...`);
+                    await new Promise(res => setTimeout(res, 1000));
+                }
+            }
+
+            // Intelligent unwrap if AI nested the JSON
+            if (structure && structure.plan && Array.isArray(structure.plan.phases)) {
+                structure = structure.plan;
+            }
+
+            // Ensure structure is valid
+            if (!structure || !structure.phases || !Array.isArray(structure.phases) || structure.phases.length === 0) {
+                console.warn('AI structure returned incorrectly, applying robust default schema.');
+                structure = {
+                    short_title: "Strategic Execution",
+                    phases: [
+                        { id: 1, name: "Deep Research", color: "#8B5CF6", range: "1-15" },
+                        { id: 2, name: "Local Validation", color: "#3B82F6", range: "16-30" },
+                        { id: 3, "name": "Build & Pre-Launch", "color": "#10B981", "range": "31-45" },
+                        { id: 4, "name": "Launch & Iterate", "color": "#F59E0B", "range": "46-60" }
+                    ]
+                };
+            }
+            
+            // Create a skeleton plan with 60 days
+            const skeletonDays = Array.from({ length: 60 }, (_, i) => ({
+                day: i + 1,
+                day_number: i + 1,
+                id: i + 1,
+                title: (structure.day_titles && structure.day_titles[i]) ? structure.day_titles[i] : `Task ${i + 1}...`,
+                task: '',
+                deliverable: '',
+                details: [],
+                phase_id: structure.phases.find(p => {
+                    const [s, e] = p.range.split('-').map(Number);
+                    return (i + 1) >= s && (i + 1) <= e;
+                })?.id || 1,
+                isPlaceholder: true
+            }));
+
+            const initialPlan = {
+                ...structure,
+                days: skeletonDays
+            };
+
             setActionPlan(initialPlan);
             setHasPlan(true);
             setActiveTab('plan');
             if (isMounted.current) setPlanLoading(false);
             
-            // Step 2: Generate all 60 days in batches of 5 to avoid timeouts
+            // Step 2: Generate all 60 days in batches to avoid rate limits
             let currentFullPlan = { ...initialPlan };
-            const BATCH_SIZE = 3; // Progressive streaming (3 per 1s)
+            const BATCH_SIZE = 4; // Generate 4 days at a time
             
             for (let batchStart = 1; batchStart <= 60; batchStart += BATCH_SIZE) {
                 const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, 60);
                 
-                // Find which phase this batch falls into for context
+                // Find phase context
                 const relevantPhase = structure.phases.find(p => {
                     const [s, e] = p.range.split('-').map(Number);
                     return batchStart >= s && batchStart <= e;
@@ -346,7 +541,9 @@ const VenturePage = () => {
                 } catch (batchErr) {
                     console.error(`Failed to generate tasks for days ${batchStart}-${batchEnd}`, batchErr);
                 }
-                await new Promise(r => setTimeout(r, 600)); // Rate limit breathing room
+                
+                // Significant pause to respect AI limits
+                await new Promise(r => setTimeout(r, 1500)); 
             }
 
         } catch (error) {

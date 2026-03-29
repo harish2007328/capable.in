@@ -181,14 +181,16 @@ async function collectMarketSignals(idea, location = null) {
 }
 
 // --- UTILS ---
-async function withRetry(fn, retries = 2, delay = 1000) {
+async function withRetry(fn, retries = 4, delay = 2000) {
     for (let i = 0; i < retries; i++) {
         try {
             return await fn();
         } catch (err) {
-            if (err.status === 429 && i < retries - 1) {
-                console.log(`Rate limit reached. Retrying mission control in ${delay * 5}ms...`);
-                await new Promise(res => setTimeout(res, delay * 5));
+            // Groq 429 or general timeout/error
+            if ((err.status === 429 || err.code === 'json_validate_failed') && i < retries - 1) {
+                const waitTime = delay * (i + 1) * 2; // Exponential backoff: 4s, 8s, 12s
+                console.log(`AI busy or failed. Retrying in ${waitTime}ms... (Attempt ${i + 1}/${retries})`);
+                await new Promise(res => setTimeout(res, waitTime));
                 continue;
             }
             throw err;
