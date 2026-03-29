@@ -75,7 +75,8 @@ const getInsForgePassword = (sub, customSalt = '__DEFAULT_SALT__') => {
         .digest('hex');
 };
 
-app.use(express.static(path.join(__dirname, 'dist')));
+const rootPath = path.join(__dirname, '..');
+app.use(express.static(path.join(rootPath, 'dist')));
 
 const getGroqClient = () => {
     const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
@@ -1300,7 +1301,8 @@ app.post('/api/portal', async (req, res) => {
 
 // --- SERVE FRONTEND (Restored for Render) ---
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  const rootPath = path.join(__dirname, '..');
+  res.sendFile(path.join(rootPath, 'dist', 'index.html'));
 });
 
 // Only start the server if not running in a serverless environment (Vercel)
