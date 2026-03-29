@@ -253,11 +253,10 @@ app.get('/api/auth/google', (req, res) => {
     const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
     const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
     
-    // Explicit production override to guarantee Google Console compliance
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
-    const finalHost = (isProduction && cleanHost.includes('vercel.app')) ? 'capable.website' : cleanHost;
-
-    const dynamicRedirectUri = `${protocol}://${finalHost}/api/auth/google/callback`;
+    // Use hardcoded production URL to match Google Console exactly
+    const dynamicRedirectUri = protocol === 'https' 
+        ? 'https://capable.website/api/auth/google/callback'
+        : `http://${cleanHost}/api/auth/google/callback`;
 
     const client = new OAuth2Client(
         process.env.GOOGLE_CLIENT_ID,
@@ -280,10 +279,10 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
         const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
         
-        const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
-        const finalHost = (isProduction && cleanHost.includes('vercel.app')) ? 'capable.website' : cleanHost;
-
-        const dynamicRedirectUri = `${protocol}://${finalHost}/api/auth/google/callback`;
+        // Match the LOGIN REDIRECT logic exactly
+        const dynamicRedirectUri = protocol === 'https' 
+            ? 'https://capable.website/api/auth/google/callback'
+            : `http://${cleanHost}/api/auth/google/callback`;
 
         const client = new OAuth2Client(
             process.env.GOOGLE_CLIENT_ID,
