@@ -374,7 +374,7 @@ const TaskView = ({ plan, report, projectId }) => {
                                 {plan.days.map((day) => {
                                     const isSelected = selectedDayData?.id === day.id;
                                     const isDone = completionStatuses[day.id];
-                                    const phaseIdx = plan.phases.findIndex(p => p.id === day.phase_id);
+                                    const phaseIdx = plan.phases.findIndex(p => String(p.id) === String(day.phase_id));
                                     const pColor = phaseIdx >= 0 ? PHASE_COLORS[phaseIdx % PHASE_COLORS.length] : '#6366F1';
 
                                     if (viewMode === 'grid') {
@@ -476,7 +476,7 @@ const TaskView = ({ plan, report, projectId }) => {
                             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                                 {displayPhases.map((phase, idx) => {
                                     const pColor = PHASE_COLORS[idx % PHASE_COLORS.length];
-                                    const phaseDays = plan?.days?.filter(d => d.phase_id === phase.id) || [];
+                                    const phaseDays = plan?.days?.filter(d => String(d.phase_id) === String(phase.id)) || [];
                                     const totalInPhase = phaseDays.length;
                                     const completedInPhase = phaseDays.filter(d => completionStatuses[d.id]).length;
                                     const phasePercent = totalInPhase > 0 ? (completedInPhase / totalInPhase) * 100 : 0;
