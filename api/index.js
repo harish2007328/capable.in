@@ -86,7 +86,8 @@ const insforge = createClient({
     anonKey: process.env.VITE_INSFORGE_ANON_KEY
 });
 
-const MODEL = "llama-3.1-8b-instant"; // Best balance of performance and high TPM limits
+const MODEL = "qwen/qwen3-32b"; // Highest RPM (60) and best strategic reasoning
+const SAFETY_MODEL = "llama-prompt-guard-2-86m"; // Dedicated safety model
 
 // --- RESEARCH HELPERS ---
 
@@ -401,7 +402,7 @@ app.post('/api/enhance-idea', async (req, res) => {
 
         const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [{ role: "system", content: "Output valid JSON." }, { role: "user", content: prompt }],
-            model: "llama-3.1-8b-instant",
+            model: MODEL,
             response_format: { type: "json_object" }
         }));
 
@@ -417,33 +418,36 @@ app.post('/api/research', async (req, res) => {
         const webSignals = await collectMarketSignals(idea, location);
         const signalsSummary = JSON.stringify(webSignals).substring(0, 800);
         const prompt = `
-            ROLE: Obsessive Elite Business Analyst.
+            ROLE: Strategic Oracle & Business Architect.
             STARTUP IDEA: "${idea}"
             MARKET DATA FOUND: ${signalsSummary}
             
-            TASK: Generate between 5 and 12 profound, MULTIPLE-CHOICE discovery questions for this specific entrepreneur, based on the complexity of the IDEA.
+            TASK: Generate between 5 and 12 profound, high-impact MULTIPLE-CHOICE discovery questions.
+            
+            DIRE WARNING: 
+            - DO NOT return ANY "text" type questions. 100% of questions MUST be "select" type.
+            - Failure to provide exactly 4 sophisticated strategic options per question will result in a system rejection.
             
             STRICTEST RULES:
-            1. ALL questions MUST be of type "select". DO NOT use type "text".
-            2. For EVERY single question, you MUST provide EXACTLY 4 unique, strategic options.
-            3. NO OPTION can be generic. NO "Option 1", "Option 2", NO "Other", NO "Custom", NO "N/A".
-            4. Each option MUST be a full, sophisticated strategic sentence (15-25 words) that describes a REAListic business path tailored specifically to the IDEA: "${idea}".
-            5. The options must represent DIFFERENT strategic schools of thought (e.g., Lean vs Scale, Premium vs Mass, Tech-first vs Service-first).
+            1. QUESTION TYPE: Every single question object MUST have "type": "select". "text" is FORBIDDEN.
+            2. OPTIONS: Every question MUST have exactly 4 options in an array.
+            3. CONTENT: Options must be specific, 15-25 word strategic directions tailored to "${idea}". No placeholders like "Option 1".
+            4. DIVERSITY: Options must represent distinct paths (e.g., Bootstrap vs VC, Niche vs Mass).
             
             JSON OUTPUT STRUCTURE:
             {
-               "project_title": "String (Elite Name)",
-               "project_description": "String (Sophisticated)",
+               "project_title": "Elite Name",
+               "project_description": "Sophisticated Summary",
                "questions": [
                  { 
                    "id": 1, 
                    "text": "The strategic question...", 
                    "type": "select", 
                    "options": [
-                      "Full strategic sentence path A uniquely for this business idea",
-                      "Full strategic sentence path B uniquely for this business idea",
-                      "Full strategic sentence path C uniquely for this business idea",
-                      "Full strategic sentence path D uniquely for this business idea"
+                      "Specific strategic path A for this idea...",
+                      "Specific strategic path B for this idea...",
+                      "Specific strategic path C for this idea...",
+                      "Specific strategic path D for this idea..."
                    ] 
                  }
                ]
@@ -455,7 +459,7 @@ app.post('/api/research', async (req, res) => {
                 { role: "system", content: "You are an elite business mentor. You NEVER use placeholders like 'Option 1'. You only provide 4 high-value, specific strategy choices per question. All questions are select type." },
                 { role: "user", content: prompt }
             ],
-            model: "llama-3.1-8b-instant",
+            model: MODEL,
             response_format: { type: "json_object" }
         }));
         
@@ -618,7 +622,7 @@ app.post('/api/generate-plan-structure', async (req, res) => {
                 { role: "system", content: "Output valid JSON only." },
                 { role: "user", content: prompt }
             ],
-            model: "llama-3.1-8b-instant",
+            model: MODEL,
             response_format: { type: "json_object" },
         }));
 
@@ -704,7 +708,7 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
                 { role: "system", content: "You are a startup operations mentor. Output ONLY valid JSON. Ensure the 'days' array contains every single requested day in a single flat list." },
                 { role: "user", content: prompt }
             ],
-            model: "llama-3.1-8b-instant",
+            model: MODEL,
             response_format: { type: "json_object" },
             max_tokens: 3500
         }));
@@ -774,7 +778,7 @@ app.post('/api/analyze', async (req, res) => {
                 { role: "system", content: "You are a world-class mentor. Output valid JSON." },
                 { role: "user", content: prompt }
             ],
-            model: "llama-3.1-8b-instant",
+            model: MODEL,
             response_format: { type: "json_object" },
             max_tokens: 4000
         }));
