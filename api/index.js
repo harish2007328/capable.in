@@ -37,7 +37,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://capable-website.onrender.com", "https://4aqgz7mw.us-east.insforge.app", "https://api.groq.com", "https://checkout.dodopayments.com", "https://api.dodopayments.com", "https://www.google-analytics.com", "https://overbridgenet.com"]
+            connectSrc: ["'self'", "https://capable.website", "https://www.capable.website", "https://capable-website.onrender.com", "https://4aqgz7mw.us-east.insforge.app", "https://api.groq.com", "https://checkout.dodopayments.com", "https://api.dodopayments.com", "https://www.google-analytics.com", "https://www.googleapis.com", "https://overbridgenet.com"]
         }
     }
 }));
