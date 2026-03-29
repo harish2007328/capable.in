@@ -294,6 +294,11 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const { tokens } = await client.getToken(code);
         client.setCredentials(tokens);
 
+        if (!tokens.id_token) {
+            console.error("Google Auth Error: No ID Token returned from token exchange. Check redirect URIs and Client Secret.");
+            return res.redirect('/login?error=auth_failed_no_token');
+        }
+
         const ticket = await client.verifyIdToken({
             id_token: tokens.id_token,
             audience: process.env.GOOGLE_CLIENT_ID,
