@@ -69,7 +69,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
         questionText.toLowerCase().includes('city')) &&
         !questionText.toLowerCase().includes('money');
 
-    const options = currentQuestion.options || ["Option 1", "Option 2", "Option 3"];
+    const options = (currentQuestion && currentQuestion.options) ? currentQuestion.options : [];
     const currentAnswer = answers[currentIndex];
     const hasValidAnswer = isValidAnswer(currentAnswer);
 

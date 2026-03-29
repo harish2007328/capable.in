@@ -421,11 +421,11 @@ app.post('/api/research', async (req, res) => {
             STARTUP IDEA: "${idea}"
             MARKET DATA FOUND: ${signalsSummary}
             
-            TASK: Generate EXACTLY 12 profound, multiple-choice discovery questions for this specific entrepreneur.
+            TASK: Generate between 5 and 12 profound, MULTIPLE-CHOICE discovery questions for this specific entrepreneur, based on the complexity of the IDEA.
             
             STRICTEST RULES:
             1. ALL questions MUST be of type "select". DO NOT use type "text".
-            2. For EVERY question, you MUST provide EXACTLY 4 unique options.
+            2. For EVERY single question, you MUST provide EXACTLY 4 unique, strategic options.
             3. NO OPTION can be generic. NO "Option 1", "Option 2", NO "Other", NO "Custom", NO "N/A".
             4. Each option MUST be a full, sophisticated strategic sentence (15-25 words) that describes a REAListic business path tailored specifically to the IDEA: "${idea}".
             5. The options must represent DIFFERENT strategic schools of thought (e.g., Lean vs Scale, Premium vs Mass, Tech-first vs Service-first).
