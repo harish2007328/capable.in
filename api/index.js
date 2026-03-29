@@ -399,20 +399,14 @@ app.get('/api/auth/google/callback', async (req, res) => {
             } catch (e) {}
         }
 
-        let frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        if ((process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') && !process.env.FRONTEND_URL) {
-            frontendBaseUrl = `${protocol}://${finalHost}`;
-        }
-        res.redirect(`${frontendBaseUrl}/auth/callback?access_token=${accessToken}`);
+        // Final Redirect: Send user back to the frontend on the SAME host they came from
+        res.redirect(`${protocol}://${cleanHost}/auth/callback?access_token=${accessToken}`);
     } catch (err) {
         console.error("GOOGLE AUTH ERROR:", err.message);
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
         const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
-        let frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        if ((process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') && !process.env.FRONTEND_URL) {
-            frontendBaseUrl = `${protocol}://${trueHost}`;
-        }
-        res.redirect(`${frontendBaseUrl}/login?error=auth_failed`);
+        const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
+        res.redirect(`${protocol}://${cleanHost}/login?error=auth_failed`);
     }
 });
 
