@@ -293,20 +293,38 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const { tokens } = await client.getToken(code);
         client.setCredentials(tokens);
 
-        if (!tokens.id_token) {
-            console.error("Google Auth Error: No ID Token returned from token exchange. Check redirect URIs and Client Secret.");
-            return res.redirect('/login?error=auth_failed_no_token');
-        }
+        console.log("Google token exchange keys:", Object.keys(tokens));
+        console.log("id_token present:", typeof tokens.id_token, tokens.id_token ? `length:${tokens.id_token.length}` : 'MISSING');
+        console.log("access_token present:", !!tokens.access_token);
 
-        const ticket = await client.verifyIdToken({
-            id_token: tokens.id_token,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        const googleId = payload['sub'];
-        const email = payload['email'];
-        const name = payload['name'];
-        const picture = payload['picture'];
+        let googleId, email, name, picture;
+
+        if (tokens.id_token && typeof tokens.id_token === 'string' && tokens.id_token.length > 10) {
+            // Primary path: verify ID token
+            const ticket = await client.verifyIdToken({
+                id_token: tokens.id_token,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+            const payload = ticket.getPayload();
+            googleId = payload['sub'];
+            email = payload['email'];
+            name = payload['name'];
+            picture = payload['picture'];
+        } else if (tokens.access_token) {
+            // Fallback path: use access_token to fetch user info from Google directly
+            console.log("No valid id_token, falling back to Google userinfo API...");
+            const userInfoRes = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+                headers: { Authorization: `Bearer ${tokens.access_token}` }
+            });
+            const userInfo = userInfoRes.data;
+            googleId = userInfo.id;
+            email = userInfo.email;
+            name = userInfo.name;
+            picture = userInfo.picture;
+        } else {
+            console.error("Google Auth Error: Neither id_token nor access_token returned.");
+            return res.redirect(`${protocol}://${cleanHost}/login?error=auth_failed_no_token`);
+        }
 
         const password = getInsForgePassword(googleId);
         let authData = null;
