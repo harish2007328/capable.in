@@ -445,19 +445,34 @@ app.post('/api/research', async (req, res) => {
         const generateQuestions = async (attempt = 1) => {
             const prompt = `
                 BUSINESS IDEA: "${idea}"
-                TASK: Generate exactly 10 multiple-choice questions in JSON.
-                STRICT RULE: TYPE MUST BE "select" ONLY. OPTIONS MUST HAVE EXACTLY 4 CHOICES.
+                
+                TASK: Generate exactly 10 high-impact multiple-choice questions (3 options each) to diagnose this idea.
+                
+                COMBINED STRATEGIC FRAMEWORK (MANDATORY TOPICS):
+                1. WHO is my starving crowd? (Psychographics, Target niche)
+                2. WHAT painful problem am I solving? (The 'Pain Point' / Why now?)
+                3. WHY should they choose me? (The 'Offer' vs competition / Differentiation)
+                4. HOW will I get customers consistently? (Lead generation / Growth)
+                5. HOW do I make more money per customer? (Monetization / LTV / Upselling)
+                6. LOCATION: Where is this primarily situated? (Triggers custom Location UI)
+                7. CURRENT PHASE: Where is the idea now? (Concept, Prototype, Live)
+                8. TEAM & RESOURCES: What is the current set-up or missing skill?
+                9. BIGGEST RISK: What could kill this business? (Risk mitigation)
+                10. TECHNICAL CHALLENGE: What is the 'how' behind the build? (Execution)
+                
+                STRICT RULE: TYPE MUST BE "select" ONLY. OPTIONS MUST HAVE EXACTLY 3 CHOICES.
+                The question about Location/Country must include "Location" or "Country" in the text to trigger the specialized UI.
                 
                 FORMAT:
                 {
-                  "project_title": "Name",
-                  "project_description": "Summary",
+                  "project_title": "Short Branding Name",
+                  "project_description": "15-word punchy description",
                   "questions": [
                     {
                       "id": 1,
-                      "text": "Question?",
+                      "text": "Strategic question about WHO / Problem / Offer...",
                       "type": "select",
-                      "options": ["Ans 1", "Ans 2", "Ans 3", "Ans 4"]
+                      "options": ["Strategic Opt 1", "Strategic Opt 2", "Strategic Opt 3"]
                     }
                   ]
                 }
@@ -465,7 +480,7 @@ app.post('/api/research', async (req, res) => {
             
             const completion = await withRetry(() => getGroqClient().chat.completions.create({
                 messages: [
-                    { role: "system", content: "You only output JSON. You only use type: 'select'. You never use text or number. Every question must have 4 options." },
+                    { role: "system", content: "You only output JSON. You only use type: 'select'. You never use text or number. Every question must have 3 options." },
                     { role: "user", content: prompt }
                 ],
                 model: MODEL,
@@ -475,11 +490,10 @@ app.post('/api/research', async (req, res) => {
             const parsed = JSON.parse(completion.choices[0].message.content);
             const rawQuestions = parsed.questions || [];
             
-            // Validate: Every single question must be 'select' type and have 4 options
             const validQuestions = rawQuestions.filter(q => 
                 q.type === 'select' && 
                 Array.isArray(q.options) && 
-                q.options.length === 4
+                q.options.length === 3
             );
 
             // If we don't have exactly what we asked for (e.g. some are text), we RE-RUN the whole AI call
