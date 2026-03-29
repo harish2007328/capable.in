@@ -419,42 +419,33 @@ app.post('/api/research', async (req, res) => {
         const signalsSummary = JSON.stringify(webSignals).substring(0, 800);
         const generateQuestions = async () => {
             const prompt = `
-                ROLE: Strategic Architect & Elite Startup Mentor.
-                STARTUP IDEA: "${idea}"
-                SIGNALS: ${signalsSummary}
+                BUSINESS IDEA: "${idea}"
                 
-                CRITICAL TASK:
-                Generate between 5 and 12 profound, high-impact MULTIPLE-CHOICE discovery questions.
+                TASK: Output exactly 10 multiple-choice questions in JSON.
                 
-                ABSOTULE FORMAT RULES:
-                1. NO "text", "number", or "date" types. 100% of questions MUST have "type": "select".
-                2. EVERY question MUST have exactly 4 specific strategic options (15-25 words each).
-                3. NO placeholders. NO "Option 1", NO "Other", NO "Custom".
-                4. Options must be unique strategic directions tailored specifically to: "${idea}".
+                STRICT RULES:
+                1. Every question MUST be type "select".
+                2. Every question MUST have 4 strategic options: "a", "b", "c", "d".
+                3. Each option MUST be a full sentence (15-20 words) describing a specific business strategy for: "${idea}".
                 
-                JSON OUTPUT STRUCTURE:
+                FORMAT (MATCH THIS EXACTLY):
                 {
-                   "project_title": "Elite Business Name",
-                   "project_description": "Sophisticated value proposition",
-                   "questions": [
-                     { 
-                       "id": 1, 
-                       "text": "The strategic question...", 
-                       "type": "select", 
-                       "options": [
-                          "Detailed strategic direction A unique to this idea",
-                          "Detailed strategic direction B unique to this idea",
-                          "Detailed strategic direction C unique to this idea",
-                          "Detailed strategic direction D unique to this idea"
-                       ] 
-                     }
-                   ]
+                  "project_title": "Project Name",
+                  "project_description": "Description",
+                  "questions": [
+                    {
+                      "id": 1,
+                      "text": "Question text here?",
+                      "type": "select",
+                      "options": ["Strategy A...", "Strategy B...", "Strategy C...", "Strategy D..."]
+                    }
+                  ]
                 }
             `;
             
             const completion = await withRetry(() => getGroqClient().chat.completions.create({
                 messages: [
-                    { role: "system", content: "You are a master business analyst. You only output 100% valid JSON. You NEVER output text or number inputs. You only provide select-type questions with 4 unique, strategic options." },
+                    { role: "system", content: "You are a business bot. You only output valid JSON. You ONLY use type 'select'. You ALWAYS provide 4 options as full sentences." },
                     { role: "user", content: prompt }
                 ],
                 model: MODEL,
@@ -463,11 +454,13 @@ app.post('/api/research', async (req, res) => {
             
             const parsed = JSON.parse(completion.choices[0].message.content);
             
-            // Check if any question is not a "select" type or missing options
-            const needsRedo = parsed.questions.some(q => q.type !== 'select' || !q.options || q.options.length < 3);
-            if (needsRedo) {
-                console.log("AI failed to provide select options. Redoing generation...");
-                throw { code: 'json_validate_failed', message: 'AI failed to provide strategic options.' };
+            // Final safety filter: remove any hallucinated text types
+            if (parsed.questions) {
+                parsed.questions = parsed.questions.filter(q => q.type === 'select' && q.options && q.options.length >= 2);
+            }
+            
+            if (!parsed.questions || parsed.questions.length < 3) {
+                throw { code: 'json_validate_failed', message: 'Failed to generate elite options.' };
             }
             
             return parsed;
