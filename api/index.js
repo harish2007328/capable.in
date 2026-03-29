@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import cors from 'cors';
@@ -27,6 +28,19 @@ const ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:3000'
 ];
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'", "https:", "data:", "blob:"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://fonts.googleapis.com", "https://www.googletagmanager.com", "https://www.google-analytics.com", "blob:"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "https://capable-website.onrender.com", "https://4aqgz7mw.us-east.insforge.app", "https://api.groq.com", "https://checkout.dodopayments.com", "https://api.dodopayments.com", "https://www.google-analytics.com", "https://overbridgenet.com"]
+        }
+    }
+}));
 
 app.use(cors({
     origin: (origin, callback) => {
