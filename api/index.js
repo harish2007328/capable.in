@@ -417,27 +417,22 @@ app.post('/api/research', async (req, res) => {
     try {
         const webSignals = await collectMarketSignals(idea, location);
         const signalsSummary = JSON.stringify(webSignals).substring(0, 800);
-        const generateQuestions = async () => {
+        const generateQuestions = async (attempt = 1) => {
             const prompt = `
                 BUSINESS IDEA: "${idea}"
+                TASK: Generate exactly 10 multiple-choice questions in JSON.
+                STRICT RULE: TYPE MUST BE "select" ONLY. OPTIONS MUST HAVE EXACTLY 4 CHOICES.
                 
-                TASK: Output exactly 10 multiple-choice questions in JSON.
-                
-                STRICT RULES:
-                1. Every question MUST be type "select".
-                2. Every question MUST have 4 strategic options: "a", "b", "c", "d".
-                3. Each option MUST be a full sentence (15-20 words) describing a specific business strategy for: "${idea}".
-                
-                FORMAT (MATCH THIS EXACTLY):
+                FORMAT:
                 {
-                  "project_title": "Project Name",
-                  "project_description": "Description",
+                  "project_title": "Name",
+                  "project_description": "Summary",
                   "questions": [
                     {
                       "id": 1,
-                      "text": "Question text here?",
+                      "text": "Question?",
                       "type": "select",
-                      "options": ["Strategy A...", "Strategy B...", "Strategy C...", "Strategy D..."]
+                      "options": ["Ans 1", "Ans 2", "Ans 3", "Ans 4"]
                     }
                   ]
                 }
@@ -445,7 +440,7 @@ app.post('/api/research', async (req, res) => {
             
             const completion = await withRetry(() => getGroqClient().chat.completions.create({
                 messages: [
-                    { role: "system", content: "You are a business bot. You only output valid JSON. You ONLY use type 'select'. You ALWAYS provide 4 options as full sentences." },
+                    { role: "system", content: "You only output JSON. You only use type: 'select'. You never use text or number. Every question must have 4 options." },
                     { role: "user", content: prompt }
                 ],
                 model: MODEL,
@@ -453,16 +448,22 @@ app.post('/api/research', async (req, res) => {
             }));
             
             const parsed = JSON.parse(completion.choices[0].message.content);
+            const rawQuestions = parsed.questions || [];
             
-            // Final safety filter: remove any hallucinated text types
-            if (parsed.questions) {
-                parsed.questions = parsed.questions.filter(q => q.type === 'select' && q.options && q.options.length >= 2);
+            // Validate: Every single question must be 'select' type and have 4 options
+            const validQuestions = rawQuestions.filter(q => 
+                q.type === 'select' && 
+                Array.isArray(q.options) && 
+                q.options.length === 4
+            );
+
+            // If we don't have exactly what we asked for (e.g. some are text), we RE-RUN the whole AI call
+            if (validQuestions.length < 5 && attempt < 5) {
+                console.log(`AI returned invalid types (attempt ${attempt}/5). Re-generating entire set...`);
+                return await generateQuestions(attempt + 1);
             }
             
-            if (!parsed.questions || parsed.questions.length < 3) {
-                throw { code: 'json_validate_failed', message: 'Failed to generate elite options.' };
-            }
-            
+            parsed.questions = validQuestions;
             return parsed;
         };
 
