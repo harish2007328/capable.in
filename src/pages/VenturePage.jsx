@@ -307,25 +307,40 @@ const VenturePage = () => {
             setActiveTab('plan');
             if (isMounted.current) setPlanLoading(false);
             
-            // Step 2: Generate all 60 days in batches to avoid rate limits
+            // Step 2: Generate all 60 days in batches of 10 for higher quality outputs
             let currentFullPlan = { ...initialPlan };
-            const BATCH_SIZE = 4; // Generate 4 days at a time
+            const BATCH_SIZE = 10; // Generate 10 days at a time for better token utilization
             
             for (let batchStart = 1; batchStart <= 60; batchStart += BATCH_SIZE) {
                 const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, 60);
                 
-                // Find phase context
-                const relevantPhase = structure.phases.find(p => {
+                // Find ALL phases that overlap this batch range (handles cross-phase batches)
+                const overlappingPhases = structure.phases.filter(p => {
                     const [s, e] = p.range.split('-').map(Number);
-                    return batchStart >= s && batchStart <= e;
-                }) || structure.phases[0];
+                    return batchStart <= e && batchEnd >= s; // ranges overlap
+                });
+
+                // Build phase context with per-day mapping
+                const phaseContext = {
+                    phases: overlappingPhases,
+                    range: `${batchStart}-${batchEnd}`,
+                    // Pre-compute the correct phase_id for each day in the batch
+                    dayPhaseMap: Array.from({ length: batchEnd - batchStart + 1 }, (_, i) => {
+                        const dayNum = batchStart + i;
+                        const matchedPhase = structure.phases.find(p => {
+                            const [s, e] = p.range.split('-').map(Number);
+                            return dayNum >= s && dayNum <= e;
+                        });
+                        return { day: dayNum, phase_id: String(matchedPhase?.id || 1), phase_name: matchedPhase?.name || 'General' };
+                    })
+                };
 
                 try {
                     const batchResult = await generatePhaseTasks(
                         idea, 
                         reportStr, 
                         answersStr, 
-                        { ...relevantPhase, range: `${batchStart}-${batchEnd}` },
+                        phaseContext,
                         currentFullPlan.days.filter(d => !d.isPlaceholder),
                         currentFullPlan.days.slice(batchStart - 1, batchEnd).map(d => d.title)
                     );
@@ -334,8 +349,11 @@ const VenturePage = () => {
                         const updatedDays = currentFullPlan.days.map(existingDay => {
                             const generatedDay = batchResult.days.find(d => d.day === existingDay.day);
                             if (generatedDay) {
+                                // Ensure correct phase_id from our pre-computed map
+                                const correctPhase = phaseContext.dayPhaseMap.find(m => m.day === generatedDay.day);
                                 return {
                                     ...generatedDay,
+                                    phase_id: correctPhase ? String(correctPhase.phase_id) : String(generatedDay.phase_id || existingDay.phase_id),
                                     isPlaceholder: false,
                                     id: generatedDay.day,
                                     day_number: generatedDay.day
@@ -352,8 +370,8 @@ const VenturePage = () => {
                     console.error(`Failed to generate tasks for days ${batchStart}-${batchEnd}`, batchErr);
                 }
                 
-                // Significant pause to respect AI limits
-                await new Promise(r => setTimeout(r, 1500)); 
+                // Pause between batches to respect rate limits
+                await new Promise(r => setTimeout(r, 2000)); 
             }
 
         } catch (error) {

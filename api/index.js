@@ -707,69 +707,98 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
         try {
             const parsed = typeof report === 'string' ? JSON.parse(report) : report;
             if (parsed?.pages) {
-                reportSummary = parsed.pages.map(p => p.title).join(', ');
+                reportSummary = parsed.pages.map(p => `${p.title}: ${p.content?.explanation?.substring(0, 120) || ''}`).join('\n');
             } else {
-                reportSummary = JSON.stringify(parsed).substring(0, 600);
+                reportSummary = JSON.stringify(parsed).substring(0, 800);
             }
-        } catch { reportSummary = String(report).substring(0, 600); }
+        } catch { reportSummary = String(report).substring(0, 800); }
 
-        // Trim answers
+        // Trim answers — keep more context for better task quality
         const answersSummary = typeof answers === 'string' 
-            ? answers.substring(0, 500) 
-            : JSON.stringify(answers).substring(0, 500);
+            ? answers.substring(0, 700) 
+            : JSON.stringify(answers).substring(0, 700);
 
-        // Only include last 10 previous task titles
-        const prevSummary = allPreviousTasks.slice(-10).map(t => `Day ${t.day}: ${t.title}`).join('\n');
+        // Include last 15 previous task titles for continuity  
+        const prevSummary = allPreviousTasks.slice(-15).map(t => `Day ${t.day}: ${t.title}`).join('\n');
+
+        // Build per-day phase mapping instructions
+        const dayPhaseMap = phase.dayPhaseMap || [];
+        const phaseNames = phase.phases || [];
+        const phaseInstructions = dayPhaseMap.length > 0
+            ? dayPhaseMap.map(m => `Day ${m.day} → phase_id: "${m.phase_id}" (${m.phase_name})`).join('\n')
+            : Array.from({ length: dayCount }, (_, i) => `Day ${start + i} → phase_id: "${phase.id || 1}"`).join('\n');
+
+        const phaseDescriptions = phaseNames.length > 0
+            ? phaseNames.map(p => `• "${p.name}" (Days ${p.range}): ${p.name === 'Deep Research' ? 'Market analysis, competitor intel, regulatory research, customer discovery, data collection' : p.name === 'Local Validation' ? 'Customer interviews, prototype testing, pricing experiments, partnership outreach, community feedback' : p.name.includes('Build') ? 'MVP development, operations setup, hiring, equipment procurement, systems integration' : 'Soft launch, customer feedback loops, marketing execution, performance optimization, iteration'}`).join('\n')
+            : `• "${phase.name}" (Days ${phase.range})`;
 
         const prompt = `
-      ROLE: Startup Operations Expert.
-      IDEA: "${idea}"
-      REPORT TOPICS: ${reportSummary}
-      CONTEXT: ${answersSummary}
-      PHASE: "${phase.name}" (Days ${phase.range})
-      PREVIOUS: ${prevSummary || 'None'}
+      ROLE: You are an elite startup execution strategist with deep domain expertise. You create ACTIONABLE, SPECIFIC tasks that reference real tools, frameworks, data sources, and measurable outcomes.
 
-      TASK:
-      Generate a valid JSON object containing exactly ${dayCount} task objects for Day ${start} to Day ${end}.
+      BUSINESS IDEA: "${idea}"
       
-      TITLES TO USE:
+      STRATEGIC CONTEXT:
+      ${reportSummary}
+      
+      FOUNDER PROFILE & ANSWERS:
+      ${answersSummary}
+
+      PHASES IN THIS BATCH:
+      ${phaseDescriptions}
+      
+      PREVIOUSLY COMPLETED TASKS:
+      ${prevSummary || 'This is the starting batch — no previous tasks.'}
+
+      ASSIGNMENT:
+      Generate exactly ${dayCount} high-quality task objects for Day ${start} through Day ${end}.
+
+      PREDEFINED TITLES (USE EXACTLY):
       ${predefined_titles.map((t, i) => `Day ${start + i}: ${t}`).join('\n')}
-      
-      STRICT RULES:
-      1. Return ONE single JSON object with a "days" array.
-      2. The "days" array must have exactly ${dayCount} items.
-      3. Each item must have a unique "day" number (Day ${start} to Day ${end}).
-      4. DO NOT repeat day numbers (e.g. do not output Day ${start} three times).
-      5. DO NOT break the list into multiple objects outside the "days" array. 
-      6. Use the EXACT titles provided above.
-      7. Use specific tools (Canva, Trello, Vercel, etc.)
-      8. IMPACT: "Low", "Medium", or "High".
-      
-      JSON SCHEMA:
+
+      CORRECT PHASE_ID FOR EACH DAY:
+      ${phaseInstructions}
+
+      QUALITY STANDARDS:
+      • Each "task" field must be 2-4 sentences of SPECIFIC strategic direction (not vague advice). Reference the business idea directly.
+      • Each "details" array must have EXACTLY 3 granular action steps. Each step should name a SPECIFIC tool (Google Sheets, Canva, Trello, Figma, Instagram, LinkedIn, SurveyMonkey, Typeform, Notion, Airtable, SketchUp, QuickBooks, etc.) or methodology (Porter's Five Forces, SWOT, Jobs-to-be-Done, etc.).
+      • Each "deliverable" must be a CONCRETE output (e.g., "Competitor pricing matrix spreadsheet with 7+ local shops" not "Research document").
+      • "impact" must be "Low", "Medium", or "High" based on how directly the task drives revenue or reduces risk.
+      • "est_time" must be realistic (e.g., "2-4 hours", "3-5 hours", "4-6 hours").
+      • Tasks must PROGRESS logically — later days should build on earlier days' outputs.
+      • NEVER repeat the same task concept across different days.
+
+      JSON SCHEMA (output ONLY this):
       {
         "days": [
           { 
             "day": ${start}, 
-            "phase_id": "${phase.id}",
-            "title": "Exact Title Provided",
-            "task": "2-3 strategic sentences.", 
-            "deliverable": "Specific output",
-            "details": ["Action 1", "Action 2", "Action 3"],
+            "phase_id": "use the EXACT phase_id from CORRECT PHASE_ID list above",
+            "title": "Use the EXACT predefined title",
+            "task": "2-4 specific strategic sentences referencing the business idea.", 
+            "deliverable": "Concrete, measurable output",
+            "details": ["Specific action with named tool/method", "Second specific action", "Third specific action"],
             "impact": "High",
             "est_time": "2-4 hours"
           }
         ]
       }
+
+      CRITICAL RULES:
+      1. Output ONLY valid JSON with a single "days" array of exactly ${dayCount} items.
+      2. Each day must have a UNIQUE "day" number from ${start} to ${end} — no duplicates, no gaps.
+      3. Use the EXACT predefined titles provided above.
+      4. Use the EXACT phase_id values from the mapping above — DO NOT make up phase IDs.
+      5. Every task must be deeply relevant to "${idea}" — generic startup advice is UNACCEPTABLE.
     `;
 
         const completion = await withRetry(() => getGroqClient().chat.completions.create({
             messages: [
-                { role: "system", content: "You are a startup operations mentor. Output ONLY valid JSON. Ensure the 'days' array contains every single requested day in a single flat list." },
+                { role: "system", content: "You are a world-class startup execution planner. You output ONLY valid JSON. Your tasks are deeply specific, reference real tools and methodologies, and build on each other progressively. The 'days' array must contain every single requested day in a single flat list. Always use the exact phase_id provided for each day." },
                 { role: "user", content: prompt }
             ],
             model: MODEL,
             response_format: { type: "json_object" },
-            max_tokens: 3500
+            max_tokens: 8000
         }));
 
         res.json(JSON.parse(completion.choices[0].message.content));
