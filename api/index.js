@@ -302,7 +302,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
         if (tokens.id_token && typeof tokens.id_token === 'string' && tokens.id_token.length > 10) {
             // Primary path: verify ID token
             const ticket = await client.verifyIdToken({
-                id_token: tokens.id_token,
+                idToken: tokens.id_token,
                 audience: process.env.GOOGLE_CLIENT_ID,
             });
             const payload = ticket.getPayload();
