@@ -124,6 +124,88 @@ const SimpleBarChart = ({ data }) => {
     );
 };
 
+const DonutChart = ({ data }) => {
+    if (!data || data.length === 0) return null;
+    
+    const safeData = data.map(d => ({ ...d, value: Number(d.value) || 0 }));
+    const total = safeData.reduce((acc, d) => acc + d.value, 0) || 100;
+    
+    const radius = 64;
+    const circum = 2 * Math.PI * radius; 
+    
+    // Nice gradient-like colors starting from primary indigo
+    const colors = ["#4f46e5", "#14b8a6", "#f59e0b", "#3b82f6", "#ec4899"];
+    
+    let currentOffset = 0;
+    const slices = safeData.map((d, i) => {
+        const percent = d.value / total;
+        const strokeLen = percent * circum;
+        
+        const g = {
+             label: d.label,
+             value: d.value,
+             color: colors[i % colors.length],
+             strokeLen,
+             cumulativeOffset: currentOffset,
+        };
+        currentOffset += strokeLen;
+        return g;
+    });
+
+    return (
+        <div className="flex flex-col items-center gap-6 w-full mt-2">
+            <div className="relative w-48 h-48 shrink-0">
+                <svg viewBox="0 0 200 200" className="w-full h-full transform -rotate-90 drop-shadow-sm">
+                    {/* Background Track */}
+                    <circle cx="100" cy="100" r={radius} stroke="#f1f5f9" strokeWidth="18" fill="transparent" />
+                    
+                    {/* Animated Slices */}
+                    {slices.map((s, i) => (
+                        <motion.circle 
+                            key={i}
+                            cx="100" cy="100" r={radius} fill="transparent"
+                            stroke={s.color} strokeWidth="18"
+                            initial={{ strokeDasharray: `0 ${circum}` }}
+                            animate={{ strokeDasharray: `${Math.max(0, s.strokeLen - 3)} ${circum}` }} 
+                            strokeDashoffset={-s.cumulativeOffset}
+                            transition={{ duration: 1.2, ease: "easeOut", delay: i * 0.15 }}
+                        />
+                    ))}
+                </svg>
+                {/* Center text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
+                    <PieChart size={18} className="text-slate-300 mb-1" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Share</span>
+                </div>
+            </div>
+            
+            {/* Legend */}
+            <div className="space-y-3 w-full border-t border-slate-100 pt-5">
+                {slices.map((s, i) => (
+                    <div key={i} className="flex flex-col gap-1.5 group">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: s.color }} />
+                                <span className="text-[10px] font-bold text-slate-500 group-hover:text-slate-900 transition-colors uppercase tracking-widest">{s.label}</span>
+                            </div>
+                            <span className="text-[11px] font-black text-slate-900 tabular-nums">{Math.round((s.value/total)*100)}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden border border-slate-100/50">
+                            <motion.div 
+                                initial={{ width: 0 }} 
+                                animate={{ width: `${(s.value/total)*100}%` }} 
+                                transition={{ duration: 1.2, delay: 0.3 + (i * 0.1) }} 
+                                className="h-full rounded-full" 
+                                style={{ backgroundColor: s.color }} 
+                            />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const RadarChart = ({ data }) => {
     if (!data || data.length === 0) return null;
     const cx = 100, cy = 100;
@@ -405,10 +487,10 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         
                         {content.chart_data && content.chart_data.length > 0 && (
                             <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-2">
                                     <PieChart size={14} /> Market Share Potential
                                 </h4>
-                                <SimpleBarChart data={content.chart_data} />
+                                <DonutChart data={content.chart_data} />
                             </div>
                         )}
                     </div>
