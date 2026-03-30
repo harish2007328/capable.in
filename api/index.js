@@ -610,19 +610,22 @@ app.post('/api/generate-report-structure', async (req, res) => {
           MARKET SIGNALS: ${JSON.stringify(webSignals)}
           
           TASK:
-          Define the HIGH-LEVEL identity for a Strategic Analysis Report.
-          You must provide a generic project name (descriptive summary) and list 4 standard section titles.
+          Define the HIGH-LEVEL identity for a Startup Idea Report.
+          Think of this like a napkin sketch that convinces investors — honest, clear, directional.
           
-          CRITICAL: You MUST use the exact IDs: "executive", "market", "technical", "risk".
+          You must provide a project name and list 4 section titles.
+          Each title should be creative but clear — NOT corporate jargon.
+          
+          CRITICAL: You MUST use the exact IDs: "overview", "market", "execution", "reality".
           
           JSON SCHEMA:
           {
-            "project_name": "Descriptive Project Name",
+            "project_name": "Short punchy project name",
             "pages": [
-              { "id": "executive", "title": "Highly creative title for Executive summary", "isPlaceholder": true },
-              { "id": "market", "title": "Highly creative title for Market analysis", "isPlaceholder": true },
-              { "id": "technical", "title": "Highly creative title for Tech/Product model", "isPlaceholder": true },
-              { "id": "risk", "title": "Highly creative title for Risk/Strategy", "isPlaceholder": true }
+              { "id": "overview", "title": "Creative title about the spark/idea/vision", "isPlaceholder": true },
+              { "id": "market", "title": "Creative title about opportunity/audience/demand", "isPlaceholder": true },
+              { "id": "execution", "title": "Creative title about the build/how/engine", "isPlaceholder": true },
+              { "id": "reality", "title": "Creative title about reality check/risks/next steps", "isPlaceholder": true }
             ]
           }
         `;
@@ -643,63 +646,105 @@ app.post('/api/generate-report-section', async (req, res) => {
     const { idea, webSignals, answers, sectionId, sectionTitle } = req.body;
     try {
         const signalsSummary = JSON.stringify(webSignals || {}).substring(0, 800);
-        const answersSummary = typeof answers === 'string' ? answers.substring(0, 600) : JSON.stringify(answers).substring(0, 600);
+        const answersSummary = typeof answers === 'string' ? answers.substring(0, 800) : JSON.stringify(answers).substring(0, 800);
         const prompt = `
-          ROLE: Elite Strategic Analyst.
+          ROLE: You are a brutally honest startup advisor who builds napkin pitches that convince investors. 
+          Be specific to THIS idea — no generic advice. Write like a sharp founder, not a consultant.
+          
           IDEA: "${idea}"
-          CONTEXT: ${signalsSummary}
-          ANSWERS: ${answersSummary}
+          MARKET SIGNALS: ${signalsSummary}
+          FOUNDER ANSWERS: ${answersSummary}
           
-          TASK: Generate the COMPLETE content for the section: "${sectionTitle}" (ID: ${sectionId}).
-          BE VERBOSE and insightful. Include data projections and deep tactical advice.
+          TASK: Generate the COMPLETE content for: "${sectionTitle}" (ID: ${sectionId}).
           
-          CRITICAL: Return ONLY the raw data object fields. DO NOT wrap the response in a top-level key like "${sectionId}" or "content".
-          Example of WRONG format: { "${sectionId}": { ... } }
-          Example of CORRECT format: { "field_1": "...", "field_2": "..." }
+          CRITICAL: Return ONLY the raw data object fields. DO NOT wrap in "${sectionId}" or "content" key.
           
-          Return ONLY the data object following the exact schema for this ID.
-          
-          ID-SPECIFIC SCHEMAS (MANDATORY FIELDS):
-          - If "executive": { 
-              "explanation": "Deep 2-paragraph summary", 
-              "target_user": "Specific demographics/psychographics", 
-              "value_prop": "Unique selling point", 
-              "market_demand": { "score": 8, "analysis": "Reasoning" }, 
-              "chart_data": [{"label": "Month 1", "value": 10}, {"label": "Month 3", "value": 40}, {"label": "Month 6", "value": 75}, {"label": "Month 12", "value": 100}]
-            }
-          - If "market": { 
-              "competitors": [{"name": "Brand", "analysis": "Detailed assessment", "weakness_to_exploit": "Specific gap"}], 
-              "competitiveness_score": 7, 
-              "the_gap": "Market opportunity depth", 
-              "differentiation": "The moat strategy", 
-              "chart_data": [{"label": "Competitor A", "value": 40}, {"label": "Competitor B", "value": 35}, {"label": "You", "value": 25}]
-            }
-          - If "technical": { 
-              "viability_score": 8, 
-              "suggested_stack": "Comma, separated, technologies", 
-              "architecture": "High-level schematic description", 
-              "complexity": "Feasibility thesis and challenges", 
-              "est_mvp_cost": "$X,XXX - $XX,XXX", 
-              "chart_data": [{"label": "Infra", "value": 20}, {"label": "Dev", "value": 50}, {"label": "AI", "value": 30}]
-            }
-          - If "risk": { 
-              "risks": { "market": "...", "technical": "...", "financial": "...", "legal": "..." }, 
-              "mentor_advice": { "appreciate": "...", "criticize": "...", "advice": "..." }, 
-              "immediate_actions": ["Must-do 1", "Must-do 2", "Must-do 3"], 
-              "chart_data": [
-                { "label": "Market", "value": 5 },
-                { "label": "Technical", "value": 5 },
-                { "label": "Financial", "value": 5 },
-                { "label": "Operational", "value": 5 },
-                { "label": "Regulatory", "value": 5 }
-              ]
-            }
+          ID-SPECIFIC SCHEMAS:
+
+          ${sectionId === 'overview' ? `
+          Return this EXACT structure:
+          {
+            "elevator_pitch": "One powerful sentence that captures the entire idea — like a tweet",
+            "problem": "2-3 sentences. Make it emotional + real. Who faces this? Why is it painful? Be specific, not vague.",
+            "solution": "2-3 sentences in plain language. How does it solve the problem? What makes it different?",
+            "target_users": [
+              { "segment": "Primary user group name", "description": "Age, situation, location, behavior — be specific" },
+              { "segment": "Secondary user group", "description": "Specific demographics" }
+            ],
+            "why_now": "2-3 sentences on what makes this timely — trend, tech shift, market gap, cultural moment",
+            "chart_data": [{"label": "Month 1", "value": 10}, {"label": "Month 3", "value": 30}, {"label": "Month 6", "value": 60}, {"label": "Month 12", "value": 100}]
+          }` : ''}
+
+          ${sectionId === 'market' ? `
+          Return this EXACT structure:
+          {
+            "market_size": "1-2 sentences on how many people need this. Use logic, not just numbers. Is the market growing?",
+            "growth_signals": ["Signal 1 — specific trend or data point", "Signal 2", "Signal 3"],
+            "competitors": [
+              { "name": "Competitor name", "what_they_do": "Brief description", "weakness": "Specific gap you can exploit" },
+              { "name": "Competitor 2", "what_they_do": "Brief", "weakness": "Gap" },
+              { "name": "Competitor 3", "what_they_do": "Brief", "weakness": "Gap" }
+            ],
+            "unique_edge": "2-3 sentences. Why will people choose YOUR solution? What's the moat?",
+            "differentiation": "The single biggest thing that sets you apart — one clear sentence",
+            "chart_data": [{"label": "Competitor A", "value": 35}, {"label": "Competitor B", "value": 30}, {"label": "Competitor C", "value": 20}, {"label": "Your Opportunity", "value": 15}]
+          }` : ''}
+
+          ${sectionId === 'execution' ? `
+          Return this EXACT structure:
+          {
+            "how_it_works": [
+              { "step": 1, "action": "User does X" },
+              { "step": 2, "action": "System does Y" },
+              { "step": 3, "action": "Result Z happens" },
+              { "step": 4, "action": "Value delivered" }
+            ],
+            "business_model": "2-3 sentences explaining how you make money. Be specific — subscription? Freemium? B2B?",
+            "revenue_streams": ["Revenue source 1", "Revenue source 2", "Revenue source 3"],
+            "feasibility": "2-3 sentences — honest gut-check. What resources, skills, or tech would this need? What's obviously hard?",
+            "est_mvp_cost": "$X,XXX - $XX,XXX range",
+            "est_timeline": "X-Y months to MVP",
+            "tech_needs": ["Key technology 1", "Key technology 2", "Key technology 3", "Key technology 4"],
+            "chart_data": [{"label": "Development", "value": 40}, {"label": "Marketing", "value": 25}, {"label": "Operations", "value": 20}, {"label": "Infrastructure", "value": 15}]
+          }` : ''}
+
+          ${sectionId === 'reality' ? `
+          Return this EXACT structure:
+          {
+            "risks": [
+              { "category": "Risk category", "description": "What could go wrong — be specific", "severity": "High/Medium/Low" },
+              { "category": "Risk 2", "description": "Specific concern", "severity": "High/Medium/Low" },
+              { "category": "Risk 3", "description": "Specific concern", "severity": "High/Medium/Low" },
+              { "category": "Risk 4", "description": "Specific concern", "severity": "High/Medium/Low" }
+            ],
+            "open_questions": [
+              "Question 1 — something you don't know yet that would determine if this is worth pursuing",
+              "Question 2 — an unknown that needs answering before committing",
+              "Question 3 — a critical assumption to validate",
+              "Question 4 — a market question that needs real data",
+              "Question 5 — a feasibility question"
+            ],
+            "validation_plan": [
+              { "step": 1, "action": "Smallest action to validate or kill this idea — be specific" },
+              { "step": 2, "action": "Next concrete step with a real deliverable" },
+              { "step": 3, "action": "Third validation step" }
+            ],
+            "future_scope": ["Where this could go in Year 2+", "Expansion possibility", "Dream bigger vision"],
+            "chart_data": [
+              { "label": "Market Risk", "value": 6 },
+              { "label": "Technical Risk", "value": 5 },
+              { "label": "Financial Risk", "value": 7 },
+              { "label": "Competition", "value": 5 },
+              { "label": "Execution Risk", "value": 6 }
+            ]
+          }` : ''}
         `;
 
         const completion = await getGroqClient().chat.completions.create({
-            messages: [{ role: "system", content: "Output valid JSON only." }, { role: "user", content: prompt }],
-            model: "llama-3.1-8b-instant",
+            messages: [{ role: "system", content: "Output valid JSON only. Be specific to the business idea. No generic advice. Write like a sharp, honest startup advisor." }, { role: "user", content: prompt }],
+            model: MODEL,
             response_format: { type: "json_object" },
+            max_tokens: 4000
         });
 
         res.json(JSON.parse(completion.choices[0].message.content));

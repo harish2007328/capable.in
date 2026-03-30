@@ -173,8 +173,9 @@ const HomePage = () => {
                 setContentWarning(data.error);
                 return;
             }
-            if (data.enhancedIdea) {
-                setIdea(data.enhancedIdea);
+            const enhanced = data.enhanced_idea || data.enhancedIdea;
+            if (enhanced) {
+                setIdea(enhanced);
             }
         } catch (error) {
             console.error("Enhancement failed:", error);

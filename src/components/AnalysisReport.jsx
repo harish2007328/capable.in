@@ -296,216 +296,284 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
         }
 
         switch (id) {
-            case 'executive':
+            case 'overview':
                 return (
-                    <div className="space-y-3">
-
-                        {/* Summary */}
-                        <div className="p-5 rounded-xl bg-slate-900 text-white">
-                            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/30 mb-2 block">Executive Summary</span>
-                            <p className="text-xl leading-relaxed font-serif italic text-slate-100">{content.explanation}</p>
+                    <div className="space-y-6">
+                        {/* Elevator Pitch */}
+                        <div className="p-6 rounded-2xl bg-indigo-600 text-white shadow-lg overflow-hidden relative">
+                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-200 mb-3 block flex items-center gap-2">
+                                <Zap size={12} className="text-amber-300" /> The Spark
+                            </span>
+                            <p className="text-2xl font-display font-medium leading-tight">"{content.elevator_pitch}"</p>
                         </div>
 
-                        {/* Chart + Market Demand — same row */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-                            <div className="md:col-span-2 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm">
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2"><TrendingUp size={12} /> Traction Projection</span>
-                                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">12-Month</span>
-                                </div>
+                        {/* Problem & Solution */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="p-6 rounded-2xl bg-rose-50 border border-rose-100 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-10"><AlertTriangle size={40} /></div>
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-rose-500 mb-3 block">The Pain</h4>
+                                <p className="text-slate-700 leading-relaxed font-medium relative z-10">{content.problem}</p>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-100 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-10"><Shield size={40} /></div>
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-emerald-600 mb-3 block">The Solution</h4>
+                                <p className="text-slate-700 leading-relaxed font-medium relative z-10">{content.solution}</p>
+                            </div>
+                        </div>
+
+                        {/* Target Users */}
+                        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                                <Target size={14} /> Target Audience
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {content.target_users?.map((user, i) => (
+                                    <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">{user.segment}</div>
+                                        <p className="text-sm text-slate-600 leading-relaxed">{user.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {content.why_now && (
+                            <InfoBox icon={Clock} title="Why Now?" content={content.why_now} className="bg-gradient-to-br from-white to-slate-50" />
+                        )}
+                        
+                        {content.chart_data && content.chart_data.length > 0 && (
+                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                                    <TrendingUp size={14} /> Demand Projection
+                                </h4>
                                 <LineChart data={content.chart_data} />
                             </div>
-                            <div className="p-8 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-100/50 transition-colors" />
-                                <div className="relative z-10 w-full">
-                                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-6">Market Demand</div>
-                                    <div className="relative w-32 h-32 mx-auto mb-6">
-                                        <svg className="w-full h-full transform -rotate-90">
-                                            <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-slate-50" />
-                                            <motion.circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray="364.4"
-                                                initial={{ strokeDashoffset: 364.4 }} animate={{ strokeDashoffset: 364.4 * (1 - content.market_demand?.score / 10) }} transition={{ duration: 1.5, ease: "easeOut" }}
-                                                className="text-indigo-600" />
-                                        </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-4xl font-black text-slate-900 leading-none">{content.market_demand?.score}</span>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">Score</span>
-                                        </div>
-                                    </div>
-                                    <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 py-1.5 px-3 rounded-full inline-block uppercase tracking-wider">
-                                        High Potential
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Info row */}
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-1"><Globe size={9} /> Target Demographic</div>
-                                <p className="text-sm text-slate-600 leading-relaxed">{content.target_user}</p>
-                            </div>
-                            <div className="p-4 rounded-xl bg-white border border-slate-100">
-                                <div className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">Strategic Impact</div>
-                                <p className="text-sm text-slate-500 leading-relaxed italic border-l-2 border-slate-100 pl-3">"{content.market_demand?.analysis}"</p>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 );
             case 'market':
                 return (
                     <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="md:col-span-2 space-y-4">
-                                {content.competitors?.map((comp, i) => (
-                                    <div key={i} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex gap-6 items-start hover:bg-white hover:shadow-md transition-all duration-300">
-                                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-200">
-                                            <Shield size={18} className="text-slate-900" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <h3 className="text-base font-bold text-slate-900 tracking-tight">{comp.name}</h3>
-                                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Comp_0{i + 1}</span>
-                                            </div>
-                                            <p className="text-sm text-slate-600 leading-relaxed mb-4">{comp.analysis}</p>
-                                            <div className="flex items-center gap-3 px-3 py-2 bg-rose-50 rounded-lg border border-rose-100 text-[10px] font-bold text-rose-600 uppercase tracking-widest">
-                                                <AlertTriangle size={12} />
-                                                <span>Exploit: {comp.weakness_to_exploit}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="p-8 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col">
-                                <h4 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                    <PieChart size={14} /> Competitive Share
+                        {/* Market Size & Growth */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-center">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 block flex items-center gap-2">
+                                    <Globe size={14} /> Market Sizing
                                 </h4>
-                                <div className="flex-1 flex flex-col justify-center">
-                                    <SimpleBarChart data={content.chart_data} />
-                                </div>
+                                <p className="text-slate-700 leading-relaxed font-medium">{content.market_size}</p>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-indigo-50 border border-indigo-100 shadow-sm h-full">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-400 mb-4 block flex items-center gap-2">
+                                    <Activity size={14} /> Growth Signals
+                                </h4>
+                                <ul className="space-y-3">
+                                    {content.growth_signals?.map((signal, i) => (
+                                        <li key={i} className="flex gap-3 text-sm text-indigo-900 font-medium">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                                            {signal}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <InfoBox icon={Activity} title="Market Gap" content={content.the_gap} />
-                            <InfoBox icon={Target} title="Defensibility" content={content.differentiation} />
+                        {/* Competitors */}
+                        <div className="space-y-4">
+                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-2">Competitive Landscape</h4>
+                            {content.competitors?.map((comp, i) => (
+                                <div key={i} className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col md:flex-row gap-4 items-start shadow-sm hover:border-slate-300 transition-colors">
+                                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-200 text-slate-500 font-black text-xs">
+                                        C{i+1}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-base font-bold text-slate-900 mb-1">{comp.name}</h3>
+                                        <p className="text-sm text-slate-500 mb-3">{comp.what_they_do}</p>
+                                        <div className="bg-rose-50 border border-rose-100 rounded-lg p-3 text-sm">
+                                            <span className="font-bold text-rose-600 text-xs uppercase mr-2 tracking-wide block mb-1">Weakness to Exploit</span>
+                                            <span className="text-rose-900 font-medium">{comp.weakness}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                );
-            case 'technical':
-                return (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="flex flex-col gap-4">
-                                <MetricBox label="Viability" value={`${content.viability_score}/10`} subtext="Build feasibility" icon={Cpu} isCompact />
-                                <MetricBox label="Capital" value={content.est_mvp_cost} subtext="Projected launch" icon={Layers} isCompact />
-                            </div>
-                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                                    <Layers size={12} /> Capital Allocation
+
+                        {/* UVP & Differentiation */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <InfoBox icon={Zap} title="Unique Edge (Why You)" content={content.unique_edge} className="border-indigo-100 bg-indigo-50/30 h-full" />
+                            <InfoBox icon={Shield} title="The Moat" content={content.differentiation} className="border-emerald-100 bg-emerald-50/30 h-full" />
+                        </div>
+                        
+                        {content.chart_data && content.chart_data.length > 0 && (
+                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                                    <PieChart size={14} /> Market Share Potential
                                 </h4>
                                 <SimpleBarChart data={content.chart_data} />
                             </div>
-                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                                    <Clock size={12} /> Dev Timeline
-                                </h4>
-                                <div className="h-full flex flex-col justify-center items-center py-6">
-                                    <div className="relative">
-                                        <svg className="w-20 h-20 transform -rotate-90">
-                                            <circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-slate-50" />
-                                            <motion.circle cx="40" cy="40" r="34" stroke="currentColor" strokeWidth="6" fill="transparent" strokeDasharray="213.6"
-                                                initial={{ strokeDashoffset: 213.6 }} animate={{ strokeDashoffset: 213.6 * 0.4 }} transition={{ duration: 1.5 }}
-                                                className="text-slate-900" />
-                                        </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-2xl font-bold text-slate-900">6</span>
-                                            <span className="text-[8px] font-bold text-slate-400 uppercase">Mo.</span>
+                        )}
+                    </div>
+                );
+            case 'execution':
+                return (
+                    <div className="space-y-6">
+                        {/* How it works */}
+                        <div className="p-8 rounded-2xl bg-slate-900 text-white shadow-xl relative overflow-hidden">
+                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px]"></div>
+                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2 relative z-10">
+                                <Layers size={14} className="text-indigo-400" /> How It Works
+                            </h4>
+                            <div className="space-y-6 relative z-10">
+                                {content.how_it_works?.map((step, i) => (
+                                    <div key={i} className="flex gap-6 items-start">
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/30">
+                                                {step.step || i + 1}
+                                            </div>
+                                            {i < (content.how_it_works.length - 1) && <div className="w-0.5 h-6 bg-slate-800 my-1.5" />}
                                         </div>
+                                        <p className="pt-1.5 text-slate-200 font-medium">{step.action}</p>
                                     </div>
-                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-3">Target Launch</span>
-                                </div>
+                                ))}
                             </div>
                         </div>
 
-                        <InfoBox icon={Layers} title="Feasibility Thesis" content={content.complexity} />
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
-                                    <Cpu size={12} /> Tech Stack
+                        {/* Business Model & Revenue */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <InfoBox icon={Target} title="Business Model" content={content.business_model} className="h-full" />
+                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 block flex items-center gap-2">
+                                    <BarChart3 size={14} /> Revenue Streams
                                 </h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {content.suggested_stack?.split(',').map((item, i) => (
-                                        <div key={i} className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-[11px] font-bold text-slate-700 uppercase tracking-wide">
-                                            {item.trim()}
+                                <ul className="space-y-3">
+                                    {content.revenue_streams?.map((stream, i) => (
+                                        <li key={i} className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl flex items-center gap-3 text-sm font-medium text-emerald-900">
+                                            <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center transform shrink-0 shadow-sm font-bold text-xs">$</div>
+                                            {stream}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Feasibility & Costs */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="md:col-span-2">
+                                <InfoBox icon={Cpu} title="Feasibility & Reality Check" content={content.feasibility} className="h-full" />
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                <MetricBox label="MVP Cost" value={content.est_mvp_cost} subtext="Estimated setup" icon={Layers} isCompact />
+                                <MetricBox label="Timeline" value={content.est_timeline} subtext="Time to MVP" icon={Clock} isCompact />
+                            </div>
+                        </div>
+
+                        {/* Tech Needs */}
+                        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                                <Cpu size={14} /> Key Tech Needs
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                                {content.tech_needs?.map((tech, i) => (
+                                    <span key={i} className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-wide border border-slate-200">
+                                        {tech}
+                                    </span>
+                                ))}
+                            </div>
+                            
+                            {content.chart_data && content.chart_data.length > 0 && (
+                                <div className="mt-8 pt-6 border-t border-slate-100">
+                                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5">Resource Allocation</h4>
+                                    <SimpleBarChart data={content.chart_data} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            case 'reality':
+                return (
+                    <div className="space-y-6">
+                        {/* Risks */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full flex flex-col">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                                    <AlertTriangle size={14} className="text-rose-400" /> Key Risks
+                                </h4>
+                                <div className="space-y-4 flex-1">
+                                    {content.risks?.map((risk, i) => (
+                                        <div key={i} className="border-l-2 border-rose-200 pl-4 py-1">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">{risk.category}</span>
+                                                <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                                                    String(risk.severity).toLowerCase() === 'high' ? 'bg-rose-100 text-rose-700' :
+                                                    String(risk.severity).toLowerCase() === 'medium' ? 'bg-amber-100 text-amber-700' :
+                                                    'bg-slate-100 text-slate-600'
+                                                }`}>
+                                                    {risk.severity || 'Medium'} Risk
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-slate-600">{risk.description}</p>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="p-6 rounded-xl bg-white border border-slate-100 shadow-sm">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
-                                    <Layers size={12} /> System Schematic
-                                </h4>
-                                <div className="text-[10px] font-mono p-4 bg-slate-50 rounded text-slate-500 uppercase leading-relaxed border border-slate-100">
-                                    {content.architecture}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            case 'risk':
-                return (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                {Object.entries(content.risks || {}).map(([key, val], i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 px-6 rounded-xl bg-white border border-slate-100 hover:border-slate-300 transition-colors">
-                                        <div className="flex items-center gap-4">
-                                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 w-20">{key}</span>
-                                            <p className="text-[13px] font-medium text-slate-600 italic">"{val}"</p>
-                                        </div>
+                            
+                            {content.chart_data && content.chart_data.length > 0 && (
+                                <div className="p-6 rounded-2xl bg-slate-900 shadow-sm flex flex-col items-center justify-center overflow-hidden border border-slate-800 h-full min-h-[300px]">
+                                    <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2 z-10">
+                                        <Activity size={14} className="text-slate-500" /> Risk Profile
+                                    </h4>
+                                    <div className="w-full flex-1 flex items-center justify-center -my-6">
+                                        <RadarChart data={content.chart_data} />
                                     </div>
-                                ))}
-                            </div>
-                            <div className="p-8 rounded-2xl bg-slate-900 border border-slate-700 shadow-sm flex flex-col items-center min-h-[450px]">
-                                <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-8 flex items-center gap-3">
-                                    <Activity size={14} className="text-slate-500" /> Risk Profile Analysis
-                                </h4>
-                                <div className="w-full flex-1 flex items-center justify-center">
-                                    <RadarChart data={content.chart_data} darkTheme gridLines visibleValues />
                                 </div>
-                            </div>
+                            )}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <InfoBox icon={Shield} title="Strengths" content={content.mentor_advice?.appreciate} />
-                            <InfoBox icon={AlertTriangle} title="Critique" content={content.mentor_advice?.criticize} />
-                            <InfoBox icon={ArrowRight} title="Guidance" content={content.mentor_advice?.advice} />
-                        </div>
-                        <div className="p-10 rounded-2xl bg-slate-900 text-white shadow-2xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[100px] -mr-32 -mt-32" />
-                            <h3 className="text-[11px] font-bold uppercase tracking-[0.4em] text-white/30 mb-10 relative z-10 flex items-center gap-3">
-                                <Zap size={14} className="text-amber-400" /> Success Roadmap
-                            </h3>
-                            <div className="space-y-6 relative z-10">
-                                {content.immediate_actions?.map((action, i) => (
-                                    <div key={i} className="flex gap-6 items-start group">
-                                        <div className="flex flex-col items-center shrink-0">
-                                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-[12px] font-black text-white border border-white/10 group-hover:bg-indigo-500 group-hover:border-indigo-400 transition-all duration-300">
-                                                0{i + 1}
-                                            </div>
-                                            {i < content.immediate_actions.length - 1 && (
-                                                <div className="w-0.5 h-10 bg-white/5 group-hover:bg-indigo-500/30 transition-colors" />
-                                            )}
-                                        </div>
-                                        <div className="pt-2">
-                                            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/20 mb-1 block">Phase 0{i + 1}</span>
-                                            <p className="text-base font-medium text-slate-300 group-hover:text-white transition-colors leading-relaxed">
-                                                {action}
-                                            </p>
-                                        </div>
-                                    </div>
+                        {/* Open Questions */}
+                        <div className="p-8 rounded-2xl bg-amber-50 border border-amber-100 relative overflow-hidden">
+                            <div className="absolute right-0 bottom-0 opacity-[0.03] w-64 h-64 translate-x-12 translate-y-12">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                            </div>
+                            <h4 className="text-[11px] font-black uppercase tracking-widest text-amber-600 mb-3 block relative z-10 flex items-center gap-2">
+                                Critical Open Questions
+                            </h4>
+                            <p className="text-amber-900/60 text-sm mb-6 relative z-10 font-medium">Unanswered questions that determine if this idea survives:</p>
+                            <ul className="space-y-4 relative z-10">
+                                {content.open_questions?.map((q, i) => (
+                                    <li key={i} className="flex gap-4 text-amber-900 items-start">
+                                        <div className="w-6 h-6 rounded-full bg-amber-200/50 text-amber-700 flex items-center justify-center font-bold text-xs shrink-0 mt-[-2px] border border-amber-200 shadow-sm">?</div>
+                                        <span className="font-medium text-[15px] leading-snug">{q}</span>
+                                    </li>
                                 ))}
+                            </ul>
+                        </div>
+
+                        {/* Validation Plan & Future */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="p-6 text-white rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-lg h-full">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-200 mb-6 flex items-center gap-2">
+                                    <ArrowRight size={14} /> Validation Plan
+                                </h4>
+                                <div className="space-y-5">
+                                    {content.validation_plan?.map((plan, i) => (
+                                        <div key={i} className="flex gap-4 items-start">
+                                            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold text-[10px] shrink-0 border border-white/20 shadow-sm">{plan.step || i+1}</div>
+                                            <p className="text-sm pt-1 text-indigo-50 font-medium leading-relaxed">{plan.action}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full">
+                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                                    <Target size={14} /> Future Vision
+                                </h4>
+                                <ul className="space-y-5">
+                                    {content.future_scope?.map((scope, i) => (
+                                        <li key={i} className="flex gap-3 text-slate-600 items-start">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0" />
+                                            <span className="leading-relaxed font-medium">{scope}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </div>
                     </div>
