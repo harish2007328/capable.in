@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
 
 import FullScreenLoader from './components/FullScreenLoader';
+import CookieConsent from './components/CookieConsent';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -78,6 +79,7 @@ function App() {
           </React.Suspense>
         </Layout>
       </Router>
+      <CookieConsent />
     </AuthProvider>
   );
 }
