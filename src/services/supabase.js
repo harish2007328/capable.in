@@ -25,9 +25,7 @@ client.auth.getSession = async () => {
         // Step 0: Try to restore session from httpOnly cookie (auto-login)
         // This runs on every page load — if the user has a valid cookie, they're logged in instantly
         try {
-            const serverUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-                ? 'http://localhost:3001' : '';
-            const cookieRes = await fetch(`${serverUrl}/api/auth/session`, { 
+            const cookieRes = await fetch(`/api/auth/session`, { 
                 credentials: 'include' // Send cookies with request
             });
             if (cookieRes.ok) {

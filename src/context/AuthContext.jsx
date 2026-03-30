@@ -3,9 +3,6 @@ import { supabase } from '../services/supabase';
 import axios from 'axios';
 
 const getServerUrl = () => {
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        return 'http://localhost:3001';
-    }
     return '';
 };
 
