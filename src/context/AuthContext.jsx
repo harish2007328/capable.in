@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
+import axios from 'axios';
+
+const getServerUrl = () => {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        return 'http://localhost:3001';
+    }
+    return '';
+};
 
 const AuthContext = createContext();
 
@@ -213,6 +221,19 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        // Set httpOnly cookie for persistent login
+        if (data?.accessToken) {
+            try {
+                await axios.post(`${getServerUrl()}/api/auth/set-cookie`, 
+                    { accessToken: data.accessToken }, 
+                    { withCredentials: true }
+                );
+            } catch (cookieErr) {
+                console.warn('Cookie set failed (non-critical):', cookieErr.message);
+            }
+        }
+
         return data;
     };
 
@@ -225,6 +246,14 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
+
+        // Clear httpOnly auth cookie
+        try {
+            await axios.post(`${getServerUrl()}/api/auth/logout`, {}, { withCredentials: true });
+        } catch (cookieErr) {
+            console.warn('Cookie clear failed (non-critical):', cookieErr.message);
+        }
+
         localStorage.removeItem('capable_cached_user');
         localStorage.removeItem('insforge_session_token');
         if (supabase.http) supabase.http.userToken = null;

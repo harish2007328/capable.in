@@ -22,7 +22,38 @@ const notifyListeners = (event, session) => {
 // there's no httpOnly refresh cookie. So we first try to validate the stored token directly.
 client.auth.getSession = async () => {
     try {
-        // Step 1: Check for a stored access token (set by Google OAuth callback)
+        // Step 0: Try to restore session from httpOnly cookie (auto-login)
+        // This runs on every page load — if the user has a valid cookie, they're logged in instantly
+        try {
+            const serverUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+                ? 'http://localhost:3001' : '';
+            const cookieRes = await fetch(`${serverUrl}/api/auth/session`, { 
+                credentials: 'include' // Send cookies with request
+            });
+            if (cookieRes.ok) {
+                const cookieData = await cookieRes.json();
+                if (cookieData.authenticated && cookieData.accessToken) {
+                    // Cookie has a valid token — store it and use it
+                    localStorage.setItem('insforge_session_token', cookieData.accessToken);
+                    if (client.http) {
+                        client.http.userToken = cookieData.accessToken;
+                    }
+                    const session = {
+                        accessToken: cookieData.accessToken,
+                        user: cookieData.user
+                    };
+                    const currentId = cookieData.user?.id;
+                    if (currentId !== lastSessionId) {
+                        notifyListeners('SIGNED_IN', session);
+                    }
+                    return { data: { session }, error: null };
+                }
+            }
+        } catch (cookieErr) {
+            // Cookie check failed (network error, server down) — fall through to localStorage
+        }
+
+        // Step 1: Check for a stored access token (set by Google OAuth callback or cookie restore above)
         const storedToken = localStorage.getItem('insforge_session_token');
         
         if (storedToken) {
@@ -57,15 +88,11 @@ client.auth.getSession = async () => {
                         const now = Math.floor(Date.now() / 1000);
                         
                         if (payload.exp && payload.exp < now) {
-                            // Token IS expired - clear it but provide session from JWT data
-                            // so the user doesn't get logged out mid-session
-                            console.warn("Token expired, using cached session data. Re-login on next page load.");
+                            // Token IS expired - clear it
+                            console.warn("Token expired, clearing session.");
                             localStorage.removeItem('insforge_session_token');
                             if (client.http) client.http.userToken = null;
                             
-                            // Return a "degraded" session from the JWT payload
-                            // This keeps the UI showing the user as logged in
-                            // but database operations requiring auth will fail gracefully
                             const cachedUser = {
                                 id: payload.sub,
                                 email: payload.email,
@@ -85,7 +112,6 @@ client.auth.getSession = async () => {
             } catch (fetchErr) {
                 // Network error - don't clear the token, user might be offline
                 console.warn("Token validation fetch failed:", fetchErr.message);
-                // Try to use the token as-is for database operations
                 return { data: { session: { accessToken: storedToken, user: null } }, error: null };
             }
         }
@@ -93,8 +119,6 @@ client.auth.getSession = async () => {
         // No stored token = no session
         if (client.http) client.http.userToken = null;
         
-        // We intentionally skip getCurrentSession() because it tries /api/auth/refresh 
-        // with httpOnly cookies, which don't exist when auth is done server-side (Google OAuth).
         return { data: { session: null }, error: null };
     } catch (err) {
         if (client.http) client.http.userToken = null;

@@ -417,6 +417,16 @@ app.get('/api/auth/google/callback', async (req, res) => {
             } catch (e) {}
         }
 
+        // Set httpOnly auth cookie for persistent login (30 days)
+        const isProduction = process.env.NODE_ENV === 'production';
+        res.cookie('capable_auth', accessToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: 'lax',
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            path: '/'
+        });
+
         // Final Redirect: Send user back to the frontend on the SAME host they came from
         res.redirect(`${protocol}://${cleanHost}/auth/callback?access_token=${accessToken}`);
     } catch (err) {
@@ -426,6 +436,59 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
         res.redirect(`${protocol}://${cleanHost}/login?error=auth_failed`);
     }
+});
+
+// --- AUTH COOKIE ENDPOINTS ---
+
+// Get session from cookie (for auto-login on page load)
+app.get('/api/auth/session', async (req, res) => {
+    try {
+        const token = req.cookies?.capable_auth;
+        if (!token) {
+            return res.json({ authenticated: false });
+        }
+
+        // Validate the token against InsForge
+        const response = await axios.get(`${process.env.VITE_INSFORGE_URL}/api/auth/sessions/current`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.status === 200 && response.data) {
+            return res.json({ authenticated: true, accessToken: token, user: response.data.user || response.data });
+        }
+
+        // Token invalid — clear the cookie
+        res.clearCookie('capable_auth', { path: '/' });
+        return res.json({ authenticated: false });
+    } catch (err) {
+        res.clearCookie('capable_auth', { path: '/' });
+        return res.json({ authenticated: false });
+    }
+});
+
+// Set cookie after email/password login
+app.post('/api/auth/set-cookie', (req, res) => {
+    const { accessToken } = req.body;
+    if (!accessToken) {
+        return res.status(400).json({ error: 'Missing accessToken' });
+    }
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('capable_auth', accessToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        path: '/'
+    });
+
+    res.json({ success: true });
+});
+
+// Clear cookie on logout
+app.post('/api/auth/logout', (req, res) => {
+    res.clearCookie('capable_auth', { path: '/' });
+    res.json({ success: true });
 });
 
 // --- API ENDPOINTS ---
