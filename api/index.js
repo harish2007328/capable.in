@@ -252,9 +252,9 @@ app.get('/api/auth/google', (req, res) => {
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
     const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
     const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
-    
+
     // Use hardcoded production URL to match Google Console exactly
-    const dynamicRedirectUri = protocol === 'https' 
+    const dynamicRedirectUri = protocol === 'https'
         ? 'https://capable.website/api/auth/google/callback'
         : `http://${cleanHost}/api/auth/google/callback`;
 
@@ -278,9 +278,9 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
         const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
         const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
-        
+
         // Match the LOGIN REDIRECT logic exactly
-        const dynamicRedirectUri = protocol === 'https' 
+        const dynamicRedirectUri = protocol === 'https'
             ? 'https://capable.website/api/auth/google/callback'
             : `http://${cleanHost}/api/auth/google/callback`;
 
@@ -336,24 +336,24 @@ app.get('/api/auth/google/callback', async (req, res) => {
                 password: password
             });
             if (data?.accessToken) authData = data;
-        } catch (err) {}
+        } catch (err) { }
 
         // Step 2: Try signup or repair
         if (!authData) {
             const apiKey = process.env.INSFORGE_API_KEY;
-            
+
             const verifyEmailAndLogin = async () => {
                 try {
                     await axios.post(`${process.env.VITE_INSFORGE_URL}/api/admin/sql`, {
                         query: `UPDATE auth.users SET email_verified = true WHERE email = $1`,
                         params: [email]
                     }, { headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey } });
-                } catch (e) {}
-                
+                } catch (e) { }
+
                 try {
                     const { data } = await insforge.auth.signInWithPassword({ email, password });
                     if (data?.accessToken) return data;
-                } catch (e) {}
+                } catch (e) { }
                 return null;
             };
 
@@ -375,18 +375,18 @@ app.get('/api/auth/google/callback', async (req, res) => {
                         );
                         const users = listRes.data?.data || listRes.data?.users || [];
                         const existingUser = Array.isArray(users) ? users.find(u => u.email === email) : null;
-                        
+
                         if (existingUser) {
                             await axios.delete(`${process.env.VITE_INSFORGE_URL}/api/auth/users`, {
                                 headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
                                 data: { userIds: [existingUser.id] }
                             });
                             await new Promise(r => setTimeout(r, 1000));
-                            
+
                             const { data: newData } = await insforge.auth.signUp({
                                 email: email, password: password, name: name
                             });
-                            
+
                             if (newData?.accessToken) {
                                 authData = newData;
                             } else if (newData?.requireEmailVerification) {
@@ -405,7 +405,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
         }
 
         const accessToken = authData.accessToken;
-        
+
         // Update profile
         if (picture || name) {
             try {
@@ -414,7 +414,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
                         profile: { avatar_url: picture, name: name }
                     }, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` } });
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         // Set httpOnly auth cookie for persistent login (30 days)
@@ -556,7 +556,7 @@ app.post('/api/research', async (req, res) => {
                   ]
                 }
             `;
-            
+
             const completion = await withRetry(() => getGroqClient().chat.completions.create({
                 messages: [
                     { role: "system", content: "You only output JSON. You only use type: 'select'. You never use text or number. Every question must have 3 options." },
@@ -565,13 +565,13 @@ app.post('/api/research', async (req, res) => {
                 model: MODEL,
                 response_format: { type: "json_object" }
             }));
-            
+
             const parsed = JSON.parse(completion.choices[0].message.content);
             const rawQuestions = parsed.questions || [];
-            
-            const validQuestions = rawQuestions.filter(q => 
-                q.type === 'select' && 
-                Array.isArray(q.options) && 
+
+            const validQuestions = rawQuestions.filter(q =>
+                q.type === 'select' &&
+                Array.isArray(q.options) &&
                 q.options.length === 3
             );
 
@@ -580,7 +580,7 @@ app.post('/api/research', async (req, res) => {
                 console.log(`AI returned invalid types (attempt ${attempt}/5). Re-generating entire set...`);
                 return await generateQuestions(attempt + 1);
             }
-            
+
             parsed.questions = validQuestions;
             return parsed;
         };
@@ -715,7 +715,7 @@ app.post('/api/generate-report-section', async (req, res) => {
 app.post('/api/generate-plan-structure', async (req, res) => {
     const { idea, report, answers } = req.body;
     try {
-        let reportSummary = ''; try { const parsed = typeof report === 'string' ? JSON.parse(report) : report; if (parsed && parsed.pages) { reportSummary = parsed.pages.map(function(p) { return p.title; }).join(', '); } else { reportSummary = JSON.stringify(parsed).substring(0, 600); } } catch (e) { reportSummary = String(report).substring(0, 600); }
+        let reportSummary = ''; try { const parsed = typeof report === 'string' ? JSON.parse(report) : report; if (parsed && parsed.pages) { reportSummary = parsed.pages.map(function (p) { return p.title; }).join(', '); } else { reportSummary = JSON.stringify(parsed).substring(0, 600); } } catch (e) { reportSummary = String(report).substring(0, 600); }
         const prompt = `
           ROLE: Elite Startup Operations Expert.
           IDEA: "${idea}"
@@ -777,8 +777,8 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
         } catch { reportSummary = String(report).substring(0, 800); }
 
         // Trim answers — keep more context for better task quality
-        const answersSummary = typeof answers === 'string' 
-            ? answers.substring(0, 700) 
+        const answersSummary = typeof answers === 'string'
+            ? answers.substring(0, 700)
             : JSON.stringify(answers).substring(0, 700);
 
         // Include last 15 previous task titles for continuity  
@@ -1423,8 +1423,8 @@ app.post('/api/portal', async (req, res) => {
 
 // --- SERVE FRONTEND (Restored for Render) ---
 app.get(/.*/, (req, res) => {
-  const rootPath = path.join(__dirname, '..');
-  res.sendFile(path.join(rootPath, 'dist', 'index.html'));
+    const rootPath = path.join(__dirname, '..');
+    res.sendFile(path.join(rootPath, 'dist', 'index.html'));
 });
 
 // Only start the server if not running in a serverless environment (Vercel)
