@@ -32,11 +32,12 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'", "https:", "data:", "blob:"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://fonts.googleapis.com", "https://www.googletagmanager.com", "https://www.google-analytics.com", "blob:"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://fonts.googleapis.com", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://vercel.live", "blob:"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://capable.website", "https://www.capable.website", "https://capable-website.onrender.com", "https://4aqgz7mw.us-east.insforge.app", "https://api.groq.com", "https://checkout.dodopayments.com", "https://api.dodopayments.com", "https://www.google-analytics.com", "https://www.googleapis.com", "https://overbridgenet.com"]
+            connectSrc: ["'self'", "https://capable.website", "https://www.capable.website", "https://capable-website.onrender.com", "https://4aqgz7mw.us-east.insforge.app", "https://api.groq.com", "https://checkout.dodopayments.com", "https://api.dodopayments.com", "https://www.google-analytics.com", "https://www.googleapis.com", "https://overbridgenet.com", "https://vercel.live", "wss://*.pusher.com", "https://*.pusher.com"],
+            frameSrc: ["'self'", "https://vercel.live"]
         }
     }
 }));
