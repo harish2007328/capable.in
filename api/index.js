@@ -10,7 +10,6 @@ import { fileURLToPath } from 'url';
 import { DodoPayments } from 'dodopayments';
 import { createClient } from '@insforge/sdk';
 import { OAuth2Client } from 'google-auth-library';
-import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 
@@ -57,12 +56,6 @@ app.use(express.json());
 // oauth2client is instantiated dynamically inside routes now
 
 app.use(cookieParser());
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'capable-secret-key-123',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV === 'production' }
-}));
 
 const getInsForgePassword = (sub, customSalt = '__DEFAULT_SALT__') => {
     // If explicit null or empty string, use NO salt (raw hash or raw string)
@@ -465,12 +458,17 @@ app.get('/api/auth/session', async (req, res) => {
             return res.json({ authenticated: true, accessToken: token, user: response.data.user || response.data });
         }
 
-        // Token invalid — clear the cookie
-        res.clearCookie('capable_auth', { path: '/' });
+        // Token invalid 
+        if (response.status === 401) {
+            res.clearCookie('capable_auth', { path: '/' });
+        }
         return res.json({ authenticated: false });
     } catch (err) {
-        res.clearCookie('capable_auth', { path: '/' });
-        return res.json({ authenticated: false });
+        // Only clear the cookie on explicit unauthorized errors, not network drops
+        if (err.response && err.response.status === 401) {
+            res.clearCookie('capable_auth', { path: '/' });
+        }
+        return res.json({ authenticated: false, error: err.message });
     }
 });
 
