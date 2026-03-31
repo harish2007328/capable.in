@@ -442,6 +442,14 @@ const TaskPage = () => {
                                 );
                             })}
                         </div>
+                        
+                        {/* Legal / AI Disclaimer */}
+                        <div className="mt-6 flex items-start p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
+                            <AlertCircle size={14} className="text-amber-500 shrink-0 mr-2 mt-0.5" />
+                            <p className="text-[9px] text-amber-700/60 font-medium leading-relaxed">
+                                AI roadmap is indicative. Always verify local laws, compliance, and exact pricing before committing capital.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -562,13 +570,6 @@ const TaskPage = () => {
                 </div>
             </div>
 
-            {/* Disclaimer Footer */}
-            <div className="mt-8 text-center max-w-2xl mx-auto flex items-center justify-center gap-2 px-4">
-                <AlertCircle size={14} className="text-slate-400 shrink-0" />
-                <p className="text-[11px] text-slate-400/80 font-medium">
-                    Capable AI generates strategic estimates. Always verify local business laws, compliance requirements, and pricing before spending capital.
-                </p>
-            </div>
 
             {/* Confirm Modal */}
             {
