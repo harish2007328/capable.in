@@ -379,9 +379,14 @@ const TaskPage = () => {
 
                 {/* Middle: Map (4 cols) */}
                 <div className="lg:col-span-4 flex flex-col h-full overflow-hidden bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-                    <h3 className="text-sm font-bold text-slate-900 uppercase mb-6 border-b border-slate-100 pb-4">
-                        Roadmap
-                    </h3>
+                    <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4 shrink-0">
+                        <h3 className="text-sm font-bold text-slate-900 uppercase">
+                            Roadmap
+                        </h3>
+                        <span className="text-[9px] font-bold tracking-widest uppercase bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md border border-amber-100/50">
+                            Focus only on current phase
+                        </span>
+                    </div>
 
                     <div className="flex-1 overflow-y-auto custom-scrollbar mb-6">
                         <div className="grid grid-cols-10 gap-2">
@@ -555,6 +560,14 @@ const TaskPage = () => {
                         </form>
                     </div>
                 </div>
+            </div>
+
+            {/* Disclaimer Footer */}
+            <div className="mt-8 text-center max-w-2xl mx-auto flex items-center justify-center gap-2 px-4">
+                <AlertCircle size={14} className="text-slate-400 shrink-0" />
+                <p className="text-[11px] text-slate-400/80 font-medium">
+                    Capable AI generates strategic estimates. Always verify local business laws, compliance requirements, and pricing before spending capital.
+                </p>
             </div>
 
             {/* Confirm Modal */}

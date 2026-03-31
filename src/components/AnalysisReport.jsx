@@ -842,6 +842,20 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 </div>
                             </motion.div>
                         </div>
+                        
+                        {/* Legal / AI Disclaimer */}
+                        <div className="mt-8 flex items-start p-4 bg-[#FFFAEB]/50 backdrop-blur-md rounded-2xl border border-amber-500/10">
+                            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mr-4">
+                                <AlertTriangle size={14} className="text-amber-600" />
+                            </div>
+                            <div>
+                                <h6 className="text-[10px] uppercase tracking-widest font-black text-amber-700/80 mb-1">AI Disclaimer</h6>
+                                <p className="text-[12px] font-medium leading-relaxed text-amber-700/60 pr-4">
+                                    Capable AI generates strategic estimates and generalized roadmaps. Always verify local business laws, compliance requirements, and exact pricing with professionals before committing capital.
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
