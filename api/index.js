@@ -1016,10 +1016,12 @@ app.post('/api/generate-plan', async (req, res) => {
          - The phase it belongs to (for color coding).
 
       STRICT RULES:
-      - TASKS must be tactical. e.g., "Visit 3 competitors in [Location]", "Setup landing page for [Idea]".
+      - TASKS must be EXTREMELY practical, actionable, and specific to the industry/location.
+      - AVOID GENERIC advice. Instead of "Do market research", say "Visit 3 local competitors in [Location] to check if they sell ₹15 or ₹20 tea/products".
+      - DOCUMENTATION & COMPLIANCE: You MUST dedicate specific tasks in the Research/Validation phases strictly for legal, registration, and paperwork needed for this exact idea and LOCATION (e.g., FSSAI for food in India, Shop & Establishment Act, specific local permits).
       - PHASES should group days together (e.g., Days 1-7 = Phase 1).
-      - NO REPETITION. No "Continue working on...". Every day is a new step.
-      - Use location data to define specific local tasks.
+      - NO REPETITION. No "Continue working on...". Every day is exactly one new concrete step.
+      - INTEGRATE REAL TOOLS: Mention specific tools where helpful (Canva, Google My Business, WhatsApp).
 
       JSON SCHEMA:
       {
