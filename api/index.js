@@ -1437,12 +1437,20 @@ app.post('/api/checkout', async (req, res) => {
     }
 });
 
-app.get('/api/checkout/verify/:sessionId', async (req, res) => {
+app.get('/api/checkout/verify', async (req, res) => {
     try {
+        const { session_id, subscription_id } = req.query;
         const dp = getDodoPayments();
         if (!dp) return res.status(500).json({ error: "Dodo Payments not configured" });
 
-        const session = await dp.checkoutSessions.retrieve(req.params.sessionId);
+        let session;
+        if (subscription_id && subscription_id !== '{subscription_id}') {
+            session = await dp.subscriptions.retrieve(subscription_id);
+        } else if (session_id && session_id !== '{checkout_session_id}') {
+            session = await dp.checkoutSessions.retrieve(session_id);
+        } else {
+            return res.status(400).json({ error: "No valid tracking ID provided" });
+        }
         
         // Eagerly update database if succeeded (failsafe for slow or missing webhooks)
         if (session.status === 'succeeded' || session.status === 'active' || session.payment_status === 'succeeded') {

@@ -21,25 +21,25 @@ const CheckoutResult = () => {
     useEffect(() => {
         if (videoRef.current) videoRef.current.playbackRate = 0.75;
 
-        if (paramStatus === 'active' || paramStatus === 'succeeded') {
-            setStatus('success');
-            if (refreshSession) refreshSession();
-            return;
-        }
+        const subId = searchParams.get('subscription_id');
+        const hasSession = sessionId && sessionId !== '{checkout_session_id}';
+        const hasSub = subId && subId !== '{subscription_id}';
 
-        if (paramStatus === 'failed' || paramStatus === 'cancelled') {
-            setStatus('error');
-            return;
-        }
-
-        if (!sessionId || sessionId === '{checkout_session_id}') {
-            if (!paramStatus) setStatus('error');
+        if (!hasSession && !hasSub) {
+            if (paramStatus === 'active' || paramStatus === 'succeeded') {
+                setStatus('success');
+                if (refreshSession) refreshSession();
+            } else if (!paramStatus) {
+                setStatus('error');
+            }
             return;
         }
 
         const verifySession = async () => {
             try {
-                const response = await axios.get(`/api/checkout/verify/${sessionId}`);
+                const response = await axios.get(`/api/checkout/verify`, {
+                    params: { session_id: hasSession ? sessionId : undefined, subscription_id: hasSub ? subId : undefined }
+                });
                 const data = response.data;
                 if (data.status === 'succeeded' || data.status === 'active' || data.payment_status === 'succeeded') {
                     setStatus('success');
