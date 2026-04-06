@@ -70,7 +70,8 @@ const PricingPage = () => {
                 metadata: {
                     billingCycle: isYearly ? 'yearly' : 'monthly',
                     planName: planName
-                }
+                },
+                returnUrl: window.location.origin
             });
 
             if (response.data && response.data.checkout_url) {

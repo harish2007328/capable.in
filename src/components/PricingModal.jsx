@@ -44,7 +44,8 @@ const PricingModal = ({ isOpen, onClose }) => {
                 metadata: {
                     billingCycle: isYearly ? 'yearly' : 'monthly',
                     planName: 'Pro'
-                }
+                },
+                returnUrl: window.location.origin
             });
 
             if (response.data?.checkout_url) {

@@ -32,6 +32,11 @@ const AuthCallbackPage = () => {
                 
                 try {
                     await ProjectStorage.init();
+                    
+                    if (typeof ProjectStorage.migrateLocalToDatabase === 'function') {
+                        await ProjectStorage.migrateLocalToDatabase();
+                    }
+                    
                     const projects = await ProjectStorage.getAll();
                     if (projects && projects.length > 0) {
                         navigate(from, { replace: true });

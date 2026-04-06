@@ -233,6 +233,10 @@ export const AuthProvider = ({ children }) => {
                 console.warn('Cookie set failed (non-critical):', cookieErr.message);
             }
         }
+        
+        if (window.ProjectStorage?.migrateLocalToDatabase) {
+            await window.ProjectStorage.migrateLocalToDatabase();
+        }
 
         return data;
     };
@@ -240,6 +244,11 @@ export const AuthProvider = ({ children }) => {
     const signup = async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+        
+        if (window.ProjectStorage?.migrateLocalToDatabase) {
+            await window.ProjectStorage.migrateLocalToDatabase();
+        }
+        
         return data;
     };
 

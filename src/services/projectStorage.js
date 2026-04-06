@@ -215,6 +215,74 @@ export const ProjectStorage = {
         // Clear memory cache to prevent data leakage between users
         memoryCache.allProjectsFetched = false;
         memoryCache.projects = {};
+    },
+
+    migrateLocalToDatabase: async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const localProjects = getLocalProjects();
+        const localProjectIds = Object.keys(localProjects);
+
+        if (localProjectIds.length === 0) return;
+
+        console.log(`Migrating ${localProjectIds.length} local projects to database...`);
+        let lastMigratedId = null;
+
+        for (const [localId, projectData] of Object.entries(localProjects)) {
+            try {
+                // Create in database using the local project's title and data
+                const newDbProject = await Database.createProject(
+                    session.user.id,
+                    projectData.title,
+                    projectData.data
+                );
+                
+                // Keep track of the last active project
+                lastMigratedId = newDbProject.id;
+                
+                // If this was the active project, update the active ID
+                if (localStorage.getItem(ACTIVE_PROJECT_ID) === localId) {
+                    localStorage.setItem(ACTIVE_PROJECT_ID, newDbProject.id);
+                }
+
+                // Delete it from local object
+                delete localProjects[localId];
+            } catch (err) {
+                console.error(`Failed to migrate project ${localId}:`, err);
+            }
+        }
+
+        // Save the cleaned local storage
+        saveLocalProjects(localProjects);
+        
+        // Force a memory refresh on next get
+        memoryCache.allProjectsFetched = false;
+        memoryCache.projects = {};
+        
+        // Migrate old individual keys as well if they exist
+        const oldIdea = localStorage.getItem('userIdea');
+        if (oldIdea && !localStorage.getItem('capable_migrated_legacy')) {
+             try {
+                const legacyChats = JSON.parse(localStorage.getItem(`mentor_sessions_null`) || 'null');
+                const legacyProgress = JSON.parse(localStorage.getItem(`progress_${oldIdea}`) || 'null');
+                const legacyPlan = JSON.parse(localStorage.getItem('actionPlan') || 'null');
+                 
+                if (legacyPlan) {
+                     await Database.createProject(session.user.id, oldIdea.split(' ').slice(0, 2).join(' '), {
+                        idea: oldIdea,
+                        chats: legacyChats,
+                        progress: legacyProgress,
+                        plan: legacyPlan,
+                        questions: JSON.parse(localStorage.getItem('analysisQuestions') || 'null'),
+                        report: JSON.parse(localStorage.getItem('analysisReport') || 'null')
+                     });
+                     localStorage.setItem('capable_migrated_legacy', 'true');
+                }
+             } catch(e) { console.error('Legacy migration failed', e); }
+        }
+
+        return lastMigratedId;
     }
 };
 

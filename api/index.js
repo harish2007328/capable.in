@@ -1400,7 +1400,7 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
 // --- DODO PAYMENTS ENDPOINTS ---
 
 app.post('/api/checkout', async (req, res) => {
-    const { productId, quantity = 1, userEmail, userId, metadata, planType } = req.body;
+    const { productId, quantity = 1, userEmail, userId, metadata, planType, returnUrl } = req.body;
 
     try {
         if (!dodoPayments) {
@@ -1413,6 +1413,8 @@ app.post('/api/checkout', async (req, res) => {
         if (!targetProductId) {
             return res.status(400).json({ error: "No product ID configured. Please set DODO_PAYMENTS_PRODUCT_ID." });
         }
+        
+        const baseUrl = returnUrl || process.env.FRONTEND_URL || 'http://localhost:5173';
 
         const session = await dodoPayments.checkoutSessions.create({
             product_cart: [{
@@ -1427,7 +1429,7 @@ app.post('/api/checkout', async (req, res) => {
                 planType: planType,
                 ...metadata
             },
-            return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout-result?session_id={checkout_session_id}`,
+            return_url: `${baseUrl}/checkout-result?session_id={checkout_session_id}`,
         });
 
         res.json({ checkout_url: session.checkout_url });
@@ -1443,7 +1445,11 @@ app.get('/api/webhook/dodo', (req, res) => {
 
 app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (req, res) => {
     try {
-        const event = JSON.parse(req.body);
+        // Fix: req.body might already be parsed by express.json() globally
+        const event = typeof req.body === 'string' || Buffer.isBuffer(req.body) 
+            ? JSON.parse(req.body.toString()) 
+            : req.body;
+            
         console.log(`✅ Dodo Webhook: ${event.type}`, event.data?.id || '');
 
         switch (event.type) {
@@ -1456,21 +1462,48 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
 
                 if (userId) {
                     try {
-                        const { data: profile, error: fetchError } = await insforge.database.from('profiles').select('id').eq('id', userId).single();
+                        const adminKey = process.env.INSFORGE_API_KEY || process.env.VITE_INSFORGE_ANON_KEY;
+                        const baseUrl = process.env.VITE_INSFORGE_URL;
 
-                        if (fetchError || !profile) {
-                            await insforge.database.from('profiles').insert([{
-                                id: userId,
-                                email: event.data.customer?.email,
-                                subscription_status: 'pro',
-                                dodo_customer_id: event.data.customer?.id
-                            }]);
-                        } else {
-                            await insforge.database.from('profiles').update({
+                        // Use raw fetch to bypass RLS using the admin API key
+                        const updateRes = await fetch(`${baseUrl}/rest/v1/profiles?id=eq.${userId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'apikey': adminKey,
+                                'Authorization': `Bearer ${adminKey}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify({
                                 subscription_status: 'pro',
                                 dodo_customer_id: event.data.customer?.id,
-                                updated_at: new Date()
-                            }).eq('id', userId);
+                                updated_at: new Date().toISOString()
+                            })
+                        });
+
+                        if (!updateRes.ok) {
+                            const errText = await updateRes.text();
+                            console.error("DB fulfillment failure HTTP status:", updateRes.status, errText);
+                            
+                            // If PATCH failed because it doesn't exist, try POST (insert)
+                            if (updateRes.status === 404 || errText.includes('not found')) {
+                                await fetch(`${baseUrl}/rest/v1/profiles`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'apikey': adminKey,
+                                        'Authorization': `Bearer ${adminKey}`,
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        id: userId,
+                                        email: event.data.customer?.email,
+                                        subscription_status: 'pro',
+                                        dodo_customer_id: event.data.customer?.id
+                                    })
+                                });
+                            }
+                        } else {
+                            console.log(`✅ Profile updated to PRO for user ${userId}`);
                         }
                     } catch (dbErr) {
                         console.warn("DB fulfillment failure:", dbErr.message);
