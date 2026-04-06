@@ -1453,40 +1453,15 @@ app.get('/api/checkout/verify/:sessionId', async (req, res) => {
                 const baseUrl = process.env.VITE_INSFORGE_URL;
 
                 try {
-                    const updateRes = await fetch(`${baseUrl}/rest/v1/profiles?id=eq.${userId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'apikey': adminKey,
-                            'Authorization': `Bearer ${adminKey}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return=minimal'
-                        },
-                        body: JSON.stringify({
-                            subscription_status: planType,
-                            dodo_customer_id: session.customer?.id || session.customer_id,
-                            updated_at: new Date().toISOString()
-                        })
+                    await axios.post(`${baseUrl}/api/admin/sql`, {
+                        query: `INSERT INTO public.profiles (id, email, subscription_status, dodo_customer_id) 
+                                VALUES ($1, $2, $3, $4) 
+                                ON CONFLICT (id) 
+                                DO UPDATE SET subscription_status = EXCLUDED.subscription_status, dodo_customer_id = EXCLUDED.dodo_customer_id, updated_at = NOW()`,
+                        params: [userId, session.customer?.email || '', planType, session.customer?.id || session.customer_id]
+                    }, {
+                        headers: { 'Content-Type': 'application/json', 'x-api-key': adminKey }
                     });
-                    
-                    if (!updateRes.ok) {
-                        const errText = await updateRes.text();
-                        if (updateRes.status === 404 || errText.includes('not found')) {
-                            await fetch(`${baseUrl}/rest/v1/profiles`, {
-                                method: 'POST',
-                                headers: {
-                                    'apikey': adminKey,
-                                    'Authorization': `Bearer ${adminKey}`,
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    id: userId,
-                                    email: session.customer?.email,
-                                    subscription_status: planType,
-                                    dodo_customer_id: session.customer?.id || session.customer_id
-                                })
-                            });
-                        }
-                    }
                 } catch (e) {
                     console.warn("Eager DB update failed:", e.message);
                 }
@@ -1525,46 +1500,16 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                         const adminKey = process.env.INSFORGE_API_KEY || process.env.VITE_INSFORGE_ANON_KEY;
                         const baseUrl = process.env.VITE_INSFORGE_URL;
 
-                        // Use raw fetch to bypass RLS using the admin API key
-                        const updateRes = await fetch(`${baseUrl}/rest/v1/profiles?id=eq.${userId}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'apikey': adminKey,
-                                'Authorization': `Bearer ${adminKey}`,
-                                'Content-Type': 'application/json',
-                                'Prefer': 'return=minimal'
-                            },
-                            body: JSON.stringify({
-                                subscription_status: 'pro',
-                                dodo_customer_id: event.data.customer?.id,
-                                updated_at: new Date().toISOString()
-                            })
+                        await axios.post(`${baseUrl}/api/admin/sql`, {
+                            query: `INSERT INTO public.profiles (id, email, subscription_status, dodo_customer_id) 
+                                    VALUES ($1, $2, $3, $4) 
+                                    ON CONFLICT (id) 
+                                    DO UPDATE SET subscription_status = EXCLUDED.subscription_status, dodo_customer_id = EXCLUDED.dodo_customer_id, updated_at = NOW()`,
+                            params: [userId, event.data.customer?.email || '', planType, event.data.customer?.id]
+                        }, {
+                            headers: { 'Content-Type': 'application/json', 'x-api-key': adminKey }
                         });
-
-                        if (!updateRes.ok) {
-                            const errText = await updateRes.text();
-                            console.error("DB fulfillment failure HTTP status:", updateRes.status, errText);
-                            
-                            // If PATCH failed because it doesn't exist, try POST (insert)
-                            if (updateRes.status === 404 || errText.includes('not found')) {
-                                await fetch(`${baseUrl}/rest/v1/profiles`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'apikey': adminKey,
-                                        'Authorization': `Bearer ${adminKey}`,
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({
-                                        id: userId,
-                                        email: event.data.customer?.email,
-                                        subscription_status: 'pro',
-                                        dodo_customer_id: event.data.customer?.id
-                                    })
-                                });
-                            }
-                        } else {
-                            console.log(`✅ Profile updated to PRO for user ${userId}`);
-                        }
+                        console.log(`✅ Profile updated to PRO for user ${userId}`);
                     } catch (dbErr) {
                         console.warn("DB fulfillment failure:", dbErr.message);
                     }
