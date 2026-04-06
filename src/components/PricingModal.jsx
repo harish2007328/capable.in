@@ -38,7 +38,6 @@ const PricingModal = ({ isOpen, onClose }) => {
         setLoadingPlan('pro');
         try {
             const response = await axios.post('/api/checkout', {
-                productId: import.meta.env.VITE_DODO_PAYMENTS_PRODUCT_ID,
                 userEmail: user.email,
                 userId: user.id,
                 planType: 'pro',

@@ -1389,6 +1389,10 @@ app.post('/api/checkout', async (req, res) => {
 
         const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID;
 
+        if (!targetProductId) {
+            return res.status(400).json({ error: "No product ID configured. Please set DODO_PAYMENTS_PRODUCT_ID." });
+        }
+
         const session = await dodoPayments.checkoutSessions.create({
             product_cart: [{
                 product_id: targetProductId,

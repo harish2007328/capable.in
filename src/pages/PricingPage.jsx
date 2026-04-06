@@ -64,7 +64,6 @@ const PricingPage = () => {
         setLoadingPlan(planName);
         try {
             const response = await axios.post('/api/checkout', {
-                productId: import.meta.env.VITE_DODO_PAYMENTS_PRODUCT_ID, // Use env var
                 userEmail: user.email,
                 userId: user.id,
                 planType: planName.toLowerCase(),
