@@ -1407,7 +1407,8 @@ app.post('/api/checkout', async (req, res) => {
             throw new Error("Dodo Payments is not configured (missing API key).");
         }
 
-        const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID;
+        // Fallback sequentially: provided > server env > hardcoded default
+        const targetProductId = productId || process.env.DODO_PAYMENTS_PRODUCT_ID || "pdt_0Na6mITO06djfopBpp1zr";
 
         if (!targetProductId) {
             return res.status(400).json({ error: "No product ID configured. Please set DODO_PAYMENTS_PRODUCT_ID." });
