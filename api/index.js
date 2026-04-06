@@ -15,7 +15,7 @@ import crypto from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -81,24 +81,25 @@ const getGroqClient = () => {
 };
 
 let dodoPayments;
-try {
+const getDodoPayments = () => {
+    if (dodoPayments) return dodoPayments;
     if (process.env.DODO_PAYMENTS_API_KEY) {
-        dodoPayments = new DodoPayments({
-            bearerToken: process.env.DODO_PAYMENTS_API_KEY,
-            environment: process.env.DODO_PAYMENTS_MODE === 'live' ? 'live_mode' : 'test_mode'
-        });
-        console.log("✅ Dodo SDK initialized");
-    } else {
-        console.warn("⚠️ Dodo API Key missing. Checkout will be disabled.");
+        try {
+            dodoPayments = new DodoPayments({
+                bearerToken: process.env.DODO_PAYMENTS_API_KEY,
+                environment: process.env.DODO_PAYMENTS_MODE === 'live' ? 'live_mode' : 'test_mode'
+            });
+            console.log("✅ Dodo SDK initialized dynamically on:", process.env.DODO_PAYMENTS_MODE === 'live' ? 'LIVE' : 'TEST');
+            console.log("Key prefix:", process.env.DODO_PAYMENTS_API_KEY.substring(0, 5) + "...");
+        } catch (e) {
+            console.error("❌ Dodo Initialization Error:", e.message);
+        }
     }
-} catch (e) {
-    console.error("❌ Dodo Initialization Error:", e.message);
-}
+    return dodoPayments;
+};
 
-console.log("Dodo SDK initialized on:", process.env.DODO_PAYMENTS_MODE === 'live' ? 'LIVE' : 'TEST');
-if (process.env.DODO_PAYMENTS_API_KEY) {
-    console.log("Key prefix:", process.env.DODO_PAYMENTS_API_KEY.substring(0, 5) + "...");
-}
+// Initial attempt
+getDodoPayments();
 
 const insforge = createClient({
     baseUrl: process.env.VITE_INSFORGE_URL,
@@ -1403,7 +1404,8 @@ app.post('/api/checkout', async (req, res) => {
     const { productId, quantity = 1, userEmail, userId, metadata, planType, returnUrl } = req.body;
 
     try {
-        if (!dodoPayments) {
+        const dp = getDodoPayments();
+        if (!dp) {
             throw new Error("Dodo Payments is not configured (missing API key).");
         }
 
@@ -1416,7 +1418,7 @@ app.post('/api/checkout', async (req, res) => {
         
         const baseUrl = returnUrl || process.env.FRONTEND_URL || 'http://localhost:5173';
 
-        const session = await dodoPayments.checkoutSessions.create({
+        const session = await dp.checkoutSessions.create({
             product_cart: [{
                 product_id: targetProductId,
                 quantity: quantity
@@ -1524,10 +1526,11 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
 app.post('/api/portal', async (req, res) => {
     const { customerId } = req.body;
     try {
-        if (!dodoPayments) {
+        const dp = getDodoPayments();
+        if (!dp) {
             throw new Error("Dodo Payments is not configured.");
         }
-        const session = await dodoPayments.customerPortalSessions.create({
+        const session = await dp.customerPortalSessions.create({
             customer_id: customerId,
             return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`
         });
