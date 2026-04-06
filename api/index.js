@@ -278,8 +278,7 @@ app.get('/api/auth/google', (req, res) => {
 
     const url = client.generateAuthUrl({
         access_type: 'offline',
-        scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
-        prompt: 'consent'
+        scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
     });
     res.redirect(url);
 });
@@ -436,8 +435,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
             secure: isProduction,
             sameSite: 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            path: '/',
-            ...(isProduction && { domain: '.capable.website' }) // Share cookie across www and non-www
+            path: '/'
         });
 
         let redirectHost = cleanHost;
@@ -481,14 +479,14 @@ app.get('/api/auth/session', async (req, res) => {
         // Token invalid 
         if (response.status === 401) {
             const isProd = process.env.NODE_ENV === 'production';
-            res.clearCookie('capable_auth', { path: '/', ...(isProd && { domain: '.capable.website' }) });
+            res.clearCookie('capable_auth', { path: '/' });
         }
         return res.json({ authenticated: false });
     } catch (err) {
         // Only clear the cookie on explicit unauthorized errors, not network drops
         if (err.response && err.response.status === 401) {
             const isProduction = process.env.NODE_ENV === 'production';
-            res.clearCookie('capable_auth', { path: '/', ...(isProduction && { domain: '.capable.website' }) });
+            res.clearCookie('capable_auth', { path: '/' });
         }
         return res.json({ authenticated: false, error: err.message });
     }
@@ -507,8 +505,7 @@ app.post('/api/auth/set-cookie', (req, res) => {
         secure: isProduction,
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        path: '/',
-        ...(isProduction && { domain: '.capable.website' }) // Share cookie across www and non-www
+        path: '/'
     });
 
     res.json({ success: true });
@@ -516,8 +513,7 @@ app.post('/api/auth/set-cookie', (req, res) => {
 
 // Clear cookie on logout
 app.post('/api/auth/logout', (req, res) => {
-    const isProduction = process.env.NODE_ENV === 'production';
-    res.clearCookie('capable_auth', { path: '/', ...(isProduction && { domain: '.capable.website' }) });
+    res.clearCookie('capable_auth', { path: '/' });
     res.json({ success: true });
 });
 
@@ -1438,6 +1434,68 @@ app.post('/api/checkout', async (req, res) => {
     } catch (err) {
         console.error("DODO CHECKOUT ERROR:", err.message);
         res.status(500).json({ error: "Failed to create checkout session", details: err.message });
+    }
+});
+
+app.get('/api/checkout/verify/:sessionId', async (req, res) => {
+    try {
+        const dp = getDodoPayments();
+        if (!dp) return res.status(500).json({ error: "Dodo Payments not configured" });
+
+        const session = await dp.checkoutSessions.retrieve(req.params.sessionId);
+        
+        // Eagerly update database if succeeded (failsafe for slow or missing webhooks)
+        if (session.status === 'succeeded' || session.status === 'active' || session.payment_status === 'succeeded') {
+            const userId = session.metadata?.userId;
+            const planType = session.metadata?.planType || 'pro';
+            if (userId) {
+                const adminKey = process.env.INSFORGE_API_KEY || process.env.VITE_INSFORGE_ANON_KEY;
+                const baseUrl = process.env.VITE_INSFORGE_URL;
+
+                try {
+                    const updateRes = await fetch(`${baseUrl}/rest/v1/profiles?id=eq.${userId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': adminKey,
+                            'Authorization': `Bearer ${adminKey}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({
+                            subscription_status: planType,
+                            dodo_customer_id: session.customer?.id || session.customer_id,
+                            updated_at: new Date().toISOString()
+                        })
+                    });
+                    
+                    if (!updateRes.ok) {
+                        const errText = await updateRes.text();
+                        if (updateRes.status === 404 || errText.includes('not found')) {
+                            await fetch(`${baseUrl}/rest/v1/profiles`, {
+                                method: 'POST',
+                                headers: {
+                                    'apikey': adminKey,
+                                    'Authorization': `Bearer ${adminKey}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    id: userId,
+                                    email: session.customer?.email,
+                                    subscription_status: planType,
+                                    dodo_customer_id: session.customer?.id || session.customer_id
+                                })
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Eager DB update failed:", e.message);
+                }
+            }
+        }
+        res.json(session);
+    } catch (err) {
+        console.error("Session verification error:", err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 

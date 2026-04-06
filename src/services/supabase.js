@@ -26,7 +26,7 @@ const applyTokenToSDK = (token) => {
 
 // Helper: Validate a token against InsForge API
 const validateToken = async (token) => {
-    const response = await fetch(`${baseUrl}/api/auth/sessions/current`, {
+    const response = await fetch(`/api/auth/sessions/current`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!response.ok) return null;
