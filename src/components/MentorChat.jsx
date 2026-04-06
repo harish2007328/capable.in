@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { mentorChat } from '../services/ai';
-import { Send, Zap, Menu, Edit, Pin, MessageSquare, X, Trash2, Flag } from 'lucide-react';
+import { Send, Zap, Menu, Edit, Pin, MessageSquare, X, Trash2, Flag, Lock, Crown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ProjectStorage } from '../services/projectStorage';
+import { useAuth } from '../context/AuthContext';
+import { getUserLimits } from '../config/planConfig';
+import PricingModal from './PricingModal';
 
 const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTask, projectId }) => {
     // Session Management State
@@ -46,7 +49,29 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
     const [mentions, setMentions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const messagesEndRef = useRef(null);
+    const { user } = useAuth();
+    const limits = getUserLimits(user);
+
+    // Daily AI message tracking
+    const getTodayKey = () => new Date().toISOString().split('T')[0];
+    const getMessagesToday = () => {
+        try {
+            const stored = JSON.parse(localStorage.getItem('capable_ai_usage') || '{}');
+            return stored[getTodayKey()] || 0;
+        } catch { return 0; }
+    };
+    const incrementMessagesToday = () => {
+        try {
+            const stored = JSON.parse(localStorage.getItem('capable_ai_usage') || '{}');
+            stored[getTodayKey()] = (stored[getTodayKey()] || 0) + 1;
+            localStorage.setItem('capable_ai_usage', JSON.stringify(stored));
+        } catch { /* ignore */ }
+    };
+    const [messagesToday, setMessagesToday] = useState(getMessagesToday());
+    const remaining = limits.aiMentorMessagesPerDay - messagesToday;
+    const isLimited = limits.aiMentorMessagesPerDay !== Infinity;
 
     // Event listener for adding task mentions from TaskView
     useEffect(() => {
@@ -129,6 +154,12 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
     const sendQuery = async (queryText) => {
         if (loading) return;
 
+        // Check daily limit for free users
+        if (isLimited && remaining <= 0) {
+            setShowUpgradeModal(true);
+            return;
+        }
+
         // Construct full message with mention context if any
         let fullQuery = queryText;
         if (mentions.length > 0) {
@@ -178,6 +209,10 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
             ));
         } finally {
             setLoading(false);
+            if (isLimited) {
+                incrementMessagesToday();
+                setMessagesToday(getMessagesToday());
+            }
         }
     };
 
@@ -197,6 +232,7 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
     });
 
     return (
+        <>
         <div className="flex h-full bg-white relative overflow-hidden">
             {/* Main Chat Area */}
             <div className={`flex-1 flex flex-col min-w-0 bg-slate-50/30 transition-all duration-500 ease-in-out ${isOpen ? 'blur-sm opacity-40 scale-[0.99]' : ''}`}>
@@ -206,6 +242,11 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                             AI Strategy Mentor
                         </span>
+                        {isLimited && (
+                            <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${remaining <= 3 ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-400'}`}>
+                                {remaining > 0 ? `${remaining} left today` : 'Limit reached'}
+                            </span>
+                        )}
                     </div>
 
                     <button
@@ -332,25 +373,37 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                 {/* Input Area */}
                 <div className="p-4 bg-white border-t border-slate-100 shrink-0">
                     {/* Mention Chips */}
-                    {
-                        mentions.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
-                                {mentions.map((m, idx) => (
-                                    <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 rounded-lg text-[var(--brand-accent)] animate-in zoom-in-95 duration-150">
-                                        <span className="text-[10px] font-black uppercase tracking-tighter">
-                                            Day {m.id}{m.stepIdx && ` • Step ${m.stepIdx}`}
-                                        </span>
-                                        <button
-                                            onClick={() => setMentions(prev => prev.filter((_, i) => i !== idx))}
-                                            className="hover:bg-[var(--brand-accent)]/10 rounded-full p-0.5 transition-colors"
-                                        >
-                                            <X size={10} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )
-                    }
+                    {isLimited && remaining <= 0 ? (
+                        <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl text-center">
+                            <Lock size={20} className="mx-auto text-amber-500 mb-2" />
+                            <p className="text-xs font-bold text-amber-800 mb-1">Daily AI limit reached</p>
+                            <p className="text-[10px] text-amber-600 mb-3">Upgrade to Pro for unlimited AI mentor access</p>
+                            <button
+                                onClick={() => setShowUpgradeModal(true)}
+                                className="px-4 py-2 bg-[var(--brand-accent)] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[var(--brand-accent-hover)] transition-all shadow-md"
+                            >
+                                Upgrade to Pro
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                    {mentions.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
+                            {mentions.map((m, idx) => (
+                                <div key={idx} className="flex items-center gap-1.5 px-2 py-1 bg-[var(--brand-accent)]/5 border border-[var(--brand-accent)]/10 rounded-lg text-[var(--brand-accent)] animate-in zoom-in-95 duration-150">
+                                    <span className="text-[10px] font-black uppercase tracking-tighter">
+                                        Day {m.id}{m.stepIdx && ` • Step ${m.stepIdx}`}
+                                    </span>
+                                    <button
+                                        onClick={() => setMentions(prev => prev.filter((_, i) => i !== idx))}
+                                        className="hover:bg-[var(--brand-accent)]/10 rounded-full p-0.5 transition-colors"
+                                    >
+                                        <X size={10} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     < form onSubmit={handleSend} className="relative flex items-center bg-white shadow-sm border border-slate-200 rounded-2xl focus-within:ring-2 focus-within:ring-[var(--brand-accent)]/10 transition-all" >
                         <input
@@ -373,6 +426,8 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                             <Send size={14} />
                         </button>
                     </form>
+                    </>
+                    )}
                 </div>
             </div>
 
@@ -465,6 +520,8 @@ const MentorChat = ({ idea, plan, completedDays = [], currentTaskId, onSelectTas
                 )
             }
         </div >
+            <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+        </>
     );
 };
 

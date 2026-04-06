@@ -6,11 +6,13 @@ import {
     Settings,
     LayoutDashboard,
     Home,
-    Zap
+    Zap,
+    Crown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { isPro } from '../config/planConfig';
 import PricingModal from './PricingModal';
 import logoIconSrc from '../assets/LOGO ICON.svg';
 
@@ -137,12 +139,19 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
 
             {/* Actions & User */}
             <div className="flex items-center gap-3 md:gap-4">
-                <button
-                    onClick={() => setIsPricingOpen(true)}
-                    className="flex items-center gap-2 px-5 py-2 bg-[var(--brand-accent)] text-white rounded-lg text-xs font-bold hover:bg-[var(--brand-accent-hover)] transition-all shadow-md shadow-blue-100"
-                >
-                    Upgrade
-                </button>
+                {isPro(user) ? (
+                    <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg">
+                        <Crown size={14} className="text-amber-500" />
+                        <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Pro</span>
+                    </div>
+                ) : (
+                    <button
+                        onClick={() => setIsPricingOpen(true)}
+                        className="flex items-center gap-2 px-5 py-2 bg-[var(--brand-accent)] text-white rounded-lg text-xs font-bold hover:bg-[var(--brand-accent-hover)] transition-all shadow-md shadow-blue-100"
+                    >
+                        Upgrade
+                    </button>
+                )}
 
                 <div className="relative">
                     <button

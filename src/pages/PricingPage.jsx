@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, X, Zap, Sparkles, Loader2, ZapIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { PLANS, isPro } from '../config/planConfig';
 import axios from 'axios';
 
 // Pricing Assets
@@ -34,6 +35,7 @@ const PricingPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [billingCycle, setBillingCycle] = useState('monthly');
+    const userIsPro = isPro(user);
     const [loadingPlan, setLoadingPlan] = useState(null);
     const videoRef = useRef(null);
 
@@ -190,25 +192,18 @@ const PricingPage = () => {
                                     </p>
 
                                     <div className="space-y-4">
-                                        {[
-                                            "1 Active Project",
-                                            "Basic Market Analysis",
-                                            "30-Day Static Roadmap",
-                                            "Limited AI Mentor"
-                                        ].map((ft, i) => (
-                                            <div key={i} className="flex items-center gap-3">
-                                                <div className="flex-shrink-0 w-4 h-4 rounded-full bg-blue-50 flex items-center justify-center">
-                                                    <Check className="w-3 h-3 text-[var(--brand-accent)]" strokeWidth={3} />
+                                        {PLANS.free.features.map((ft, i) => (
+                                            <div key={i} className={`flex items-center gap-3 ${!ft.included ? 'opacity-50' : ''}`}>
+                                                <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${ft.included ? 'bg-blue-50' : 'bg-gray-100'}`}>
+                                                    {ft.included ? (
+                                                        <Check className="w-3 h-3 text-[var(--brand-accent)]" strokeWidth={3} />
+                                                    ) : (
+                                                        <X className="w-3 h-3 text-gray-400" strokeWidth={3} />
+                                                    )}
                                                 </div>
-                                                <span className="text-[14px] text-gray-700 font-medium">{ft}</span>
+                                                <span className={`text-[14px] font-medium ${ft.included ? 'text-gray-700' : 'text-gray-400'}`}>{ft.text}</span>
                                             </div>
                                         ))}
-                                        <div className="flex items-center gap-3 opacity-50">
-                                            <div className="flex-shrink-0 w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center">
-                                                <X className="w-3 h-3 text-gray-400" strokeWidth={3} />
-                                            </div>
-                                            <span className="text-[14px] text-gray-400 font-medium">CSV/PDF Exporting</span>
-                                        </div>
                                     </div>
                                 </div>
                                 
@@ -236,9 +231,9 @@ const PricingPage = () => {
 
                                     <div className="mb-6 flex items-baseline gap-1 relative z-10">
                                         <span className="text-5xl lg:text-6xl font-display text-white">
-                                            ${isYearly ? "11.99" : "14.99"}
+                                            ${isYearly ? PLANS.pro.price.annual : PLANS.pro.price.monthly}
                                         </span>
-                                        <span className="text-white/50 text-[13px] font-bold uppercase tracking-wider">{isYearly ? '/ mo, billed yearly' : '/ mo'}</span>
+                                        <span className="text-white/50 text-[13px] font-bold uppercase tracking-wider">{isYearly ? PLANS.pro.priceLabel.annual : PLANS.pro.priceLabel.monthly}</span>
                                     </div>
 
                                     <p className="text-[14px] text-blue-100/70 leading-relaxed mb-8 block h-10 relative z-10">
@@ -246,18 +241,12 @@ const PricingPage = () => {
                                     </p>
 
                                     <div className="space-y-4 relative z-10">
-                                        {[
-                                            "Unlimited Projects",
-                                            "Deep Market Intelligence",
-                                            "60-Day Adaptive Roadmap",
-                                            "Unlimited AI Execution",
-                                            "PDF & CSV Report Export"
-                                        ].map((ft, i) => (
+                                        {PLANS.pro.features.map((ft, i) => (
                                             <div key={i} className="flex items-center gap-3">
                                                 <div className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center mt-0.5">
                                                     <Check className="w-3 h-3 text-blue-400" strokeWidth={3} />
                                                 </div>
-                                                <span className="text-[14px] text-white font-medium">{ft}</span>
+                                                <span className="text-[14px] text-white font-medium">{ft.text}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -265,15 +254,17 @@ const PricingPage = () => {
 
                                 <div className="absolute -bottom-6 left-6 right-6 z-20">
                                     <button
-                                        disabled={loadingPlan === 'Pro'}
-                                        onClick={() => handleCheckout("Pro", isYearly ? 143.88 : 14.99)}
+                                        disabled={loadingPlan === 'Pro' || userIsPro}
+                                        onClick={() => handleCheckout("Pro", isYearly ? PLANS.pro.price.annual * 12 : PLANS.pro.price.monthly)}
                                         className="relative w-full py-4 rounded-[28px] bg-white border border-gray-100 text-gray-900 font-bold text-[13px] tracking-wider uppercase transition-all duration-300 active:scale-95 shadow-[0_8px_30px_rgba(255,255,255,0.15)] inline-flex items-center justify-center gap-2 overflow-hidden group/btn hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)]"
                                     >
                                         <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.06)] to-transparent -translate-x-[150%] skew-x-12 group-hover/btn:translate-x-[50%] transition-transform duration-700 ease-out"></div>
-                                        {loadingPlan === 'Pro' ? (
+                                        {userIsPro ? (
+                                            <span className="z-10">✓ Current Plan</span>
+                                        ) : loadingPlan === 'Pro' ? (
                                             <><Loader2 className="w-4 h-4 animate-spin text-gray-900 z-10" /> <span className="z-10">Processing</span></>
                                         ) : (
-                                            <><ZapIcon className="w-4 h-4 fill-gray-900 text-gray-900 z-10" /> <span className="z-10">Go Capable</span></>
+                                            <><ZapIcon className="w-4 h-4 fill-gray-900 text-gray-900 z-10" /> <span className="z-10">{PLANS.pro.cta}</span></>
                                         )}
                                     </button>
                                 </div>

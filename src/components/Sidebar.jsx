@@ -8,9 +8,11 @@ import {
     Folder,
     Sparkles,
     User,
-    X
+    X,
+    Crown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { isPro } from '../config/planConfig';
 import { motion } from 'framer-motion';
 import Logo from './Logo';
 
@@ -93,21 +95,34 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 </div>
             </nav>
 
-            {/* Pro Upgrade Section */}
+            {/* Pro Upgrade / Pro Badge Section */}
             <div className="px-6 mb-6">
-                <div className="p-5 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:scale-110 transition-transform">
-                        <Sparkles className="text-white" size={32} />
+                {isPro(user) ? (
+                    <div className="p-5 bg-gradient-to-br from-amber-500/20 to-orange-500/10 backdrop-blur-md rounded-lg border border-amber-400/30 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-2 opacity-30">
+                            <Crown className="text-amber-300" size={32} />
+                        </div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Crown size={14} className="text-amber-400" />
+                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Pro Plan Active</p>
+                        </div>
+                        <p className="text-[9px] text-white/60 font-bold leading-relaxed">Unlimited projects, deep AI, and full exports.</p>
                     </div>
-                    <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1.5">Go Unlimited</p>
-                    <p className="text-[9px] text-white/60 font-bold mb-4 leading-relaxed">Unlock advanced market analysis and AI depth.</p>
-                    <Link 
-                        to="/pricing"
-                        className="w-full py-3 bg-white text-[var(--brand-accent)] rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-lg shadow-blue-900/10 flex items-center justify-center"
-                    >
-                        Upgrade to Pro
-                    </Link>
-                </div>
+                ) : (
+                    <div className="p-5 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:scale-110 transition-transform">
+                            <Sparkles className="text-white" size={32} />
+                        </div>
+                        <p className="text-[10px] font-black text-white uppercase tracking-widest mb-1.5">Go Unlimited</p>
+                        <p className="text-[9px] text-white/60 font-bold mb-4 leading-relaxed">Unlock advanced market analysis and AI depth.</p>
+                        <Link 
+                            to="/pricing"
+                            className="w-full py-3 bg-white text-[var(--brand-accent)] rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-lg shadow-blue-900/10 flex items-center justify-center"
+                        >
+                            Upgrade to Pro
+                        </Link>
+                    </div>
+                )}
             </div>
 
             {/* Footer User Info & Sign Out */}

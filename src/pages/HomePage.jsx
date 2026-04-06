@@ -6,6 +6,8 @@ import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
+import { getUserLimits } from '../config/planConfig';
+import PricingModal from '../components/PricingModal';
 // Hero Assets (Moved to public/ for preloading)
 const heroVideo = "/hero-bg2-compressed.mp4";
 const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
@@ -132,6 +134,9 @@ const HomePage = () => {
         }
     }, [location.state?.idea]);
 
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const limits = getUserLimits(user);
+
     const handleGenerate = async () => {
         if (!idea.trim() || isEnhancing) return;
 
@@ -149,7 +154,14 @@ const HomePage = () => {
             return;
         }
 
+        // Check project limit
         await ProjectStorage.init();
+        const existingProjects = await ProjectStorage.getAll();
+        if (existingProjects.length >= limits.maxProjects) {
+            setShowUpgradeModal(true);
+            return;
+        }
+
         const newId = await ProjectStorage.create(idea);
         navigate(`/project/${newId}`);
     };
@@ -185,6 +197,7 @@ const HomePage = () => {
     };
 
     return (
+        <>
         <div className="relative w-full bg-white clip-path-bounds">
             {/* --- HERO SECTION --- */}
             <section className="relative w-full min-h-[95vh] md:min-h-screen flex flex-col items-center overflow-hidden">
@@ -660,6 +673,8 @@ const HomePage = () => {
                 </div>
             </footer>
         </div >
+            <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+        </>
     );
 };
 

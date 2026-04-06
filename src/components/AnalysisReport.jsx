@@ -4,9 +4,13 @@ import {
     FileText, Download, ArrowRight,
     Target, Shield, Zap, BarChart3,
     Cpu, Activity, AlertTriangle, Layers,
-    Clock, Globe, TrendingUp, PieChart
+    Clock, Globe, TrendingUp, PieChart,
+    Lock
 } from 'lucide-react';
 import { ExportService } from '../services/exportService';
+import { useAuth } from '../context/AuthContext';
+import { getUserLimits } from '../config/planConfig';
+import PricingModal from './PricingModal';
 import LogoIcon from '../assets/LOGO ICON.svg';
 
 // --- Simplified Loading Skeleton for Sections ---
@@ -340,18 +344,29 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
     const [exporting, setExporting] = useState(null);
     const [copied, setCopied] = useState(false);
     const [planInitiated, setPlanInitiated] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const { user } = useAuth();
+    const limits = getUserLimits(user);
 
     if (!report) return null;
 
     const pages = report.pages || [];
 
     const handleExportPDF = async () => {
+        if (!limits.canExportPDF) {
+            setShowUpgradeModal(true);
+            return;
+        }
         setExporting('pdf');
         await ExportService.exportReportToPDF(report, `${report.project_name || 'Venture'}_Report.pdf`);
         setExporting(null);
     };
 
     const handleExportDocx = async () => {
+        if (!limits.canExportDocx) {
+            setShowUpgradeModal(true);
+            return;
+        }
         setExporting('docx');
         await ExportService.exportToDocx(report, `${report.project_name || 'Venture'}_Report.docx`);
         setExporting(null);
@@ -771,23 +786,29 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 {/* Export Group */}
                                 <div className="p-2 space-y-1">
                                     <button onClick={handleExportPDF} disabled={exporting === 'pdf'}
-                                        className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group">
-                                        <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
-                                            <FileText size={14} />
+                                        className={`flex items-center gap-3 w-full px-4 py-3.5 text-left rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group relative ${!limits.canExportPDF ? 'opacity-60' : 'hover:bg-slate-50'}`}>
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${!limits.canExportPDF ? 'bg-slate-100 text-slate-400' : 'bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white'}`}>
+                                            {!limits.canExportPDF ? <Lock size={14} /> : <FileText size={14} />}
                                         </div>
                                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-                                            {exporting === 'pdf' ? 'Generating…' : 'Export Report as PDF'}
+                                            {!limits.canExportPDF ? 'PDF Export — Pro' : exporting === 'pdf' ? 'Generating…' : 'Export Report as PDF'}
                                         </span>
+                                        {!limits.canExportPDF && (
+                                            <span className="ml-auto text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Upgrade</span>
+                                        )}
                                     </button>
 
                                     <button onClick={handleExportDocx} disabled={exporting === 'docx'}
-                                        className="flex items-center gap-3 w-full px-4 py-3.5 text-left hover:bg-slate-50 rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group">
-                                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                            <Download size={14} />
+                                        className={`flex items-center gap-3 w-full px-4 py-3.5 text-left rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group relative ${!limits.canExportDocx ? 'opacity-60' : 'hover:bg-slate-50'}`}>
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${!limits.canExportDocx ? 'bg-slate-100 text-slate-400' : 'bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white'}`}>
+                                            {!limits.canExportDocx ? <Lock size={14} /> : <Download size={14} />}
                                         </div>
                                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-                                            {exporting === 'docx' ? 'Generating…' : 'Export Report as Word'}
+                                            {!limits.canExportDocx ? 'Word Export — Pro' : exporting === 'docx' ? 'Generating…' : 'Export Report as Word'}
                                         </span>
+                                        {!limits.canExportDocx && (
+                                            <span className="ml-auto text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Upgrade</span>
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -855,9 +876,10 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 </div>
                             </div>
                         </div>
-                    </div>
+            </div>
                 </div>
             </div>
+            <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
         </div>
     );
 };

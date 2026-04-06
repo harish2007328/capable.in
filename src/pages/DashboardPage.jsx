@@ -16,9 +16,12 @@ import {
     Globe,
     Cpu,
     Flame,
-    Calendar
+    Calendar,
+    Lock
 } from 'lucide-react';
 import { ProjectStorage } from '../services/projectStorage';
+import { getUserLimits } from '../config/planConfig';
+import PricingModal from '../components/PricingModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import FullScreenLoader from '../components/FullScreenLoader';
 
@@ -33,7 +36,9 @@ const DashboardPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteTargetId, setDeleteTargetId] = useState(null);
     const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [notification, setNotification] = useState({ message: '', type: 'success', visible: false });
+    const limits = getUserLimits(user);
 
     // Settings state
     const [settingsState, setSettingsState] = useState({
@@ -230,11 +235,26 @@ const DashboardPage = () => {
                                         />
                                     </div>
                                     <button
-                                        onClick={() => navigate('/')}
+                                        onClick={() => {
+                                            if (projects.length >= limits.maxProjects) {
+                                                setShowUpgradeModal(true);
+                                            } else {
+                                                navigate('/');
+                                            }
+                                        }}
                                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-brand-accent text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[var(--brand-accent-hover)] transition-all shadow-lg shadow-blue-500/10 hover:scale-[1.02] active:scale-[0.98]"
                                     >
-                                        <Plus size={18} />
-                                        New Venture
+                                        {projects.length >= limits.maxProjects ? (
+                                            <>
+                                                <Lock size={18} />
+                                                New Venture
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Plus size={18} />
+                                                New Venture
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -1126,6 +1146,7 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                     </p>
                 </div>
             </div>
+            <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
         </div>
     );
 };

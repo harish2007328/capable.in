@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, Rocket, Crown, Check, Loader2 } from 'lucide-react';
+import { X, Check, Loader2, ZapIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { PLANS, isPro } from '../config/planConfig';
 import axios from 'axios';
 
 const PricingModal = ({ isOpen, onClose }) => {
@@ -13,67 +14,49 @@ const PricingModal = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    const plans = [
-        {
-            name: "Starter",
-            price: 0,
-            icon: Zap,
-            color: "text-[var(--brand-accent)]",
-            features: ["1 project", "Basic market research", "30-day action plan", "AI mentor chat (limited)"]
-        },
-        {
-            name: "Professional",
-            price: billingCycle === 'monthly' ? 29 : 279,
-            icon: Rocket,
-            featured: true,
-            features: ["Unlimited projects", "Advanced research", "Unlimited AI chat", "Export reports (PDF)", "Priority support"]
-        },
-        {
-            name: "Enterprise",
-            price: "Custom",
-            icon: Crown,
-            features: ["Everything in Pro", "White-label reports", "API access", "Team collaboration", "Dedicated manager"]
-        }
-    ];
+    const isYearly = billingCycle === 'annual';
+    const userIsPro = isPro(user);
 
-    const handleCheckout = async (plan) => {
-        if (plan.price === 0) {
+    const handleCheckout = async (planKey) => {
+        if (planKey === 'free') {
             navigate('/dashboard');
             onClose();
             return;
         }
 
-        if (plan.name === 'Enterprise') {
-            window.location.href = 'mailto:hello@capable.xyz';
-            return;
-        }
-
         if (!user) {
-            navigate('/login?redirect=pricing');
+            navigate('/login', { state: { from: { pathname: '/pricing' } } });
             onClose();
             return;
         }
 
-        setLoadingPlan(plan.name);
+        if (userIsPro) {
+            onClose();
+            return;
+        }
+
+        setLoadingPlan('pro');
         try {
             const response = await axios.post('/api/checkout', {
                 productId: import.meta.env.VITE_DODO_PAYMENTS_PRODUCT_ID,
                 userEmail: user.email,
                 userId: user.id,
-                planType: plan.name.toLowerCase(),
+                planType: 'pro',
                 metadata: {
-                    billingCycle
+                    billingCycle: isYearly ? 'yearly' : 'monthly',
+                    planName: 'Pro'
                 }
             });
 
-            if (response.data.checkout_url) {
+            if (response.data?.checkout_url) {
                 window.location.href = response.data.checkout_url;
             } else {
                 throw new Error("No checkout URL returned");
             }
         } catch (err) {
             console.error("Checkout failed:", err);
-            alert("Failed to start checkout. Please try again.");
+            const errorMsg = err.response?.data?.details || err.response?.data?.error || err.message;
+            alert(`Payment setup failed: ${errorMsg}`);
         } finally {
             setLoadingPlan(null);
         }
@@ -94,13 +77,13 @@ const PricingModal = ({ isOpen, onClose }) => {
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative w-full max-w-5xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                    className="relative w-full max-w-[680px] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
                 >
                     {/* Header */}
                     <div className="p-8 pb-0 flex justify-between items-start">
                         <div>
-                            <h2 className="text-3xl font-normal text-slate-900">Choose Your Plan</h2>
-                            <p className="text-slate-500 mt-2">Scale your vision with the right tools.</p>
+                            <h2 className="text-3xl font-display text-slate-900">Choose Your Plan</h2>
+                            <p className="text-slate-500 text-sm mt-2 font-medium">Scale your vision with the right tools. Cancel anytime.</p>
                         </div>
                         <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                             <X size={24} className="text-slate-400" />
@@ -114,67 +97,105 @@ const PricingModal = ({ isOpen, onClose }) => {
                                 <button
                                     key={cycle}
                                     onClick={() => setBillingCycle(cycle)}
-                                    className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${billingCycle === cycle ? 'bg-white text-[var(--brand-accent)] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${
+                                        billingCycle === cycle
+                                            ? 'bg-white text-[var(--brand-accent)] shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                    }`}
                                 >
-                                    {cycle === 'monthly' ? 'Monthly' : 'Annual (-20%)'}
+                                    {cycle === 'monthly' ? 'Monthly' : (
+                                        <>Annual <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-widest ml-1 ${billingCycle === 'annual' ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-500'}`}>-20%</span></>
+                                    )}
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Plans Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 overflow-y-auto custom-scrollbar">
-                        {plans.map((plan) => {
-                            const Icon = plan.icon;
-                            return (
-                                <div
-                                    key={plan.name}
-                                    className={`relative p-8 rounded-[2rem] border-2 transition-all duration-300 flex flex-col ${plan.featured ? 'border-[var(--brand-accent)] bg-blue-50/30 ring-4 ring-blue-50' : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'}`}
-                                >
-                                    {plan.featured && (
-                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--brand-accent)] text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                                            Recommended
+                    {/* Plans Grid — matches PricingPage exactly */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-8 overflow-y-auto custom-scrollbar">
+
+                        {/* FREE PLAN */}
+                        <div className="relative p-6 rounded-[28px] bg-white border-2 border-slate-100 flex flex-col">
+                            <h3 className="text-xl font-display text-gray-900 mb-4">{PLANS.free.name}</h3>
+
+                            <div className="mb-4 flex items-baseline gap-1">
+                                <span className="text-4xl font-display text-gray-900">$0</span>
+                                <span className="text-gray-400 text-[13px] font-bold uppercase tracking-wider">{PLANS.free.priceLabel}</span>
+                            </div>
+
+                            <p className="text-[13px] text-gray-500 leading-relaxed mb-6">
+                                {PLANS.free.tagline}
+                            </p>
+
+                            <div className="space-y-3 flex-1">
+                                {PLANS.free.features.map((ft, i) => (
+                                    <div key={i} className={`flex items-center gap-3 ${!ft.included ? 'opacity-50' : ''}`}>
+                                        <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${ft.included ? 'bg-blue-50' : 'bg-gray-100'}`}>
+                                            {ft.included ? (
+                                                <Check className="w-3 h-3 text-[var(--brand-accent)]" strokeWidth={3} />
+                                            ) : (
+                                                <X className="w-3 h-3 text-gray-400" strokeWidth={3} />
+                                            )}
                                         </div>
-                                    )}
-
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${plan.featured ? 'bg-[var(--brand-accent)] text-white' : 'bg-blue-50 text-[var(--brand-accent)]'}`}>
-                                        <Icon size={24} />
+                                        <span className={`text-[13px] font-medium ${ft.included ? 'text-gray-700' : 'text-gray-400'}`}>{ft.text}</span>
                                     </div>
+                                ))}
+                            </div>
 
-                                    <h3 className="text-xl font-normal text-slate-900 mb-1">{plan.name}</h3>
-                                    <div className="mb-6">
-                                        <span className="text-3xl font-bold text-slate-900">{typeof plan.price === 'number' ? `$${plan.price}` : plan.price}</span>
-                                        {typeof plan.price === 'number' && <span className="text-slate-400 text-sm ml-1">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>}
+                            <button
+                                onClick={() => handleCheckout('free')}
+                                className="w-full mt-6 py-3.5 rounded-2xl bg-[#0c1428] text-white font-bold text-[12px] tracking-wider uppercase hover:bg-[#1a2b54] transition-all active:scale-95 shadow-md"
+                            >
+                                {PLANS.free.cta}
+                            </button>
+                        </div>
+
+                        {/* PRO PLAN */}
+                        <div className="relative p-6 rounded-[28px] bg-gradient-to-b from-[#0c1428] to-[#0b1b3d] flex flex-col overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+                            {/* Neon Backlight */}
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--brand-accent)] rounded-full blur-[50px] opacity-40 -mr-8 -mt-8 pointer-events-none"></div>
+
+                            <h3 className="text-xl font-display text-white mb-4 relative z-10">{PLANS.pro.name}</h3>
+
+                            <div className="mb-4 flex items-baseline gap-1 relative z-10">
+                                <span className="text-4xl font-display text-white">
+                                    ${isYearly ? PLANS.pro.price.annual : PLANS.pro.price.monthly}
+                                </span>
+                                <span className="text-white/50 text-[13px] font-bold uppercase tracking-wider">
+                                    {isYearly ? PLANS.pro.priceLabel.annual : PLANS.pro.priceLabel.monthly}
+                                </span>
+                            </div>
+
+                            <p className="text-[13px] text-blue-100/70 leading-relaxed mb-6 relative z-10">
+                                {PLANS.pro.tagline}
+                            </p>
+
+                            <div className="space-y-3 flex-1 relative z-10">
+                                {PLANS.pro.features.map((ft, i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <div className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                            <Check className="w-3 h-3 text-blue-400" strokeWidth={3} />
+                                        </div>
+                                        <span className="text-[13px] text-white font-medium">{ft.text}</span>
                                     </div>
+                                ))}
+                            </div>
 
-                                    <ul className="space-y-3 mb-8 flex-grow">
-                                        {plan.features.map(f => (
-                                            <li key={f} className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                                                <div className="w-5 h-5 rounded-full bg-blue-50 text-[var(--brand-accent)] flex items-center justify-center scale-90">
-                                                    <Check size={12} strokeWidth={3} />
-                                                </div>
-                                                {f}
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    <button
-                                        onClick={() => handleCheckout(plan)}
-                                        disabled={loadingPlan === plan.name}
-                                        className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${plan.featured ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-lg shadow-blue-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
-                                    >
-                                        {loadingPlan === plan.name ? (
-                                            <>
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                                Processing...
-                                            </>
-                                        ) : (
-                                            plan.name === 'Enterprise' ? 'Contact Us' : 'Get Started'
-                                        )}
-                                    </button>
-                                </div>
-                            )
-                        })}
+                            <button
+                                disabled={loadingPlan === 'pro' || userIsPro}
+                                onClick={() => handleCheckout('pro')}
+                                className="relative w-full mt-6 py-3.5 rounded-2xl bg-white text-gray-900 font-bold text-[12px] tracking-wider uppercase transition-all active:scale-95 shadow-lg inline-flex items-center justify-center gap-2 overflow-hidden group/btn hover:shadow-xl z-10 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.06)] to-transparent -translate-x-[150%] skew-x-12 group-hover/btn:translate-x-[50%] transition-transform duration-700 ease-out"></div>
+                                {userIsPro ? (
+                                    <span className="z-10">✓ Current Plan</span>
+                                ) : loadingPlan === 'pro' ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin text-gray-900 z-10" /> <span className="z-10">Processing</span></>
+                                ) : (
+                                    <><ZapIcon className="w-4 h-4 fill-gray-900 text-gray-900 z-10" /> <span className="z-10">{PLANS.pro.cta}</span></>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </motion.div>
             </div>
