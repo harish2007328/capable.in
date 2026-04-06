@@ -17,13 +17,54 @@ const notifyListeners = (event, session) => {
     authListeners.forEach(cb => cb(event, session));
 };
 
+// Helper: Apply token to SDK internal state
+const applyTokenToSDK = (token) => {
+    if (client.http) {
+        client.http.userToken = token;
+    }
+};
+
+// Helper: Validate a token against InsForge API
+const validateToken = async (token) => {
+    const response = await fetch(`${baseUrl}/api/auth/sessions/current`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!response.ok) return null;
+    const result = await response.json();
+    return result.user || result;
+};
+
 // Patch getSession to work with InsForge SDK
-// For server-side auth (Google OAuth), the SDK's getCurrentSession() fails because
-// there's no httpOnly refresh cookie. So we first try to validate the stored token directly.
 client.auth.getSession = async () => {
     try {
-        // Step 0: Try to restore session from httpOnly cookie (auto-login)
-        // This runs on every page load — if the user has a valid cookie, they're logged in instantly
+        // Step 1: Check localStorage for a stored token (fastest path)
+        const storedToken = localStorage.getItem('insforge_session_token');
+        
+        if (storedToken) {
+            applyTokenToSDK(storedToken);
+            try {
+                const user = await validateToken(storedToken);
+                if (user) {
+                    const session = { accessToken: storedToken, user };
+                    const currentId = user?.id;
+                    if (currentId !== lastSessionId) {
+                        notifyListeners('SIGNED_IN', session);
+                    }
+                    return { data: { session }, error: null };
+                } else {
+                    // Token invalid — clear it and fall through to cookie check
+                    console.warn("Stored token is invalid, trying cookie...");
+                    localStorage.removeItem('insforge_session_token');
+                    applyTokenToSDK(null);
+                }
+            } catch (fetchErr) {
+                // Network error — don't clear the token, user might be offline
+                console.warn("Token validation failed (network):", fetchErr.message);
+                return { data: { session: { accessToken: storedToken, user: null } }, error: null };
+            }
+        }
+
+        // Step 2: Try to restore session from httpOnly cookie (auto-login on reload)
         try {
             const cookieRes = await fetch(`/api/auth/session`, { 
                 credentials: 'include' // Send cookies with request
@@ -31,11 +72,9 @@ client.auth.getSession = async () => {
             if (cookieRes.ok) {
                 const cookieData = await cookieRes.json();
                 if (cookieData.authenticated && cookieData.accessToken) {
-                    // Cookie has a valid token — store it and use it
+                    // Cookie has a valid token — store it in localStorage for fast access next time
                     localStorage.setItem('insforge_session_token', cookieData.accessToken);
-                    if (client.http) {
-                        client.http.userToken = cookieData.accessToken;
-                    }
+                    applyTokenToSDK(cookieData.accessToken);
                     const session = {
                         accessToken: cookieData.accessToken,
                         user: cookieData.user
@@ -48,78 +87,15 @@ client.auth.getSession = async () => {
                 }
             }
         } catch (cookieErr) {
-            // Cookie check failed (network error, server down) — fall through to localStorage
+            // Cookie check failed (network error, server down) — no session
+            console.warn("Cookie session check failed:", cookieErr.message);
         }
 
-        // Step 1: Check for a stored access token (set by Google OAuth callback or cookie restore above)
-        const storedToken = localStorage.getItem('insforge_session_token');
-        
-        if (storedToken) {
-            // Push token into SDK's internal http client so .database requests work seamlessly!
-            if (client.http) {
-                client.http.userToken = storedToken;
-            }
-            try {
-                // Validate the token directly against the InsForge API
-                const response = await fetch(`${baseUrl}/api/auth/sessions/current`, {
-                    headers: { 'Authorization': `Bearer ${storedToken}` }
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    const user = result.user || result;
-                    const session = {
-                        accessToken: storedToken,
-                        user: user
-                    };
-                    
-                    const currentId = user?.id;
-                    if (currentId !== lastSessionId) {
-                        notifyListeners('SIGNED_IN', session);
-                    }
-                    return { data: { session }, error: null };
-                } else {
-                    // Token expired or invalid. Try to decode the JWT payload 
-                    // to keep the user contextually logged in.
-                    try {
-                        const payload = JSON.parse(atob(storedToken.split('.')[1]));
-                        const now = Math.floor(Date.now() / 1000);
-                        
-                        if (payload.exp && payload.exp < now) {
-                            // Token IS expired - clear it
-                            console.warn("Token expired, clearing session.");
-                            localStorage.removeItem('insforge_session_token');
-                            if (client.http) client.http.userToken = null;
-                            
-                            const cachedUser = {
-                                id: payload.sub,
-                                email: payload.email,
-                                role: payload.role
-                            };
-                            return { data: { session: { accessToken: null, user: cachedUser, expired: true } }, error: null };
-                        }
-                    } catch (decodeErr) {
-                        // Can't decode - genuinely invalid token
-                    }
-                    
-                    // Truly invalid token (not just expired)
-                    console.warn("Stored token is invalid, clearing...");
-                    localStorage.removeItem('insforge_session_token');
-                    if (client.http) client.http.userToken = null;
-                }
-            } catch (fetchErr) {
-                // Network error - don't clear the token, user might be offline
-                console.warn("Token validation fetch failed:", fetchErr.message);
-                return { data: { session: { accessToken: storedToken, user: null } }, error: null };
-            }
-        }
-        
-        // No stored token = no session
-        if (client.http) client.http.userToken = null;
-        
+        // No valid token anywhere = no session
+        applyTokenToSDK(null);
         return { data: { session: null }, error: null };
     } catch (err) {
-        if (client.http) client.http.userToken = null;
+        applyTokenToSDK(null);
         return { data: { session: null }, error: err };
     }
 };
@@ -136,3 +112,4 @@ client.auth.onAuthStateChange = (callback) => {
 };
 
 export const supabase = client;
+

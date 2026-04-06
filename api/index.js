@@ -418,7 +418,8 @@ app.get('/api/auth/google/callback', async (req, res) => {
             secure: isProduction,
             sameSite: 'lax',
             maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            path: '/'
+            path: '/',
+            ...(isProduction && { domain: '.capable.website' }) // Share cookie across www and non-www
         });
 
         let redirectHost = cleanHost;
@@ -461,13 +462,15 @@ app.get('/api/auth/session', async (req, res) => {
 
         // Token invalid 
         if (response.status === 401) {
-            res.clearCookie('capable_auth', { path: '/' });
+            const isProd = process.env.NODE_ENV === 'production';
+            res.clearCookie('capable_auth', { path: '/', ...(isProd && { domain: '.capable.website' }) });
         }
         return res.json({ authenticated: false });
     } catch (err) {
         // Only clear the cookie on explicit unauthorized errors, not network drops
         if (err.response && err.response.status === 401) {
-            res.clearCookie('capable_auth', { path: '/' });
+            const isProduction = process.env.NODE_ENV === 'production';
+            res.clearCookie('capable_auth', { path: '/', ...(isProduction && { domain: '.capable.website' }) });
         }
         return res.json({ authenticated: false, error: err.message });
     }
@@ -486,7 +489,8 @@ app.post('/api/auth/set-cookie', (req, res) => {
         secure: isProduction,
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        path: '/'
+        path: '/',
+        ...(isProduction && { domain: '.capable.website' }) // Share cookie across www and non-www
     });
 
     res.json({ success: true });
@@ -494,7 +498,8 @@ app.post('/api/auth/set-cookie', (req, res) => {
 
 // Clear cookie on logout
 app.post('/api/auth/logout', (req, res) => {
-    res.clearCookie('capable_auth', { path: '/' });
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie('capable_auth', { path: '/', ...(isProduction && { domain: '.capable.website' }) });
     res.json({ success: true });
 });
 

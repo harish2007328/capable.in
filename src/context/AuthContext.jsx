@@ -219,8 +219,11 @@ export const AuthProvider = ({ children }) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
-        // Set httpOnly cookie for persistent login
+        // Store token in localStorage for session persistence across reloads
         if (data?.accessToken) {
+            localStorage.setItem('insforge_session_token', data.accessToken);
+            
+            // Also set httpOnly cookie for extra persistence
             try {
                 await axios.post(`${getServerUrl()}/api/auth/set-cookie`, 
                     { accessToken: data.accessToken }, 
