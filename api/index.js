@@ -108,6 +108,23 @@ const insforge = createClient({
 const MODEL = "qwen/qwen3-32b"; // Highest RPM (60) and best strategic reasoning
 const SAFETY_MODEL = "llama-prompt-guard-2-86m"; // Dedicated safety model
 
+// --- AI RESPONSE HELPERS ---
+const cleanJSONResponse = (rawContent) => {
+    // Strip reasoning <think> tags completely
+    let content = rawContent.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    
+    // Strip markdown code blocks if the model wrapped the JSON in them
+    if (content.startsWith("```json")) {
+        content = content.replace(/^```json\n?/, '');
+        content = content.replace(/```\n?$/, '');
+    } else if (content.startsWith("```")) {
+        content = content.replace(/^```\w*\n?/, '');
+        content = content.replace(/```\n?$/, '');
+    }
+    
+    return JSON.parse(content.trim());
+};
+
 // --- RESEARCH HELPERS ---
 
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36';
@@ -522,7 +539,7 @@ app.post('/api/enhance-idea', async (req, res) => {
             response_format: { type: "json_object" }
         }));
 
-        res.json(JSON.parse(completion.choices[0].message.content));
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -578,7 +595,7 @@ app.post('/api/research', async (req, res) => {
                 response_format: { type: "json_object" }
             }));
 
-            const parsed = JSON.parse(completion.choices[0].message.content);
+            const parsed = cleanJSONResponse(completion.choices[0].message.content);
             const rawQuestions = parsed.questions || [];
 
             const validQuestions = rawQuestions.filter(q =>
@@ -648,7 +665,7 @@ app.post('/api/generate-report-structure', async (req, res) => {
             response_format: { type: "json_object" },
         });
 
-        res.json(JSON.parse(completion.choices[0].message.content));
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -759,7 +776,7 @@ app.post('/api/generate-report-section', async (req, res) => {
             max_tokens: 4000
         });
 
-        res.json(JSON.parse(completion.choices[0].message.content));
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
     } catch (err) {
         console.error(`Section generation failed for ${sectionId}:`, err.message, err.status || '');
         if (err.status === 429) {
@@ -806,7 +823,7 @@ app.post('/api/generate-plan-structure', async (req, res) => {
         }));
 
         const content = completion.choices[0].message.content;
-        res.json(JSON.parse(content));
+        res.json(cleanJSONResponse(content));
     } catch (err) {
         console.error('Plan structure generation failed:', err.message, err.status || '');
         if (err.status === 429) {
@@ -921,7 +938,7 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
             max_tokens: 8000
         }));
 
-        res.json(JSON.parse(completion.choices[0].message.content));
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
     } catch (err) {
         console.error(`Phase tasks generation failed:`, err.message);
         if (err.status === 429) {
@@ -991,7 +1008,7 @@ app.post('/api/analyze', async (req, res) => {
             max_tokens: 4000
         }));
 
-        res.json(JSON.parse(completion.choices[0].message.content));
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
     } catch (err) {
         console.error("ANALYSIS FAILED:", err.message);
         res.status(500).json({ error: "Analysis failed", details: err.message });
@@ -1061,7 +1078,7 @@ app.post('/api/generate-plan', async (req, res) => {
             max_tokens: 8000,
         }));
 
-        const plan = JSON.parse(completion.choices[0].message.content);
+        const plan = cleanJSONResponse(completion.choices[0].message.content);
         res.json(plan);
     } catch (err) {
         console.error("PLAN GENERATION FAILED:", err);
@@ -1145,6 +1162,7 @@ ${webContext}
 3. **Markdown Tables**: Use standard | pipes for all data.
 4. **Interactive**: Use @dayNumber frequently to link your advice to the roadmap.
 5. **Concise**: Under 120 words.
+6. **No Internal Reasoning**: NEVER output <think>, </think>, or any chain-of-thought tags. Only output your final polished response.
 
 🛠️ **CAPABILITIES:**
 1. **Edit Tasks**: [EDIT_TASK:@taskNumber] ... [/EDIT_TASK]
@@ -1349,7 +1367,9 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
             .replace(/\[REPLACE_TASKS\][\s\S]*?\[\/REPLACE_TASKS\]/g, '')
             .replace(/\[ADD_TASKS\][\s\S]*?\[\/ADD_TASKS\]/g, '')
             .replace(/\[DELETE_ALL\]/g, '')
-            .replace(/\[DELETE ALL\]/g, '');
+            .replace(/\[DELETE ALL\]/g, '')
+            // Strip chain-of-thought <think> tags from reasoning models
+            .replace(/<think>[\s\S]*?<\/think>/gi, '');
 
         if (usedFallback && replaceMatch) {
             // Remove the raw JSON we found
