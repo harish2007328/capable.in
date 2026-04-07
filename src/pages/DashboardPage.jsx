@@ -465,6 +465,7 @@ const DashboardPage = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+            <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
         </div>
     );
 };
@@ -1146,7 +1147,6 @@ const SettingsView = ({ user, logout, navigate, state, setState, onSave, onClear
                     </p>
                 </div>
             </div>
-            <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
         </div>
     );
 };
