@@ -24,13 +24,20 @@ const applyTokenToSDK = (token) => {
     }
 };
 
-// Helper: Validate a token directly against InsForge SDK (no proxy needed)
+// Helper: Validate a token directly against InsForge
 const validateToken = async (token) => {
     try {
-        const { data, error } = await client.auth.getUser(token);
-        if (error || !data?.user) return null;
-        return data.user;
+        // Apply the token to the SDK's internal state first
+        applyTokenToSDK(token);
+        // Then use getCurrentSession which validates against InsForge
+        const { data, error } = await client.auth.getCurrentSession();
+        if (error || !data?.session?.user) {
+            applyTokenToSDK(null);
+            return null;
+        }
+        return data.session.user;
     } catch {
+        applyTokenToSDK(null);
         return null;
     }
 };
