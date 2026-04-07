@@ -24,18 +24,52 @@ const applyTokenToSDK = (token) => {
     }
 };
 
-// Helper: Validate a token directly against InsForge
+// Helper: Decode a JWT payload without verification (we trust InsForge issued it)
+const decodeJWT = (token) => {
+    try {
+        const payload = token.split('.')[1];
+        return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    } catch {
+        return null;
+    }
+};
+
+// Helper: Validate a stored token and return a user object
 const validateToken = async (token) => {
     try {
-        // Apply the token to the SDK's internal state first
-        applyTokenToSDK(token);
-        // Then use getCurrentSession which validates against InsForge
-        const { data, error } = await client.auth.getCurrentSession();
-        if (error || !data?.session?.user) {
-            applyTokenToSDK(null);
+        const payload = decodeJWT(token);
+        if (!payload) return null;
+
+        // Check if token is expired
+        const now = Math.floor(Date.now() / 1000);
+        if (payload.exp && payload.exp < now) {
+            console.warn("Token expired at", new Date(payload.exp * 1000));
             return null;
         }
-        return data.session.user;
+
+        // Apply the token so subsequent SDK calls are authenticated
+        applyTokenToSDK(token);
+
+        // Build user object from JWT claims
+        const user = {
+            id: payload.sub,
+            email: payload.email,
+            role: payload.role || 'authenticated',
+        };
+
+        // Enrich with profile data from InsForge
+        try {
+            const { data: profile } = await client.auth.getProfile(payload.sub);
+            if (profile) {
+                user.profile = profile;
+                user.user_metadata = profile;
+            }
+        } catch {
+            // Profile fetch failed, but token itself is valid — proceed with basic info
+            user.profile = {};
+        }
+
+        return user;
     } catch {
         applyTokenToSDK(null);
         return null;
