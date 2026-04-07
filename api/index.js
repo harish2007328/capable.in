@@ -932,7 +932,7 @@ app.post('/api/generate-phase-tasks', async (req, res) => {
             ],
             model: MODEL,
             response_format: { type: "json_object" },
-            max_tokens: 8000
+            max_tokens: 4000
         }));
 
         res.json(cleanJSONResponse(completion.choices[0].message.content));
