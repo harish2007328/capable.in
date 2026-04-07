@@ -460,6 +460,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
 // --- AUTH COOKIE ENDPOINTS ---
 
 // Get session from cookie (for auto-login on page load)
+// Now includes automatic token refresh when expired
 app.get('/api/auth/session', async (req, res) => {
     try {
         const token = req.cookies?.capable_auth;
@@ -467,7 +468,7 @@ app.get('/api/auth/session', async (req, res) => {
             return res.json({ authenticated: false });
         }
 
-        // Validate the token against InsForge
+        // Step 1: Try validating the existing token
         const client = createClient({ baseUrl: process.env.VITE_INSFORGE_URL, anonKey: process.env.VITE_INSFORGE_ANON_KEY });
         const { data, error } = await client.auth.getUser(token);
 
@@ -475,13 +476,91 @@ app.get('/api/auth/session', async (req, res) => {
             return res.json({ authenticated: true, accessToken: token, user: data.user });
         }
 
-        // Token invalid 
-        if (error && (error.status === 401 || error.message.includes('Auth') || error.message.includes('token'))) {
-            res.clearCookie('capable_auth', { path: '/' });
+        // Step 2: Token expired/invalid — attempt silent re-authentication
+        // Decode the expired JWT to extract the user's email
+        console.log('Cookie token expired/invalid, attempting silent refresh...');
+        try {
+            const payloadB64 = token.split('.')[1];
+            if (payloadB64) {
+                const payload = JSON.parse(Buffer.from(payloadB64, 'base64').toString());
+                const userEmail = payload.email;
+                const userSub = payload.sub;
+
+                if (userEmail) {
+                    // Look up the user to get their Google sub (for password derivation)
+                    const apiKey = process.env.INSFORGE_API_KEY;
+                    let googleSub = null;
+
+                    if (apiKey) {
+                        try {
+                            const listRes = await axios.get(
+                                `${process.env.VITE_INSFORGE_URL}/api/auth/users?search=${encodeURIComponent(userEmail)}&limit=1`,
+                                { headers: { 'x-api-key': apiKey } }
+                            );
+                            const users = listRes.data?.data || listRes.data?.users || [];
+                            const existingUser = Array.isArray(users) ? users.find(u => u.email === userEmail) : null;
+                            if (existingUser) {
+                                // Try to find the Google provider identity to get the sub
+                                const providers = existingUser.providers || [];
+                                const identities = existingUser.identities || [];
+                                for (const identity of identities) {
+                                    if (identity.provider === 'google' && identity.identity_data?.sub) {
+                                        googleSub = identity.identity_data.sub;
+                                        break;
+                                    }
+                                }
+                            }
+                        } catch (lookupErr) {
+                            console.warn('User lookup for refresh failed:', lookupErr.message);
+                        }
+                    }
+
+                    // Try re-authenticating with derived password
+                    // For Google users: password = HMAC(googleSub || insforge-user-id)
+                    // For email users: we can't re-generate their password, so cookie refresh won't work
+                    const passwordCandidates = [];
+                    if (googleSub) passwordCandidates.push(getInsForgePassword(googleSub));
+                    if (userSub) passwordCandidates.push(getInsForgePassword(userSub));
+
+                    for (const pwd of passwordCandidates) {
+                        try {
+                            const { data: loginData } = await insforge.auth.signInWithPassword({
+                                email: userEmail,
+                                password: pwd
+                            });
+
+                            if (loginData?.accessToken) {
+                                console.log('✅ Token refreshed successfully for:', userEmail);
+                                // Update the cookie with the fresh token
+                                const isProduction = process.env.NODE_ENV === 'production';
+                                res.cookie('capable_auth', loginData.accessToken, {
+                                    httpOnly: true,
+                                    secure: isProduction,
+                                    sameSite: 'lax',
+                                    maxAge: 30 * 24 * 60 * 60 * 1000,
+                                    path: '/'
+                                });
+                                return res.json({
+                                    authenticated: true,
+                                    accessToken: loginData.accessToken,
+                                    user: loginData.user,
+                                    refreshed: true
+                                });
+                            }
+                        } catch (loginErr) {
+                            // Try next password candidate
+                        }
+                    }
+                }
+            }
+        } catch (refreshErr) {
+            console.warn('Silent token refresh failed:', refreshErr.message);
         }
+
+        // Step 3: All refresh attempts failed — clear cookie
+        res.clearCookie('capable_auth', { path: '/' });
         return res.json({ authenticated: false });
     } catch (err) {
-        // Only clear the cookie on explicit unauthorized errors, not network drops
         if (err.status === 401 || err.message?.includes('Auth') || err.message?.includes('token')) {
             res.clearCookie('capable_auth', { path: '/' });
         }

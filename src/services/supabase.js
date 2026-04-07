@@ -34,13 +34,48 @@ const decodeJWT = (token) => {
     }
 };
 
+// Helper: Check if a token is expired (with 5 minute buffer for proactive refresh)
+const isTokenExpired = (token, bufferSeconds = 300) => {
+    const payload = decodeJWT(token);
+    if (!payload?.exp) return false; // No exp claim = doesn't expire
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp < (now + bufferSeconds);
+};
+
+// Helper: Try to get a fresh token from the server's cookie-based session endpoint
+const refreshFromCookie = async () => {
+    try {
+        const cookieRes = await fetch(`/api/auth/session`, { 
+            credentials: 'include'
+        });
+        if (cookieRes.ok) {
+            const cookieData = await cookieRes.json();
+            if (cookieData.authenticated && cookieData.accessToken) {
+                // Server successfully returned a session (possibly refreshed)
+                if (cookieData.refreshed) {
+                    console.log('🔄 Token silently refreshed by server');
+                }
+                localStorage.setItem('insforge_session_token', cookieData.accessToken);
+                applyTokenToSDK(cookieData.accessToken);
+                return {
+                    accessToken: cookieData.accessToken,
+                    user: cookieData.user
+                };
+            }
+        }
+    } catch (err) {
+        console.warn('Cookie session refresh failed:', err.message);
+    }
+    return null;
+};
+
 // Helper: Validate a stored token and return a user object
 const validateToken = async (token) => {
     try {
         const payload = decodeJWT(token);
         if (!payload) return null;
 
-        // Check if token is expired
+        // Check if token is hard-expired (past exp with no buffer)
         const now = Math.floor(Date.now() / 1000);
         if (payload.exp && payload.exp < now) {
             console.warn("Token expired at", new Date(payload.exp * 1000));
@@ -83,6 +118,34 @@ client.auth.getSession = async () => {
         const storedToken = localStorage.getItem('insforge_session_token');
         
         if (storedToken) {
+            // Step 1a: If token is expired or about to expire, try cookie refresh FIRST
+            if (isTokenExpired(storedToken, 0)) {
+                // Token is hard-expired — go straight to cookie refresh
+                console.log('Stored token expired, attempting cookie refresh...');
+                localStorage.removeItem('insforge_session_token');
+                applyTokenToSDK(null);
+                
+                const refreshed = await refreshFromCookie();
+                if (refreshed) {
+                    const session = { accessToken: refreshed.accessToken, user: refreshed.user };
+                    const currentId = refreshed.user?.id;
+                    if (currentId !== lastSessionId) {
+                        notifyListeners('SIGNED_IN', session);
+                    }
+                    return { data: { session }, error: null };
+                }
+                
+                // Cookie refresh failed — no session
+                return { data: { session: null }, error: null };
+            }
+            
+            // Step 1b: If token is about to expire (within 5 min), proactively refresh in background
+            if (isTokenExpired(storedToken, 300)) {
+                console.log('Token expiring soon, proactive refresh...');
+                refreshFromCookie().catch(() => {}); // Fire-and-forget
+            }
+            
+            // Step 1c: Token is still valid — validate and use it
             applyTokenToSDK(storedToken);
             try {
                 const user = await validateToken(storedToken);
@@ -94,10 +157,20 @@ client.auth.getSession = async () => {
                     }
                     return { data: { session }, error: null };
                 } else {
-                    // Token invalid — clear it and fall through to cookie check
-                    console.warn("Stored token is invalid, trying cookie...");
+                    // Validation failed (e.g. server rejected it) — try cookie refresh
+                    console.warn("Stored token validation failed, trying cookie refresh...");
                     localStorage.removeItem('insforge_session_token');
                     applyTokenToSDK(null);
+                    
+                    const refreshed = await refreshFromCookie();
+                    if (refreshed) {
+                        const session = { accessToken: refreshed.accessToken, user: refreshed.user };
+                        const currentId = refreshed.user?.id;
+                        if (currentId !== lastSessionId) {
+                            notifyListeners('SIGNED_IN', session);
+                        }
+                        return { data: { session }, error: null };
+                    }
                 }
             } catch (fetchErr) {
                 // Network error — don't clear the token, user might be offline
@@ -106,31 +179,15 @@ client.auth.getSession = async () => {
             }
         }
 
-        // Step 2: Try to restore session from httpOnly cookie (auto-login on reload)
-        try {
-            const cookieRes = await fetch(`/api/auth/session`, { 
-                credentials: 'include' // Send cookies with request
-            });
-            if (cookieRes.ok) {
-                const cookieData = await cookieRes.json();
-                if (cookieData.authenticated && cookieData.accessToken) {
-                    // Cookie has a valid token — store it in localStorage for fast access next time
-                    localStorage.setItem('insforge_session_token', cookieData.accessToken);
-                    applyTokenToSDK(cookieData.accessToken);
-                    const session = {
-                        accessToken: cookieData.accessToken,
-                        user: cookieData.user
-                    };
-                    const currentId = cookieData.user?.id;
-                    if (currentId !== lastSessionId) {
-                        notifyListeners('SIGNED_IN', session);
-                    }
-                    return { data: { session }, error: null };
-                }
+        // Step 2: No stored token — try to restore session from httpOnly cookie
+        const refreshed = await refreshFromCookie();
+        if (refreshed) {
+            const session = { accessToken: refreshed.accessToken, user: refreshed.user };
+            const currentId = refreshed.user?.id;
+            if (currentId !== lastSessionId) {
+                notifyListeners('SIGNED_IN', session);
             }
-        } catch (cookieErr) {
-            // Cookie check failed (network error, server down) — no session
-            console.warn("Cookie session check failed:", cookieErr.message);
+            return { data: { session }, error: null };
         }
 
         // No valid token anywhere = no session
@@ -154,4 +211,3 @@ client.auth.onAuthStateChange = (callback) => {
 };
 
 export const supabase = client;
-
