@@ -247,10 +247,10 @@ app.get('/api/auth/sessions/current', async (req, res) => {
         }
 
         try {
-            const response = await axios.get(`${process.env.VITE_INSFORGE_URL}/api/auth/sessions/current`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            res.json(response.data.user || response.data);
+            const client = createClient({ baseUrl: process.env.VITE_INSFORGE_URL, anonKey: process.env.VITE_INSFORGE_ANON_KEY });
+            const { data, error } = await client.auth.getUser(token);
+            if (error || !data.user) throw error || new Error("Invalid session token");
+            res.json(data.user);
         } catch (insforgeErr) {
             console.error("InsForge Session Verification Failed:", insforgeErr.response?.data || insforgeErr.message);
             res.status(401).json({ error: "Invalid session token" });
@@ -468,24 +468,21 @@ app.get('/api/auth/session', async (req, res) => {
         }
 
         // Validate the token against InsForge
-        const response = await axios.get(`${process.env.VITE_INSFORGE_URL}/api/auth/sessions/current`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const client = createClient({ baseUrl: process.env.VITE_INSFORGE_URL, anonKey: process.env.VITE_INSFORGE_ANON_KEY });
+        const { data, error } = await client.auth.getUser(token);
 
-        if (response.status === 200 && response.data) {
-            return res.json({ authenticated: true, accessToken: token, user: response.data.user || response.data });
+        if (!error && data?.user) {
+            return res.json({ authenticated: true, accessToken: token, user: data.user });
         }
 
         // Token invalid 
-        if (response.status === 401) {
-            const isProd = process.env.NODE_ENV === 'production';
+        if (error && (error.status === 401 || error.message.includes('Auth') || error.message.includes('token'))) {
             res.clearCookie('capable_auth', { path: '/' });
         }
         return res.json({ authenticated: false });
     } catch (err) {
         // Only clear the cookie on explicit unauthorized errors, not network drops
-        if (err.response && err.response.status === 401) {
-            const isProduction = process.env.NODE_ENV === 'production';
+        if (err.status === 401 || err.message?.includes('Auth') || err.message?.includes('token')) {
             res.clearCookie('capable_auth', { path: '/' });
         }
         return res.json({ authenticated: false, error: err.message });
