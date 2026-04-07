@@ -43,9 +43,13 @@ const isTokenExpired = (token, bufferSeconds = 300) => {
 };
 
 // Helper: Try to get a fresh token from the server's cookie-based session endpoint
+const getApiBase = () => import.meta.env.VITE_API_URL || '';
+
 const refreshFromCookie = async () => {
     try {
-        const cookieRes = await fetch(`/api/auth/session`, { 
+        const apiBase = getApiBase();
+        const url = `${apiBase}/api/auth/session`;
+        const cookieRes = await fetch(url, { 
             credentials: 'include'
         });
         if (cookieRes.ok) {

@@ -417,16 +417,19 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
         const accessToken = authData.accessToken;
 
-        // Update profile
-        if (picture || name) {
-            try {
-                if (authData.user?.id) {
-                    await axios.patch(`${process.env.VITE_INSFORGE_URL}/api/auth/profiles/current`, {
-                        profile: { avatar_url: picture, name: name }
-                    }, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` } });
-                }
-            } catch (e) { }
-        }
+        // Update profile (including google_sub for token refresh)
+        try {
+            if (authData.user?.id) {
+                const profileUpdate = {};
+                if (picture) profileUpdate.avatar_url = picture;
+                if (name) profileUpdate.name = name;
+                if (googleId) profileUpdate.google_sub = googleId;
+                
+                await axios.patch(`${process.env.VITE_INSFORGE_URL}/api/auth/profiles/current`, {
+                    profile: profileUpdate
+                }, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` } });
+            }
+        } catch (e) { }
 
         // Set httpOnly auth cookie for persistent login (30 days)
         const isProduction = process.env.NODE_ENV === 'production';
@@ -491,32 +494,44 @@ app.get('/api/auth/session', async (req, res) => {
                     const apiKey = process.env.INSFORGE_API_KEY;
                     let googleSub = null;
 
-                    if (apiKey) {
+                    if (apiKey && userSub) {
                         try {
-                            const listRes = await axios.get(
-                                `${process.env.VITE_INSFORGE_URL}/api/auth/users?search=${encodeURIComponent(userEmail)}&limit=1`,
-                                { headers: { 'x-api-key': apiKey } }
-                            );
-                            const users = listRes.data?.data || listRes.data?.users || [];
-                            const existingUser = Array.isArray(users) ? users.find(u => u.email === userEmail) : null;
-                            if (existingUser) {
-                                // Try to find the Google provider identity to get the sub
-                                const providers = existingUser.providers || [];
-                                const identities = existingUser.identities || [];
-                                for (const identity of identities) {
-                                    if (identity.provider === 'google' && identity.identity_data?.sub) {
-                                        googleSub = identity.identity_data.sub;
-                                        break;
+                            // Fetch user profile to get stored google_sub
+                            const { data: profile } = await insforge.auth.getProfile(userSub);
+                            if (profile?.google_sub) {
+                                googleSub = profile.google_sub;
+                                console.log('Found stored google_sub for refresh');
+                            }
+                        } catch (profileErr) {
+                            console.warn('Profile fetch for refresh failed:', profileErr.message);
+                        }
+
+                        // Fallback: try user list API to find identity data
+                        if (!googleSub) {
+                            try {
+                                const listRes = await axios.get(
+                                    `${process.env.VITE_INSFORGE_URL}/api/auth/users?search=${encodeURIComponent(userEmail)}&limit=1`,
+                                    { headers: { 'x-api-key': apiKey } }
+                                );
+                                const users = listRes.data?.data || listRes.data?.users || [];
+                                const existingUser = Array.isArray(users) ? users.find(u => u.email === userEmail) : null;
+                                if (existingUser) {
+                                    const identities = existingUser.identities || [];
+                                    for (const identity of identities) {
+                                        if (identity.provider === 'google' && identity.identity_data?.sub) {
+                                            googleSub = identity.identity_data.sub;
+                                            break;
+                                        }
                                     }
                                 }
+                            } catch (lookupErr) {
+                                console.warn('User lookup for refresh failed:', lookupErr.message);
                             }
-                        } catch (lookupErr) {
-                            console.warn('User lookup for refresh failed:', lookupErr.message);
                         }
                     }
 
                     // Try re-authenticating with derived password
-                    // For Google users: password = HMAC(googleSub || insforge-user-id)
+                    // For Google users: password = HMAC(googleSub)
                     // For email users: we can't re-generate their password, so cookie refresh won't work
                     const passwordCandidates = [];
                     if (googleSub) passwordCandidates.push(getInsForgePassword(googleSub));
