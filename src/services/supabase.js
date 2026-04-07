@@ -24,14 +24,15 @@ const applyTokenToSDK = (token) => {
     }
 };
 
-// Helper: Validate a token against InsForge API
+// Helper: Validate a token directly against InsForge SDK (no proxy needed)
 const validateToken = async (token) => {
-    const response = await fetch(`/api/auth/sessions/current`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!response.ok) return null;
-    const result = await response.json();
-    return result.user || result;
+    try {
+        const { data, error } = await client.auth.getUser(token);
+        if (error || !data?.user) return null;
+        return data.user;
+    } catch {
+        return null;
+    }
 };
 
 // Patch getSession to work with InsForge SDK
