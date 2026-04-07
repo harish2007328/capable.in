@@ -1461,15 +1461,14 @@ app.get('/api/checkout/verify', async (req, res) => {
                 const baseUrl = process.env.VITE_INSFORGE_URL;
 
                 try {
-                    await axios.post(`${baseUrl}/api/admin/sql`, {
-                        query: `INSERT INTO public.profiles (id, email, subscription_status, dodo_customer_id) 
-                                VALUES ($1, $2, $3, $4) 
-                                ON CONFLICT (id) 
-                                DO UPDATE SET subscription_status = EXCLUDED.subscription_status, dodo_customer_id = EXCLUDED.dodo_customer_id, updated_at = NOW()`,
-                        params: [userId, session.customer?.email || '', planType, session.customer?.id || session.customer_id]
-                    }, {
-                        headers: { 'Content-Type': 'application/json', 'x-api-key': adminKey }
-                    });
+                        const adminClient = createClient({ baseUrl, anonKey: adminKey });
+                        const { error: dbErr } = await adminClient.database.from('profiles').upsert([{
+                            id: userId,
+                            email: session.customer?.email || '',
+                            subscription_status: planType,
+                            dodo_customer_id: session.customer?.id || session.customer_id
+                        }], { onConflict: 'id' });
+                        if (dbErr) throw dbErr;
                 } catch (e) {
                     console.warn("Eager DB update failed:", e.message);
                 }
@@ -1508,15 +1507,14 @@ app.post('/api/webhook/dodo', express.raw({ type: 'application/json' }), async (
                         const adminKey = process.env.INSFORGE_API_KEY || process.env.VITE_INSFORGE_ANON_KEY;
                         const baseUrl = process.env.VITE_INSFORGE_URL;
 
-                        await axios.post(`${baseUrl}/api/admin/sql`, {
-                            query: `INSERT INTO public.profiles (id, email, subscription_status, dodo_customer_id) 
-                                    VALUES ($1, $2, $3, $4) 
-                                    ON CONFLICT (id) 
-                                    DO UPDATE SET subscription_status = EXCLUDED.subscription_status, dodo_customer_id = EXCLUDED.dodo_customer_id, updated_at = NOW()`,
-                            params: [userId, event.data.customer?.email || '', planType, event.data.customer?.id]
-                        }, {
-                            headers: { 'Content-Type': 'application/json', 'x-api-key': adminKey }
-                        });
+                        const adminClient = createClient({ baseUrl, anonKey: adminKey });
+                        const { error: dbErr } = await adminClient.database.from('profiles').upsert([{
+                            id: userId,
+                            email: event.data.customer?.email || '',
+                            subscription_status: planType,
+                            dodo_customer_id: event.data.customer?.id
+                        }], { onConflict: 'id' });
+                        if (dbErr) throw dbErr;
                         console.log(`✅ Profile updated to PRO for user ${userId}`);
                     } catch (dbErr) {
                         console.warn("DB fulfillment failure:", dbErr.message);
