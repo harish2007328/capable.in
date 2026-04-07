@@ -134,13 +134,8 @@ export const AuthProvider = ({ children }) => {
             
             // Update local state with the rich profile data
             if (existingProfile) {
-                const hasAvatarChange = existingProfile.avatar_url && existingProfile.avatar_url !== currentUser.profile?.avatar_url;
-                const hasNameChange = existingProfile.name && existingProfile.name !== currentUser.profile?.name;
-                
-                if (hasAvatarChange || hasNameChange) {
-                    currentUser.profile = { ...currentUser.profile, ...existingProfile };
-                    setUser({ ...currentUser });
-                }
+                currentUser.profile = { ...currentUser.profile, ...existingProfile };
+                setUser({ ...currentUser });
             }
         } catch (dbErr) {
             console.warn("Database profile sync failed:", dbErr.message);
