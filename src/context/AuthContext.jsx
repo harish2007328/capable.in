@@ -229,6 +229,8 @@ export const AuthProvider = ({ children }) => {
             }
         }
         
+        await checkSession();
+        
         if (window.ProjectStorage?.migrateLocalToDatabase) {
             await window.ProjectStorage.migrateLocalToDatabase();
         }
@@ -239,6 +241,11 @@ export const AuthProvider = ({ children }) => {
     const signup = async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+        
+        if (data?.accessToken) {
+            localStorage.setItem('insforge_session_token', data.accessToken);
+            await checkSession();
+        }
         
         if (window.ProjectStorage?.migrateLocalToDatabase) {
             await window.ProjectStorage.migrateLocalToDatabase();
