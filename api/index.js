@@ -80,13 +80,14 @@ const hashRefreshToken = (token) => {
     return crypto.createHash('sha256').update(token).digest('hex');
 };
 
-const storeRefreshToken = async (userId, email, rawToken) => {
+const storeRefreshToken = async (userId, email, rawToken, googleSub = null) => {
     const tokenHash = hashRefreshToken(rawToken);
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
     await insforge.database.from('refresh_tokens').insert([{
         user_id: userId,
         email: email,
+        google_sub: googleSub,
         token_hash: tokenHash,
         expires_at: expiresAt.toISOString()
     }]);
@@ -118,9 +119,14 @@ const validateAndRotateRefreshToken = async (rawToken) => {
 
     // Generate + store new token
     const newRawToken = generateRefreshToken();
-    await storeRefreshToken(tokenRecord.user_id, tokenRecord.email, newRawToken);
+    await storeRefreshToken(tokenRecord.user_id, tokenRecord.email, newRawToken, tokenRecord.google_sub);
 
-    return { userId: tokenRecord.user_id, email: tokenRecord.email, newToken: newRawToken };
+    return { 
+        userId: tokenRecord.user_id, 
+        email: tokenRecord.email, 
+        googleSub: tokenRecord.google_sub,
+        newToken: newRawToken 
+    };
 };
 
 const setRefreshCookie = (res, rawToken) => {
@@ -515,7 +521,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
         // Generate + store a refresh token (standard rotation pattern)
         const refreshToken = generateRefreshToken();
-        await storeRefreshToken(authData.user.id, email, refreshToken);
+        await storeRefreshToken(authData.user.id, email, refreshToken, googleId);
 
         // Set opaque refresh token as httpOnly cookie (NOT the access token)
         setRefreshCookie(res, refreshToken);
@@ -557,42 +563,30 @@ app.post('/api/auth/token/refresh', async (req, res) => {
             return res.json({ error: 'Invalid or expired refresh token' });
         }
 
-        // Get profile to check for google_sub (for password derivation)
-        const { data: profile } = await insforge.auth.getProfile(result.userId);
-
         // Re-authenticate to get a fresh InsForge access token
         let newAccessToken = null;
         let userData = null;
-        const email = result.email; // Use the trusted email from our table!
-        console.log('✅ REFRESH: email from DB is', email, 'google_sub is', profile?.google_sub);
+        const email = result.email; 
+        const googleSub = result.googleSub;
+        
+        console.log('🔄 REFRESH ATTEMPT:', { email, userId: result.userId, hasGoogleSub: !!googleSub });
 
-        // Try Google OAuth re-auth (using stored google_sub)
-        const googleSub = profile.google_sub;
-        if (googleSub && email) {
+        // Password candidates for re-authentication
+        const candidates = [];
+        if (googleSub && email) candidates.push({ email, pwd: getInsForgePassword(googleSub) });
+        if (email) candidates.push({ email, pwd: getInsForgePassword(result.userId) });
+
+        for (const { email, pwd } of candidates) {
             try {
-                const password = getInsForgePassword(googleSub);
-                const { data: loginData } = await insforge.auth.signInWithPassword({ email, password });
+                const { data: loginData, error } = await insforge.auth.signInWithPassword({ email, password: pwd });
                 if (loginData?.accessToken) {
                     newAccessToken = loginData.accessToken;
                     userData = loginData.user;
+                    console.log('✅ REFRESH SUCCESS with candidate');
+                    break;
                 }
             } catch (e) {
-                console.error("Google Sub Login fallback failed:", e.message);
-            }
-        }
-
-        // Fallback: try with user ID as password seed
-        if (!newAccessToken && email) {
-            try {
-                const password = getInsForgePassword(result.userId);
-                console.log("Trying fallback password derivation...");
-                const { data: loginData } = await insforge.auth.signInWithPassword({ email, password });
-                if (loginData?.accessToken) {
-                    newAccessToken = loginData.accessToken;
-                    userData = loginData.user;
-                }
-            } catch (e) {
-                console.error("Fallback derived password failed:", e.message);
+                console.warn(`Re-auth candidate failed: ${e.message}`);
             }
         }
 
@@ -631,34 +625,23 @@ app.get('/api/auth/session', async (req, res) => {
             return res.json({ authenticated: false });
         }
 
-        const { data: profile } = await insforge.auth.getProfile(result.userId);
-        if (!profile) {
-            res.clearCookie('capable_refresh', { path: '/' });
-            return res.json({ authenticated: false });
-        }
-
+        // Re-authenticate directly like in the refresh route
         let newAccessToken = null;
         let userData = null;
-        const email = profile.email;
+        const email = result.email;
+        const googleSub = result.googleSub;
 
-        const googleSub = profile.google_sub;
-        if (googleSub) {
+        const candidates = [];
+        if (googleSub && email) candidates.push({ email, pwd: getInsForgePassword(googleSub) });
+        if (email) candidates.push({ email, pwd: getInsForgePassword(result.userId) });
+
+        for (const { email, pwd } of candidates) {
             try {
-                const password = getInsForgePassword(googleSub);
-                const { data: loginData } = await insforge.auth.signInWithPassword({ email, password });
+                const { data: loginData } = await insforge.auth.signInWithPassword({ email, password: pwd });
                 if (loginData?.accessToken) {
                     newAccessToken = loginData.accessToken;
                     userData = loginData.user;
-                }
-            } catch (e) {}
-        }
-        if (!newAccessToken) {
-            try {
-                const password = getInsForgePassword(result.userId);
-                const { data: loginData } = await insforge.auth.signInWithPassword({ email, password });
-                if (loginData?.accessToken) {
-                    newAccessToken = loginData.accessToken;
-                    userData = loginData.user;
+                    break;
                 }
             } catch (e) {}
         }
@@ -684,7 +667,8 @@ app.post('/api/auth/set-cookie', async (req, res) => {
 
     try {
         const refreshToken = generateRefreshToken();
-        await storeRefreshToken(userId, email, refreshToken);
+        // Manual email/password login doesn't have a google_sub
+        await storeRefreshToken(userId, email, refreshToken, null);
         setRefreshCookie(res, refreshToken);
         res.json({ success: true });
     } catch (err) {
