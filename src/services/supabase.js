@@ -46,35 +46,35 @@ const isTokenExpired = (token, bufferSeconds = 300) => {
     return payload.exp < (now + bufferSeconds);
 };
 
-// Helper: Try to get a fresh token from the server's cookie-based session endpoint
+// Helper: Exchange refresh token cookie for a new access token (standard rotation)
 const getApiBase = () => import.meta.env.VITE_API_URL || '';
 
 const refreshFromCookie = async () => {
     try {
         const apiBase = getApiBase();
-        const url = `${apiBase}/api/auth/session`;
-        const cookieRes = await fetch(url, { 
-            credentials: 'include'
+        const url = `${apiBase}/api/auth/token/refresh`;
+        const res = await fetch(url, { 
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
         });
         
-        if (cookieRes.ok) {
-            const cookieData = await cookieRes.json();
-            if (cookieData.authenticated && cookieData.accessToken) {
+        if (res.ok) {
+            const data = await res.json();
+            if (data.accessToken) {
                 return {
                     refreshed: true,
-                    hasProxyCookie: true,
                     session: {
-                        accessToken: cookieData.accessToken,
-                        user: cookieData.user
+                        accessToken: data.accessToken,
+                        user: data.user
                     }
                 };
             }
-            return { refreshed: false, hasProxyCookie: cookieData.hasProxyCookie === true };
         }
-        return { refreshed: false, hasProxyCookie: false };
+        return { refreshed: false };
     } catch (err) {
-        console.warn('Cookie session refresh failed:', err.message);
-        return { refreshed: false, hasProxyCookie: false };
+        console.warn('Token refresh failed:', err.message);
+        return { refreshed: false };
     }
 };
 

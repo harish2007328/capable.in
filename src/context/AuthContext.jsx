@@ -221,14 +221,16 @@ export const AuthProvider = ({ children }) => {
         if (data?.accessToken) {
             localStorage.setItem('insforge_session_token', data.accessToken);
             
-            // Also set httpOnly cookie for extra persistence
-            try {
-                await axios.post(`${getServerUrl()}/api/auth/set-cookie`, 
-                    { accessToken: data.accessToken }, 
-                    { withCredentials: true }
-                );
-            } catch (cookieErr) {
-                console.warn('Cookie set failed (non-critical):', cookieErr.message);
+            // Also generate a refresh token for extra persistence
+            if (data?.user?.id) {
+                try {
+                    await axios.post(`${getServerUrl()}/api/auth/set-cookie`, 
+                        { accessToken: data.accessToken, userId: data.user.id }, 
+                        { withCredentials: true }
+                    );
+                } catch (cookieErr) {
+                    console.warn('Cookie set failed (non-critical):', cookieErr.message);
+                }
             }
         }
         
@@ -247,6 +249,18 @@ export const AuthProvider = ({ children }) => {
         
         if (data?.accessToken) {
             localStorage.setItem('insforge_session_token', data.accessToken);
+            
+            if (data?.user?.id) {
+                try {
+                    await axios.post(`${getServerUrl()}/api/auth/set-cookie`, 
+                        { accessToken: data.accessToken, userId: data.user.id }, 
+                        { withCredentials: true }
+                    );
+                } catch (cookieErr) {
+                    console.warn('Cookie set failed (non-critical):', cookieErr.message);
+                }
+            }
+            
             await checkSession();
         }
         
