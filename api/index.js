@@ -125,13 +125,27 @@ const validateAndRotateRefreshToken = async (rawToken) => {
 
 const setRefreshCookie = (res, rawToken) => {
     const isProduction = process.env.NODE_ENV === 'production';
-    res.cookie('capable_refresh', rawToken, {
+    
+    // In production, we need to handle cross-domain cookies for custom domains (e.g. onrender.com -> capable.website)
+    const cookieOptions = {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
+        secure: true, // Always true for SameSite: None 
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
         path: '/'
-    });
+    };
+
+    // If we are on a custom domain, try to set the cookie on the apex domain so subdomains share it
+    if (isProduction && process.env.FRONTEND_URL) {
+        try {
+            const domain = new URL(process.env.FRONTEND_URL).hostname.replace(/^www\./, '');
+            if (!domain.includes('localhost') && domain.includes('.')) {
+                cookieOptions.domain = `.${domain}`;
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    res.cookie('capable_refresh', rawToken, cookieOptions);
 };
 
 // Cleanup expired tokens periodically (fire-and-forget)

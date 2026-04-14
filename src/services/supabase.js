@@ -131,6 +131,16 @@ const validateToken = async (token) => {
 // Patch getSession to work with InsForge SDK
 client.auth.getSession = async () => {
     try {
+        // Step 0: Check URL for a token (OAuth callback result)
+        // This makes the transition from Google redirect to logged-in state instant
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get('access_token');
+        if (tokenFromUrl) {
+            localStorage.setItem('insforge_session_token', tokenFromUrl);
+            // Proactively refresh from cookie in background to ensure we have a valid rotation token
+            refreshFromCookie().catch(() => {});
+        }
+
         // Step 1: Check localStorage for a stored token (fastest path for OAuth callbacks)
         const storedToken = localStorage.getItem('insforge_session_token');
         
