@@ -84,7 +84,7 @@ const storeRefreshToken = async (userId, rawToken) => {
     const tokenHash = hashRefreshToken(rawToken);
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
-    await insforge.from('refresh_tokens').insert([{
+    await insforge.database.from('refresh_tokens').insert([{
         user_id: userId,
         token_hash: tokenHash,
         expires_at: expiresAt.toISOString()
@@ -97,7 +97,7 @@ const validateAndRotateRefreshToken = async (rawToken) => {
     const tokenHash = hashRefreshToken(rawToken);
 
     // Look up the hashed token in DB
-    const { data: tokens } = await insforge.from('refresh_tokens')
+    const { data: tokens } = await insforge.database.from('refresh_tokens')
         .select('*')
         .eq('token_hash', tokenHash)
         .limit(1);
@@ -108,12 +108,12 @@ const validateAndRotateRefreshToken = async (rawToken) => {
 
     // Check expiry
     if (new Date(tokenRecord.expires_at) < new Date()) {
-        await insforge.from('refresh_tokens').delete().eq('id', tokenRecord.id);
+        await insforge.database.from('refresh_tokens').delete().eq('id', tokenRecord.id);
         return null;
     }
 
     // Rotation: delete old token immediately
-    await insforge.from('refresh_tokens').delete().eq('id', tokenRecord.id);
+    await insforge.database.from('refresh_tokens').delete().eq('id', tokenRecord.id);
 
     // Generate + store new token
     const newRawToken = generateRefreshToken();
@@ -136,7 +136,7 @@ const setRefreshCookie = (res, rawToken) => {
 // Cleanup expired tokens periodically (fire-and-forget)
 const cleanupExpiredTokens = async () => {
     try {
-        await insforge.from('refresh_tokens')
+        await insforge.database.from('refresh_tokens')
             .delete()
             .lt('expires_at', new Date().toISOString());
     } catch (e) { /* non-critical */ }
@@ -691,7 +691,7 @@ app.post('/api/auth/logout', async (req, res) => {
         if (refreshToken) {
             // Delete this specific token from DB (revoke it)
             const tokenHash = hashRefreshToken(refreshToken);
-            await insforge.from('refresh_tokens').delete().eq('token_hash', tokenHash);
+            await insforge.database.from('refresh_tokens').delete().eq('token_hash', tokenHash);
         }
     } catch (e) { /* non-critical */ }
 
