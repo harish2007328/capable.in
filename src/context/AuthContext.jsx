@@ -29,7 +29,10 @@ export const AuthProvider = ({ children }) => {
         }
     });
 
-    const [loading, setLoading] = useState(!user);
+    // ALWAYS start loading=true — we must validate the real session before
+    // routing decisions are made, even if a cached user exists in localStorage.
+    // This prevents a flash-redirect to /login when the token is expired.
+    const [loading, setLoading] = useState(true);
 
 
 

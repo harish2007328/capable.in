@@ -118,86 +118,68 @@ const validateToken = async (token) => {
 // Patch getSession to work with InsForge SDK
 client.auth.getSession = async () => {
     try {
-        // Step 1: Check localStorage for a stored token (fastest path)
+        // Step 1: Check localStorage for a stored token (fastest path for OAuth callbacks)
         const storedToken = localStorage.getItem('insforge_session_token');
         
-        if (storedToken) {
-            // Step 1a: If token is expired or about to expire, try cookie refresh FIRST
-            if (isTokenExpired(storedToken, 0)) {
-                // Token is hard-expired — go straight to cookie refresh
-                console.log('Stored token expired, attempting cookie refresh...');
-                localStorage.removeItem('insforge_session_token');
-                applyTokenToSDK(null);
-                
-                const refreshed = await refreshFromCookie();
-                if (refreshed) {
-                    const session = { accessToken: refreshed.accessToken, user: refreshed.user };
-                    const currentId = refreshed.user?.id;
-                    if (currentId !== lastSessionId) {
-                        notifyListeners('SIGNED_IN', session);
-                    }
-                    return { data: { session }, error: null };
-                }
-                
-                // Cookie refresh failed — no session
-                return { data: { session: null }, error: null };
-            }
-            
-            // Step 1b: If token is about to expire (within 5 min), proactively refresh in background
-            if (isTokenExpired(storedToken, 300)) {
-                console.log('Token expiring soon, proactive refresh...');
-                refreshFromCookie().catch(() => {}); // Fire-and-forget
-            }
-            
-            // Step 1c: Token is still valid — validate and use it
+        if (storedToken && !isTokenExpired(storedToken, 0)) {
+            // Token appears valid, try to use it directly
             applyTokenToSDK(storedToken);
             try {
+                // If token is close to expiry (within 5 mins), proactively refresh native cookie in background
+                if (isTokenExpired(storedToken, 300)) {
+                    console.log('Token expiring soon, proactive refresh...');
+                    client.auth.getCurrentSession().catch(() => {});
+                    refreshFromCookie().catch(() => {});
+                }
+                
                 const user = await validateToken(storedToken);
                 if (user) {
                     const session = { accessToken: storedToken, user };
-                    const currentId = user?.id;
-                    if (currentId !== lastSessionId) {
-                        notifyListeners('SIGNED_IN', session);
-                    }
+                    if (user?.id !== lastSessionId) notifyListeners('SIGNED_IN', session);
                     return { data: { session }, error: null };
-                } else {
-                    // Validation failed (e.g. server rejected it) — try cookie refresh
-                    console.warn("Stored token validation failed, trying cookie refresh...");
-                    localStorage.removeItem('insforge_session_token');
-                    applyTokenToSDK(null);
-                    
-                    const refreshed = await refreshFromCookie();
-                    if (refreshed) {
-                        const session = { accessToken: refreshed.accessToken, user: refreshed.user };
-                        const currentId = refreshed.user?.id;
-                        if (currentId !== lastSessionId) {
-                            notifyListeners('SIGNED_IN', session);
-                        }
-                        return { data: { session }, error: null };
-                    }
                 }
-            } catch (fetchErr) {
-                // Network error — don't clear the token, user might be offline
-                console.warn("Token validation failed (network):", fetchErr.message);
-                return { data: { session: { accessToken: storedToken, user: null } }, error: null };
+            } catch (err) {
+                console.warn("Stored token validation failed (network or other):", err.message);
+                // If it was just a network error, validateToken returns null. We fall through to next steps.
             }
         }
 
-        // Step 2: No stored token — try to restore session from httpOnly cookie
+        // Step 2: Try the native InsForge SDK session (handles auto-refresh for email/password)
+        try {
+            const nativeResponse = await client.auth.getCurrentSession();
+            if (nativeResponse.data?.session) {
+                const session = nativeResponse.data.session;
+                localStorage.setItem('insforge_session_token', session.accessToken);
+                applyTokenToSDK(session.accessToken);
+                
+                if (session.user?.id !== lastSessionId) {
+                    notifyListeners('SIGNED_IN', session);
+                }
+                return { data: { session }, error: null };
+            }
+        } catch (nativeErr) {
+            console.warn("Native getCurrentSession failed:", nativeErr.message);
+        }
+
+        // Step 3: Native SDK found no session. Fall back to custom proxy server cookie refresh (Google OAuth)
         const refreshed = await refreshFromCookie();
         if (refreshed) {
             const session = { accessToken: refreshed.accessToken, user: refreshed.user };
-            const currentId = refreshed.user?.id;
-            if (currentId !== lastSessionId) {
+            localStorage.setItem('insforge_session_token', session.accessToken);
+            applyTokenToSDK(session.accessToken);
+
+            if (session.user?.id !== lastSessionId) {
                 notifyListeners('SIGNED_IN', session);
             }
             return { data: { session }, error: null };
         }
 
         // No valid token anywhere = no session
+        localStorage.removeItem('insforge_session_token');
         applyTokenToSDK(null);
         return { data: { session: null }, error: null };
     } catch (err) {
+        localStorage.removeItem('insforge_session_token');
         applyTokenToSDK(null);
         return { data: { session: null }, error: err };
     }

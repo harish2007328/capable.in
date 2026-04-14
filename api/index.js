@@ -437,7 +437,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
             httpOnly: true,
             secure: isProduction,
             sameSite: 'lax',
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
             path: '/'
         });
 
@@ -552,7 +552,7 @@ app.get('/api/auth/session', async (req, res) => {
                                     httpOnly: true,
                                     secure: isProduction,
                                     sameSite: 'lax',
-                                    maxAge: 30 * 24 * 60 * 60 * 1000,
+                                    maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
                                     path: '/'
                                 });
                                 return res.json({
@@ -595,7 +595,7 @@ app.post('/api/auth/set-cookie', (req, res) => {
         httpOnly: true,
         secure: isProduction,
         sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
         path: '/'
     });
 
