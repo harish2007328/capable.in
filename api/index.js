@@ -541,21 +541,21 @@ app.post('/api/auth/token/refresh', async (req, res) => {
     try {
         const refreshToken = req.cookies?.capable_refresh;
         if (!refreshToken) {
-            return res.status(401).json({ error: 'No refresh token' });
+            return res.json({ error: 'No refresh token' });
         }
 
         // Validate + rotate the refresh token
         const result = await validateAndRotateRefreshToken(refreshToken);
         if (!result) {
             res.clearCookie('capable_refresh', { path: '/' });
-            return res.status(401).json({ error: 'Invalid or expired refresh token' });
+            return res.json({ error: 'Invalid or expired refresh token' });
         }
 
         // Look up the user's profile to get google_sub for re-authentication
         const { data: profile } = await insforge.auth.getProfile(result.userId);
         if (!profile) {
             res.clearCookie('capable_refresh', { path: '/' });
-            return res.status(401).json({ error: 'User not found' });
+            return res.json({ error: 'User not found' });
         }
 
         // Re-authenticate to get a fresh InsForge access token
@@ -591,7 +591,7 @@ app.post('/api/auth/token/refresh', async (req, res) => {
         if (!newAccessToken) {
             // Can't re-authenticate — user must log in again
             res.clearCookie('capable_refresh', { path: '/' });
-            return res.status(401).json({ error: 'Re-authentication failed' });
+            return res.json({ error: 'Re-authentication failed' });
         }
 
         // Set the rotated refresh token cookie
@@ -604,7 +604,7 @@ app.post('/api/auth/token/refresh', async (req, res) => {
     } catch (err) {
         console.error('Token refresh error:', err.message);
         res.clearCookie('capable_refresh', { path: '/' });
-        return res.status(500).json({ error: 'Refresh failed' });
+        return res.json({ error: 'Refresh failed' });
     }
 });
 
