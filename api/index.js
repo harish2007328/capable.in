@@ -180,7 +180,7 @@ getDodoPayments();
 
 const insforge = createClient({
     baseUrl: process.env.VITE_INSFORGE_URL,
-    anonKey: process.env.VITE_INSFORGE_ANON_KEY
+    anonKey: process.env.INSFORGE_API_KEY || process.env.VITE_INSFORGE_ANON_KEY
 });
 
 const MODEL = "qwen/qwen3-32b"; // Highest RPM (60) and best strategic reasoning
@@ -552,19 +552,14 @@ app.post('/api/auth/token/refresh', async (req, res) => {
             return res.json({ error: 'Invalid or expired refresh token' });
         }
 
-        // Look up the user's profile to get google_sub for re-authentication
+        // Get profile to check for google_sub (for password derivation)
         const { data: profile } = await insforge.auth.getProfile(result.userId);
-        console.log('✅ REFRESH: got profile for', result.userId, profile);
-        if (!profile) {
-            res.clearCookie('capable_refresh', { path: '/' });
-            return res.json({ error: 'User not found' });
-        }
 
         // Re-authenticate to get a fresh InsForge access token
         let newAccessToken = null;
         let userData = null;
-        const email = profile.email;
-        console.log('✅ REFRESH: email is', email, 'google_sub is', profile.google_sub);
+        const email = result.email; // Use the trusted email from our table!
+        console.log('✅ REFRESH: email from DB is', email, 'google_sub is', profile?.google_sub);
 
         // Try Google OAuth re-auth (using stored google_sub)
         const googleSub = profile.google_sub;

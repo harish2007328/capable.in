@@ -53,15 +53,18 @@ const refreshFromCookie = async () => {
     try {
         const apiBase = getApiBase();
         const url = `${apiBase}/api/auth/token/refresh`;
+        console.log('🔄 Attemping session recovery from:', url);
         const res = await fetch(url, { 
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
         });
         
+        console.log('🔄 Refresh response status:', res.status);
         if (res.ok) {
             const data = await res.json();
             if (data.accessToken) {
+                console.log('✅ Session recovered successfully');
                 return {
                     refreshed: true,
                     session: {
@@ -69,11 +72,16 @@ const refreshFromCookie = async () => {
                         user: data.user
                     }
                 };
+            } else if (data.error) {
+                console.warn('⚠️ Session recovery failed (JSON error):', data.error);
             }
+        } else {
+            const errText = await res.text();
+            console.warn('⚠️ Session recovery failed (HTTP error):', res.status, errText);
         }
         return { refreshed: false };
     } catch (err) {
-        console.warn('Token refresh failed:', err.message);
+        console.error('❌ Token refresh fetch error:', err.message);
         return { refreshed: false };
     }
 };
