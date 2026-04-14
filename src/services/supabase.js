@@ -27,8 +27,12 @@ const applyTokenToSDK = (token) => {
 // Helper: Decode a JWT payload without verification (we trust InsForge issued it)
 const decodeJWT = (token) => {
     try {
-        const payload = token.split('.')[1];
-        return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+        let payload = token.split('.')[1];
+        payload = payload.replace(/-/g, '+').replace(/_/g, '/');
+        while (payload.length % 4) {
+            payload += '=';
+        }
+        return JSON.parse(atob(payload));
     } catch {
         return null;
     }
@@ -126,12 +130,9 @@ client.auth.getSession = async () => {
             // Token appears valid, try to use it directly
             applyTokenToSDK(storedToken);
             try {
-                // If token is close to expiry (within 5 mins), proactively refresh native cookie in background
+                // If token is close to expiry (within 5 mins), proactively refresh proxy cookie in background
                 if (isTokenExpired(storedToken, 300)) {
-                    console.log('Token expiring soon, proactive refresh...');
-                    refreshFromCookie().then(() => {
-                        client.auth.getCurrentSession().catch(() => {});
-                    }).catch(() => {});
+                    refreshFromCookie().catch(() => {});
                 }
                 
                 const user = await validateToken(storedToken);
