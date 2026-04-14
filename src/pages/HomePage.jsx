@@ -52,7 +52,9 @@ const HomePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, loading } = useAuth();
-    const [idea, setIdea] = useState(location.state?.idea || '');
+    const [idea, setIdea] = useState(() => {
+        return location.state?.idea || sessionStorage.getItem('capable_draft_idea') || '';
+    });
     const [isEnhancing, setIsEnhancing] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [contentWarning, setContentWarning] = useState('');
@@ -133,6 +135,11 @@ const HomePage = () => {
             setIdea(location.state.idea);
         }
     }, [location.state?.idea]);
+
+    // Save idea to sessionStorage whenever it changes
+    useEffect(() => {
+        sessionStorage.setItem('capable_draft_idea', idea);
+    }, [idea]);
 
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const limits = getUserLimits(user);

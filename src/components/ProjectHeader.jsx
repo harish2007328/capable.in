@@ -16,7 +16,7 @@ import { isPro } from '../config/planConfig';
 import PricingModal from './PricingModal';
 import logoIconSrc from '../assets/LOGO ICON.svg';
 
-const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleLoading }) => {
+const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleLoading, disableStrategy }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showComingSoon, setShowComingSoon] = useState(false);
@@ -53,7 +53,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
 
     const tabs = [
         { id: 'context', label: 'Context' },
-        { id: 'strategy', label: 'Strategy' },
+        { id: 'strategy', label: 'Strategy', disabled: disableStrategy },
         { id: 'plan', label: 'Plan', disabled: !hasPlan },
     ];
 

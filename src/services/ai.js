@@ -46,11 +46,12 @@ export const generateAnalysisQuestions = async (idea, location) => {
 /**
  * Strategic Assessment Service (Chunked Phase 1: Structure)
  */
-export const generateReportStructure = async (idea, webSignals) => {
+export const generateReportStructure = async (idea, webSignals, answers) => {
     try {
         const response = await axios.post('/api/generate-report-structure', {
             idea,
-            webSignals
+            webSignals,
+            answers
         });
         return response.data;
     } catch (error) {

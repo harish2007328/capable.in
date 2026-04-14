@@ -720,11 +720,13 @@ app.post('/api/research', async (req, res) => {
 });
 
 app.post('/api/generate-report-structure', async (req, res) => {
-    const { idea, webSignals } = req.body;
+    const { idea, webSignals, answers } = req.body;
     try {
+        const answersSummary = answers ? (typeof answers === 'string' ? answers.substring(0, 800) : JSON.stringify(answers).substring(0, 800)) : 'None provided';
         const prompt = `
           IDEA: "${idea}"
           MARKET SIGNALS: ${JSON.stringify(webSignals)}
+          FOUNDER ANSWERS: ${answersSummary}
           
           TASK:
           Define the HIGH-LEVEL identity for a Startup Idea Report.

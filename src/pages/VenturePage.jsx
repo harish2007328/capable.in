@@ -177,7 +177,7 @@ const VenturePage = () => {
                 : String(answers);
 
             // Step 1: Generate Structure
-            const structure = await generateReportStructure(idea, webSignals);
+            const structure = await generateReportStructure(idea, webSignals, answers);
             if (isMounted.current) {
                 setReport(structure);
                 await ProjectStorage.updateData(currentId, { report: structure });
@@ -403,6 +403,7 @@ const VenturePage = () => {
                     onTabChange={setActiveTab}
                     hasPlan={hasPlan}
                     isTitleLoading={isTitleGenerating}
+                    disableStrategy={!showSummary && !report}
                 />
             </div>
 
