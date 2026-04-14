@@ -3,7 +3,8 @@ import { supabase } from '../services/supabase';
 import axios from 'axios';
 
 const getServerUrl = () => {
-    return '';
+    if (import.meta.env.PROD) return '';
+    return import.meta.env.VITE_API_URL || '';
 };
 
 const AuthContext = createContext();

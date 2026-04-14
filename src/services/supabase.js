@@ -47,7 +47,11 @@ const isTokenExpired = (token, bufferSeconds = 300) => {
 };
 
 // Helper: Exchange refresh token cookie for a new access token (standard rotation)
-const getApiBase = () => import.meta.env.VITE_API_URL || '';
+const getApiBase = () => {
+    // In production, always use relative paths to ensure cookies are SAME-SITE (not blocked by Incognito)
+    if (import.meta.env.PROD) return ''; 
+    return import.meta.env.VITE_API_URL || '';
+};
 
 const refreshFromCookie = async () => {
     try {
