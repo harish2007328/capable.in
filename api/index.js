@@ -468,7 +468,7 @@ app.get('/api/auth/session', async (req, res) => {
     try {
         const token = req.cookies?.capable_auth;
         if (!token) {
-            return res.json({ authenticated: false });
+            return res.json({ authenticated: false, hasProxyCookie: false });
         }
 
         // Step 1: Try validating the existing token
@@ -574,12 +574,12 @@ app.get('/api/auth/session', async (req, res) => {
 
         // Step 3: All refresh attempts failed — clear cookie
         res.clearCookie('capable_auth', { path: '/' });
-        return res.json({ authenticated: false });
+        return res.json({ authenticated: false, hasProxyCookie: true });
     } catch (err) {
         if (err.status === 401 || err.message?.includes('Auth') || err.message?.includes('token')) {
             res.clearCookie('capable_auth', { path: '/' });
         }
-        return res.json({ authenticated: false, error: err.message });
+        return res.json({ authenticated: false, hasProxyCookie: true, error: err.message });
     }
 });
 

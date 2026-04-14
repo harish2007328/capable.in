@@ -52,25 +52,26 @@ const refreshFromCookie = async () => {
         const cookieRes = await fetch(url, { 
             credentials: 'include'
         });
+        
         if (cookieRes.ok) {
             const cookieData = await cookieRes.json();
             if (cookieData.authenticated && cookieData.accessToken) {
-                // Server successfully returned a session (possibly refreshed)
-                if (cookieData.refreshed) {
-                    console.log('🔄 Token silently refreshed by server');
-                }
-                localStorage.setItem('insforge_session_token', cookieData.accessToken);
-                applyTokenToSDK(cookieData.accessToken);
                 return {
-                    accessToken: cookieData.accessToken,
-                    user: cookieData.user
+                    refreshed: true,
+                    hasProxyCookie: true,
+                    session: {
+                        accessToken: cookieData.accessToken,
+                        user: cookieData.user
+                    }
                 };
             }
+            return { refreshed: false, hasProxyCookie: cookieData.hasProxyCookie === true };
         }
+        return { refreshed: false, hasProxyCookie: false };
     } catch (err) {
         console.warn('Cookie session refresh failed:', err.message);
+        return { refreshed: false, hasProxyCookie: false };
     }
-    return null;
 };
 
 // Helper: Validate a stored token and return a user object
@@ -128,8 +129,12 @@ client.auth.getSession = async () => {
                 // If token is close to expiry (within 5 mins), proactively refresh native cookie in background
                 if (isTokenExpired(storedToken, 300)) {
                     console.log('Token expiring soon, proactive refresh...');
-                    client.auth.getCurrentSession().catch(() => {});
-                    refreshFromCookie().catch(() => {});
+                    refreshFromCookie().then((res) => {
+                        // Only ping the native InsForge endpoint if the user actually has a valid local cookie record
+                        if (res && res.hasProxyCookie) {
+                            client.auth.getCurrentSession().catch(() => {});
+                        }
+                    }).catch(() => {});
                 }
                 
                 const user = await validateToken(storedToken);
@@ -144,27 +149,10 @@ client.auth.getSession = async () => {
             }
         }
 
-        // Step 2: Try the native InsForge SDK session (handles auto-refresh for email/password)
-        try {
-            const nativeResponse = await client.auth.getCurrentSession();
-            if (nativeResponse.data?.session) {
-                const session = nativeResponse.data.session;
-                localStorage.setItem('insforge_session_token', session.accessToken);
-                applyTokenToSDK(session.accessToken);
-                
-                if (session.user?.id !== lastSessionId) {
-                    notifyListeners('SIGNED_IN', session);
-                }
-                return { data: { session }, error: null };
-            }
-        } catch (nativeErr) {
-            console.warn("Native getCurrentSession failed:", nativeErr.message);
-        }
-
-        // Step 3: Native SDK found no session. Fall back to custom proxy server cookie refresh (Google OAuth)
-        const refreshed = await refreshFromCookie();
-        if (refreshed) {
-            const session = { accessToken: refreshed.accessToken, user: refreshed.user };
+        // Step 2: Try custom proxy server cookie refresh (Google OAuth)
+        const proxyCheck = await refreshFromCookie();
+        if (proxyCheck.refreshed && proxyCheck.session) {
+            const session = proxyCheck.session;
             localStorage.setItem('insforge_session_token', session.accessToken);
             applyTokenToSDK(session.accessToken);
 
@@ -172,6 +160,30 @@ client.auth.getSession = async () => {
                 notifyListeners('SIGNED_IN', session);
             }
             return { data: { session }, error: null };
+        }
+
+        // Step 3: Try the native InsForge SDK session (handles auto-refresh for email/password)
+        try {
+            // ONLY make this network request if we think the user might actually be an email/password user
+            // If they don't even have a capable_auth cookie (hasProxyCookie = false), they are fully logged out.
+            // Skipping getCurrentSession prevents the browser 401 Unauthorized console error from popping up.
+            if (proxyCheck.hasProxyCookie) {
+                const nativeResponse = await client.auth.getCurrentSession();
+                if (nativeResponse.data?.session) {
+                    const session = nativeResponse.data.session;
+                    localStorage.setItem('insforge_session_token', session.accessToken);
+                    applyTokenToSDK(session.accessToken);
+                    
+                    if (session.user?.id !== lastSessionId) {
+                        notifyListeners('SIGNED_IN', session);
+                    }
+                    return { data: { session }, error: null };
+                }
+            } else {
+                console.log('Skipping native session check to prevent 401: no proxy cookie found.');
+            }
+        } catch (nativeErr) {
+            console.warn("Native getCurrentSession failed:", nativeErr.message);
         }
 
         // No valid token anywhere = no session
