@@ -160,23 +160,6 @@ client.auth.getSession = async () => {
             return { data: { session }, error: null };
         }
 
-        // Step 3: Try the native InsForge SDK session (handles auto-refresh for email/password)
-        try {
-            const nativeResponse = await client.auth.getCurrentSession();
-            if (nativeResponse.data?.session) {
-                const session = nativeResponse.data.session;
-                localStorage.setItem('insforge_session_token', session.accessToken);
-                applyTokenToSDK(session.accessToken);
-                
-                if (session.user?.id !== lastSessionId) {
-                    notifyListeners('SIGNED_IN', session);
-                }
-                return { data: { session }, error: null };
-            }
-        } catch (nativeErr) {
-            console.warn("Native getCurrentSession failed:", nativeErr.message);
-        }
-
         // No valid token anywhere = no session
         localStorage.removeItem('insforge_session_token');
         applyTokenToSDK(null);

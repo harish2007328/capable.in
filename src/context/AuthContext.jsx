@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
             throw error;
         }
         
-        const { data: sessionData } = await supabase.auth.getCurrentSession();
+        const { data: sessionData } = await supabase.auth.getSession();
         if (sessionData?.session?.user) {
             let freshUser = sessionData.session.user;
             if (freshUser.metadata && !freshUser.user_metadata) freshUser.user_metadata = freshUser.metadata;
