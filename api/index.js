@@ -80,12 +80,13 @@ const hashRefreshToken = (token) => {
     return crypto.createHash('sha256').update(token).digest('hex');
 };
 
-const storeRefreshToken = async (userId, rawToken) => {
+const storeRefreshToken = async (userId, email, rawToken) => {
     const tokenHash = hashRefreshToken(rawToken);
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
 
     await insforge.database.from('refresh_tokens').insert([{
         user_id: userId,
+        email: email,
         token_hash: tokenHash,
         expires_at: expiresAt.toISOString()
     }]);
@@ -117,9 +118,9 @@ const validateAndRotateRefreshToken = async (rawToken) => {
 
     // Generate + store new token
     const newRawToken = generateRefreshToken();
-    await storeRefreshToken(tokenRecord.user_id, newRawToken);
+    await storeRefreshToken(tokenRecord.user_id, tokenRecord.email, newRawToken);
 
-    return { userId: tokenRecord.user_id, newToken: newRawToken };
+    return { userId: tokenRecord.user_id, email: tokenRecord.email, newToken: newRawToken };
 };
 
 const setRefreshCookie = (res, rawToken) => {
@@ -509,7 +510,7 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
         // Generate + store a refresh token (standard rotation pattern)
         const refreshToken = generateRefreshToken();
-        await storeRefreshToken(authData.user.id, refreshToken);
+        await storeRefreshToken(authData.user.id, email, refreshToken);
 
         // Set opaque refresh token as httpOnly cookie (NOT the access token)
         setRefreshCookie(res, refreshToken);
@@ -553,6 +554,7 @@ app.post('/api/auth/token/refresh', async (req, res) => {
 
         // Look up the user's profile to get google_sub for re-authentication
         const { data: profile } = await insforge.auth.getProfile(result.userId);
+        console.log('✅ REFRESH: got profile for', result.userId, profile);
         if (!profile) {
             res.clearCookie('capable_refresh', { path: '/' });
             return res.json({ error: 'User not found' });
@@ -562,10 +564,11 @@ app.post('/api/auth/token/refresh', async (req, res) => {
         let newAccessToken = null;
         let userData = null;
         const email = profile.email;
+        console.log('✅ REFRESH: email is', email, 'google_sub is', profile.google_sub);
 
         // Try Google OAuth re-auth (using stored google_sub)
         const googleSub = profile.google_sub;
-        if (googleSub) {
+        if (googleSub && email) {
             try {
                 const password = getInsForgePassword(googleSub);
                 const { data: loginData } = await insforge.auth.signInWithPassword({ email, password });
@@ -573,22 +576,28 @@ app.post('/api/auth/token/refresh', async (req, res) => {
                     newAccessToken = loginData.accessToken;
                     userData = loginData.user;
                 }
-            } catch (e) { /* try next */ }
+            } catch (e) {
+                console.error("Google Sub Login fallback failed:", e.message);
+            }
         }
 
         // Fallback: try with user ID as password seed
-        if (!newAccessToken) {
+        if (!newAccessToken && email) {
             try {
                 const password = getInsForgePassword(result.userId);
+                console.log("Trying fallback password derivation...");
                 const { data: loginData } = await insforge.auth.signInWithPassword({ email, password });
                 if (loginData?.accessToken) {
                     newAccessToken = loginData.accessToken;
                     userData = loginData.user;
                 }
-            } catch (e) { /* exhausted */ }
+            } catch (e) {
+                console.error("Fallback derived password failed:", e.message);
+            }
         }
 
         if (!newAccessToken) {
+            console.error("❌ REFRESH FATAL: Could not re-authorize this user!", result.userId);
             // Can't re-authenticate — user must log in again
             res.clearCookie('capable_refresh', { path: '/' });
             return res.json({ error: 'Re-authentication failed' });
@@ -668,14 +677,14 @@ app.get('/api/auth/session', async (req, res) => {
 
 // Set refresh token after email/password login
 app.post('/api/auth/set-cookie', async (req, res) => {
-    const { accessToken, userId } = req.body;
-    if (!accessToken || !userId) {
-        return res.status(400).json({ error: 'Missing accessToken or userId' });
+    const { accessToken, userId, email } = req.body;
+    if (!accessToken || !userId || !email) {
+        return res.status(400).json({ error: 'Missing accessToken, userId, or email' });
     }
 
     try {
         const refreshToken = generateRefreshToken();
-        await storeRefreshToken(userId, refreshToken);
+        await storeRefreshToken(userId, email, refreshToken);
         setRefreshCookie(res, refreshToken);
         res.json({ success: true });
     } catch (err) {

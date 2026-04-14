@@ -225,7 +225,7 @@ export const AuthProvider = ({ children }) => {
             if (data?.user?.id) {
                 try {
                     await axios.post(`${getServerUrl()}/api/auth/set-cookie`, 
-                        { accessToken: data.accessToken, userId: data.user.id }, 
+                        { accessToken: data.accessToken, userId: data.user.id, email: data.user.email }, 
                         { withCredentials: true }
                     );
                 } catch (cookieErr) {
@@ -253,7 +253,7 @@ export const AuthProvider = ({ children }) => {
             if (data?.user?.id) {
                 try {
                     await axios.post(`${getServerUrl()}/api/auth/set-cookie`, 
-                        { accessToken: data.accessToken, userId: data.user.id }, 
+                        { accessToken: data.accessToken, userId: data.user.id, email: data.user.email }, 
                         { withCredentials: true }
                     );
                 } catch (cookieErr) {
