@@ -38,11 +38,12 @@ const BottomCTASection = () => (
                         <p className="text-gray-700 font-sans leading-relaxed text-lg max-w-lg mb-12">
                             Join thousands of entrepreneurs who've transformed their ideas into actionable plans with Capable.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <Link to="/dashboard" className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-4 rounded-md font-bold text-[15px] tracking-tight hover:shadow-float active:scale-[0.98] transition-all duration-300 text-center">
-                                Start Building — It's Free
+                        <div className="flex flex-col sm:flex-row gap-5">
+                            <Link to="/dashboard" className="relative group overflow-hidden bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-10 py-5 rounded-2xl font-bold text-[16px] tracking-tight hover:shadow-[0_20px_50px_rgba(59,130,246,0.3)] active:scale-[0.98] transition-all duration-300 text-center">
+                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <span className="relative z-10">Start Building — It's Free</span>
                             </Link>
-                            <button className="bg-white text-gray-900 px-8 py-4 rounded-md font-bold text-[15px] tracking-tight border border-gray-200 hover:bg-gray-50 hover:shadow-soft active:scale-[0.98] transition-all duration-300 text-center">
+                            <button className="bg-white text-gray-900 px-10 py-5 rounded-2xl font-bold text-[16px] tracking-tight border border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-xl active:scale-[0.98] transition-all duration-300 text-center">
                                 Learn more →
                             </button>
                         </div>

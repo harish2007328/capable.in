@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 const ServicesSection = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -87,17 +88,24 @@ const ServicesSection = () => {
                                     <p className="text-gray-900 font-sans text-sm italic pr-12 leading-relaxed">"120+ Ideas Analyzed through custom frameworks and standard business models."</p>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-8">
+                                <div className="grid grid-cols-1 gap-6">
                                     {[
                                         { number: '98+', label: 'STRATEGIES BUILT', desc: 'Custom growth paths' },
                                         { number: '2M+', label: 'SIGNALS HANDLED', desc: 'Real-time market data' }
                                     ].map((stat, i) => (
-                                        <div key={i} className="flex items-end justify-between group cursor-default">
-                                            <div>
-                                                <p className="text-[10px] font-bold text-gray-500 tracking-widest mb-1 uppercase">{stat.label}</p>
-                                                <p className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors uppercase tracking-widest">{stat.desc}</p>
+                                        <div key={i} className="relative p-1 rounded-[24px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg group cursor-default hover:shadow-xl transition-all duration-300">
+                                            <div className="bg-white rounded-[20px] p-6 flex flex-col gap-2">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-3xl font-display text-gray-900 group-hover:text-sky-600 transition-colors">{stat.number}</p>
+                                                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
+                                                        <Sparkles className="w-4 h-4 text-sky-500" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-bold text-gray-500 tracking-widest mb-1 uppercase">{stat.label}</p>
+                                                    <p className="text-xs text-gray-400 group-hover:text-gray-600 transition-colors uppercase tracking-widest leading-relaxed">{stat.desc}</p>
+                                                </div>
                                             </div>
-                                            <p className="text-4xl md:text-5xl font-display text-gray-900 group-hover:text-[var(--brand-accent)] transition-all duration-500">{stat.number}</p>
                                         </div>
                                     ))}
                                 </div>

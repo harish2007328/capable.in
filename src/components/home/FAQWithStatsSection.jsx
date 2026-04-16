@@ -101,13 +101,17 @@ const FAQWithStatsSection = () => {
                         className="space-y-8"
                     >
                         <div className="grid grid-cols-2 gap-6">
-                            <motion.div variants={scaleIn} className="rounded-[14px] bg-[var(--brand-accent)] p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
-                                <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:rotate-3 transition-transform duration-500">75%</p>
-                                <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none">Faster Decisions</p>
+                            <motion.div variants={scaleIn} className="relative p-1 rounded-[24px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg group cursor-default hover:shadow-xl transition-all duration-300">
+                                <div className="bg-[var(--brand-accent)] rounded-[20px] p-8 text-center shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
+                                    <p className="text-4xl md:text-5xl font-display font-normal text-white mb-3">75%</p>
+                                    <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none opacity-80">Faster Decisions</p>
+                                </div>
                             </motion.div>
-                            <motion.div variants={scaleIn} className="rounded-[14px] bg-gray-900 p-8 text-center shadow-soft hover:shadow-card transition-all duration-500 cursor-default group">
-                                <p className="text-5xl md:text-6xl font-display font-normal text-white mb-3 leading-none group-hover:-rotate-3 transition-transform duration-500">50%</p>
-                                <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none">Cost Reduction</p>
+                            <motion.div variants={scaleIn} className="relative p-1 rounded-[24px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg group cursor-default hover:shadow-xl transition-all duration-300">
+                                <div className="bg-gray-900 rounded-[20px] p-8 text-center shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
+                                    <p className="text-4xl md:text-5xl font-display font-normal text-white mb-3">50%</p>
+                                    <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none opacity-80">Cost Reduction</p>
+                                </div>
                             </motion.div>
                         </div>
 
