@@ -206,7 +206,7 @@ const HomePage = () => {
         <>
             <div className="relative w-full bg-white clip-path-bounds">
                 {/* --- HERO SECTION --- */}
-                <section className="relative w-full min-h-[95vh] md:min-h-screen flex flex-col items-center overflow-hidden">
+            <section className="relative w-full h-[100dvh] min-h-[600px] flex flex-col items-center overflow-hidden">
                     {/* 1. Contained Video Background */}
                     <div className="absolute inset-0 z-0 pt-[84px] px-2 md:px-3 pb-2 md:pb-3 pointer-events-none">
                         <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden">
@@ -239,7 +239,7 @@ const HomePage = () => {
                         initial="hidden"
                         animate="visible"
                         variants={staggerContainer}
-                        className="relative z-30 flex flex-col items-center justify-center px-4 max-w-7xl mx-auto w-full flex-1 pt-[119px] md:pt-[135px] pb-6 md:pb-12"
+                        className="relative z-30 flex flex-col items-center justify-center px-4 max-w-7xl mx-auto w-full flex-1 pt-[90px] md:pt-[115px] pb-4 md:pb-8"
                     >
                         {/* Badge */}
                         <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 shadow-sm cursor-default">
