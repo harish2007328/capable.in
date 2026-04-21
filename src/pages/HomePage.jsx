@@ -132,8 +132,8 @@ const HomePage = () => {
         for (const term of CLIENT_BLOCKED_TERMS) {
             if (normalized.includes(term)) {
                 setContentWarning({
-                    title: "Safety Guideline Violation",
-                    message: "This idea involves activities that may be illegal or harmful. Our AI architect is designed to assist with legitimate business ventures only.",
+                    title: "Something doesn't look right",
+                    message: "It looks like there may be a typo or something suspicious in your input. Please double-check and try describing a different business idea.",
                     type: 'illegal'
                 });
                 return false;
@@ -142,16 +142,12 @@ const HomePage = () => {
 
         // 2. Check for empty or very short input/greetings/random words
         const words = normalized.split(/\s+/).filter(w => w.length > 0);
-        
-        // Check if it's just a greeting
         const isGreeting = words.length <= 2 && GREETINGS.some(g => normalized.includes(g));
         
         if (words.length < 3 || isGreeting) {
             setContentWarning({
-                title: "Idea Not Detected",
-                message: words.length === 0 
-                    ? "Your input seems empty. Please tell us about the business you want to build."
-                    : `"${text}" doesn't look like a business idea. Please provide a bit more detail (at least 5-10 words) so we can help you build your roadmap.`,
+                title: "We couldn't understand that",
+                message: "Try describing your business idea in a short sentence so our AI can help you out.",
                 type: 'vague'
             });
             return false;
@@ -227,8 +223,8 @@ const HomePage = () => {
             // Handle server-side blocked response
             if (res.status === 403 && data.blocked) {
                 setContentWarning({
-                    title: "We Can't Process This",
-                    message: data.error,
+                    title: "Something doesn't look right",
+                    message: "It looks like there may be a typo or something suspicious in your input. Please double-check and try again.",
                     type: 'illegal'
                 });
                 return;
@@ -394,56 +390,47 @@ const HomePage = () => {
                                         </div>
                                     </div>
                                     {contentWarning && ReactDOM.createPortal(
-                                        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-md px-4 p-4" onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }}>
+                                        <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/30 backdrop-blur-sm px-4 pb-4 sm:pb-0" onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }}>
                                             <motion.div 
-                                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                                                animate={{ scale: 1, opacity: 1, y: 0 }}
-                                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                                                className={`relative w-full max-w-md overflow-hidden rounded-[32px] shadow-2xl ${
-                                                    contentWarning.type === 'illegal' 
-                                                    ? 'bg-gradient-to-b from-red-600 to-red-800' 
-                                                    : 'bg-gradient-to-b from-blue-600 to-blue-800'
-                                                }`} 
+                                                initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, y: 12, scale: 0.98 }}
+                                                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                                                className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
-                                                {/* Background Pattern */}
-                                                <div className="absolute inset-0 opacity-10 pointer-events-none">
-                                                    <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                                                </div>
-
-                                                <div className="relative p-8 flex flex-col items-center text-center">
-                                                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-3 transform transition-transform hover:rotate-0 duration-500 ${
-                                                        contentWarning.type === 'illegal' ? 'bg-white/20' : 'bg-white/20'
+                                                <div className="p-5 flex items-start gap-3.5">
+                                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                                                        contentWarning.type === 'illegal' ? 'bg-amber-50' : 'bg-blue-50'
                                                     }`}>
                                                         {contentWarning.type === 'illegal' ? (
-                                                            <ShieldAlert className="w-10 h-10 text-white" />
+                                                            <AlertCircle className="w-[18px] h-[18px] text-amber-500" />
                                                         ) : (
-                                                            <Lightbulb className="w-10 h-10 text-white" />
+                                                            <AlertCircle className="w-[18px] h-[18px] text-blue-500" />
                                                         )}
                                                     </div>
-
-                                                    <h3 className="text-2xl font-display font-bold text-white mb-3 tracking-tight">
-                                                        {contentWarning.title}
-                                                    </h3>
-                                                    
-                                                    <p className="text-white/90 text-base leading-relaxed mb-8 px-4 font-sans font-medium">
-                                                        {contentWarning.message}
-                                                    </p>
-
-                                                    <div className="w-full space-y-3">
-                                                        <button 
-                                                            onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }} 
-                                                            className="w-full py-4 bg-white text-gray-900 rounded-2xl font-bold text-[15px] hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                                                        >
-                                                            {contentWarning.type === 'illegal' ? "I Understand" : "Try Again"}
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => setContentWarning(null)} 
-                                                            className="w-full py-3 text-white/60 text-sm font-bold hover:text-white transition-colors"
-                                                        >
-                                                            Dismiss
-                                                        </button>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="text-[15px] font-bold text-gray-900 mb-1 tracking-tight">
+                                                            {contentWarning.title}
+                                                        </h3>
+                                                        <p className="text-[13px] text-gray-500 leading-relaxed">
+                                                            {contentWarning.message}
+                                                        </p>
                                                     </div>
+                                                </div>
+                                                <div className="px-5 pb-4 flex gap-2">
+                                                    <button 
+                                                        onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }} 
+                                                        className="flex-1 py-2.5 bg-gray-900 text-white rounded-xl text-[13px] font-bold hover:bg-gray-800 transition-colors active:scale-[0.98]"
+                                                    >
+                                                        Got it
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setContentWarning(null)} 
+                                                        className="px-4 py-2.5 text-gray-400 text-[13px] font-bold hover:text-gray-600 transition-colors"
+                                                    >
+                                                        Dismiss
+                                                    </button>
                                                 </div>
                                             </motion.div>
                                         </div>,
