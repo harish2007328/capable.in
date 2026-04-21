@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb } from 'lucide-react';
+import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb, AlertCircle, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
@@ -27,6 +27,14 @@ const CLIENT_BLOCKED_TERMS = [
     'money laundering', 'ponzi scheme', 'pyramid scheme', 'counterfeit',
     'identity theft', 'credit card fraud', 'hacking service', 'ransomware',
     'dark web', 'child exploitation', 'terrorism', 'hitman', 'contract killing',
+    'escort service', 'organ trafficking', 'tax evasion', 'insider trading',
+    'smuggling', 'kidnapping', 'stolen goods', 'scam', 'fraud', 'phishing',
+    'illegal gambling', 'bookmaking', 'money mule', 'straw man'
+];
+
+const GREETINGS = [
+    'hello', 'hi', 'hey', 'yo', 'sup', 'hola', 'namaste', 'greetings',
+    'how are you', 'howdy', 'what\'s up', 'morning', 'evening', 'afternoon'
 ];
 
 // --- Animation Variants for Scroll Effects ---
@@ -56,7 +64,7 @@ const HomePage = () => {
         return location.state?.idea || sessionStorage.getItem('capable_draft_idea') || '';
     });
     const [isEnhancing, setIsEnhancing] = useState(false);
-    const [contentWarning, setContentWarning] = useState('');
+    const [contentWarning, setContentWarning] = useState(null); // { title: string, message: string, type: 'illegal' | 'vague' }
     const [placeholder, setPlaceholder] = useState('');
     const videoRef = useRef(null);
 
@@ -118,13 +126,37 @@ const HomePage = () => {
     // Quick client-side check (server has the full check)
     const checkContent = (text) => {
         const normalized = text.toLowerCase().trim();
+        
+        // 1. Check for illegal terms
         for (const term of CLIENT_BLOCKED_TERMS) {
             if (normalized.includes(term)) {
-                setContentWarning("This idea involves activities that may be illegal or harmful. We can't assist with this.");
+                setContentWarning({
+                    title: "Safety Guideline Violation",
+                    message: "This idea involves activities that may be illegal or harmful. Our AI architect is designed to assist with legitimate business ventures only.",
+                    type: 'illegal'
+                });
                 return false;
             }
         }
-        setContentWarning('');
+
+        // 2. Check for empty or very short input/greetings/random words
+        const words = normalized.split(/\s+/).filter(w => w.length > 0);
+        
+        // Check if it's just a greeting
+        const isGreeting = words.length <= 2 && GREETINGS.some(g => normalized.includes(g));
+        
+        if (words.length < 3 || isGreeting) {
+            setContentWarning({
+                title: "Idea Not Detected",
+                message: words.length === 0 
+                    ? "Your input seems empty. Please tell us about the business you want to build."
+                    : `"${text}" doesn't look like a business idea. Please provide a bit more detail (at least 5-10 words) so we can help you build your roadmap.`,
+                type: 'vague'
+            });
+            return false;
+        }
+
+        setContentWarning(null);
         return true;
     };
 
@@ -188,7 +220,11 @@ const HomePage = () => {
             const data = await res.json();
             // Handle server-side blocked response
             if (res.status === 403 && data.blocked) {
-                setContentWarning(data.error);
+                setContentWarning({
+                    title: "We Can't Process This",
+                    message: data.error,
+                    type: 'illegal'
+                });
                 return;
             }
             const enhanced = data.enhanced_idea || data.enhancedIdea;
@@ -274,7 +310,7 @@ const HomePage = () => {
                                                 className={`w-full h-24 sm:h-28 p-4 text-lg sm:text-xl text-gray-900 placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed rounded-md transition-all duration-300 custom-scrollbar-hero ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
                                                 placeholder={idea ? "" : placeholder}
                                                 value={idea}
-                                                onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(''); }}
+                                                onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(null); }}
                                                 disabled={isEnhancing}
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -290,6 +326,30 @@ const HomePage = () => {
                                                 </div>
                                             )}
                                         </div>
+
+                                        {/* Inline Warning Box */}
+                                        <AnimatePresence>
+                                            {contentWarning && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    className={`mx-4 mb-2 overflow-hidden`}
+                                                >
+                                                    <div className={`p-3 rounded-xl border flex items-start gap-3 ${
+                                                        contentWarning.type === 'illegal' 
+                                                        ? 'bg-red-50 border-red-100 text-red-700' 
+                                                        : 'bg-blue-50 border-blue-100 text-blue-700'
+                                                    }`}>
+                                                        <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                                                        <div className="text-[13px] leading-tight font-medium">
+                                                            <span className="font-bold block mb-0.5">{contentWarning.title}</span>
+                                                            {contentWarning.message}
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
 
                                         <div className="flex justify-between items-center px-6 py-4 border-t border-black/5">
                                             <div className="flex items-center gap-3">
@@ -321,15 +381,58 @@ const HomePage = () => {
                                         </div>
                                     </div>
                                     {contentWarning && ReactDOM.createPortal(
-                                        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-md px-4" onClick={() => { setContentWarning(''); setIdea(''); }}>
-                                            <div className="bg-gradient-to-b from-red-500 to-red-600 rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center text-center animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
-                                                <div className="w-14 h-14 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center mb-5">
-                                                    <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg>
+                                        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-md px-4 p-4" onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }}>
+                                            <motion.div 
+                                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                                className={`relative w-full max-w-md overflow-hidden rounded-[32px] shadow-2xl ${
+                                                    contentWarning.type === 'illegal' 
+                                                    ? 'bg-gradient-to-b from-red-600 to-red-800' 
+                                                    : 'bg-gradient-to-b from-blue-600 to-blue-800'
+                                                }`} 
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                {/* Background Pattern */}
+                                                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                                                    <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
                                                 </div>
-                                                <h3 className="text-xl font-bold text-white mb-2">We Can't Process This</h3>
-                                                <p className="text-red-100 text-sm mb-6">{contentWarning}</p>
-                                                <button onClick={() => { setContentWarning(''); setIdea(''); }} className="w-full px-5 py-3 bg-white text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all active:scale-95 shadow-lg">Try a Different Idea</button>
-                                            </div>
+
+                                                <div className="relative p-8 flex flex-col items-center text-center">
+                                                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-3 transform transition-transform hover:rotate-0 duration-500 ${
+                                                        contentWarning.type === 'illegal' ? 'bg-white/20' : 'bg-white/20'
+                                                    }`}>
+                                                        {contentWarning.type === 'illegal' ? (
+                                                            <ShieldAlert className="w-10 h-10 text-white" />
+                                                        ) : (
+                                                            <Lightbulb className="w-10 h-10 text-white" />
+                                                        )}
+                                                    </div>
+
+                                                    <h3 className="text-2xl font-display font-bold text-white mb-3 tracking-tight">
+                                                        {contentWarning.title}
+                                                    </h3>
+                                                    
+                                                    <p className="text-white/90 text-base leading-relaxed mb-8 px-4 font-sans font-medium">
+                                                        {contentWarning.message}
+                                                    </p>
+
+                                                    <div className="w-full space-y-3">
+                                                        <button 
+                                                            onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }} 
+                                                            className="w-full py-4 bg-white text-gray-900 rounded-2xl font-bold text-[15px] hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                                                        >
+                                                            {contentWarning.type === 'illegal' ? "I Understand" : "Try Again"}
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => setContentWarning(null)} 
+                                                            className="w-full py-3 text-white/60 text-sm font-bold hover:text-white transition-colors"
+                                                        >
+                                                            Dismiss
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
                                         </div>,
                                         document.body
                                     )}
