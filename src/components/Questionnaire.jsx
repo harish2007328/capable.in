@@ -3,12 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu } from 'lucide-react';
 
 const ANALYSIS_STEPS = [
-    { text: "Searching Google for market signals...", icon: <Globe size={14} /> },
-    { text: "Reading industry articles & reports...", icon: <Search size={14} /> },
-    { text: "Analyzing trends with OpenAI...", icon: <Cpu size={14} /> },
-    { text: "Building strategic questions...", icon: <Sparkles size={14} /> },
-    { text: "Cross-referencing with Perplexity AI...", icon: <Search size={14} /> },
-    { text: "Finalizing discovery framework...", icon: <Wand2 size={14} /> },
+    { text: "Agent searching the internet...", icon: <Globe size={14} /> },
+    { text: "Analyzing market data...", icon: <Search size={14} /> },
+    { text: "Synthesizing strategic context...", icon: <Sparkles size={14} /> },
 ];
 
 const SOURCE_DOTS = [
@@ -131,7 +128,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                                 <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
-                                    Preparing Discovery...
+                                    {ANALYSIS_STEPS[loadingStep].text}
                                 </span>
                             </>
                         ) : (
@@ -156,43 +153,30 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
 
 
                     {isLoading ? (
-                        /* === AI SEARCHING ANIMATION === */
-                        <div className="max-w-xl mx-auto w-full flex flex-col items-center gap-6">
-                            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100/60 flex items-center justify-center">
-                                <Wand2 size={20} className="text-[var(--brand-accent)] animate-pulse" />
+                        /* === SKELETON LOADING === */
+                        <div className="max-w-xl mx-auto w-full space-y-10 animate-in fade-in duration-500">
+                            {/* Question Skeleton */}
+                            <div className="space-y-4">
+                                <div className="h-10 w-full bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 rounded-2xl animate-pulse" />
+                                <div className="h-10 w-2/3 bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 rounded-2xl animate-pulse" />
                             </div>
 
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={loadingStep}
-                                    initial={{ opacity: 0, y: 6 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -6 }}
-                                    transition={{ duration: 0.25 }}
-                                    className="flex items-center gap-2.5 text-slate-600"
-                                >
-                                    <span className="text-slate-400">{ANALYSIS_STEPS[loadingStep].icon}</span>
-                                    <span className="text-[15px] font-semibold tracking-tight">{ANALYSIS_STEPS[loadingStep].text}</span>
-                                </motion.div>
-                            </AnimatePresence>
-
-                            <div className="flex items-center gap-3 mt-1">
-                                {SOURCE_DOTS.map((src, i) => (
-                                    <div key={i} className="flex items-center gap-1.5">
-                                        <div className={`w-1.5 h-1.5 rounded-full ${src.bg} opacity-40`} />
-                                        <span className="text-[11px] font-bold text-slate-300 tracking-tight">{src.name}</span>
+                            {/* Options Skeleton Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="h-16 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 flex items-center gap-4 relative overflow-hidden">
+                                        <div className="w-5 h-5 rounded-full bg-white border border-slate-200" />
+                                        <div className="h-4 w-32 bg-slate-100 rounded-md animate-pulse" />
+                                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
                                     </div>
                                 ))}
                             </div>
-
-                            <div className="w-48 h-[3px] bg-slate-100 rounded-full overflow-hidden mt-2">
-                                <motion.div
-                                    className="h-full bg-[var(--brand-accent)] rounded-full"
-                                    initial={{ width: '0%' }}
-                                    animate={{ width: '100%' }}
-                                    transition={{ duration: 2.4, repeat: Infinity, ease: 'linear' }}
-                                />
-                            </div>
+                            
+                            <style dangerouslySetInnerHTML={{ __html: `
+                                @keyframes shimmer {
+                                    100% { transform: translateX(100%); }
+                                }
+                            `}} />
                         </div>
                     ) : (
                         /* === REAL QUESTIONS === */
