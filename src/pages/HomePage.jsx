@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb, AlertCircle, ShieldAlert, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
@@ -65,6 +65,7 @@ const HomePage = () => {
     });
     const [isEnhancing, setIsEnhancing] = useState(false);
     const [contentWarning, setContentWarning] = useState(null); // { title: string, message: string, type: 'illegal' | 'vague' }
+    const [isGenerating, setIsGenerating] = useState(false);
     const [placeholder, setPlaceholder] = useState('');
     const videoRef = useRef(null);
 
@@ -176,10 +177,12 @@ const HomePage = () => {
     const limits = getUserLimits(user);
 
     const handleGenerate = async () => {
-        if (!idea.trim() || isEnhancing) return;
+        if (!idea.trim() || isEnhancing || isGenerating) return;
 
         // Content moderation check (client-side quick check)
         if (!checkContent(idea)) return;
+        
+        setIsGenerating(true);
 
         // Redirect to login if not authenticated
         if (!user) {
@@ -189,6 +192,7 @@ const HomePage = () => {
                     idea: idea // Pass the idea so we can potentially restore it
                 }
             });
+            setIsGenerating(false);
             return;
         }
 
@@ -197,10 +201,12 @@ const HomePage = () => {
         const existingProjects = await ProjectStorage.getAll();
         if (existingProjects.length >= limits.maxProjects) {
             setShowUpgradeModal(true);
+            setIsGenerating(false);
             return;
         }
 
         const newId = await ProjectStorage.create(idea);
+        setIsGenerating(false); // Should transition to next page anyway but safe to set
         navigate(`/project/${newId}`);
     };
 
@@ -371,11 +377,18 @@ const HomePage = () => {
                                                 {/* Generate Button */}
                                                 <button
                                                     onClick={handleGenerate}
-                                                    className="relative group overflow-hidden bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-xl font-bold text-[15px] leading-none transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/30 active:scale-95 flex items-center gap-2.5"
+                                                    disabled={isGenerating}
+                                                    className="relative group overflow-hidden bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-xl font-bold text-[15px] leading-none transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/30 active:scale-95 flex items-center gap-2.5 min-w-[140px] justify-center"
                                                 >
                                                     <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                                    <span className="relative z-10 tracking-tight">Generate</span>
-                                                    <Sparkles className="relative z-10 w-4 h-4 text-white" />
+                                                    <span className="relative z-10 tracking-tight">
+                                                        {isGenerating ? 'Generating...' : 'Generate'}
+                                                    </span>
+                                                    {isGenerating ? (
+                                                        <Loader2 className="relative z-10 w-4 h-4 text-white animate-spin" />
+                                                    ) : (
+                                                        <Sparkles className="relative z-10 w-4 h-4 text-white" />
+                                                    )}
                                                 </button>
                                             </div>
                                         </div>

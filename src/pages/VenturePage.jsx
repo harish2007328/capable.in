@@ -410,9 +410,9 @@ const VenturePage = () => {
             {/* CONTENT STAGE */}
             <main className="flex-1 relative overflow-hidden flex flex-col min-h-0">
                 {activeTab === 'context' ? (
-                    <div className={`flex-1 flex flex-col min-h-0 ${(!wizardLoading && questions.length > 0 && !showSummary) ? '' : 'overflow-y-auto custom-scrollbar px-6 pt-8 pb-32'}`}>
-                        <div className={`${(!wizardLoading && questions.length > 0 && !showSummary) ? 'w-full h-full' : 'max-w-7xl mx-auto w-full'}`}>
-                            <div className={`w-full h-full ${(!wizardLoading && questions.length > 0 && !showSummary) ? '' : 'animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both'}`}>
+                    <div className={`flex-1 flex flex-col min-h-0 ${((!wizardLoading && questions.length > 0) && !showSummary) ? '' : 'overflow-y-auto custom-scrollbar px-6 pt-8 pb-32'}`}>
+                        <div className={`${(questions.length > 0 || wizardLoading) && !showSummary ? 'w-full h-full' : 'max-w-7xl mx-auto w-full'}`}>
+                            <div className={`w-full h-full ${(questions.length > 0 || wizardLoading) && !showSummary ? '' : 'animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both'}`}>
                                 {wizardLoading ? <SkeletonWizard /> : (
                                     questions.length === 0 ? (
                                         blockedMessage ? (
