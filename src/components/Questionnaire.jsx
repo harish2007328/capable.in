@@ -125,12 +125,9 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                 <div className="px-8 pt-8 pb-4 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-100 rounded-full shadow-sm">
                         {isLoading ? (
-                            <>
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
-                                    {ANALYSIS_STEPS[loadingStep].text}
-                                </span>
-                            </>
+                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
+                                INITIALIZING PROJECT CORE
+                            </span>
                         ) : (
                             <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
                                 Discovery Phase {currentIndex + 1} / {questions.length}
@@ -153,30 +150,41 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
 
 
                     {isLoading ? (
-                        /* === SKELETON LOADING === */
-                        <div className="max-w-xl mx-auto w-full space-y-10 animate-in fade-in duration-500">
-                            {/* Question Skeleton */}
-                            <div className="space-y-4">
-                                <div className="h-10 w-full bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 rounded-2xl animate-pulse" />
-                                <div className="h-10 w-2/3 bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 rounded-2xl animate-pulse" />
+                        /* === SKELETON LOADING WITH LARGE STATUS === */
+                        <div className="max-w-2xl mx-auto w-full flex flex-col items-center gap-12 animate-in fade-in duration-700">
+                            {/* Big Status Tag */}
+                            <div className="flex flex-col items-center text-center gap-6">
+                                <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100">
+                                    <div className="text-[var(--brand-accent)] animate-pulse">
+                                        {ANALYSIS_STEPS[loadingStep].icon && React.cloneElement(ANALYSIS_STEPS[loadingStep].icon, { size: 32 })}
+                                    </div>
+                                </div>
+                                <AnimatePresence mode="wait">
+                                    <motion.h2
+                                        key={loadingStep}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 1.05 }}
+                                        transition={{ duration: 0.4 }}
+                                        className="text-[30px] font-normal text-slate-900 leading-tight tracking-tight max-w-lg"
+                                    >
+                                        {ANALYSIS_STEPS[loadingStep].text}
+                                    </motion.h2>
+                                </AnimatePresence>
                             </div>
 
-                            {/* Options Skeleton Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="h-16 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 flex items-center gap-4 relative overflow-hidden">
-                                        <div className="w-5 h-5 rounded-full bg-white border border-slate-200" />
-                                        <div className="h-4 w-32 bg-slate-100 rounded-md animate-pulse" />
-                                        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-                                    </div>
-                                ))}
+                            {/* Faded Skeleton below */}
+                            <div className="w-full space-y-10 opacity-30 pointer-events-none">
+                                <div className="space-y-4">
+                                    <div className="h-8 w-full bg-slate-100 rounded-xl" />
+                                    <div className="h-8 w-2/3 bg-slate-100 rounded-xl" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <div key={i} className="h-14 rounded-xl border border-slate-100 bg-slate-50/50" />
+                                    ))}
+                                </div>
                             </div>
-                            
-                            <style dangerouslySetInnerHTML={{ __html: `
-                                @keyframes shimmer {
-                                    100% { transform: translateX(100%); }
-                                }
-                            `}} />
                         </div>
                     ) : (
                         /* === REAL QUESTIONS === */
