@@ -5,7 +5,6 @@ import Questionnaire from '../components/Questionnaire';
 import OnboardSummary from '../components/OnboardSummary';
 import AnalysisReport from '../components/AnalysisReport';
 import TaskView from '../components/TaskView';
-import SkeletonWizard from '../components/SkeletonWizard';
 import SkeletonReport from '../components/SkeletonReport';
 import { generateAnalysisQuestions, generateAnalysisReport, generatePlanStructure, generatePhaseTasks, generateReportStructure, generateReportSection } from '../services/ai';
 import { ProjectStorage } from '../services/projectStorage';
@@ -410,11 +409,14 @@ const VenturePage = () => {
             {/* CONTENT STAGE */}
             <main className="flex-1 relative overflow-hidden flex flex-col min-h-0">
                 {activeTab === 'context' ? (
-                    <div className={`flex-1 flex flex-col min-h-0 ${((!wizardLoading && questions.length > 0) && !showSummary) ? '' : 'overflow-y-auto custom-scrollbar px-6 pt-8 pb-32'}`}>
-                        <div className={`${(questions.length > 0 || wizardLoading) && !showSummary ? 'w-full h-full' : 'max-w-7xl mx-auto w-full'}`}>
-                            <div className={`w-full h-full ${(questions.length > 0 || wizardLoading) && !showSummary ? '' : 'animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both'}`}>
-                                {wizardLoading ? <SkeletonWizard /> : (
-                                    questions.length === 0 ? (
+                    <div className={`flex-1 flex flex-col min-h-0 ${(!showSummary) ? '' : 'overflow-y-auto custom-scrollbar px-6 pt-8 pb-32'}`}>
+                        <div className={`${!showSummary ? 'w-full h-full' : 'max-w-7xl mx-auto w-full'}`}>
+                            <div className={`w-full h-full ${!showSummary ? '' : 'animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both'}`}>
+                                {(wizardLoading || (!wizardLoading && questions.length === 0 && !blockedMessage)) && !showSummary ? (
+                                    /* Show Questionnaire shell with loading state */
+                                    <Questionnaire questions={[]} onComplete={handleWizardComplete} isLoading={true} />
+                                ) : (
+                                    questions.length === 0 && !showSummary ? (
                                         blockedMessage ? (
                                             /* Content Blocked Popup - matches OnboardSummary style */
                                             <div className="max-w-md mx-auto text-center py-12">
@@ -487,7 +489,7 @@ const VenturePage = () => {
                                             isReadonly={!!report}
                                         />
                                     ) : (
-                                        <Questionnaire questions={questions} onComplete={handleWizardComplete} />
+                                        <Questionnaire questions={questions} onComplete={handleWizardComplete} isLoading={false} />
                                     )
                                 )}
                             </div>

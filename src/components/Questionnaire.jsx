@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Wand2, PenTool, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu } from 'lucide-react';
 
-const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack }) => {
+const ANALYSIS_STEPS = [
+    { text: "Searching Google for market signals...", icon: <Globe size={14} /> },
+    { text: "Reading industry articles & reports...", icon: <Search size={14} /> },
+    { text: "Analyzing trends with OpenAI...", icon: <Cpu size={14} /> },
+    { text: "Building strategic questions...", icon: <Sparkles size={14} /> },
+    { text: "Cross-referencing with Perplexity AI...", icon: <Search size={14} /> },
+    { text: "Finalizing discovery framework...", icon: <Wand2 size={14} /> },
+];
+
+const SOURCE_DOTS = [
+    { name: "Google", bg: "bg-blue-500" },
+    { name: "OpenAI", bg: "bg-emerald-500" },
+    { name: "Perplexity", bg: "bg-teal-500" },
+    { name: "Claude", bg: "bg-orange-400" },
+    { name: "Gemini", bg: "bg-indigo-500" },
+];
+
+const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack, isLoading = false }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState(new Array(questions.length).fill([]));
     const [showFinalCta, setShowFinalCta] = useState(false);
@@ -59,15 +76,25 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
         onComplete(formattedAnswers);
     };
 
-    if (!questions || questions.length === 0) return null;
+    // Loading step animation
+    const [loadingStep, setLoadingStep] = useState(0);
+    useEffect(() => {
+        if (!isLoading) return;
+        const interval = setInterval(() => {
+            setLoadingStep(prev => (prev + 1) % ANALYSIS_STEPS.length);
+        }, 2400);
+        return () => clearInterval(interval);
+    }, [isLoading]);
 
-    const questionText = typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text;
-    const isLocationQuestion = (questionText.toLowerCase().includes('focusing') ||
+    if (!isLoading && (!questions || questions.length === 0)) return null;
+
+    const questionText = currentQuestion ? (typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text) : '';
+    const isLocationQuestion = questionText ? ((questionText.toLowerCase().includes('focusing') ||
         questionText.toLowerCase().includes('location') ||
         questionText.toLowerCase().includes('situated') ||
         questionText.toLowerCase().includes('country') ||
         questionText.toLowerCase().includes('city')) &&
-        !questionText.toLowerCase().includes('money');
+        !questionText.toLowerCase().includes('money')) : false;
 
     const options = (currentQuestion && currentQuestion.options) ? currentQuestion.options : [];
     const currentAnswer = answers[currentIndex];
@@ -100,9 +127,18 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                 {/* Header */}
                 <div className="px-8 pt-8 pb-4 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-100 rounded-full shadow-sm">
-                        <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
-                            Discovery Phase {currentIndex + 1} / {questions.length}
-                        </span>
+                        {isLoading ? (
+                            <>
+                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
+                                    Preparing Discovery...
+                                </span>
+                            </>
+                        ) : (
+                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
+                                Discovery Phase {currentIndex + 1} / {questions.length}
+                            </span>
+                        )}
                     </div>
                     <div className="bg-blue-50/50 rounded-lg px-3 py-1 border border-blue-100/50 flex items-center gap-2">
                         <Lock size={10} className="text-[var(--brand-accent)]" />
@@ -119,170 +155,226 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack 
                     </div>
 
 
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentIndex}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="max-w-xl mx-auto w-full"
-                        >
-                            <h1 className="text-3xl font-medium text-slate-900 leading-tight tracking-tight mb-8">
-                                {typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text}
-                            </h1>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {isLocationQuestion ? (
-                                    <>
-                                        {/* Specialized Location Inputs */}
-                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Country</span>
-                                            <input
-                                                type="text"
-                                                value={locationData.country}
-                                                onChange={(e) => handleLocationChange('country', e.target.value)}
-                                                placeholder="e.g. USA"
-                                                className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
-                                            />
-                                        </div>
-                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">State / Region</span>
-                                            <input
-                                                type="text"
-                                                value={locationData.state}
-                                                onChange={(e) => handleLocationChange('state', e.target.value)}
-                                                placeholder="e.g. California"
-                                                className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
-                                            />
-                                        </div>
-                                        <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">District / City</span>
-                                            <input
-                                                type="text"
-                                                value={locationData.district}
-                                                onChange={(e) => handleLocationChange('district', e.target.value)}
-                                                placeholder="e.g. San Francisco"
-                                                className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
-                                            />
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                handleManualSubmit("Globally");
-                                                setLocationData({ country: '', state: '', district: '' });
-                                            }}
-                                            className={`
-                                                group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
-                                                ${currentAnswer === "Globally"
-                                                    ? 'bg-slate-900 border-slate-900 text-white'
-                                                    : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
-                                                }
-                                            `}
-                                        >
-                                            <div className={`
-                                                w-5 h-5 rounded-full flex items-center justify-center shrink-0 border transition-colors
-                                                ${currentAnswer === "Globally" ? 'border-white/30 bg-white/10 text-white' : 'border-slate-200 bg-slate-50'}
-                                            `}>
-                                                {currentAnswer === "Globally" && <CheckCircle2 size={10} />}
-                                            </div>
-                                            <span className="text-xs font-bold uppercase tracking-wider">
-                                                Globally
-                                            </span>
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        {options.map((option, idx) => {
-                                            const isSelected = Array.isArray(currentAnswer) && currentAnswer.includes(option);
-                                            return (
-                                                <button
-                                                    key={`opt-${currentIndex}-${idx}`}
-                                                    onClick={() => {
-                                                        setIsManual(false);
-                                                        handleOptionSelect(option);
-                                                    }}
-                                                    disabled={isReadonly}
-                                                    className={`
-                                                        group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
-                                                        ${isSelected && !isManual
-                                                            ? 'bg-slate-900 border-slate-900 text-white'
-                                                            : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
-                                                        }
-                                                    `}
-                                                >
-                                                    <div className={`
-                                                        w-5 h-5 rounded-full flex items-center justify-center shrink-0 border transition-colors
-                                                        ${isSelected && !isManual ? 'border-white/30 bg-white/10 text-white' : 'border-slate-200 bg-slate-50'}
-                                                    `}>
-                                                        {isSelected && !isManual && <CheckCircle2 size={10} />}
-                                                    </div>
-                                                     <span className="text-sm font-semibold uppercase tracking-wider">
-                                                        {option}
-                                                    </span>
-                                                </button>
-                                            );
-                                        })}
-
-                                        {/* Inline Manual Input - Integrated as a grid item */}
-                                        <div className="h-full">
-                                            {isManual ? (
-                                                <textarea
-                                                    value={typeof currentAnswer === 'string' ? currentAnswer : ''}
-                                                    onChange={(e) => handleManualSubmit(e.target.value)}
-                                                    placeholder="Specify your own answer..."
-                                                    className="w-full h-full min-h-[58px] p-4 rounded-xl bg-white border-2 border-[var(--brand-accent)] text-xs font-bold uppercase tracking-wider text-slate-800 focus:outline-none transition-all placeholder:text-slate-400"
-                                                    autoFocus
-                                                />
-                                            ) : (
-                                                <button
-                                                    onClick={() => {
-                                                        setIsManual(true);
-                                                        setAnswers(prev => {
-                                                            const next = [...prev];
-                                                            next[currentIndex] = '';
-                                                            return next;
-                                                        });
-                                                    }}
-                                                    className="w-full h-full p-4 rounded-xl border-2 border-dashed border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all flex items-center gap-3 group"
-                                                >
-                                                    <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 border border-slate-200 bg-slate-50 group-hover:border-slate-300 transition-colors">
-                                                        <PenTool size={10} className="group-hover:scale-110 transition-transform" />
-                                                    </div>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">Other / Custom</span>
-                                                </button>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
+                    {isLoading ? (
+                        /* === AI SEARCHING ANIMATION === */
+                        <div className="max-w-xl mx-auto w-full flex flex-col items-center gap-6">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100/60 flex items-center justify-center">
+                                <Wand2 size={20} className="text-[var(--brand-accent)] animate-pulse" />
                             </div>
-                        </motion.div>
-                    </AnimatePresence>
+
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={loadingStep}
+                                    initial={{ opacity: 0, y: 6 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -6 }}
+                                    transition={{ duration: 0.25 }}
+                                    className="flex items-center gap-2.5 text-slate-600"
+                                >
+                                    <span className="text-slate-400">{ANALYSIS_STEPS[loadingStep].icon}</span>
+                                    <span className="text-[15px] font-semibold tracking-tight">{ANALYSIS_STEPS[loadingStep].text}</span>
+                                </motion.div>
+                            </AnimatePresence>
+
+                            <div className="flex items-center gap-3 mt-1">
+                                {SOURCE_DOTS.map((src, i) => (
+                                    <div key={i} className="flex items-center gap-1.5">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${src.bg} opacity-40`} />
+                                        <span className="text-[11px] font-bold text-slate-300 tracking-tight">{src.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="w-48 h-[3px] bg-slate-100 rounded-full overflow-hidden mt-2">
+                                <motion.div
+                                    className="h-full bg-[var(--brand-accent)] rounded-full"
+                                    initial={{ width: '0%' }}
+                                    animate={{ width: '100%' }}
+                                    transition={{ duration: 2.4, repeat: Infinity, ease: 'linear' }}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        /* === REAL QUESTIONS === */
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentIndex}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                                className="max-w-xl mx-auto w-full"
+                            >
+                                <h1 className="text-3xl font-medium text-slate-900 leading-tight tracking-tight mb-8">
+                                    {typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text}
+                                </h1>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {isLocationQuestion ? (
+                                        <>
+                                            <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Country</span>
+                                                <input
+                                                    type="text"
+                                                    value={locationData.country}
+                                                    onChange={(e) => handleLocationChange('country', e.target.value)}
+                                                    placeholder="e.g. USA"
+                                                    className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
+                                                />
+                                            </div>
+                                            <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">State / Region</span>
+                                                <input
+                                                    type="text"
+                                                    value={locationData.state}
+                                                    onChange={(e) => handleLocationChange('state', e.target.value)}
+                                                    placeholder="e.g. California"
+                                                    className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
+                                                />
+                                            </div>
+                                            <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">District / City</span>
+                                                <input
+                                                    type="text"
+                                                    value={locationData.district}
+                                                    onChange={(e) => handleLocationChange('district', e.target.value)}
+                                                    placeholder="e.g. San Francisco"
+                                                    className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
+                                                />
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    handleManualSubmit("Globally");
+                                                    setLocationData({ country: '', state: '', district: '' });
+                                                }}
+                                                className={`
+                                                    group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
+                                                    ${currentAnswer === "Globally"
+                                                        ? 'bg-slate-900 border-slate-900 text-white'
+                                                        : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
+                                                    }
+                                                `}
+                                            >
+                                                <div className={`
+                                                    w-5 h-5 rounded-full flex items-center justify-center shrink-0 border transition-colors
+                                                    ${currentAnswer === "Globally" ? 'border-white/30 bg-white/10 text-white' : 'border-slate-200 bg-slate-50'}
+                                                `}>
+                                                    {currentAnswer === "Globally" && <CheckCircle2 size={10} />}
+                                                </div>
+                                                <span className="text-xs font-bold uppercase tracking-wider">
+                                                    Globally
+                                                </span>
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {options.map((option, idx) => {
+                                                const isSelected = Array.isArray(currentAnswer) && currentAnswer.includes(option);
+                                                return (
+                                                    <button
+                                                        key={`opt-${currentIndex}-${idx}`}
+                                                        onClick={() => {
+                                                            setIsManual(false);
+                                                            handleOptionSelect(option);
+                                                        }}
+                                                        disabled={isReadonly}
+                                                        className={`
+                                                            group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
+                                                            ${isSelected && !isManual
+                                                                ? 'bg-slate-900 border-slate-900 text-white'
+                                                                : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
+                                                            }
+                                                        `}
+                                                    >
+                                                        <div className={`
+                                                            w-5 h-5 rounded-full flex items-center justify-center shrink-0 border transition-colors
+                                                            ${isSelected && !isManual ? 'border-white/30 bg-white/10 text-white' : 'border-slate-200 bg-slate-50'}
+                                                        `}>
+                                                            {isSelected && !isManual && <CheckCircle2 size={10} />}
+                                                        </div>
+                                                         <span className="text-sm font-semibold uppercase tracking-wider">
+                                                            {option}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+
+                                            {/* Inline Manual Input */}
+                                            <div className="h-full">
+                                                {isManual ? (
+                                                    <textarea
+                                                        value={typeof currentAnswer === 'string' ? currentAnswer : ''}
+                                                        onChange={(e) => handleManualSubmit(e.target.value)}
+                                                        placeholder="Specify your own answer..."
+                                                        className="w-full h-full min-h-[58px] p-4 rounded-xl bg-white border-2 border-[var(--brand-accent)] text-xs font-bold uppercase tracking-wider text-slate-800 focus:outline-none transition-all placeholder:text-slate-400"
+                                                        autoFocus
+                                                    />
+                                                ) : (
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsManual(true);
+                                                            setAnswers(prev => {
+                                                                const next = [...prev];
+                                                                next[currentIndex] = '';
+                                                                return next;
+                                                            });
+                                                        }}
+                                                        className="w-full h-full p-4 rounded-xl border-2 border-dashed border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all flex items-center gap-3 group"
+                                                    >
+                                                        <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 border border-slate-200 bg-slate-50 group-hover:border-slate-300 transition-colors">
+                                                            <PenTool size={10} className="group-hover:scale-110 transition-transform" />
+                                                        </div>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Other / Custom</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    )}
                 </div>
 
                 {/* Footer Navigation */}
                 <div className="absolute bottom-0 left-0 w-full px-8 py-6 bg-white border-t border-slate-100 flex items-center justify-between shrink-0">
-                    <button
-                        onClick={currentIndex === 0 ? onBack : handlePrev}
-                        className="group flex items-center gap-2 px-4 py-2.5 text-[10px] font-black text-slate-400 hover:text-slate-900 bg-transparent hover:bg-slate-50 rounded-xl uppercase tracking-widest transition-all"
-                    >
-                        <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                        {currentIndex === 0 ? 'Exit' : 'Previous'}
-                    </button>
+                    {isLoading ? (
+                        <>
+                            <button className="group flex items-center gap-2 px-4 py-2.5 text-[10px] font-black text-slate-300 bg-transparent rounded-xl uppercase tracking-widest cursor-not-allowed">
+                                <ChevronLeft size={16} />
+                                Exit
+                            </button>
+                            <button className="group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest bg-slate-100 text-slate-300 cursor-not-allowed shadow-none">
+                                Continue
+                                <ChevronRight size={16} />
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                onClick={currentIndex === 0 ? onBack : handlePrev}
+                                className="group flex items-center gap-2 px-4 py-2.5 text-[10px] font-black text-slate-400 hover:text-slate-900 bg-transparent hover:bg-slate-50 rounded-xl uppercase tracking-widest transition-all"
+                            >
+                                <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                                {currentIndex === 0 ? 'Exit' : 'Previous'}
+                            </button>
 
-                    <button
-                        onClick={handleNext}
-                        disabled={!hasValidAnswer || isReadonly}
-                        className={`
-                            group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest shadow-lg
-                            ${hasValidAnswer && !isReadonly
-                                ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-blue-500/20 active:scale-95'
-                                : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'
-                            }
-                        `}
-                    >
-                        {isLastStep ? 'Finalize' : 'Continue'}
-                        <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
+                            <button
+                                onClick={handleNext}
+                                disabled={!hasValidAnswer || isReadonly}
+                                className={`
+                                    group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest shadow-lg
+                                    ${hasValidAnswer && !isReadonly
+                                        ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-blue-500/20 active:scale-95'
+                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'
+                                    }
+                                `}
+                            >
+                                {isLastStep ? 'Finalize' : 'Continue'}
+                                <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 
