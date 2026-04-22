@@ -304,9 +304,9 @@ const HomePage = () => {
                             <div className="relative w-full max-w-2xl group mb-0 z-10">
                                 <motion.div
                                     layoutId="input-container"
-                                    className="relative bg-white/20 backdrop-blur-xl rounded-[32px] p-[10px] flex flex-col h-full border border-white/30 shadow-2xl shadow-black/40"
+                                    className="relative bg-white/10 backdrop-blur-xl rounded-[32px] p-[10px] flex flex-col h-full border border-white/15 shadow-2xl shadow-black/40"
                                 >
-                                    <div className="relative bg-white/80 backdrop-blur-3xl rounded-[24px] flex flex-col shadow-inner overflow-hidden border border-white/40">
+                                    <div className="relative bg-white/80 backdrop-blur-3xl rounded-[24px] flex flex-col shadow-inner overflow-hidden border border-white/20">
                                         <div className="relative w-full p-4 pb-2">
                                             <textarea
                                                 className={`w-full h-24 sm:h-28 p-4 text-lg sm:text-xl text-gray-900 placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed rounded-md transition-all duration-300 custom-scrollbar-hero ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
