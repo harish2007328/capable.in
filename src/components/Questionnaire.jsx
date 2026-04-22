@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu } from 'lucide-react';
 
 const ANALYSIS_STEPS = [
-    { text: "Agent searching Google...", icon: <Globe size={18} /> },
-    { text: "Analyzing Perplexity signals...", icon: <Search size={18} /> },
-    { text: "Synthesizing with OpenAI...", icon: <Cpu size={18} /> },
+    { text: "Agent searching the internet...", icon: <Globe size={18} /> },
+    { text: "Analyzing market signals...", icon: <Search size={18} /> },
+    { text: "Synthesizing project context...", icon: <Cpu size={18} /> },
 ];
 
 const SOURCE_DOTS = [
@@ -150,44 +150,66 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
 
 
                     {isLoading ? (
-                        /* === SKELETON LOADING WITH LARGE STATUS === */
-                        <div className="max-w-2xl mx-auto w-full flex flex-col items-center gap-16 animate-in fade-in duration-1000">
-                            {/* Human-made Status UI */}
-                            <div className="flex flex-col items-center text-center gap-2">
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={loadingStep}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                        className="flex items-center gap-4 text-slate-900"
-                                    >
-                                        <div className="text-[var(--brand-accent)] opacity-80">
-                                            {ANALYSIS_STEPS[loadingStep].icon}
-                                        </div>
-                                        <h2 className="text-[32px] font-normal leading-tight tracking-tight">
-                                            {ANALYSIS_STEPS[loadingStep].text}
-                                        </h2>
-                                    </motion.div>
-                                </AnimatePresence>
-                                <div className="flex items-center gap-2 mt-4 opacity-40">
-                                    <div className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.3s]" />
-                                    <div className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.15s]" />
-                                    <div className="w-1 h-1 rounded-full bg-slate-400 animate-bounce" />
-                                </div>
-                            </div>
+                        /* === PREMIUM HIGHLIGHTED LOADING UI === */
+                        <div className="max-w-3xl mx-auto w-full flex flex-col items-center justify-center min-h-[400px] animate-in fade-in duration-1000 relative">
+                            {/* Background Glow */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(59,130,246,0.05)_0%,transparent_70%)] pointer-events-none" />
 
-                            {/* Transparent Skeleton below */}
-                            <div className="w-full space-y-12 opacity-[0.08] pointer-events-none filter blur-[1px]">
-                                <div className="space-y-6">
-                                    <div className="h-12 w-full bg-slate-200 rounded-2xl" />
-                                    <div className="h-12 w-3/4 bg-slate-200 rounded-2xl" />
+                            <div className="relative z-10 flex flex-col items-center gap-12 w-full">
+                                {/* Highlighted Status Card */}
+                                <div className="bg-white/40 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)] rounded-[32px] px-12 py-16 flex flex-col items-center gap-8 w-full max-w-xl text-center">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="flex items-center gap-2 mb-2 px-3 py-1 rounded-full bg-blue-50/50 border border-blue-100/50">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Generating Your Path</span>
+                                        </div>
+                                        
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={loadingStep}
+                                                initial={{ opacity: 0, y: 15 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -15 }}
+                                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                                className="flex items-center gap-5"
+                                            >
+                                                <div className="text-[var(--brand-accent)] bg-blue-50 p-4 rounded-2xl">
+                                                    {ANALYSIS_STEPS[loadingStep].icon && React.cloneElement(ANALYSIS_STEPS[loadingStep].icon, { size: 24 })}
+                                                </div>
+                                                <h2 className="text-[36px] font-normal text-slate-900 leading-tight tracking-tight">
+                                                    {ANALYSIS_STEPS[loadingStep].text}
+                                                </h2>
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <p className="text-slate-400 text-sm font-medium max-w-sm mx-auto leading-relaxed">
+                                            We're curating 10 high-impact questions to diagnose your idea and build your custom execution strategy.
+                                        </p>
+                                        <div className="flex items-center justify-center gap-1.5">
+                                            {[0, 1, 2].map(i => (
+                                                <div 
+                                                    key={i}
+                                                    className="w-1.5 h-1.5 rounded-full bg-blue-500/30 animate-[pulse_2s_infinite]"
+                                                    style={{ animationDelay: `${i * 0.2}s` }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-6">
-                                    {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="h-20 rounded-2xl border border-slate-200 bg-slate-100" />
-                                    ))}
+
+                                {/* Extremely Transparent Skeleton below */}
+                                <div className="w-full space-y-10 opacity-[0.04] pointer-events-none filter blur-[2px] scale-95 origin-top">
+                                    <div className="space-y-4 px-12">
+                                        <div className="h-10 w-full bg-slate-200 rounded-2xl" />
+                                        <div className="h-10 w-2/3 bg-slate-200 rounded-2xl" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-6 px-12">
+                                        {[1, 2, 3, 4].map((i) => (
+                                            <div key={i} className="h-24 rounded-2xl border border-slate-200 bg-slate-100" />
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
