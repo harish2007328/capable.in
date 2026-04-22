@@ -432,52 +432,52 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
         switch (id) {
             case 'overview':
                 return (
-                    <div className="space-y-12">
-                        <div className="relative py-12 px-10 rounded-2xl bg-gradient-to-br from-indigo-50 to-white border border-indigo-100/50 shadow-[inset_0_0_20px_rgba(255,255,255,1)]">
-                            <div className="absolute top-0 left-10 -translate-y-1/2 bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                                <Zap size={14} /> The Spark
+                    <div className="space-y-6">
+                        <div className="relative py-8 px-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-white border border-indigo-100/50 shadow-[inset_0_0_20px_rgba(255,255,255,1)]">
+                            <div className="absolute top-0 left-6 -translate-y-1/2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5">
+                                <Zap size={12} /> The Spark
                             </div>
-                            <p className="text-3xl font-serif text-slate-900 leading-snug font-medium">"{content.elevator_pitch}"</p>
+                            <p className="text-xl font-serif text-slate-900 leading-snug font-medium">"{content.elevator_pitch}"</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-3"><AlertTriangle size={16} className="text-rose-400"/> The Pain</h4>
-                                <p className="text-lg text-slate-600 leading-relaxed font-light">{content.problem}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-3">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><AlertTriangle size={14} className="text-rose-400"/> The Pain</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.problem}</p>
                             </div>
-                            <div className="space-y-4">
-                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-3"><Shield size={16} className="text-emerald-400"/> The Solution</h4>
-                                <p className="text-lg text-slate-600 leading-relaxed font-light">{content.solution}</p>
+                            <div className="space-y-3">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={14} className="text-emerald-400"/> The Solution</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.solution}</p>
                             </div>
                         </div>
 
-                        <div className="space-y-6">
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-3">
-                                <Target size={16} className="text-blue-400"/> Target Audience
+                        <div className="space-y-4">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <Target size={14} className="text-blue-400"/> Target Audience
                             </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {content.target_users?.map((user, i) => (
-                                    <div key={i} className="p-6 rounded-2xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors">
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-3">{user.segment}</div>
-                                        <p className="text-sm text-slate-600 leading-relaxed">{user.description}</p>
+                                    <div key={i} className="p-4 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors">
+                                        <div className="text-[9px] font-black uppercase tracking-widest text-indigo-500 mb-2">{user.segment}</div>
+                                        <p className="text-xs text-slate-600 leading-relaxed">{user.description}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {content.why_now && (
-                            <div className="space-y-4">
-                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-3"><Clock size={16} className="text-amber-400"/> Why Now?</h4>
-                                <p className="text-lg text-slate-600 leading-relaxed font-light">{content.why_now}</p>
+                            <div className="space-y-3">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Clock size={14} className="text-amber-400"/> Why Now?</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.why_now}</p>
                             </div>
                         )}
                         
                         {content.chart_data && content.chart_data.length > 0 && (
-                            <div className="pt-6 border-t border-slate-100">
-                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-8">
-                                    <TrendingUp size={16} className="text-indigo-400"/> Demand Projection
+                            <div className="pt-4 border-t border-slate-100">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-4">
+                                    <TrendingUp size={14} className="text-indigo-400"/> Demand Projection
                                 </h4>
-                                <div className="h-64 w-full">
+                                <div className="h-48 w-full">
                                     <LineChart data={content.chart_data} />
                                 </div>
                             </div>
@@ -486,26 +486,26 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 );
             case 'market':
                 return (
-                    <div className="space-y-12">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="p-8 rounded-2xl bg-slate-900 text-white shadow-xl flex flex-col justify-center relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-8 opacity-10">
-                                    <Globe size={100} />
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-5 rounded-2xl bg-slate-900 text-white shadow-md flex flex-col justify-center relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                    <Globe size={60} />
                                 </div>
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2 relative z-10">
+                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 flex items-center gap-2 relative z-10">
                                     Market Sizing
                                 </h4>
-                                <p className="text-3xl font-serif leading-snug relative z-10">{content.market_size}</p>
+                                <p className="text-xl font-serif leading-snug relative z-10">{content.market_size}</p>
                             </div>
                             
-                            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-2">
-                                    <Activity size={16} className="text-emerald-500"/> Growth Signals
+                            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
+                                    <Activity size={14} className="text-emerald-500"/> Growth Signals
                                 </h4>
-                                <ul className="space-y-4">
+                                <ul className="space-y-2">
                                     {content.growth_signals?.map((signal, i) => (
-                                        <li key={i} className="flex gap-4 text-sm text-slate-700">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                                        <li key={i} className="flex gap-3 text-xs text-slate-700">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                                             {signal}
                                         </li>
                                     ))}
@@ -513,46 +513,46 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        <div className="space-y-6">
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-3">Competitive Landscape</h4>
-                            <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-4">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">Competitive Landscape</h4>
+                            <div className="grid grid-cols-1 gap-3">
                                 {content.competitors?.map((comp, i) => (
-                                    <div key={i} className="p-6 rounded-2xl bg-white border border-slate-100 flex flex-col md:flex-row gap-8 items-start hover:shadow-md transition-all group">
-                                        <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-200 text-slate-400 font-black text-xs group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-200 transition-colors">
+                                    <div key={i} className="p-4 rounded-xl bg-white border border-slate-100 flex flex-col md:flex-row gap-4 items-start hover:shadow-sm transition-all group">
+                                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 border border-slate-200 text-slate-400 font-black text-[10px] group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-200 transition-colors">
                                             C{i+1}
                                         </div>
-                                        <div className="flex-1 space-y-2">
-                                            <h3 className="text-lg font-bold text-slate-900">{comp.name}</h3>
-                                            <p className="text-sm text-slate-500">{comp.what_they_do}</p>
+                                        <div className="flex-1 space-y-1">
+                                            <h3 className="text-sm font-bold text-slate-900">{comp.name}</h3>
+                                            <p className="text-xs text-slate-500">{comp.what_they_do}</p>
                                         </div>
-                                        <div className="w-full md:w-1/3 p-4 rounded-xl bg-rose-50/50 border border-rose-100/50">
-                                            <span className="font-black text-rose-500 text-[10px] uppercase tracking-widest block mb-1">Vulnerability</span>
-                                            <span className="text-slate-700 text-sm">{comp.weakness}</span>
+                                        <div className="w-full md:w-1/3 p-3 rounded-lg bg-rose-50/50 border border-rose-100/50">
+                                            <span className="font-black text-rose-500 text-[9px] uppercase tracking-widest block mb-1">Vulnerability</span>
+                                            <span className="text-slate-700 text-xs">{comp.weakness}</span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-3"><Zap size={16} className="text-amber-400"/> Unique Edge</h4>
-                                <p className="text-base text-slate-600 leading-relaxed">{content.unique_edge}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-3">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Zap size={14} className="text-amber-400"/> Unique Edge</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed">{content.unique_edge}</p>
                             </div>
-                            <div className="space-y-4">
-                                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-3"><Shield size={16} className="text-indigo-400"/> The Moat</h4>
-                                <p className="text-base text-slate-600 leading-relaxed">{content.differentiation}</p>
+                            <div className="space-y-3">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={14} className="text-indigo-400"/> The Moat</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed">{content.differentiation}</p>
                             </div>
                         </div>
                         
                         {content.chart_data && content.chart_data.length > 0 && (
-                            <div className="pt-6 border-t border-slate-100 flex flex-col md:flex-row items-center gap-12">
-                                <div className="w-64 h-64 shrink-0">
+                            <div className="pt-4 border-t border-slate-100 flex flex-col md:flex-row items-center gap-6">
+                                <div className="w-48 h-48 shrink-0">
                                     <DonutChart data={content.chart_data} />
                                 </div>
                                 <div>
-                                    <h4 className="text-xl font-serif text-slate-900 mb-2">Market Share Potential</h4>
-                                    <p className="text-slate-500 text-sm">Estimated addressable segments based on initial rollout capabilities.</p>
+                                    <h4 className="text-lg font-serif text-slate-900 mb-1">Market Share Potential</h4>
+                                    <p className="text-slate-500 text-xs">Estimated addressable segments based on initial rollout capabilities.</p>
                                 </div>
                             </div>
                         )}
@@ -560,21 +560,21 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 );
             case 'execution':
                 return (
-                    <div className="space-y-12">
-                        <div className="space-y-8">
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-3">
-                                <Layers size={16} className="text-indigo-500"/> Sequence of Operations
+                    <div className="space-y-6">
+                        <div className="space-y-4">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <Layers size={14} className="text-indigo-500"/> Sequence of Operations
                             </h4>
                             <div className="relative">
-                                <div className="absolute left-[27px] top-4 bottom-4 w-px bg-slate-100" />
-                                <div className="space-y-6">
+                                <div className="absolute left-[19px] top-4 bottom-4 w-px bg-slate-100" />
+                                <div className="space-y-4">
                                     {content.how_it_works?.map((step, i) => (
-                                        <div key={i} className="flex gap-8 items-start relative z-10">
-                                            <div className="w-14 h-14 rounded-2xl bg-white text-slate-400 flex items-center justify-center font-black text-sm border-2 border-slate-100 shadow-sm shrink-0">
+                                        <div key={i} className="flex gap-4 items-start relative z-10">
+                                            <div className="w-10 h-10 rounded-xl bg-white text-slate-400 flex items-center justify-center font-black text-xs border-2 border-slate-100 shadow-sm shrink-0">
                                                 {step.step || i + 1}
                                             </div>
-                                            <div className="pt-4">
-                                                <p className="text-lg text-slate-700">{step.action}</p>
+                                            <div className="pt-2">
+                                                <p className="text-sm text-slate-700">{step.action}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -582,21 +582,21 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
-                                    <Target size={16} className="text-rose-400"/> Business Model
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
+                                    <Target size={14} className="text-rose-400"/> Business Model
                                 </h4>
-                                <p className="text-base text-slate-700 leading-relaxed">{content.business_model}</p>
+                                <p className="text-sm text-slate-700 leading-relaxed">{content.business_model}</p>
                             </div>
-                            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-2">
-                                    <BarChart3 size={16} className="text-emerald-500"/> Revenue Streams
+                            <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
+                                    <BarChart3 size={14} className="text-emerald-500"/> Revenue Streams
                                 </h4>
-                                <ul className="space-y-3">
+                                <ul className="space-y-2">
                                     {content.revenue_streams?.map((stream, i) => (
-                                        <li key={i} className="p-4 bg-white border border-slate-100 rounded-xl flex items-center gap-4 text-sm text-slate-700 shadow-sm">
-                                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center font-black text-xs shrink-0">$</div>
+                                        <li key={i} className="p-3 bg-white border border-slate-100 rounded-lg flex items-center gap-3 text-xs text-slate-700 shadow-sm">
+                                            <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-500 flex items-center justify-center font-black text-[10px] shrink-0">$</div>
                                             {stream}
                                         </li>
                                     ))}
@@ -604,49 +604,42 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                            <div className="p-8 rounded-2xl bg-slate-900 text-white flex flex-col justify-between">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 flex items-center gap-2">
-                                    <Cpu size={16} className="text-blue-400"/> Feasibility Check
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                            <div className="p-5 rounded-2xl bg-slate-900 text-white flex flex-col justify-between">
+                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
+                                    <Cpu size={14} className="text-blue-400"/> Feasibility Check
                                 </h4>
-                                <p className="text-lg leading-relaxed text-slate-200">{content.feasibility}</p>
+                                <p className="text-sm leading-relaxed text-slate-200">{content.feasibility}</p>
                             </div>
-                            <div className="grid grid-rows-2 gap-4">
-                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                            <div className="grid grid-rows-2 gap-3">
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                     <div>
-                                        <span className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">MVP Setup Cost</span>
-                                        <span className="text-2xl font-serif text-slate-900">{content.est_mvp_cost}</span>
+                                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">MVP Setup Cost</span>
+                                        <span className="text-lg font-serif text-slate-900">{content.est_mvp_cost}</span>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Layers size={20}/></div>
+                                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Layers size={16}/></div>
                                 </div>
-                                <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                     <div>
-                                        <span className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Time to Market</span>
-                                        <span className="text-2xl font-serif text-slate-900">{content.est_timeline}</span>
+                                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Time to Market</span>
+                                        <span className="text-lg font-serif text-slate-900">{content.est_timeline}</span>
                                     </div>
-                                    <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Clock size={20}/></div>
+                                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Clock size={16}/></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="pt-6 border-t border-slate-100">
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                <Cpu size={16} /> Tech Stack Needs
+                        <div className="pt-4 border-t border-slate-100">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
+                                <Cpu size={14} /> Tech Stack Needs
                             </h4>
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap gap-2">
                                 {content.tech_needs?.map((tech, i) => (
-                                    <span key={i} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-black uppercase tracking-widest">
+                                    <span key={i} className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-black uppercase tracking-widest">
                                         {tech}
                                     </span>
                                 ))}
                             </div>
-                            
-                            {content.chart_data && content.chart_data.length > 0 && (
-                                <div className="mt-6 pt-5 border-t border-slate-100">
-                                    <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4">Resource Allocation</h4>
-                                    <SimpleBarChart data={content.chart_data} />
-                                </div>
-                            )}
                         </div>
                     </div>
                 );
@@ -773,7 +766,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         >
                             {pages.map((p, idx) => (
-                                <div key={p.id} style={{ width: 900 }} className="shrink-0 h-full bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-12 overflow-y-auto custom-scrollbar relative flex flex-col transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] group">
+                                <div key={p.id} style={{ width: 900 }} className="shrink-0 h-full bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-8 overflow-y-auto custom-scrollbar relative flex flex-col transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] group">
                                     <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                         <button onClick={() => setIsFullScreen(true)} className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full shadow-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
@@ -791,13 +784,13 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                         </div>
                                     )}
 
-                                    <header className="mb-10 pb-8 border-b border-slate-100 flex justify-between items-end shrink-0">
+                                    <header className="mb-6 pb-6 border-b border-slate-100 flex justify-between items-end shrink-0">
                                         <div>
-                                            <div className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <div className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
                                                 Module 0{idx + 1}
                                             </div>
-                                            <h2 className="text-4xl font-serif text-slate-900 tracking-tight leading-none">
+                                            <h2 className="text-2xl font-serif text-slate-900 tracking-tight leading-none">
                                                 {p.title}
                                             </h2>
                                         </div>
