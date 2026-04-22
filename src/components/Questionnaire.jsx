@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu } from 'lucide-react';
 
 const ANALYSIS_STEPS = [
-    { text: "Agent searching the internet...", icon: <Globe size={14} /> },
-    { text: "Analyzing market data...", icon: <Search size={14} /> },
-    { text: "Synthesizing strategic context...", icon: <Sparkles size={14} /> },
+    { text: "Agent searching Google...", icon: <Globe size={18} /> },
+    { text: "Analyzing Perplexity signals...", icon: <Search size={18} /> },
+    { text: "Synthesizing with OpenAI...", icon: <Cpu size={18} /> },
 ];
 
 const SOURCE_DOTS = [
@@ -151,37 +151,42 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
 
                     {isLoading ? (
                         /* === SKELETON LOADING WITH LARGE STATUS === */
-                        <div className="max-w-2xl mx-auto w-full flex flex-col items-center gap-12 animate-in fade-in duration-700">
-                            {/* Big Status Tag */}
-                            <div className="flex flex-col items-center text-center gap-6">
-                                <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100">
-                                    <div className="text-[var(--brand-accent)] animate-pulse">
-                                        {ANALYSIS_STEPS[loadingStep].icon && React.cloneElement(ANALYSIS_STEPS[loadingStep].icon, { size: 32 })}
-                                    </div>
-                                </div>
+                        <div className="max-w-2xl mx-auto w-full flex flex-col items-center gap-16 animate-in fade-in duration-1000">
+                            {/* Human-made Status UI */}
+                            <div className="flex flex-col items-center text-center gap-2">
                                 <AnimatePresence mode="wait">
-                                    <motion.h2
+                                    <motion.div
                                         key={loadingStep}
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 1.05 }}
-                                        transition={{ duration: 0.4 }}
-                                        className="text-[30px] font-normal text-slate-900 leading-tight tracking-tight max-w-lg"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                                        className="flex items-center gap-4 text-slate-900"
                                     >
-                                        {ANALYSIS_STEPS[loadingStep].text}
-                                    </motion.h2>
+                                        <div className="text-[var(--brand-accent)] opacity-80">
+                                            {ANALYSIS_STEPS[loadingStep].icon}
+                                        </div>
+                                        <h2 className="text-[32px] font-normal leading-tight tracking-tight">
+                                            {ANALYSIS_STEPS[loadingStep].text}
+                                        </h2>
+                                    </motion.div>
                                 </AnimatePresence>
+                                <div className="flex items-center gap-2 mt-4 opacity-40">
+                                    <div className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.3s]" />
+                                    <div className="w-1 h-1 rounded-full bg-slate-400 animate-bounce [animation-delay:-0.15s]" />
+                                    <div className="w-1 h-1 rounded-full bg-slate-400 animate-bounce" />
+                                </div>
                             </div>
 
-                            {/* Faded Skeleton below */}
-                            <div className="w-full space-y-10 opacity-30 pointer-events-none">
-                                <div className="space-y-4">
-                                    <div className="h-8 w-full bg-slate-100 rounded-xl" />
-                                    <div className="h-8 w-2/3 bg-slate-100 rounded-xl" />
+                            {/* Transparent Skeleton below */}
+                            <div className="w-full space-y-12 opacity-[0.08] pointer-events-none filter blur-[1px]">
+                                <div className="space-y-6">
+                                    <div className="h-12 w-full bg-slate-200 rounded-2xl" />
+                                    <div className="h-12 w-3/4 bg-slate-200 rounded-2xl" />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-6">
                                     {[1, 2, 3, 4].map((i) => (
-                                        <div key={i} className="h-14 rounded-xl border border-slate-100 bg-slate-50/50" />
+                                        <div key={i} className="h-20 rounded-2xl border border-slate-200 bg-slate-100" />
                                     ))}
                                 </div>
                             </div>

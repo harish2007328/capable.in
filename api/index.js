@@ -746,8 +746,8 @@ app.post('/api/research', async (req, res) => {
                 
                 FORMAT:
                 {
-                  "project_title": "Short Branding Name",
-                  "project_description": "15-word punchy description",
+                  "project_title": "Descriptive title (e.g. 'App for the blind' instead of 'SightGuard')",
+                  "project_description": "Simple 15-word description",
                   "questions": [
                     {
                       "id": 1,
