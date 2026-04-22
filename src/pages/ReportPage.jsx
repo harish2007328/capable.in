@@ -153,11 +153,8 @@ const ReportPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
-            <ProjectHeader activeStep="report" onBack={() => navigate('/')} />
-            <div className="w-full max-w-[1400px] mx-auto px-6 md:px-8">
-                <AnalysisReport report={report} onRestart={handleRestart} onAccept={handleAccept} />
-            </div>
+        <div className="h-screen w-full bg-slate-50 overflow-hidden">
+            <AnalysisReport report={report} onRestart={handleRestart} onAccept={handleAccept} />
         </div>
     );
 };

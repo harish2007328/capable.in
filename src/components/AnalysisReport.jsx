@@ -721,7 +721,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
     };
 
     return (
-        <div className="w-full h-screen bg-slate-50 overflow-hidden flex flex-col font-sans min-h-0">
+        <div className="w-full h-full bg-slate-50 overflow-hidden flex flex-col font-sans min-h-0">
             <div className="flex-1 flex overflow-hidden min-h-0">
                 <div className="flex-1 flex flex-col bg-white border-r border-slate-200 overflow-hidden min-h-0">
                     <div className="flex-1 relative flex items-center overflow-hidden min-h-0">
