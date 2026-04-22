@@ -1734,6 +1734,17 @@ app.get(/.*/, (req, res) => {
     res.sendFile(path.join(rootPath, 'dist', 'index.html'));
 });
 
+// --- KEEP AWAKE (Render Free Tier) ---
+// Render free tier spins down after 15m of inactivity. This self-pings every 14m.
+const RENDER_URL = 'https://capable-website.onrender.com';
+setInterval(() => {
+    axios.get(`${RENDER_URL}/api/health`)
+        .then(() => console.log('Pinged self to stay awake.'))
+        .catch((err) => console.log('Self-ping failed (non-critical):', err.message));
+}, 14 * 60 * 1000);
+
+app.get('/api/health', (req, res) => res.json({ status: 'active', timestamp: new Date().toISOString() }));
+
 // Only start the server if not running in a serverless environment (Vercel)
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     app.listen(port, () => {
