@@ -721,152 +721,125 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
     };
 
     return (
-        <div className="w-full h-screen bg-[#f1f5f9] overflow-hidden flex flex-col pt-4">
-            <div className="px-6 flex items-center justify-between h-16 shrink-0">
+        <div className="w-full h-screen bg-slate-50 overflow-hidden flex flex-col font-sans">
+            <header className="px-8 flex items-center justify-between h-20 shrink-0 border-b border-slate-200 bg-slate-50">
                 <div className="flex items-center gap-4">
-                    <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center p-2">
+                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center p-2.5">
                         <img src={LogoIcon} className="w-full h-full invert brightness-0" alt="Logo" />
                     </div>
                     <div>
-                        <h1 className="text-lg font-semibold text-slate-900 tracking-tight leading-none mb-1">
+                        <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-none mb-1">
                             {report.project_name || "Venture Strategy"}
                         </h1>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             Strategic Audit • {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
                     </div>
                 </div>
+            </header>
 
-                <div className="flex items-center gap-2">
-                    {!hasPlan && (
-                        <button
-                            onClick={handleInitiatePlan}
-                            disabled={planLoading}
-                            className="mr-4 px-4 py-2 bg-indigo-600 text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+            <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 flex flex-col bg-white border-r border-slate-200 overflow-hidden">
+                    <div className="flex-1 relative flex items-center overflow-hidden">
+                        <motion.div 
+                            className="absolute inset-y-10 left-12 flex gap-8"
+                            animate={{ x: -(activePageIndex * (450 + 32)) }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         >
-                            {planLoading ? 'Compiling...' : 'Next Phase: Roadmap'}
-                        </button>
-                    )}
-                    <button onClick={handleCopy}
-                        className={`px-4 py-2 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${copied ? 'bg-emerald-50 text-emerald-600' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
-                        {copied ? 'Copied' : 'Copy'}
-                    </button>
-                    <button onClick={handleExportPDF}
-                        className="px-4 py-2 bg-slate-900 text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
-                        {exporting === 'pdf' ? '...' : 'PDF'}
-                    </button>
-                </div>
-            </div>
+                            {pages.map((p, idx) => (
+                                <div key={p.id} onClick={() => setIsFullScreen(true)} style={{ width: 450 }} className="shrink-0 h-full bg-[#f8fafc] border border-slate-200 shadow-sm p-10 overflow-y-auto custom-scrollbar cursor-zoom-in relative flex flex-col transition-all hover:bg-[#f1f5f9]">
+                                    {p.isPlaceholder && (
+                                        <div className="absolute inset-0 bg-[#f8fafc]/80 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                {[0, 1, 2].map(i => (
+                                                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                                                ))}
+                                            </div>
+                                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Synthesizing</span>
+                                        </div>
+                                    )}
 
-            <div className="flex-1 flex w-full max-w-[1400px] mx-auto px-4 md:px-6 gap-6 overflow-hidden pb-4">
-                <div className="w-64 shrink-0 flex flex-col gap-2 py-2 hidden md:flex">
-                    <div className="bg-white rounded-md border border-slate-200/50 p-2 shadow-sm">
-                        {pages.map((p, idx) => (
-                            <button
-                                key={p.id}
-                                onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all group ${activePageIndex === idx ? 'bg-slate-50 border border-slate-200' : 'hover:bg-slate-50/50 border border-transparent'}`}
-                            >
-                                <div className={`w-6 h-6 rounded flex items-center justify-center transition-colors shrink-0 ${activePageIndex === idx ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'}`}>
-                                    {p.isPlaceholder ? <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> : <span className="text-[9px] font-bold">{idx + 1}</span>}
+                                    <header className="mb-8 border-b border-slate-200 pb-6 flex justify-between items-end">
+                                        <div>
+                                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Module 0{idx + 1}</div>
+                                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight leading-none">
+                                                {p.title}
+                                            </h2>
+                                        </div>
+                                    </header>
+
+                                    <main className="flex-1">
+                                        {renderPageContent(p)}
+                                    </main>
                                 </div>
-                                <div className="flex flex-col items-start overflow-hidden text-left">
-                                    <span className={`text-[10px] font-bold uppercase tracking-wider truncate w-full ${activePageIndex === idx ? 'text-slate-900' : 'text-slate-500'}`}>
-                                        {p.title}
-                                    </span>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex-1 relative flex justify-center py-2 min-h-0 h-full">
-                    <AnimatePresence initial={false} custom={direction}>
-                        <motion.div
-                            key={activePageIndex}
-                            custom={direction}
-                            variants={slideVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            transition={{
-                                x: { type: "spring", stiffness: 300, damping: 30 },
-                                opacity: { duration: 0.2 }
-                            }}
-                            drag="x"
-                            dragConstraints={{ left: 0, right: 0 }}
-                            dragElastic={1}
-                            onDragEnd={(e, { offset, velocity }) => {
-                                const swipe = Math.abs(offset.x) * velocity.x;
-                                if (swipe < -10000) paginate(1);
-                                else if (swipe > 10000) paginate(-1);
-                            }}
-                            onClick={() => setIsFullScreen(true)}
-                            className="w-full max-w-[800px] h-full bg-white rounded-sm border border-slate-200 shadow-lg p-10 md:p-14 overflow-y-auto custom-scrollbar cursor-zoom-in relative flex flex-col"
-                        >
-                            {pages[activePageIndex]?.isPlaceholder && (
-                                <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        {[0, 1, 2].map(i => (
-                                            <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                                        ))}
-                                    </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Synthesizing</span>
-                                </div>
-                            )}
-
-                            <header className="mb-8 border-b border-slate-100 pb-6 flex justify-between items-end">
-                                <div>
-                                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Module 0{activePageIndex + 1}</div>
-                                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight leading-none">
-                                        {pages[activePageIndex].title}
-                                    </h2>
-                                </div>
-                            </header>
-
-                            <main className="flex-1">
-                                {renderPageContent(pages[activePageIndex])}
-                            </main>
-
-                            <footer className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center opacity-40 pointer-events-none">
-                                <span className="text-[8px] font-bold uppercase tracking-[0.2em]">Capable Intelligence Report</span>
-                                <span className="text-[8px] font-bold tabular-nums">Page {activePageIndex + 1} / {pages.length}</span>
-                            </footer>
+                            ))}
                         </motion.div>
-                    </AnimatePresence>
 
-                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+                        <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
+
                         <button 
                             disabled={activePageIndex === 0}
                             onClick={() => paginate(-1)}
-                            className="w-10 h-10 -ml-12 rounded bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-95"
+                            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-300 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0"
                         >
-                            <ArrowRight size={16} className="rotate-180" />
+                            <ArrowRight size={20} className="rotate-180" />
                         </button>
                         <button 
                             disabled={activePageIndex === pages.length - 1}
                             onClick={() => paginate(1)}
-                            className="w-10 h-10 -mr-12 rounded bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-95"
+                            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-300 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0"
                         >
-                            <ArrowRight size={16} />
+                            <ArrowRight size={20} />
                         </button>
                     </div>
-                </div>
-            </div>
 
-            <div className="h-16 bg-white border-t border-slate-200 shrink-0 flex items-center justify-center px-4 md:hidden">
-                <div className="flex items-center gap-2 max-w-full overflow-x-auto no-scrollbar py-2">
-                    {pages.map((p, idx) => (
+                    <div className="h-28 bg-slate-200 flex items-center px-8 z-20 shrink-0">
+                        <span className="text-2xl font-medium text-slate-900 mr-8 tracking-tight">Navigation</span>
+                        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2">
+                            {pages.map((p, idx) => (
+                                <button
+                                    key={p.id}
+                                    onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
+                                    className={`h-16 px-6 bg-slate-100 flex flex-col justify-center transition-all relative overflow-hidden border ${activePageIndex === idx ? 'border-slate-400 shadow-sm opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                >
+                                    <span className="text-xs text-slate-800 text-left leading-tight">Thumbnail<br/>of page {idx+1}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="w-80 shrink-0 bg-slate-200 flex flex-col pt-12 px-8 gap-6 z-30 overflow-y-auto">
+                    <h2 className="text-5xl font-medium text-slate-900 mb-6 leading-tight tracking-tight">Side<br/>bar</h2>
+
+                    {!hasPlan && (
                         <button
-                            key={p.id}
-                            onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                            className={`h-10 w-14 rounded shrink-0 transition-all relative overflow-hidden group ${activePageIndex === idx ? 'ring-2 ring-slate-900 ring-offset-1' : 'ring-1 ring-slate-200 opacity-60 hover:opacity-100'}`}
+                            onClick={handleInitiatePlan}
+                            disabled={planLoading}
+                            className="w-full py-4 px-4 bg-indigo-600 text-white text-sm font-bold tracking-wide hover:bg-indigo-700 transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-between"
                         >
-                            <div className="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center">
-                                <span className="text-[9px] font-bold text-slate-400">{idx+1}</span>
-                            </div>
+                            {planLoading ? 'Compiling...' : 'Move on to the next phase'} <ArrowRight size={16} />
                         </button>
-                    ))}
+                    )}
+
+                    <div className="flex flex-col gap-3 mt-4">
+                        <button onClick={handleCopy}
+                            className={`w-full py-4 px-4 text-sm font-medium transition-all flex items-center justify-between border ${copied ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-white shadow-sm'}`}>
+                            {copied ? 'Copied' : 'Copy'} <FileText size={16} />
+                        </button>
+                        
+                        <button onClick={handleExportPDF}
+                            className="w-full py-4 px-4 bg-slate-100 border border-slate-300 text-slate-800 text-sm font-medium hover:bg-white shadow-sm transition-all flex items-center justify-between group">
+                            {exporting === 'pdf' ? 'Preparing PDF...' : 'Download as PDF'} 
+                            {limits.canExportPDF ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-slate-500" />}
+                        </button>
+                        
+                        <button onClick={handleExportDocx}
+                            className="w-full py-4 px-4 bg-slate-100 border border-slate-300 text-slate-800 text-sm font-medium hover:bg-white shadow-sm transition-all flex items-center justify-between group">
+                            {exporting === 'docx' ? 'Preparing Docx...' : 'Download as Docx'} 
+                            {limits.canExportDocx ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-slate-500" />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
