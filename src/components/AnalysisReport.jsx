@@ -759,78 +759,77 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
         <div className="w-full h-full bg-slate-50 overflow-hidden flex flex-col font-sans min-h-0">
             <div className="flex-1 flex overflow-hidden min-h-0">
                 <div className="flex-1 flex flex-col bg-white border-r border-slate-200 overflow-hidden min-h-0">
-                    <div className="flex-1 relative flex items-center overflow-hidden min-h-0">
+                    <div className="flex-1 relative flex items-center overflow-hidden min-h-0 bg-slate-50/50">
                         <motion.div 
-                            className="absolute inset-y-8 left-12 flex gap-12"
-                            animate={{ x: -(activePageIndex * (900 + 48)) }}
+                            className="flex w-full h-full"
+                            animate={{ x: `-${activePageIndex * 100}%` }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         >
                             {pages.map((p, idx) => (
-                                <div key={p.id} style={{ width: 900 }} className="shrink-0 h-full bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-8 overflow-y-auto custom-scrollbar relative flex flex-col transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] group">
-                                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                        <button onClick={() => setIsFullScreen(true)} className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full shadow-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-                                        </button>
+                                <div key={p.id} className="w-full h-full shrink-0 p-8">
+                                    <div className="w-full h-full bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-8 overflow-y-auto custom-scrollbar relative flex flex-col transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] group">
+                                        <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                            <button onClick={() => setIsFullScreen(true)} className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-full shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                                            </button>
+                                        </div>
+                                        
+                                        {p.isPlaceholder && (
+                                            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-2xl">
+                                                <div className="flex items-center gap-3 mb-6">
+                                                    {[0, 1, 2].map(i => (
+                                                        <div key={i} className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                                                    ))}
+                                                </div>
+                                                <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400">Synthesizing Module</span>
+                                            </div>
+                                        )}
+
+                                        <header className="mb-6 pb-6 border-b border-slate-100 flex justify-between items-end shrink-0">
+                                            <div>
+                                                <div className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                                                    Module 0{idx + 1}
+                                                </div>
+                                                <h2 className="text-2xl font-serif text-slate-900 tracking-tight leading-none">
+                                                    {p.title}
+                                                </h2>
+                                            </div>
+                                        </header>
+
+                                        <main className="flex-1">
+                                            {renderPageContent(p)}
+                                        </main>
                                     </div>
-                                    
-                                    {p.isPlaceholder && (
-                                        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-2xl">
-                                            <div className="flex items-center gap-3 mb-6">
-                                                {[0, 1, 2].map(i => (
-                                                    <div key={i} className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                                                ))}
-                                            </div>
-                                            <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400">Synthesizing Module</span>
-                                        </div>
-                                    )}
-
-                                    <header className="mb-6 pb-6 border-b border-slate-100 flex justify-between items-end shrink-0">
-                                        <div>
-                                            <div className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                                                Module 0{idx + 1}
-                                            </div>
-                                            <h2 className="text-2xl font-serif text-slate-900 tracking-tight leading-none">
-                                                {p.title}
-                                            </h2>
-                                        </div>
-                                    </header>
-
-                                    <main className="flex-1">
-                                        {renderPageContent(p)}
-                                    </main>
                                 </div>
                             ))}
                         </motion.div>
 
-                        <div className="absolute inset-y-0 right-0 w-40 bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
-
                         <button 
                             disabled={activePageIndex === 0}
                             onClick={() => paginate(-1)}
-                            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0"
                         >
-                            <ArrowRight size={20} className="rotate-180" />
+                            <ArrowRight size={18} className="rotate-180" />
                         </button>
                         <button 
                             disabled={activePageIndex === pages.length - 1}
                             onClick={() => paginate(1)}
-                            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0"
                         >
-                            <ArrowRight size={20} />
+                            <ArrowRight size={18} />
                         </button>
                     </div>
 
-                    <div className="h-28 bg-slate-100 flex items-center px-8 z-20 shrink-0 border-t border-slate-200">
-                        <span className="text-xl font-medium text-slate-800 mr-8 tracking-tight">Navigation</span>
-                        <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2">
+                    <div className="h-20 bg-slate-100 flex items-center justify-center px-8 z-20 shrink-0 border-t border-slate-200">
+                        <div className="flex items-center justify-center gap-3 overflow-x-auto no-scrollbar py-2 w-full">
                             {pages.map((p, idx) => (
                                 <button
                                     key={p.id}
                                     onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                    className={`h-16 px-6 bg-white flex flex-col justify-center transition-all relative overflow-hidden border ${activePageIndex === idx ? 'border-slate-400 shadow-sm opacity-100' : 'border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300'}`}
+                                    className={`h-10 px-5 bg-white flex items-center justify-center transition-all relative overflow-hidden border rounded-lg ${activePageIndex === idx ? 'border-indigo-400 shadow-sm opacity-100 text-indigo-700' : 'border-slate-200 opacity-60 hover:opacity-100 hover:border-slate-300 text-slate-600'}`}
                                 >
-                                    <span className="text-xs text-slate-600 text-left leading-tight">Thumbnail<br/>of page {idx+1}</span>
+                                    <span className="text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">{p.title}</span>
                                 </button>
                             ))}
                         </div>
