@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     FileText, Download, ArrowRight,
     Target, Shield, Zap, BarChart3,
