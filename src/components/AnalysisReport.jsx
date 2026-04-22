@@ -726,12 +726,18 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 <div className="flex-1 flex flex-col bg-white border-r border-slate-200 overflow-hidden min-h-0">
                     <div className="flex-1 relative flex items-center overflow-hidden min-h-0">
                         <motion.div 
-                            className="absolute inset-y-8 left-12 flex gap-8"
+                            className="absolute inset-y-0 left-12 flex items-center gap-8"
                             animate={{ x: -(activePageIndex * (450 + 32)) }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         >
                             {pages.map((p, idx) => (
-                                <div key={p.id} onClick={() => setIsFullScreen(true)} style={{ width: 450 }} className="shrink-0 h-full bg-white border border-slate-200 shadow-sm p-8 overflow-hidden relative flex flex-col transition-all hover:border-slate-300">
+                                <div key={p.id} style={{ width: 450, height: 636 }} className="shrink-0 bg-white border border-slate-200 shadow-sm p-8 overflow-y-auto custom-scrollbar relative flex flex-col transition-all hover:border-slate-300 group">
+                                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                        <button onClick={() => setIsFullScreen(true)} className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full shadow-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                                        </button>
+                                    </div>
+                                    
                                     {p.isPlaceholder && (
                                         <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center">
                                             <div className="flex items-center gap-2 mb-4">
@@ -752,10 +758,8 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                         </div>
                                     </header>
 
-                                    <main className="flex-1 overflow-hidden">
-                                        <div className="h-full flex flex-col justify-center">
-                                            {renderPageContent(p)}
-                                        </div>
+                                    <main className="flex-1">
+                                        {renderPageContent(p)}
                                     </main>
                                 </div>
                             ))}
