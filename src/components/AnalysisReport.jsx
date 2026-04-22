@@ -827,34 +827,32 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         </button>
                     </div>
 
-                    <div className="h-20 bg-[#0c1428] flex items-center justify-center px-8 z-20 shrink-0 border-t border-white/10 relative">
-                        <div className="absolute inset-0 z-0 bg-[linear-gradient(rgba(41,145,248,0.1),rgba(9,106,202,0.1))] pointer-events-none"></div>
-                        <div className="relative z-10 flex items-center justify-center gap-3 overflow-x-auto no-scrollbar py-2 w-full">
+                    <div className="h-20 bg-white/80 backdrop-blur-md flex items-center justify-center px-8 z-20 shrink-0 border-t border-slate-200">
+                        <div className="flex items-center justify-center gap-3 overflow-x-auto no-scrollbar py-2 w-full">
                             {pages.map((p, idx) => (
                                 <button
                                     key={p.id}
                                     onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                    className={`h-10 px-5 flex items-center justify-center transition-all relative overflow-hidden border rounded-lg ${activePageIndex === idx ? 'bg-white/20 border-white/30 text-white shadow-sm' : 'bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10'}`}
+                                    className={`h-10 px-5 flex items-center justify-center transition-all relative overflow-hidden border rounded-lg ${activePageIndex === idx ? 'bg-slate-50 border-indigo-200 shadow-sm opacity-100 text-indigo-700 font-bold' : 'bg-transparent border-transparent opacity-60 hover:opacity-100 hover:bg-slate-50 text-slate-600'}`}
                                 >
-                                    <span className="text-[11px] font-bold uppercase tracking-widest whitespace-nowrap">{p.shortTitle}</span>
+                                    <span className="text-[11px] uppercase tracking-widest whitespace-nowrap">{p.shortTitle}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                <div className="w-80 shrink-0 bg-[#0c1428] flex flex-col p-8 gap-6 z-30 overflow-y-auto relative border-l border-white/10">
-                    <div className="absolute inset-0 z-0 bg-[linear-gradient(rgba(41,145,248,0.1),rgba(9,106,202,0.1))] pointer-events-none"></div>
-                    <div className="relative z-10 flex flex-col h-full gap-6">
+                <div className="w-80 shrink-0 bg-white/80 backdrop-blur-md flex flex-col p-8 gap-6 z-30 overflow-y-auto border-l border-slate-200">
+                    <div className="flex flex-col h-full gap-6">
                         <div className="flex items-center gap-4 mb-2">
-                            <div className="w-10 h-10 bg-white/10 border border-white/20 rounded-xl flex items-center justify-center p-2.5 shrink-0">
-                                <img src={LogoIcon} className="w-full h-full brightness-0 invert" alt="Logo" />
+                            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center p-2.5 shrink-0">
+                                <img src={LogoIcon} className="w-full h-full invert brightness-0" alt="Logo" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-white tracking-tight leading-none mb-1 line-clamp-1">
+                                <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none mb-1 line-clamp-1">
                                     {report.project_name || "Venture Strategy"}
                                 </h1>
-                                <p className="text-[9px] font-bold text-blue-400 uppercase tracking-widest">
+                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
                                     Strategic Audit
                                 </p>
                             </div>
@@ -864,7 +862,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             <button
                                 onClick={handleInitiatePlan}
                                 disabled={planLoading}
-                                className="w-full py-4 px-4 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-[13px] font-bold tracking-wide hover:shadow-2xl hover:shadow-blue-500/30 transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-between rounded-xl mt-2"
+                                className="w-full py-4 px-4 bg-indigo-600 text-white text-[13px] font-bold tracking-wide hover:bg-indigo-700 transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-between rounded-xl mt-2"
                             >
                                 {planLoading ? 'Compiling...' : 'Move on to next phase'} <ArrowRight size={16} />
                             </button>
@@ -872,20 +870,20 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="flex flex-col gap-3 mt-4">
                             <button onClick={handleCopy}
-                                className={`w-full py-3.5 px-4 text-[11px] font-bold uppercase tracking-widest transition-all flex items-center justify-between border rounded-xl ${copied ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-white border-white/10 hover:bg-white/10'}`}>
+                                className={`w-full py-3.5 px-4 text-[11px] font-bold uppercase tracking-widest transition-all flex items-center justify-between border rounded-xl ${copied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100 shadow-sm'}`}>
                                 {copied ? 'Copied' : 'Copy Report'} <FileText size={16} />
                             </button>
                             
                             <button onClick={handleExportPDF}
-                                className="w-full py-3.5 px-4 bg-white/5 border border-white/10 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-white/10 rounded-xl transition-all flex items-center justify-between group">
+                                className="w-full py-3.5 px-4 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 shadow-sm rounded-xl transition-all flex items-center justify-between group">
                                 {exporting === 'pdf' ? 'Preparing PDF...' : 'Download as PDF'} 
-                                {limits.canExportPDF ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-white/40" />}
+                                {limits.canExportPDF ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-slate-400" />}
                             </button>
                             
                             <button onClick={handleExportDocx}
-                                className="w-full py-3.5 px-4 bg-white/5 border border-white/10 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-white/10 rounded-xl transition-all flex items-center justify-between group">
+                                className="w-full py-3.5 px-4 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 shadow-sm rounded-xl transition-all flex items-center justify-between group">
                                 {exporting === 'docx' ? 'Preparing Docx...' : 'Download as Docx'} 
-                                {limits.canExportDocx ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-white/40" />}
+                                {limits.canExportDocx ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-slate-400" />}
                             </button>
                         </div>
                     </div>
