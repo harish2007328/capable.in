@@ -13,19 +13,24 @@ import { getUserLimits } from '../config/planConfig';
 import PricingModal from './PricingModal';
 import LogoIcon from '../assets/LOGO ICON.svg';
 
-// --- Simplified Loading Skeleton for Sections ---
-const SectionSkeleton = () => (
-    <div className="space-y-6 animate-pulse">
-        <div className="h-32 bg-slate-100 rounded-xl w-full" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="h-40 bg-slate-50 rounded-xl" />
-            <div className="h-40 bg-slate-50 rounded-xl" />
-            <div className="h-40 bg-slate-50 rounded-xl" />
+// --- Premium Page-Based Skeleton ---
+const PageSkeleton = () => (
+    <div className="w-full h-full flex flex-col gap-10 animate-in fade-in duration-1000">
+        <div className="space-y-4">
+            <div className="h-4 w-24 bg-slate-100 rounded-full animate-pulse" />
+            <div className="h-12 w-full bg-slate-100 rounded-2xl animate-pulse" />
+            <div className="h-4 w-2/3 bg-slate-50 rounded-full animate-pulse" />
         </div>
-        <div className="h-24 bg-slate-50 rounded-xl w-full" />
-        <div className="grid grid-cols-2 gap-4">
-            <div className="h-32 bg-slate-50 rounded-xl" />
-            <div className="h-32 bg-slate-50 rounded-xl" />
+        
+        <div className="flex-1 space-y-8">
+            <div className="h-40 w-full bg-slate-50 rounded-[32px] border border-slate-100/50 animate-pulse relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+                <div className="h-32 bg-slate-50 rounded-2xl animate-pulse" />
+                <div className="h-32 bg-slate-50 rounded-2xl animate-pulse" />
+            </div>
+            <div className="h-48 w-full bg-slate-50 rounded-[32px] animate-pulse" />
         </div>
     </div>
 );
@@ -344,6 +349,8 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
     const [exporting, setExporting] = useState(null);
     const [copied, setCopied] = useState(false);
     const [planInitiated, setPlanInitiated] = useState(false);
+    const [activePageIndex, setActivePageIndex] = useState(0);
+    const [isFullScreen, setIsFullScreen] = useState(false);
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const { user } = useAuth();
     const limits = getUserLimits(user);
@@ -351,6 +358,36 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
     if (!report) return null;
 
     const pages = report.pages || [];
+
+    const slideVariants = {
+        enter: (direction) => ({
+            x: direction > 0 ? 500 : -500,
+            opacity: 0,
+            scale: 0.95
+        }),
+        center: {
+            zIndex: 1,
+            x: 0,
+            opacity: 1,
+            scale: 1
+        },
+        exit: (direction) => ({
+            zIndex: 0,
+            x: direction < 0 ? 500 : -500,
+            opacity: 0,
+            scale: 0.95
+        })
+    };
+
+    const [[page, direction], setPage] = useState([0, 0]);
+
+    const paginate = (newDirection) => {
+        const nextIdx = activePageIndex + newDirection;
+        if (nextIdx >= 0 && nextIdx < pages.length) {
+            setActivePageIndex(nextIdx);
+            setPage([nextIdx, newDirection]);
+        }
+    };
 
     const handleExportPDF = async () => {
         if (!limits.canExportPDF) {
@@ -389,14 +426,13 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
         const { id, content, isPlaceholder } = page;
 
         if (isPlaceholder || !content) {
-            return <SectionSkeleton />;
+            return <PageSkeleton />;
         }
 
         switch (id) {
             case 'overview':
                 return (
                     <div className="space-y-6">
-                        {/* Elevator Pitch */}
                         <div className="p-6 rounded-2xl bg-indigo-600 text-white shadow-lg overflow-hidden relative">
                             <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
                             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-200 mb-3 block flex items-center gap-2">
@@ -405,7 +441,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             <p className="text-2xl font-display font-medium leading-tight">"{content.elevator_pitch}"</p>
                         </div>
 
-                        {/* Problem & Solution */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 rounded-2xl bg-rose-50 border border-rose-100 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-10"><AlertTriangle size={40} /></div>
@@ -419,7 +454,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        {/* Target Users */}
                         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
                             <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
                                 <Target size={14} /> Target Audience
@@ -451,7 +485,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
             case 'market':
                 return (
                     <div className="space-y-6">
-                        {/* Market Size & Growth */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-center">
                                 <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 block flex items-center gap-2">
@@ -474,7 +507,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        {/* Competitors */}
                         <div className="space-y-4">
                             <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-2">Competitive Landscape</h4>
                             {content.competitors?.map((comp, i) => (
@@ -494,7 +526,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             ))}
                         </div>
 
-                        {/* UVP & Differentiation */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <InfoBox icon={Zap} title="Unique Edge (Why You)" content={content.unique_edge} className="border-indigo-100 bg-indigo-50/30 h-full" />
                             <InfoBox icon={Shield} title="The Moat" content={content.differentiation} className="border-emerald-100 bg-emerald-50/30 h-full" />
@@ -513,7 +544,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
             case 'execution':
                 return (
                     <div className="space-y-6">
-                        {/* How it works */}
                         <div className="p-8 rounded-2xl bg-slate-900 text-white shadow-xl relative overflow-hidden">
                             <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px]"></div>
                             <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2 relative z-10">
@@ -534,7 +564,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        {/* Business Model & Revenue */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <InfoBox icon={Target} title="Business Model" content={content.business_model} className="h-full" />
                             <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full">
@@ -552,7 +581,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        {/* Feasibility & Costs */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="md:col-span-2">
                                 <InfoBox icon={Cpu} title="Feasibility & Reality Check" content={content.feasibility} className="h-full" />
@@ -563,7 +591,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        {/* Tech Needs */}
                         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
                             <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
                                 <Cpu size={14} /> Key Tech Needs
@@ -588,7 +615,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
             case 'reality':
                 return (
                     <div className="space-y-6">
-                        {/* Risks */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full flex flex-col">
                                 <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
@@ -625,7 +651,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             )}
                         </div>
 
-                        {/* Open Questions */}
                         <div className="p-8 rounded-2xl bg-amber-50 border border-amber-100 relative overflow-hidden">
                             <div className="absolute right-0 bottom-0 opacity-[0.03] w-64 h-64 translate-x-12 translate-y-12">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
@@ -644,7 +669,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </ul>
                         </div>
 
-                        {/* Validation Plan & Future */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-6 text-white rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-lg h-full">
                                 <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-200 mb-6 flex items-center gap-2">
@@ -676,7 +700,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                     </div>
                 );
             default:
-                // Generic Fallback: Render any available text/lists if ID doesn't match
                 return (
                     <div className="space-y-6">
                         <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 italic text-slate-500 text-sm">
@@ -709,177 +732,242 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
     };
 
     return (
-        <div className="w-full h-full bg-[#f8fafc] overflow-y-auto custom-scrollbar pt-10 pb-20">
-            <div className="mx-auto w-full px-6 flex justify-center pb-10">
-                <div className="flex w-full gap-8 max-w-[1500px] items-start relative min-h-screen">
-
-                    {/* LEFT SIDE: THE DOCUMENT PAGES */}
-                    <div ref={reportRef} className="flex-1 space-y-6 min-w-0 relative">
-                        {/* Compact Header */}
-                        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex justify-between items-center">
-                            <div className="flex items-center gap-4">
-                                <div className="w-11 h-11 bg-slate-900 rounded-lg flex items-center justify-center p-2.5">
-                                    <img src={LogoIcon} className="w-full h-full invert brightness-0" alt="Logo" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <h1 className="text-xl font-semibold text-slate-900 tracking-tight leading-none mb-1">
-                                        {report.project_name || "Venture Strategy"}
-                                    </h1>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                                        System-Generated Analysis • {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="hidden lg:flex items-center gap-4 px-4 py-2 bg-slate-50 border border-slate-100 rounded-lg">
-                                <div className="flex flex-col items-end">
-                                    <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Protocol Audit</span>
-                                    <span className="text-[10px] font-bold text-slate-900 uppercase tabular-nums">VERIFIED_3.02</span>
-                                </div>
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                            </div>
-                        </div>
-
-                        {/* Analysis Modules */}
-                        {pages.map((page, idx) => (
-                            <motion.div
-                                key={page.id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="bg-white rounded-xl border border-slate-200 p-10 relative flex flex-col shadow-sm"
-                            >
-                                <header className="mb-12 flex justify-between items-center bg-slate-50/50 p-6 rounded-2xl border border-slate-100 backdrop-blur-sm">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-2 h-8 bg-slate-900 rounded-full" />
-                                        <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 uppercase tracking-tight">{page.title}</h2>
-                                    </div>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-l border-slate-200 pl-6 ml-6">
-                                        Module {idx + 1}
-                                    </span>
-                                </header>
-
-                                <main className="flex-1">
-                                    {renderPageContent(page)}
-                                </main>
-                            </motion.div>
-                        ))}
+        <div className="w-full h-screen bg-[#f1f5f9] overflow-hidden flex flex-col pt-4">
+            <div className="px-6 flex items-center justify-between h-16 shrink-0">
+                <div className="flex items-center gap-4">
+                    <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center p-2">
+                        <img src={LogoIcon} className="w-full h-full invert brightness-0" alt="Logo" />
                     </div>
+                    <div>
+                        <h1 className="text-lg font-semibold text-slate-900 tracking-tight leading-none mb-1">
+                            {report.project_name || "Venture Strategy"}
+                        </h1>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                            Strategic Audit • {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                    </div>
+                </div>
 
-                    {/* RIGHT SIDE: SIDEBAR — Fixed Implementation */}
-                    <div className="w-[340px] shrink-0 lg:block hidden">
-                        <div className="fixed top-28 w-[340px] flex flex-col gap-6" 
-                             style={{ 
-                                 right: 'calc(max(24px, (100vw - 1600px) / 2 + 24px))'
-                             }}>
-
-                            {/* Action Card */}
-                            <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-slate-200/60 overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.04)]">
-                                {/* Copy — top */}
-                                <button onClick={handleCopy}
-                                    className={`flex items-center gap-3 w-full px-5 py-4 text-left transition-all active:scale-[0.98] border-b border-slate-100
-                                        ${copied ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-slate-50 text-slate-700'}`}>
-                                    <span className="text-sm font-bold">⎘</span>
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.1em]">
-                                        {copied ? 'Copied ✓' : 'Copy Report'}
-                                    </span>
-                                </button>
-
-                                {/* Export Group */}
-                                <div className="p-2 space-y-1">
-                                    <button onClick={handleExportPDF} disabled={exporting === 'pdf'}
-                                        className={`flex items-center gap-3 w-full px-4 py-3.5 text-left rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group relative ${!limits.canExportPDF ? 'opacity-60' : 'hover:bg-slate-50'}`}>
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${!limits.canExportPDF ? 'bg-slate-100 text-slate-400' : 'bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white'}`}>
-                                            {!limits.canExportPDF ? <Lock size={14} /> : <FileText size={14} />}
-                                        </div>
-                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-                                            {!limits.canExportPDF ? 'PDF Export — Pro' : exporting === 'pdf' ? 'Generating…' : 'Export Report as PDF'}
-                                        </span>
-                                        {!limits.canExportPDF && (
-                                            <span className="ml-auto text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Upgrade</span>
-                                        )}
-                                    </button>
-
-                                    <button onClick={handleExportDocx} disabled={exporting === 'docx'}
-                                        className={`flex items-center gap-3 w-full px-4 py-3.5 text-left rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 group relative ${!limits.canExportDocx ? 'opacity-60' : 'hover:bg-slate-50'}`}>
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${!limits.canExportDocx ? 'bg-slate-100 text-slate-400' : 'bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white'}`}>
-                                            {!limits.canExportDocx ? <Lock size={14} /> : <Download size={14} />}
-                                        </div>
-                                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-                                            {!limits.canExportDocx ? 'Word Export — Pro' : exporting === 'docx' ? 'Generating…' : 'Export Report as Word'}
-                                        </span>
-                                        {!limits.canExportDocx && (
-                                            <span className="ml-auto text-[8px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full uppercase tracking-widest">Upgrade</span>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Generation Progress Indicator */}
-                            {reportLoading && (
-                                <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 animate-pulse">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500">System Generating</span>
-                                    </div>
-                                    <p className="text-[10px] text-indigo-400 leading-relaxed font-medium">
-                                        Assembling strategic sections in real-time. Do not close this session.
-                                    </p>
-                                </div>
-                            )}
-                            {/* Next Phase Navigation Bridge — Streamlined */}
-                            <motion.div 
-                                initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.6 }}
-                                className="rounded-2xl bg-gradient-to-br from-[#0066CC] to-[#073B99] overflow-hidden shadow-xl relative group"
-                            >
-                                <div className="p-8 relative z-10">
-                                    <div className="flex flex-col gap-2 mb-6">
-                                        <span className="text-[9px] font-black text-white/50 uppercase tracking-[0.2em]">Next Phase</span>
-                                        <h4 className="text-white text-2xl font-display tracking-tight leading-none">
-                                            Roadmap Engine
-                                        </h4>
-                                    </div>
-
-                                    <p className="text-white/80 text-[14px] leading-relaxed mb-8">
-                                        Transform this analysis into an actionable, 60-day strategic roadmap.
-                                    </p>
-
-                                    <button
-                                        onClick={handleInitiatePlan}
-                                        disabled={planLoading}
-                                        className="w-full group relative flex items-center justify-between p-1 bg-white hover:bg-slate-50 text-slate-900 rounded-xl transition-all duration-300 shadow-lg active:scale-[0.98] disabled:opacity-50"
-                                    >
-                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] pl-6 py-3.5">
-                                            {planLoading ? 'Compiling...' : planInitiated ? 'Open Roadmap' : 'Initialize'}
-                                        </span>
-                                        <div className="w-11 h-11 bg-slate-900 rounded-lg flex items-center justify-center text-white mr-1 shadow-sm">
-                                            {planLoading ? (
-                                                <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                                            ) : (
-                                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                            )}
-                                        </div>
-                                    </button>
-                                </div>
-                            </motion.div>
-
-                            {/* Legal / AI Disclaimer */}
-                            <div className="flex items-start p-4 bg-[#FFFAEB]/50 backdrop-blur-md rounded-2xl border border-amber-500/10">
-                                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mr-4">
-                                    <AlertTriangle size={14} className="text-amber-600" />
-                                </div>
-                                <div>
-                                    <h6 className="text-[10px] uppercase tracking-widest font-black text-amber-700/80 mb-1">AI Disclaimer</h6>
-                                    <p className="text-[11px] font-medium leading-relaxed text-amber-700/60 pr-2">
-                                        Capable AI generates estimates. Always verify local laws, compliance, and pricing before committing capital.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-            </div>
+                <div className="flex items-center gap-2">
+                    <button onClick={handleCopy}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${copied ? 'bg-emerald-50 text-emerald-600' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                        {copied ? 'Copied' : 'Copy'}
+                    </button>
+                    <button onClick={handleExportPDF}
+                        className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
+                        {exporting === 'pdf' ? '...' : 'PDF'}
+                    </button>
                 </div>
             </div>
-            <PricingModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
+
+            <div className="flex-1 flex w-full max-w-[1600px] mx-auto px-6 gap-6 overflow-hidden pb-8">
+                <div className="w-72 shrink-0 flex flex-col gap-4 py-4">
+                    <div className="bg-white/50 rounded-2xl p-2 border border-slate-200/50">
+                        {pages.map((p, idx) => (
+                            <button
+                                key={p.id}
+                                onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
+                                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all group ${activePageIndex === idx ? 'bg-white shadow-sm border border-slate-200' : 'hover:bg-white/40'}`}
+                            >
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${activePageIndex === idx ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'}`}>
+                                    {p.isPlaceholder ? <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> : <span className="text-[10px] font-bold">{idx + 1}</span>}
+                                </div>
+                                <div className="flex flex-col items-start overflow-hidden">
+                                    <span className={`text-[11px] font-bold uppercase tracking-wider truncate w-full ${activePageIndex === idx ? 'text-slate-900' : 'text-slate-500'}`}>
+                                        {p.title}
+                                    </span>
+                                    <span className="text-[9px] font-medium text-slate-400">
+                                        {p.isPlaceholder ? 'Analyzing...' : 'Strategic Module'}
+                                    </span>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex-1 relative flex items-center justify-center py-4">
+                    <AnimatePresence initial={false} custom={direction}>
+                        <motion.div
+                            key={activePageIndex}
+                            custom={direction}
+                            variants={slideVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{
+                                x: { type: "spring", stiffness: 300, damping: 30 },
+                                opacity: { duration: 0.2 }
+                            }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={1}
+                            onDragEnd={(e, { offset, velocity }) => {
+                                const swipe = Math.abs(offset.x) * velocity.x;
+                                if (swipe < -10000) paginate(1);
+                                else if (swipe > 10000) paginate(-1);
+                            }}
+                            onClick={() => setIsFullScreen(true)}
+                            className="w-full h-full max-w-4xl bg-white rounded-[40px] border border-slate-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-12 overflow-y-auto custom-scrollbar cursor-zoom-in relative"
+                        >
+                            {pages[activePageIndex]?.isPlaceholder && (
+                                <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center rounded-[40px]">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        {[0, 1, 2].map(i => (
+                                            <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                                        ))}
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Synthesizing Intelligence</span>
+                                </div>
+                            )}
+
+                            <header className="mb-12 flex justify-between items-center">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-2 h-10 bg-slate-900 rounded-full" />
+                                    <h2 className="text-4xl font-semibold text-slate-900 uppercase tracking-tighter leading-none">
+                                        {pages[activePageIndex].title}
+                                    </h2>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Module ID</div>
+                                    <div className="text-[11px] font-black text-slate-900 tabular-nums">00{activePageIndex + 1}_STR</div>
+                                </div>
+                            </header>
+
+                            <main className="pb-12">
+                                {renderPageContent(pages[activePageIndex])}
+                            </main>
+
+                            <footer className="mt-auto pt-8 border-t border-slate-100 flex justify-between items-center opacity-30 pointer-events-none">
+                                <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Capable Intelligence Report</span>
+                                <span className="text-[9px] font-bold tabular-nums">Page {activePageIndex + 1} of {pages.length}</span>
+                            </footer>
+                        </motion.div>
+                    </AnimatePresence>
+
+                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 pointer-events-none">
+                        <button 
+                            disabled={activePageIndex === 0}
+                            onClick={() => paginate(-1)}
+                            className="w-12 h-12 rounded-full bg-white shadow-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-90"
+                        >
+                            <ArrowRight size={20} className="rotate-180" />
+                        </button>
+                        <button 
+                            disabled={activePageIndex === pages.length - 1}
+                            onClick={() => paginate(1)}
+                            className="w-12 h-12 rounded-full bg-white shadow-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-90"
+                        >
+                            <ArrowRight size={20} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="h-24 bg-white/80 backdrop-blur-md border-t border-slate-200/60 shrink-0 flex items-center justify-center px-8 z-40">
+                <div className="flex items-center gap-3 max-w-full overflow-x-auto no-scrollbar py-2">
+                    {pages.map((p, idx) => (
+                        <button
+                            key={p.id}
+                            onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
+                            className={`h-14 w-20 rounded-lg shrink-0 transition-all relative overflow-hidden group ${activePageIndex === idx ? 'ring-2 ring-slate-900 ring-offset-2' : 'ring-1 ring-slate-200 opacity-60 hover:opacity-100'}`}
+                        >
+                            <div className="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center p-1">
+                                <div className="w-full h-full bg-white rounded border border-slate-200/50 flex flex-col p-1 gap-1">
+                                    <div className="h-1.5 w-full bg-slate-100 rounded-[1px]" />
+                                    <div className="flex-1 w-full bg-slate-50/50 rounded-[1px] flex items-center justify-center">
+                                         {p.isPlaceholder ? <div className="w-1 h-1 rounded-full bg-blue-400 animate-pulse" /> : <span className="text-[8px] font-bold text-slate-300">{idx+1}</span>}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={`absolute bottom-0 inset-x-0 h-1 transition-all ${activePageIndex === idx ? 'bg-slate-900' : 'bg-transparent group-hover:bg-slate-200'}`} />
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <AnimatePresence>
+                {isFullScreen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex flex-col"
+                    >
+                        <div className="px-8 flex items-center justify-between h-20 shrink-0 border-b border-white/5">
+                             <div className="flex items-center gap-4 text-white">
+                                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                                    <FileText size={16} />
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em]">{pages[activePageIndex].title}</span>
+                             </div>
+                             <button 
+                                onClick={() => setIsFullScreen(false)}
+                                className="w-10 h-10 rounded-full bg-white/5 text-white flex items-center justify-center hover:bg-white/10 transition-all"
+                             >
+                                <span className="text-xl">×</span>
+                             </button>
+                        </div>
+
+                        <div className="flex-1 overflow-hidden relative flex items-center justify-center px-4 md:px-20">
+                             <motion.div 
+                                className="w-full max-w-5xl h-full max-h-[85vh] bg-white rounded-[40px] shadow-2xl p-12 overflow-y-auto custom-scrollbar-dark"
+                             >
+                                <header className="mb-12 flex justify-between items-start">
+                                    <div className="space-y-2">
+                                        <div className="text-[10px] font-black text-blue-500 uppercase tracking-widest">IMMERSED VIEW</div>
+                                        <h2 className="text-5xl font-semibold text-slate-900 tracking-tight">{pages[activePageIndex].title}</h2>
+                                    </div>
+                                </header>
+                                <main>
+                                    {renderPageContent(pages[activePageIndex])}
+                                </main>
+                             </motion.div>
+
+                             {/* Fullscreen Navigation */}
+                             <div className="absolute inset-y-0 inset-x-4 md:inset-x-8 flex justify-between items-center pointer-events-none">
+                                <button 
+                                    disabled={activePageIndex === 0}
+                                    onClick={() => paginate(-1)}
+                                    className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all pointer-events-auto disabled:opacity-0 active:scale-90"
+                                >
+                                    <ArrowRight size={24} className="rotate-180" />
+                                </button>
+                                <button 
+                                    disabled={activePageIndex === pages.length - 1}
+                                    onClick={() => paginate(1)}
+                                    className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md text-white border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all pointer-events-auto disabled:opacity-0 active:scale-90"
+                                >
+                                    <ArrowRight size={24} />
+                                </button>
+                             </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="h-16 shrink-0 border-t border-white/5 flex items-center justify-between px-8 text-white/40">
+                             <span className="text-[10px] font-bold uppercase tracking-widest">Navigation: Page {activePageIndex + 1} of {pages.length}</span>
+                             
+                             {!hasPlan && activePageIndex === pages.length - 1 && (
+                                 <button
+                                     onClick={handleInitiatePlan}
+                                     disabled={planLoading}
+                                     className="px-6 py-2 bg-white text-slate-900 rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-indigo-50 transition-all active:scale-95 disabled:opacity-50 pointer-events-auto"
+                                 >
+                                     {planLoading ? 'Compiling...' : 'Generate Roadmap'}
+                                 </button>
+                             )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* MODALS */}
+            {showUpgradeModal && (
+                <PricingModal
+                    isOpen={showUpgradeModal}
+                    onClose={() => setShowUpgradeModal(false)}
+                    highlightedFeature={exporting === 'pdf' ? "PDF Exports" : "Advanced Reports"}
+                />
+            )}
         </div>
     );
 };
