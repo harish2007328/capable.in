@@ -22,15 +22,15 @@ const PageSkeleton = () => (
             <div className="h-4 w-2/3 bg-slate-50 rounded-full animate-pulse" />
         </div>
         
-        <div className="flex-1 space-y-8">
-            <div className="h-40 w-full bg-slate-50 rounded-[32px] border border-slate-100/50 animate-pulse relative overflow-hidden">
+        <div className="flex-1 space-y-6">
+            <div className="h-32 w-full bg-slate-50 rounded-md border border-slate-100/50 animate-pulse relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
             </div>
             <div className="grid grid-cols-2 gap-6">
-                <div className="h-32 bg-slate-50 rounded-2xl animate-pulse" />
-                <div className="h-32 bg-slate-50 rounded-2xl animate-pulse" />
+                <div className="h-24 bg-slate-50 rounded-md animate-pulse" />
+                <div className="h-24 bg-slate-50 rounded-md animate-pulse" />
             </div>
-            <div className="h-48 w-full bg-slate-50 rounded-[32px] animate-pulse" />
+            <div className="h-40 w-full bg-slate-50 rounded-md animate-pulse" />
         </div>
     </div>
 );
@@ -317,28 +317,28 @@ const RadarChart = ({ data }) => {
 // --- Container Components ---
 
 const InfoBox = ({ icon: Icon, title, content, className = "" }) => (
-    <div className={`p-8 rounded-2xl bg-white border border-slate-100 shadow-sm ${className}`}>
-        <div className="flex items-center gap-4 mb-4">
-            <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-900 border border-slate-100 shadow-sm">
+    <div className={`p-6 rounded-md bg-white border border-slate-200 shadow-sm ${className}`}>
+        <div className="flex items-center gap-3 mb-3">
+            <div className="text-slate-700">
                 <Icon size={16} />
             </div>
-            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">{title}</h4>
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">{title}</h4>
         </div>
-        <p className="text-base text-slate-700 leading-relaxed font-medium">
+        <p className="text-sm text-slate-700 leading-relaxed">
             {content}
         </p>
     </div>
 );
 
 const MetricBox = ({ label, value, subtext, icon: Icon, isCompact = false }) => (
-    <div className={`p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col justify-center relative overflow-hidden group`}>
-        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-            <Icon size={40} />
+    <div className={`p-5 rounded-md bg-white border border-slate-200 shadow-sm flex flex-col justify-center relative overflow-hidden group`}>
+        <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Icon size={32} />
         </div>
         <div className="relative z-10">
-            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{label}</div>
-            <div className="text-2xl font-black text-slate-900 leading-none mb-2">{value}</div>
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{subtext}</div>
+            <div className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400 mb-1">{label}</div>
+            <div className="text-xl font-bold text-slate-900 leading-none mb-1">{value}</div>
+            <div className="text-[9px] font-medium text-slate-400 uppercase tracking-wider">{subtext}</div>
         </div>
     </div>
 );
@@ -432,50 +432,47 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
         switch (id) {
             case 'overview':
                 return (
-                    <div className="space-y-6">
-                        <div className="p-6 rounded-2xl bg-indigo-600 text-white shadow-lg overflow-hidden relative">
-                            <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
-                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-200 mb-3 block flex items-center gap-2">
-                                <Zap size={12} className="text-amber-300" /> The Spark
+                    <div className="space-y-4">
+                        <div className="p-6 rounded-md bg-white border border-slate-200 border-l-4 border-l-indigo-600 shadow-sm">
+                            <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-indigo-600 mb-2 flex items-center gap-1.5">
+                                <Zap size={12} /> The Spark
                             </span>
-                            <p className="text-2xl font-display font-medium leading-tight">"{content.elevator_pitch}"</p>
+                            <p className="text-lg font-medium text-slate-900 leading-snug">"{content.elevator_pitch}"</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="p-6 rounded-2xl bg-rose-50 border border-rose-100 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-4 opacity-10"><AlertTriangle size={40} /></div>
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-rose-500 mb-3 block">The Pain</h4>
-                                <p className="text-slate-700 leading-relaxed font-medium relative z-10">{content.problem}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5"><AlertTriangle size={12}/> The Pain</h4>
+                                <p className="text-sm text-slate-700 leading-relaxed">{content.problem}</p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-100 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-4 opacity-10"><Shield size={40} /></div>
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-emerald-600 mb-3 block">The Solution</h4>
-                                <p className="text-slate-700 leading-relaxed font-medium relative z-10">{content.solution}</p>
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5"><Shield size={12}/> The Solution</h4>
+                                <p className="text-sm text-slate-700 leading-relaxed">{content.solution}</p>
                             </div>
                         </div>
 
-                        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
-                                <Target size={14} /> Target Audience
+                        <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm">
+                            <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
+                                <Target size={12} /> Target Audience
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {content.target_users?.map((user, i) => (
-                                    <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 mb-1">{user.segment}</div>
-                                        <p className="text-sm text-slate-600 leading-relaxed">{user.description}</p>
+                                    <div key={i} className="pl-3 border-l-2 border-indigo-200">
+                                        <div className="text-[9px] font-bold uppercase tracking-widest text-indigo-600 mb-0.5">{user.segment}</div>
+                                        <p className="text-xs text-slate-600 leading-relaxed">{user.description}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {content.why_now && (
-                            <InfoBox icon={Clock} title="Why Now?" content={content.why_now} className="bg-gradient-to-br from-white to-slate-50" />
+                            <InfoBox icon={Clock} title="Why Now?" content={content.why_now} />
                         )}
                         
                         {content.chart_data && content.chart_data.length > 0 && (
-                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
-                                    <TrendingUp size={14} /> Demand Projection
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
+                                    <TrendingUp size={12} /> Demand Projection
                                 </h4>
                                 <LineChart data={content.chart_data} />
                             </div>
@@ -484,22 +481,22 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 );
             case 'market':
                 return (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-center">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 block flex items-center gap-2">
-                                    <Globe size={14} /> Market Sizing
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm h-full flex flex-col justify-center">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5">
+                                    <Globe size={12} /> Market Sizing
                                 </h4>
-                                <p className="text-slate-700 leading-relaxed font-medium">{content.market_size}</p>
+                                <p className="text-sm text-slate-700 leading-relaxed">{content.market_size}</p>
                             </div>
-                            <div className="p-6 rounded-2xl bg-indigo-50 border border-indigo-100 shadow-sm h-full">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-400 mb-4 block flex items-center gap-2">
-                                    <Activity size={14} /> Growth Signals
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm h-full">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                                    <Activity size={12} /> Growth Signals
                                 </h4>
-                                <ul className="space-y-3">
+                                <ul className="space-y-2">
                                     {content.growth_signals?.map((signal, i) => (
-                                        <li key={i} className="flex gap-3 text-sm text-indigo-900 font-medium">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                                        <li key={i} className="flex gap-2 text-xs text-slate-700">
+                                            <div className="w-1 h-1 rounded-full bg-slate-400 mt-1.5 shrink-0" />
                                             {signal}
                                         </li>
                                     ))}
@@ -507,34 +504,34 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-2">Competitive Landscape</h4>
+                        <div className="space-y-3">
+                            <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 ml-1">Competitive Landscape</h4>
                             {content.competitors?.map((comp, i) => (
-                                <div key={i} className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col md:flex-row gap-4 items-start shadow-sm hover:border-slate-300 transition-colors">
-                                    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-200 text-slate-500 font-black text-xs">
+                                <div key={i} className="p-4 rounded-md bg-white border border-slate-200 flex flex-col md:flex-row gap-4 items-start shadow-sm">
+                                    <div className="w-8 h-8 rounded bg-slate-50 flex items-center justify-center shrink-0 border border-slate-200 text-slate-500 font-bold text-[10px]">
                                         C{i+1}
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="text-base font-bold text-slate-900 mb-1">{comp.name}</h3>
-                                        <p className="text-sm text-slate-500 mb-3">{comp.what_they_do}</p>
-                                        <div className="bg-rose-50 border border-rose-100 rounded-lg p-3 text-sm">
-                                            <span className="font-bold text-rose-600 text-xs uppercase mr-2 tracking-wide block mb-1">Weakness to Exploit</span>
-                                            <span className="text-rose-900 font-medium">{comp.weakness}</span>
+                                        <h3 className="text-sm font-bold text-slate-900 mb-1">{comp.name}</h3>
+                                        <p className="text-xs text-slate-600 mb-2">{comp.what_they_do}</p>
+                                        <div className="pl-3 border-l-2 border-rose-200">
+                                            <span className="font-bold text-rose-600 text-[10px] uppercase block">Weakness</span>
+                                            <span className="text-slate-700 text-xs">{comp.weakness}</span>
                                         </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <InfoBox icon={Zap} title="Unique Edge (Why You)" content={content.unique_edge} className="border-indigo-100 bg-indigo-50/30 h-full" />
-                            <InfoBox icon={Shield} title="The Moat" content={content.differentiation} className="border-emerald-100 bg-emerald-50/30 h-full" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <InfoBox icon={Zap} title="Unique Edge (Why You)" content={content.unique_edge} className="h-full" />
+                            <InfoBox icon={Shield} title="The Moat" content={content.differentiation} className="h-full" />
                         </div>
                         
                         {content.chart_data && content.chart_data.length > 0 && (
-                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-2">
-                                    <PieChart size={14} /> Market Share Potential
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5">
+                                    <PieChart size={12} /> Market Share Potential
                                 </h4>
                                 <DonutChart data={content.chart_data} />
                             </div>
@@ -543,37 +540,36 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 );
             case 'execution':
                 return (
-                    <div className="space-y-6">
-                        <div className="p-8 rounded-2xl bg-slate-900 text-white shadow-xl relative overflow-hidden">
-                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px]"></div>
-                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2 relative z-10">
-                                <Layers size={14} className="text-indigo-400" /> How It Works
+                    <div className="space-y-4">
+                        <div className="p-6 rounded-md bg-white border border-slate-200 shadow-sm">
+                            <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-5 flex items-center gap-1.5">
+                                <Layers size={12} /> How It Works
                             </h4>
-                            <div className="space-y-6 relative z-10">
+                            <div className="space-y-4">
                                 {content.how_it_works?.map((step, i) => (
-                                    <div key={i} className="flex gap-6 items-start">
+                                    <div key={i} className="flex gap-4 items-start">
                                         <div className="flex flex-col items-center">
-                                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/30">
+                                            <div className="w-6 h-6 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center font-bold text-xs border border-slate-200">
                                                 {step.step || i + 1}
                                             </div>
-                                            {i < (content.how_it_works.length - 1) && <div className="w-0.5 h-6 bg-slate-800 my-1.5" />}
+                                            {i < (content.how_it_works.length - 1) && <div className="w-px h-6 bg-slate-200 my-1" />}
                                         </div>
-                                        <p className="pt-1.5 text-slate-200 font-medium">{step.action}</p>
+                                        <p className="pt-0.5 text-sm text-slate-700">{step.action}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <InfoBox icon={Target} title="Business Model" content={content.business_model} className="h-full" />
-                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 block flex items-center gap-2">
-                                    <BarChart3 size={14} /> Revenue Streams
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm h-full">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
+                                    <BarChart3 size={12} /> Revenue Streams
                                 </h4>
-                                <ul className="space-y-3">
+                                <ul className="space-y-2">
                                     {content.revenue_streams?.map((stream, i) => (
-                                        <li key={i} className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-xl flex items-center gap-3 text-sm font-medium text-emerald-900">
-                                            <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center transform shrink-0 shadow-sm font-bold text-xs">$</div>
+                                        <li key={i} className="p-2 bg-slate-50 border border-slate-100 rounded-md flex items-center gap-2 text-xs text-slate-700">
+                                            <div className="w-5 h-5 rounded-sm bg-white border border-slate-200 text-slate-400 flex items-center justify-center font-bold text-[10px]">$</div>
                                             {stream}
                                         </li>
                                     ))}
@@ -581,31 +577,31 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-2">
                                 <InfoBox icon={Cpu} title="Feasibility & Reality Check" content={content.feasibility} className="h-full" />
                             </div>
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-3">
                                 <MetricBox label="MVP Cost" value={content.est_mvp_cost} subtext="Estimated setup" icon={Layers} isCompact />
                                 <MetricBox label="Timeline" value={content.est_timeline} subtext="Time to MVP" icon={Clock} isCompact />
                             </div>
                         </div>
 
-                        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-                            <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                                <Cpu size={14} /> Key Tech Needs
+                        <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm">
+                            <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
+                                <Cpu size={12} /> Key Tech Needs
                             </h4>
                             <div className="flex flex-wrap gap-2">
                                 {content.tech_needs?.map((tech, i) => (
-                                    <span key={i} className="px-3 py-1.5 bg-slate-50 text-slate-700 rounded-lg text-xs font-bold uppercase tracking-wide border border-slate-200">
+                                    <span key={i} className="px-2.5 py-1 bg-slate-50 text-slate-600 rounded text-[10px] font-bold uppercase tracking-widest border border-slate-200">
                                         {tech}
                                     </span>
                                 ))}
                             </div>
                             
                             {content.chart_data && content.chart_data.length > 0 && (
-                                <div className="mt-8 pt-6 border-t border-slate-100">
-                                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5">Resource Allocation</h4>
+                                <div className="mt-6 pt-5 border-t border-slate-100">
+                                    <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4">Resource Allocation</h4>
                                     <SimpleBarChart data={content.chart_data} />
                                 </div>
                             )}
@@ -614,84 +610,79 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 );
             case 'reality':
                 return (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full flex flex-col">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
-                                    <AlertTriangle size={14} className="text-rose-400" /> Key Risks
+            case 'reality':
+                return (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm h-full flex flex-col">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
+                                    <AlertTriangle size={12} className="text-slate-400" /> Key Risks
                                 </h4>
-                                <div className="space-y-4 flex-1">
+                                <div className="space-y-3 flex-1">
                                     {content.risks?.map((risk, i) => (
-                                        <div key={i} className="border-l-2 border-rose-200 pl-4 py-1">
-                                            <div className="flex items-center gap-2 mb-1.5">
-                                                <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">{risk.category}</span>
-                                                <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                                                    String(risk.severity).toLowerCase() === 'high' ? 'bg-rose-100 text-rose-700' :
-                                                    String(risk.severity).toLowerCase() === 'medium' ? 'bg-amber-100 text-amber-700' :
-                                                    'bg-slate-100 text-slate-600'
-                                                }`}>
-                                                    {risk.severity || 'Medium'} Risk
+                                        <div key={i} className="border-l-2 border-slate-200 pl-3 py-0.5">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-[10px] font-bold text-slate-800 uppercase tracking-wide">{risk.category}</span>
+                                                <span className="text-[8px] px-1.5 py-0.5 rounded font-bold uppercase bg-slate-100 text-slate-600">
+                                                    {risk.severity || 'Medium'}
                                                 </span>
                                             </div>
-                                            <p className="text-sm text-slate-600">{risk.description}</p>
+                                            <p className="text-xs text-slate-600">{risk.description}</p>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                             
                             {content.chart_data && content.chart_data.length > 0 && (
-                                <div className="p-6 rounded-2xl bg-slate-900 shadow-sm flex flex-col items-center justify-center overflow-hidden border border-slate-800 h-full min-h-[300px]">
-                                    <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2 z-10">
-                                        <Activity size={14} className="text-slate-500" /> Risk Profile
+                                <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm flex flex-col items-center justify-center overflow-hidden h-full min-h-[260px]">
+                                    <h4 className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-2 flex items-center gap-1.5 z-10 w-full text-left">
+                                        <Activity size={12} /> Risk Profile
                                     </h4>
-                                    <div className="w-full flex-1 flex items-center justify-center -my-6">
+                                    <div className="w-full flex-1 flex items-center justify-center -my-4">
                                         <RadarChart data={content.chart_data} />
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-8 rounded-2xl bg-amber-50 border border-amber-100 relative overflow-hidden">
-                            <div className="absolute right-0 bottom-0 opacity-[0.03] w-64 h-64 translate-x-12 translate-y-12">
-                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-                            </div>
-                            <h4 className="text-[11px] font-black uppercase tracking-widest text-amber-600 mb-3 block relative z-10 flex items-center gap-2">
+                        <div className="p-6 rounded-md bg-white border border-slate-200 shadow-sm relative overflow-hidden">
+                            <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-2 block relative z-10 flex items-center gap-1.5">
                                 Critical Open Questions
                             </h4>
-                            <p className="text-amber-900/60 text-sm mb-6 relative z-10 font-medium">Unanswered questions that determine if this idea survives:</p>
-                            <ul className="space-y-4 relative z-10">
+                            <p className="text-slate-500 text-xs mb-4 relative z-10">Unanswered questions determining viability:</p>
+                            <ul className="space-y-3 relative z-10">
                                 {content.open_questions?.map((q, i) => (
-                                    <li key={i} className="flex gap-4 text-amber-900 items-start">
-                                        <div className="w-6 h-6 rounded-full bg-amber-200/50 text-amber-700 flex items-center justify-center font-bold text-xs shrink-0 mt-[-2px] border border-amber-200 shadow-sm">?</div>
-                                        <span className="font-medium text-[15px] leading-snug">{q}</span>
+                                    <li key={i} className="flex gap-3 text-slate-700 items-start">
+                                        <div className="w-5 h-5 rounded bg-slate-50 text-slate-400 flex items-center justify-center font-bold text-[10px] shrink-0 border border-slate-200">?</div>
+                                        <span className="text-sm leading-snug">{q}</span>
                                     </li>
                                 ))}
                             </ul>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="p-6 text-white rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 shadow-lg h-full">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-indigo-200 mb-6 flex items-center gap-2">
-                                    <ArrowRight size={14} /> Validation Plan
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm h-full">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
+                                    <ArrowRight size={12} /> Validation Plan
                                 </h4>
-                                <div className="space-y-5">
+                                <div className="space-y-4">
                                     {content.validation_plan?.map((plan, i) => (
-                                        <div key={i} className="flex gap-4 items-start">
-                                            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold text-[10px] shrink-0 border border-white/20 shadow-sm">{plan.step || i+1}</div>
-                                            <p className="text-sm pt-1 text-indigo-50 font-medium leading-relaxed">{plan.action}</p>
+                                        <div key={i} className="flex gap-3 items-start">
+                                            <div className="w-5 h-5 rounded bg-slate-50 flex items-center justify-center font-bold text-[10px] text-slate-500 shrink-0 border border-slate-200">{plan.step || i+1}</div>
+                                            <p className="text-xs text-slate-700 leading-relaxed">{plan.action}</p>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm h-full">
-                                <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                                    <Target size={14} /> Future Vision
+                            <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm h-full">
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-1.5">
+                                    <Target size={12} /> Future Vision
                                 </h4>
-                                <ul className="space-y-5">
+                                <ul className="space-y-3">
                                     {content.future_scope?.map((scope, i) => (
-                                        <li key={i} className="flex gap-3 text-slate-600 items-start">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 shrink-0" />
-                                            <span className="leading-relaxed font-medium">{scope}</span>
+                                        <li key={i} className="flex gap-2 text-slate-700 items-start">
+                                            <div className="w-1 h-1 rounded-full bg-slate-300 mt-1.5 shrink-0" />
+                                            <span className="text-xs leading-relaxed">{scope}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -701,23 +692,23 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 );
             default:
                 return (
-                    <div className="space-y-6">
-                        <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 italic text-slate-500 text-sm">
+                    <div className="space-y-4">
+                        <div className="p-5 rounded-md bg-white border border-slate-200 italic text-slate-500 text-xs">
                             Extended Strategic Module: {id.replace(/_/g, ' ')}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {Object.entries(content).map(([key, val], i) => {
                                 if (['chart_data', 'radar_data', 'isPlaceholder'].includes(key)) return null;
                                 return (
-                                    <div key={i} className="p-5 rounded-xl bg-white border border-slate-100">
-                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{key.replace(/_/g, ' ')}</h4>
-                                        <div className="text-sm text-slate-600 leading-relaxed">
+                                    <div key={i} className="p-4 rounded-md bg-white border border-slate-200 shadow-sm">
+                                        <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2">{key.replace(/_/g, ' ')}</h4>
+                                        <div className="text-xs text-slate-600 leading-relaxed">
                                             {Array.isArray(val) ? (
                                                 <ul className="space-y-1">
                                                     {val.map((item, j) => <li key={j}>• {typeof item === 'object' ? JSON.stringify(item) : item}</li>)}
                                                 </ul>
                                             ) : typeof val === 'object' ? (
-                                                <pre className="text-[10px] whitespace-pre-wrap">{JSON.stringify(val, null, 2)}</pre>
+                                                <pre className="text-[9px] whitespace-pre-wrap">{JSON.stringify(val, null, 2)}</pre>
                                             ) : (
                                                 val
                                             )}
@@ -749,35 +740,41 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {!hasPlan && (
+                        <button
+                            onClick={handleInitiatePlan}
+                            disabled={planLoading}
+                            className="mr-4 px-4 py-2 bg-indigo-600 text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50"
+                        >
+                            {planLoading ? 'Compiling...' : 'Next Phase: Roadmap'}
+                        </button>
+                    )}
                     <button onClick={handleCopy}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${copied ? 'bg-emerald-50 text-emerald-600' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
+                        className={`px-4 py-2 rounded text-[10px] font-bold uppercase tracking-widest transition-all ${copied ? 'bg-emerald-50 text-emerald-600' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50'}`}>
                         {copied ? 'Copied' : 'Copy'}
                     </button>
                     <button onClick={handleExportPDF}
-                        className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
+                        className="px-4 py-2 bg-slate-900 text-white rounded text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all">
                         {exporting === 'pdf' ? '...' : 'PDF'}
                     </button>
                 </div>
             </div>
 
-            <div className="flex-1 flex w-full max-w-[1600px] mx-auto px-6 gap-6 overflow-hidden pb-8">
-                <div className="w-72 shrink-0 flex flex-col gap-4 py-4">
-                    <div className="bg-white/50 rounded-2xl p-2 border border-slate-200/50">
+            <div className="flex-1 flex w-full max-w-[1400px] mx-auto px-4 md:px-6 gap-6 overflow-hidden pb-4">
+                <div className="w-64 shrink-0 flex flex-col gap-2 py-2 hidden md:flex">
+                    <div className="bg-white rounded-md border border-slate-200/50 p-2 shadow-sm">
                         {pages.map((p, idx) => (
                             <button
                                 key={p.id}
                                 onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all group ${activePageIndex === idx ? 'bg-white shadow-sm border border-slate-200' : 'hover:bg-white/40'}`}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all group ${activePageIndex === idx ? 'bg-slate-50 border border-slate-200' : 'hover:bg-slate-50/50 border border-transparent'}`}
                             >
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${activePageIndex === idx ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'}`}>
-                                    {p.isPlaceholder ? <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> : <span className="text-[10px] font-bold">{idx + 1}</span>}
+                                <div className={`w-6 h-6 rounded flex items-center justify-center transition-colors shrink-0 ${activePageIndex === idx ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-slate-200'}`}>
+                                    {p.isPlaceholder ? <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> : <span className="text-[9px] font-bold">{idx + 1}</span>}
                                 </div>
-                                <div className="flex flex-col items-start overflow-hidden">
-                                    <span className={`text-[11px] font-bold uppercase tracking-wider truncate w-full ${activePageIndex === idx ? 'text-slate-900' : 'text-slate-500'}`}>
+                                <div className="flex flex-col items-start overflow-hidden text-left">
+                                    <span className={`text-[10px] font-bold uppercase tracking-wider truncate w-full ${activePageIndex === idx ? 'text-slate-900' : 'text-slate-500'}`}>
                                         {p.title}
-                                    </span>
-                                    <span className="text-[9px] font-medium text-slate-400">
-                                        {p.isPlaceholder ? 'Analyzing...' : 'Strategic Module'}
                                     </span>
                                 </div>
                             </button>
@@ -785,7 +782,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                     </div>
                 </div>
 
-                <div className="flex-1 relative flex items-center justify-center py-4">
+                <div className="flex-1 relative flex justify-center py-2 min-h-0 h-full">
                     <AnimatePresence initial={false} custom={direction}>
                         <motion.div
                             key={activePageIndex}
@@ -807,79 +804,69 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 else if (swipe > 10000) paginate(-1);
                             }}
                             onClick={() => setIsFullScreen(true)}
-                            className="w-full h-full max-w-4xl bg-white rounded-[40px] border border-slate-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-12 overflow-y-auto custom-scrollbar cursor-zoom-in relative"
+                            className="w-full max-w-[800px] h-full bg-white rounded-sm border border-slate-200 shadow-lg p-10 md:p-14 overflow-y-auto custom-scrollbar cursor-zoom-in relative flex flex-col"
                         >
                             {pages[activePageIndex]?.isPlaceholder && (
-                                <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center rounded-[40px]">
+                                <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center">
                                     <div className="flex items-center gap-2 mb-4">
                                         {[0, 1, 2].map(i => (
                                             <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                                         ))}
                                     </div>
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Synthesizing Intelligence</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Synthesizing</span>
                                 </div>
                             )}
 
-                            <header className="mb-12 flex justify-between items-center">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-2 h-10 bg-slate-900 rounded-full" />
-                                    <h2 className="text-4xl font-semibold text-slate-900 uppercase tracking-tighter leading-none">
+                            <header className="mb-8 border-b border-slate-100 pb-6 flex justify-between items-end">
+                                <div>
+                                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Module 0{activePageIndex + 1}</div>
+                                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight leading-none">
                                         {pages[activePageIndex].title}
                                     </h2>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Module ID</div>
-                                    <div className="text-[11px] font-black text-slate-900 tabular-nums">00{activePageIndex + 1}_STR</div>
-                                </div>
                             </header>
 
-                            <main className="pb-12">
+                            <main className="flex-1">
                                 {renderPageContent(pages[activePageIndex])}
                             </main>
 
-                            <footer className="mt-auto pt-8 border-t border-slate-100 flex justify-between items-center opacity-30 pointer-events-none">
-                                <span className="text-[9px] font-bold uppercase tracking-[0.2em]">Capable Intelligence Report</span>
-                                <span className="text-[9px] font-bold tabular-nums">Page {activePageIndex + 1} of {pages.length}</span>
+                            <footer className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center opacity-40 pointer-events-none">
+                                <span className="text-[8px] font-bold uppercase tracking-[0.2em]">Capable Intelligence Report</span>
+                                <span className="text-[8px] font-bold tabular-nums">Page {activePageIndex + 1} / {pages.length}</span>
                             </footer>
                         </motion.div>
                     </AnimatePresence>
 
-                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 pointer-events-none">
+                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
                         <button 
                             disabled={activePageIndex === 0}
                             onClick={() => paginate(-1)}
-                            className="w-12 h-12 rounded-full bg-white shadow-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-90"
+                            className="w-10 h-10 -ml-12 rounded bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-95"
                         >
-                            <ArrowRight size={20} className="rotate-180" />
+                            <ArrowRight size={16} className="rotate-180" />
                         </button>
                         <button 
                             disabled={activePageIndex === pages.length - 1}
                             onClick={() => paginate(1)}
-                            className="w-12 h-12 rounded-full bg-white shadow-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-90"
+                            className="w-10 h-10 -mr-12 rounded bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all pointer-events-auto disabled:opacity-0 active:scale-95"
                         >
-                            <ArrowRight size={20} />
+                            <ArrowRight size={16} />
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className="h-24 bg-white/80 backdrop-blur-md border-t border-slate-200/60 shrink-0 flex items-center justify-center px-8 z-40">
-                <div className="flex items-center gap-3 max-w-full overflow-x-auto no-scrollbar py-2">
+            <div className="h-16 bg-white border-t border-slate-200 shrink-0 flex items-center justify-center px-4 md:hidden">
+                <div className="flex items-center gap-2 max-w-full overflow-x-auto no-scrollbar py-2">
                     {pages.map((p, idx) => (
                         <button
                             key={p.id}
                             onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                            className={`h-14 w-20 rounded-lg shrink-0 transition-all relative overflow-hidden group ${activePageIndex === idx ? 'ring-2 ring-slate-900 ring-offset-2' : 'ring-1 ring-slate-200 opacity-60 hover:opacity-100'}`}
+                            className={`h-10 w-14 rounded shrink-0 transition-all relative overflow-hidden group ${activePageIndex === idx ? 'ring-2 ring-slate-900 ring-offset-1' : 'ring-1 ring-slate-200 opacity-60 hover:opacity-100'}`}
                         >
-                            <div className="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center p-1">
-                                <div className="w-full h-full bg-white rounded border border-slate-200/50 flex flex-col p-1 gap-1">
-                                    <div className="h-1.5 w-full bg-slate-100 rounded-[1px]" />
-                                    <div className="flex-1 w-full bg-slate-50/50 rounded-[1px] flex items-center justify-center">
-                                         {p.isPlaceholder ? <div className="w-1 h-1 rounded-full bg-blue-400 animate-pulse" /> : <span className="text-[8px] font-bold text-slate-300">{idx+1}</span>}
-                                    </div>
-                                </div>
+                            <div className="absolute inset-0 bg-slate-50 flex flex-col items-center justify-center">
+                                <span className="text-[9px] font-bold text-slate-400">{idx+1}</span>
                             </div>
-                            <div className={`absolute bottom-0 inset-x-0 h-1 transition-all ${activePageIndex === idx ? 'bg-slate-900' : 'bg-transparent group-hover:bg-slate-200'}`} />
                         </button>
                     ))}
                 </div>
