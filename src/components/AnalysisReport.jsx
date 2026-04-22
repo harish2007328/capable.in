@@ -610,8 +610,6 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 );
             case 'reality':
                 return (
-            case 'reality':
-                return (
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-5 rounded-md bg-white border border-slate-200 shadow-sm h-full flex flex-col">
