@@ -824,22 +824,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         </button>
                     </div>
 
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 max-w-[90vw]">
-                        <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar p-1.5 bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full w-full">
-                            {pages.map((p, idx) => (
-                                <button
-                                    key={p.id}
-                                    onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                    className={`h-9 px-5 flex items-center justify-center gap-2 transition-all relative overflow-hidden rounded-full font-bold text-[13px] ${activePageIndex === idx ? 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-md' : 'bg-transparent opacity-70 hover:opacity-100 hover:bg-white text-slate-600'}`}
-                                >
-                                    {p.isPlaceholder && (
-                                        <div className={`w-3.5 h-3.5 rounded-full border-2 border-t-transparent animate-spin ${activePageIndex === idx ? 'border-white' : 'border-slate-400'}`} />
-                                    )}
-                                    <span className="whitespace-nowrap tracking-wide">{p.shortTitle}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+
                 </div>
 
                 <div className="w-72 shrink-0 bg-white/80 backdrop-blur-md flex flex-col p-5 border-l border-slate-200 z-30">
@@ -853,40 +838,35 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </p>
                         </div>
 
-                        {(reportLoading || pages.some(p => p.isPlaceholder)) && (
-                            <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100/50 flex flex-col gap-2">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-blue-600">Generating</span>
-                                    <div className="w-2.5 h-2.5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-                                </div>
-                                <div className="space-y-1.5">
-                                    {pages.map(p => (
-                                        <div key={p.id} className="flex items-center gap-1.5 text-[10px]">
-                                            {p.isPlaceholder ? (
-                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse shrink-0" />
-                                            ) : (
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                                            )}
-                                            <span className={p.isPlaceholder ? "text-blue-600 font-medium animate-pulse" : "text-slate-500 truncate"}>{p.shortTitle}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                        <div className="flex-1 flex flex-col gap-2 overflow-y-auto no-scrollbar py-2">
+                            {pages.map((p, idx) => (
+                                <button
+                                    key={p.id}
+                                    onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
+                                    className={`w-full py-3.5 px-4 flex items-center justify-between transition-all rounded-xl border group ${activePageIndex === idx ? 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-md border-transparent' : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-indigo-200'}`}
+                                >
+                                    <span className={`text-[11px] font-black uppercase tracking-widest truncate ${activePageIndex === idx ? 'text-white' : 'group-hover:text-indigo-600'}`}>{p.shortTitle}</span>
+                                    {p.isPlaceholder ? (
+                                        <div className={`w-3.5 h-3.5 rounded-full border-2 border-t-transparent animate-spin shrink-0 ${activePageIndex === idx ? 'border-white' : 'border-[var(--brand-accent)]'}`} />
+                                    ) : (
+                                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${activePageIndex === idx ? 'bg-white' : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]'}`} />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
 
-                        <div className="p-4 rounded-xl bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-accent-hover)] shadow-md relative overflow-hidden text-white">
-                            <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none">
-                                <Target size={48} className="text-white" />
+                        <div className="p-6 rounded-2xl bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-accent-hover)] shadow-lg relative overflow-hidden text-white mt-4">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                                <Target size={56} className="text-white" />
                             </div>
-                            <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px] pointer-events-none" />
                             
-                            <h3 className="text-[13px] font-bold text-white mb-1 relative z-10">Execution Phase</h3>
-                            <p className="text-[10px] text-blue-100 mb-3 relative z-10 leading-relaxed pr-4">Turn strategic insights into an actionable roadmap.</p>
+                            <h3 className="text-sm font-bold text-white mb-2 relative z-10">Execution Phase</h3>
+                            <p className="text-[11px] text-blue-100 mb-4 relative z-10 leading-relaxed pr-4">Turn strategic insights into an actionable roadmap.</p>
                             
                             <button
                                 onClick={handleInitiatePlan}
                                 disabled={planLoading || reportLoading || pages.some(p => p.isPlaceholder)}
-                                className="relative group overflow-hidden w-full py-3 px-3 bg-white/95 backdrop-blur-sm text-[var(--brand-accent)] text-[12px] font-bold tracking-wide transition-all duration-300 hover:bg-white hover:shadow-lg active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-lg border border-white/60 shadow-sm z-10"
+                                className="relative group overflow-hidden w-full py-3.5 px-4 bg-white/95 backdrop-blur-md text-[var(--brand-accent)] text-[12px] font-bold tracking-wide transition-all duration-300 hover:bg-white hover:shadow-xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl border border-white/60 shadow-md z-10"
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-1.5">
                                     {planLoading ? (
