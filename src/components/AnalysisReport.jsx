@@ -844,79 +844,79 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                     </div>
                 </div>
 
-                <div className="w-80 shrink-0 bg-white/80 backdrop-blur-md flex flex-col p-8 gap-6 z-30 overflow-y-auto border-l border-slate-200">
-                    <div className="flex flex-col h-full gap-6">
-                        <div className="mb-2 border-b border-slate-100 pb-4">
-                            <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-tight mb-2">
+                <div className="w-72 shrink-0 bg-white/80 backdrop-blur-md flex flex-col p-5 border-l border-slate-200 z-30">
+                    <div className="flex flex-col h-full gap-4">
+                        <div className="mb-1 border-b border-slate-100 pb-3">
+                            <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-tight mb-1">
                                 {report.project_name || "Venture Strategy"}
                             </h1>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                Generated on {new Date(report.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                Generated {new Date(report.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                             </p>
                         </div>
 
                         {(reportLoading || pages.some(p => p.isPlaceholder)) && (
-                            <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100/50 flex flex-col gap-3">
+                            <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100/50 flex flex-col gap-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Generating Report</span>
-                                    <div className="w-3 h-3 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-blue-600">Generating</span>
+                                    <div className="w-2.5 h-2.5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
                                 </div>
                                 <div className="space-y-1.5">
                                     {pages.map(p => (
-                                        <div key={p.id} className="flex items-center gap-2 text-xs">
+                                        <div key={p.id} className="flex items-center gap-1.5 text-[10px]">
                                             {p.isPlaceholder ? (
                                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse shrink-0" />
                                             ) : (
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                                             )}
-                                            <span className={p.isPlaceholder ? "text-blue-600 font-medium animate-pulse" : "text-slate-500"}>{p.shortTitle}</span>
+                                            <span className={p.isPlaceholder ? "text-blue-600 font-medium animate-pulse" : "text-slate-500 truncate"}>{p.shortTitle}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         )}
 
-                        <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                                <Target size={64} />
+                        <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-3 opacity-5 pointer-events-none">
+                                <Target size={48} />
                             </div>
-                            <h3 className="text-sm font-bold text-slate-900 mb-2 relative z-10">Execution Phase</h3>
-                            <p className="text-[11px] text-slate-600 mb-4 relative z-10 leading-relaxed">Translate these strategic insights into an actionable day-by-day roadmap.</p>
+                            <h3 className="text-[13px] font-bold text-slate-900 mb-1 relative z-10">Execution Phase</h3>
+                            <p className="text-[10px] text-slate-500 mb-3 relative z-10 leading-relaxed pr-4">Turn strategic insights into an actionable roadmap.</p>
                             
                             <button
                                 onClick={handleInitiatePlan}
                                 disabled={planLoading || reportLoading || pages.some(p => p.isPlaceholder)}
-                                className="relative group overflow-hidden w-full py-3.5 px-4 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-[13px] font-bold tracking-wide transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/30 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl border border-white/20 shadow-md z-10"
+                                className="relative group overflow-hidden w-full py-3 px-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-[12px] font-bold tracking-wide transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-lg border border-white/20 shadow-md z-10"
                             >
                                 <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                <span className="relative z-10 flex items-center justify-center gap-1.5">
                                     {planLoading ? (
-                                        <><div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Compiling...</>
+                                        <><div className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" /> Compiling...</>
                                     ) : hasPlan ? (
-                                        <>Go to 60-days plan <ArrowRight size={16} /></>
+                                        <>Go to 60-days plan <ArrowRight size={14} /></>
                                     ) : (
-                                        <>Generate a 60-days plan <ArrowRight size={16} /></>
+                                        <>Generate 60-days plan <ArrowRight size={14} /></>
                                     )}
                                 </span>
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-3 mt-4">
+                        <div className="flex flex-col gap-2 mt-auto">
                             <button onClick={handleCopy}
-                                className={`w-full py-3.5 px-4 text-[11px] font-bold uppercase tracking-widest transition-all flex items-center justify-between border rounded-xl ${copied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100 shadow-sm'}`}>
-                                {copied ? 'Copied' : 'Copy Report'} <FileText size={16} />
+                                className={`w-full py-2.5 px-3 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-between border rounded-lg ${copied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 shadow-sm'}`}>
+                                {copied ? 'Copied' : 'Copy Report'} <FileText size={14} />
                             </button>
                             
                             <button onClick={handleExportPDF}
-                                className="w-full py-3.5 px-4 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 shadow-sm rounded-xl transition-all flex items-center justify-between group">
-                                {exporting === 'pdf' ? 'Preparing PDF...' : 'Download as PDF'} 
-                                {limits.canExportPDF ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-slate-400" />}
+                                className="w-full py-2.5 px-3 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 shadow-sm rounded-lg transition-all flex items-center justify-between group">
+                                {exporting === 'pdf' ? 'Preparing PDF...' : 'Download PDF'} 
+                                {limits.canExportPDF ? <Download size={14} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={14} className="text-slate-400" />}
                             </button>
                             
                             <button onClick={handleExportDocx}
-                                className="w-full py-3.5 px-4 bg-white border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest hover:bg-slate-100 shadow-sm rounded-xl transition-all flex items-center justify-between group">
-                                {exporting === 'docx' ? 'Preparing Docx...' : 'Download as Docx'} 
-                                {limits.canExportDocx ? <Download size={16} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={16} className="text-slate-400" />}
+                                className="w-full py-2.5 px-3 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 shadow-sm rounded-lg transition-all flex items-center justify-between group">
+                                {exporting === 'docx' ? 'Preparing Docx...' : 'Download Docx'} 
+                                {limits.canExportDocx ? <Download size={14} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={14} className="text-slate-400" />}
                             </button>
                         </div>
                     </div>
