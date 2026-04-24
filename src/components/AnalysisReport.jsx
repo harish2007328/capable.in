@@ -453,11 +453,11 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><AlertTriangle size={14} className="text-rose-400"/> The Pain</h4>
-                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.problem}</p>
+                                <p className="text-base text-slate-700 leading-relaxed font-light">{content.problem}</p>
                             </div>
                             <div className="space-y-3">
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={14} className="text-emerald-400"/> The Solution</h4>
-                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.solution}</p>
+                                <p className="text-base text-slate-700 leading-relaxed font-light">{content.solution}</p>
                             </div>
                         </div>
 
@@ -469,7 +469,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 {content.target_users?.map((user, i) => (
                                     <div key={i} className="p-4 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors">
                                         <div className="text-[9px] font-black uppercase tracking-widest text-indigo-500 mb-2">{user.segment}</div>
-                                        <p className="text-xs text-slate-600 leading-relaxed">{user.description}</p>
+                                        <p className="text-sm text-slate-700 leading-relaxed">{user.description}</p>
                                     </div>
                                 ))}
                             </div>
@@ -478,7 +478,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         {content.why_now && (
                             <div className="space-y-3">
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Clock size={14} className="text-amber-400"/> Why Now?</h4>
-                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.why_now}</p>
+                                <p className="text-base text-slate-700 leading-relaxed font-light">{content.why_now}</p>
                             </div>
                         )}
                         
@@ -514,7 +514,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 </h4>
                                 <ul className="space-y-2">
                                     {content.growth_signals?.map((signal, i) => (
-                                        <li key={i} className="flex gap-3 text-xs text-slate-700">
+                                        <li key={i} className="flex gap-3 text-sm text-slate-800">
                                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                                             {signal}
                                         </li>
@@ -533,7 +533,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                         </div>
                                         <div className="flex-1 space-y-1">
                                             <h3 className="text-sm font-bold text-slate-900">{comp.name}</h3>
-                                            <p className="text-xs text-slate-500">{comp.what_they_do}</p>
+                                            <p className="text-sm text-slate-600">{comp.what_they_do}</p>
                                         </div>
                                         <div className="w-full md:w-1/3 p-3 rounded-lg bg-rose-50/50 border border-rose-100/50">
                                             <span className="font-black text-rose-500 text-[9px] uppercase tracking-widest block mb-1">Vulnerability</span>
@@ -547,11 +547,11 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Zap size={14} className="text-amber-400"/> Unique Edge</h4>
-                                <p className="text-sm text-slate-600 leading-relaxed">{content.unique_edge}</p>
+                                <p className="text-base text-slate-700 leading-relaxed">{content.unique_edge}</p>
                             </div>
                             <div className="space-y-3">
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={14} className="text-indigo-400"/> The Moat</h4>
-                                <p className="text-sm text-slate-600 leading-relaxed">{content.differentiation}</p>
+                                <p className="text-base text-slate-700 leading-relaxed">{content.differentiation}</p>
                             </div>
                         </div>
                         
@@ -584,7 +584,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                                 {step.step || i + 1}
                                             </div>
                                             <div className="pt-2">
-                                                <p className="text-sm text-slate-700">{step.action}</p>
+                                                <p className="text-base text-slate-800">{step.action}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -597,7 +597,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
                                     <Target size={14} className="text-rose-400"/> Business Model
                                 </h4>
-                                <p className="text-sm text-slate-700 leading-relaxed">{content.business_model}</p>
+                                <p className="text-base text-slate-800 leading-relaxed">{content.business_model}</p>
                             </div>
                             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
                                 <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
@@ -605,7 +605,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 </h4>
                                 <ul className="space-y-2">
                                     {content.revenue_streams?.map((stream, i) => (
-                                        <li key={i} className="p-3 bg-white border border-slate-100 rounded-lg flex items-center gap-3 text-xs text-slate-700 shadow-sm">
+                                        <li key={i} className="p-3 bg-white border border-slate-100 rounded-lg flex items-center gap-3 text-sm text-slate-800 shadow-sm">
                                             <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-500 flex items-center justify-center font-black text-[10px] shrink-0">$</div>
                                             {stream}
                                         </li>
@@ -619,7 +619,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
                                     <Cpu size={14} className="text-blue-400"/> Feasibility Check
                                 </h4>
-                                <p className="text-sm leading-relaxed text-slate-200">{content.feasibility}</p>
+                                <p className="text-base leading-relaxed text-slate-200">{content.feasibility}</p>
                             </div>
                             <div className="grid grid-rows-2 gap-3">
                                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
@@ -670,7 +670,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                                     {risk.severity || 'Medium'}
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-slate-600">{risk.description}</p>
+                                            <p className="text-sm text-slate-700">{risk.description}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -712,7 +712,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                     {content.validation_plan?.map((plan, i) => (
                                         <div key={i} className="flex gap-3 items-start">
                                             <div className="w-5 h-5 rounded bg-slate-50 flex items-center justify-center font-bold text-[10px] text-slate-500 shrink-0 border border-slate-200">{plan.step || i+1}</div>
-                                            <p className="text-xs text-slate-700 leading-relaxed">{plan.action}</p>
+                                            <p className="text-sm text-slate-800 leading-relaxed">{plan.action}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -745,7 +745,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 return (
                                     <div key={i} className="p-4 rounded-md bg-white border border-slate-200 shadow-sm">
                                         <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2">{key.replace(/_/g, ' ')}</h4>
-                                        <div className="text-xs text-slate-600 leading-relaxed">
+                                        <div className="text-sm text-slate-700 leading-relaxed">
                                             {Array.isArray(val) ? (
                                                 <ul className="space-y-1">
                                                     {val.map((item, j) => <li key={j}>• {typeof item === 'object' ? JSON.stringify(item) : item}</li>)}
@@ -785,13 +785,12 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                         </div>
                                         
                                         {p.isPlaceholder && (
-                                            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-2xl">
-                                                <div className="flex items-center gap-3 mb-6">
-                                                    {[0, 1, 2].map(i => (
-                                                        <div key={i} className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                                                    ))}
+                                            <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-20 flex flex-col items-center justify-center rounded-2xl">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <div className="w-6 h-6 rounded-full border-[3px] border-[var(--brand-accent)] border-t-transparent animate-spin" />
                                                 </div>
-                                                <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-slate-400">Synthesizing Module</span>
+                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[var(--brand-accent)] animate-pulse">Generating Insights</span>
+                                                <p className="text-sm text-slate-600 mt-2 font-medium">Analyzing {p.shortTitle.toLowerCase()} data...</p>
                                             </div>
                                         )}
 
@@ -833,8 +832,11 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 <button
                                     key={p.id}
                                     onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                    className={`h-10 px-5 flex items-center justify-center transition-all relative overflow-hidden border rounded-lg ${activePageIndex === idx ? 'bg-slate-50 border-indigo-200 shadow-sm opacity-100 text-indigo-700 font-bold' : 'bg-transparent border-transparent opacity-60 hover:opacity-100 hover:bg-slate-50 text-slate-600'}`}
+                                    className={`h-10 px-5 flex items-center justify-center gap-2 transition-all relative overflow-hidden border rounded-lg ${activePageIndex === idx ? 'bg-slate-50 border-indigo-200 shadow-sm opacity-100 text-indigo-700 font-bold' : 'bg-transparent border-transparent opacity-60 hover:opacity-100 hover:bg-slate-50 text-slate-600'}`}
                                 >
+                                    {p.isPlaceholder && (
+                                        <div className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin opacity-70" />
+                                    )}
                                     <span className="text-[11px] uppercase tracking-widest whitespace-nowrap">{p.shortTitle}</span>
                                 </button>
                             ))}
@@ -844,29 +846,57 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                 <div className="w-80 shrink-0 bg-white/80 backdrop-blur-md flex flex-col p-8 gap-6 z-30 overflow-y-auto border-l border-slate-200">
                     <div className="flex flex-col h-full gap-6">
-                        <div className="flex items-center gap-4 mb-2">
-                            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center p-2.5 shrink-0">
-                                <img src={LogoIcon} className="w-full h-full invert brightness-0" alt="Logo" />
-                            </div>
-                            <div>
-                                <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none mb-1 line-clamp-1">
-                                    {report.project_name || "Venture Strategy"}
-                                </h1>
-                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
-                                    Strategic Audit
-                                </p>
-                            </div>
+                        <div className="mb-2 border-b border-slate-100 pb-4">
+                            <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-tight mb-2">
+                                {report.project_name || "Venture Strategy"}
+                            </h1>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                Generated on {new Date(report.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </p>
                         </div>
 
-                        {!hasPlan && (
+                        {(reportLoading || pages.some(p => p.isPlaceholder)) && (
+                            <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100/50 flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Generating Report</span>
+                                    <div className="w-3 h-3 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                                </div>
+                                <div className="space-y-1.5">
+                                    {pages.map(p => (
+                                        <div key={p.id} className="flex items-center gap-2 text-xs">
+                                            {p.isPlaceholder ? (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse shrink-0" />
+                                            ) : (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                                            )}
+                                            <span className={p.isPlaceholder ? "text-blue-600 font-medium animate-pulse" : "text-slate-500"}>{p.shortTitle}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                                <Target size={64} />
+                            </div>
+                            <h3 className="text-sm font-bold text-slate-900 mb-2 relative z-10">Execution Phase</h3>
+                            <p className="text-[11px] text-slate-600 mb-4 relative z-10 leading-relaxed">Translate these strategic insights into an actionable day-by-day roadmap.</p>
+                            
                             <button
                                 onClick={handleInitiatePlan}
-                                disabled={planLoading}
-                                className="w-full py-4 px-4 bg-indigo-600 text-white text-[13px] font-bold tracking-wide hover:bg-indigo-700 transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-between rounded-xl mt-2"
+                                disabled={planLoading || reportLoading || pages.some(p => p.isPlaceholder)}
+                                className="w-full py-3.5 px-4 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-[13px] font-bold tracking-wide hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl relative z-10"
                             >
-                                {planLoading ? 'Compiling...' : 'Move on to next phase'} <ArrowRight size={16} />
+                                {planLoading ? (
+                                    <><div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Compiling...</>
+                                ) : hasPlan ? (
+                                    <>Go to 60-days plan <ArrowRight size={16} /></>
+                                ) : (
+                                    <>Generate a 60-days plan <ArrowRight size={16} /></>
+                                )}
                             </button>
-                        )}
+                        </div>
 
                         <div className="flex flex-col gap-3 mt-4">
                             <button onClick={handleCopy}
