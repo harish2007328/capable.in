@@ -77,7 +77,12 @@ const refreshFromCookie = async () => {
                     }
                 };
             } else if (data.error) {
-                console.warn('⚠️ Session recovery failed (JSON error):', data.error);
+                if (data.error === 'No refresh token') {
+                    // This is totally normal for a user who isn't logged in
+                    console.log('ℹ️ No active session to recover');
+                } else {
+                    console.warn('⚠️ Session recovery failed:', data.error);
+                }
             }
         } else {
             const errText = await res.text();

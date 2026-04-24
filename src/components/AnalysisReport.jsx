@@ -61,12 +61,12 @@ const LineChart = ({ data }) => {
     const area = `${line} L${pts[pts.length - 1].x},${chartH} L${pts[0].x},${chartH} Z`;
 
     return (
-        <div className="w-full rounded-xl bg-slate-900 overflow-hidden">
+        <div className="w-full rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
             <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto">
                 <defs>
                     <linearGradient id="lcg" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="#60a5fa" stopOpacity="0" />
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
                     </linearGradient>
                 </defs>
 
@@ -74,29 +74,28 @@ const LineChart = ({ data }) => {
                 {[0.33, 0.66].map(t => {
                     const y = padY + t * (chartH - padY - padY);
                     return <line key={t} x1={padX} y1={y} x2={W - padX} y2={y}
-                        stroke="white" strokeOpacity="0.04" strokeWidth="0.8" />;
+                        stroke="#e2e8f0" strokeWidth="1" />;
                 })}
 
                 <motion.path d={area} fill="url(#lcg)"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} />
 
-                <motion.path d={line} fill="none" stroke="#60a5fa" strokeWidth="1.8" strokeLinecap="round"
+                <motion.path d={line} fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     transition={{ duration: 1.5, ease: 'easeInOut' }} />
 
                 {pts.map((p, i) => (
                     <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 + i * 0.1 }}>
-                        <circle cx={p.x} cy={p.y} r="3.5" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.4" />
-                        <circle cx={p.x} cy={p.y} r="1.3" fill="#60a5fa" />
+                        <circle cx={p.x} cy={p.y} r="4" fill="#ffffff" stroke="#3b82f6" strokeWidth="2" />
                         {/* % value above the dot */}
-                        <text x={p.x} y={p.y - 8} textAnchor="middle"
-                            fill="white" fontSize="9" fontWeight="700"
-                            fontFamily="ui-monospace, monospace" opacity="0.9">
+                        <text x={p.x} y={p.y - 12} textAnchor="middle"
+                            fill="#1e293b" fontSize="10" fontWeight="700"
+                            fontFamily="ui-monospace, monospace">
                             {p.value}%
                         </text>
                         {/* Month label at bottom */}
                         <text x={p.x} y={H - 8} textAnchor="middle"
-                            fill="#64748b" fontSize="8" fontWeight="600"
+                            fill="#64748b" fontSize="10" fontWeight="600"
                             fontFamily="system-ui, sans-serif">
                             {p.label}
                         </text>
@@ -239,32 +238,32 @@ const RadarChart = ({ data }) => {
     const path = `M ${pts.map(p => `${p.x},${p.y}`).join(' L ')} Z`;
 
     return (
-        <div className="w-full h-full p-8 rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl relative overflow-hidden group">
+        <div className="w-full h-full p-8 rounded-3xl bg-white border border-slate-100 shadow-sm relative overflow-hidden group">
             {/* Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px]" />
 
             <svg viewBox="0 0 200 200" className="w-full h-auto max-h-[380px] relative z-10">
                 <defs>
                     <linearGradient id="rcg" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.6" />
-                        <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.1" />
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.1" />
                     </linearGradient>
-                    <filter id="glow">
-                        <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                        <feMerge>
-                            <feMergeNode in="coloredBlur" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                    </filter>
                 </defs>
 
                 {/* Concentric pentagon grids */}
                 {[0.2, 0.4, 0.6, 0.8, 1].map(scale => {
                     const gPts = Array.from({ length: pointsCount }).map((_, i) => {
                         const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
+                        return `${cx + radius * scale * Math.cos(angle)},${cy + cy * scale * Math.sin(angle)}`; // fixed radius
+                    });
+                })}
+                
+                {[0.2, 0.4, 0.6, 0.8, 1].map(scale => {
+                    const gPts = Array.from({ length: pointsCount }).map((_, i) => {
+                        const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
                         return `${cx + radius * scale * Math.cos(angle)},${cy + radius * scale * Math.sin(angle)}`;
                     }).join(' ');
-                    return <polygon key={scale} points={gPts} fill="none" stroke="rgba(165, 180, 252, 0.25)" strokeWidth="1" />;
+                    return <polygon key={scale} points={gPts} fill="none" stroke="#e2e8f0" strokeWidth="1" />;
                 })}
 
                 {/* Radial axes */}
@@ -272,37 +271,36 @@ const RadarChart = ({ data }) => {
                     const angle = (i / pointsCount) * 2 * Math.PI - Math.PI / 2;
                     return <line key={i} x1={cx} y1={cy}
                         x2={cx + radius * Math.cos(angle)} y2={cy + radius * Math.sin(angle)}
-                        stroke="rgba(165, 180, 252, 0.25)" strokeWidth="1" />;
+                        stroke="#e2e8f0" strokeWidth="1" />;
                 })}
 
                 {/* Data polygon */}
                 <motion.path
                     d={path}
                     fill="url(#rcg)"
-                    stroke="#60a5fa"
+                    stroke="#3b82f6"
                     strokeWidth="2.5"
                     strokeLinejoin="round"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    style={{ filter: 'drop-shadow(0 0 12px rgba(96, 165, 250, 0.5))', transformOrigin: `${cx}px ${cy}px` }}
+                    style={{ transformOrigin: `${cx}px ${cy}px` }}
                 />
 
                 {/* Vertex dots + labels */}
                 {pts.map((p, i) => (
                     <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 + i * 0.1 }}>
-                        <circle cx={p.x} cy={p.y} r="4.5" fill="#0f172a" stroke="#60a5fa" strokeWidth="2.5" />
-                        <circle cx={p.x} cy={p.y} r="1.5" fill="#60a5fa" filter="url(#glow)" />
+                        <circle cx={p.x} cy={p.y} r="4" fill="#ffffff" stroke="#3b82f6" strokeWidth="2.5" />
                         {/* Value */}
                         <text x={p.x} y={p.y - 12} textAnchor="middle"
-                            fill="white" fontSize="9" fontWeight="900"
+                            fill="#1e293b" fontSize="10" fontWeight="800"
                             className="drop-shadow-sm"
                             fontFamily="ui-monospace, monospace">
                             {p.value}
                         </text>
                         {/* Label */}
                         <text x={p.lx} y={p.ly} textAnchor="middle" dominantBaseline="middle"
-                            fill="#94a3b8" fontSize="8" fontWeight="700"
+                            fill="#64748b" fontSize="10" fontWeight="600"
                             fontFamily="system-ui, sans-serif">
                             {p.label}
                         </text>
@@ -452,23 +450,23 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><AlertTriangle size={14} className="text-rose-400"/> The Pain</h4>
+                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><AlertTriangle size={16} className="text-rose-400"/> The Pain</h4>
                                 <p className="text-base text-slate-700 leading-relaxed font-light">{content.problem}</p>
                             </div>
                             <div className="space-y-3">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={14} className="text-emerald-400"/> The Solution</h4>
+                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={16} className="text-emerald-400"/> The Solution</h4>
                                 <p className="text-base text-slate-700 leading-relaxed font-light">{content.solution}</p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <Target size={14} className="text-blue-400"/> Target Audience
+                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <Target size={16} className="text-blue-400"/> Target Audience
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {content.target_users?.map((user, i) => (
                                     <div key={i} className="p-4 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors">
-                                        <div className="text-[9px] font-black uppercase tracking-widest text-indigo-500 mb-2">{user.segment}</div>
+                                        <div className="text-sm font-bold text-indigo-600 mb-2">{user.segment}</div>
                                         <p className="text-sm text-slate-700 leading-relaxed">{user.description}</p>
                                     </div>
                                 ))}
@@ -477,15 +475,15 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         {content.why_now && (
                             <div className="space-y-3">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Clock size={14} className="text-amber-400"/> Why Now?</h4>
+                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Clock size={16} className="text-amber-400"/> Why Now?</h4>
                                 <p className="text-base text-slate-700 leading-relaxed font-light">{content.why_now}</p>
                             </div>
                         )}
                         
                         {content.chart_data && content.chart_data.length > 0 && (
                             <div className="pt-4 border-t border-slate-100">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 mb-4">
-                                    <TrendingUp size={14} className="text-indigo-400"/> Demand Projection
+                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+                                    <TrendingUp size={16} className="text-indigo-400"/> Demand Projection
                                 </h4>
                                 <div className="h-48 w-full">
                                     <LineChart data={content.chart_data} />
@@ -502,15 +500,15 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 <div className="absolute top-0 right-0 p-4 opacity-10">
                                     <Globe size={60} />
                                 </div>
-                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2 flex items-center gap-2 relative z-10">
+                                <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2 relative z-10">
                                     Market Sizing
                                 </h4>
                                 <p className="text-xl font-serif leading-snug relative z-10">{content.market_size}</p>
                             </div>
                             
                             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
-                                    <Activity size={14} className="text-emerald-500"/> Growth Signals
+                                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                    <Activity size={16} className="text-emerald-500"/> Growth Signals
                                 </h4>
                                 <ul className="space-y-2">
                                     {content.growth_signals?.map((signal, i) => (
@@ -524,7 +522,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         </div>
 
                         <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2">Competitive Landscape</h4>
+                            <h4 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">Competitive Landscape</h4>
                             <div className="grid grid-cols-1 gap-3">
                                 {content.competitors?.map((comp, i) => (
                                     <div key={i} className="p-4 rounded-xl bg-white border border-slate-100 flex flex-col md:flex-row gap-4 items-start hover:shadow-sm transition-all group">
@@ -546,11 +544,11 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Zap size={14} className="text-amber-400"/> Unique Edge</h4>
+                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Zap size={16} className="text-amber-400"/> Unique Edge</h4>
                                 <p className="text-base text-slate-700 leading-relaxed">{content.unique_edge}</p>
                             </div>
                             <div className="space-y-3">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={14} className="text-indigo-400"/> The Moat</h4>
+                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={16} className="text-indigo-400"/> The Moat</h4>
                                 <p className="text-base text-slate-700 leading-relaxed">{content.differentiation}</p>
                             </div>
                         </div>
@@ -572,8 +570,8 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 return (
                     <div className="space-y-6">
                         <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2 border-b border-slate-100 pb-2">
-                                <Layers size={14} className="text-indigo-500"/> Sequence of Operations
+                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+                                <Layers size={16} className="text-indigo-500"/> Sequence of Operations
                             </h4>
                             <div className="relative">
                                 <div className="absolute left-[19px] top-4 bottom-4 w-px bg-slate-100" />
@@ -594,14 +592,14 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
-                                    <Target size={14} className="text-rose-400"/> Business Model
+                                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                    <Target size={16} className="text-rose-400"/> Business Model
                                 </h4>
                                 <p className="text-base text-slate-800 leading-relaxed">{content.business_model}</p>
                             </div>
                             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center gap-2">
-                                    <BarChart3 size={14} className="text-emerald-500"/> Revenue Streams
+                                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                    <BarChart3 size={16} className="text-emerald-500"/> Revenue Streams
                                 </h4>
                                 <ul className="space-y-2">
                                     {content.revenue_streams?.map((stream, i) => (
@@ -616,22 +614,22 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
                             <div className="p-5 rounded-2xl bg-slate-900 text-white flex flex-col justify-between">
-                                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
-                                    <Cpu size={14} className="text-blue-400"/> Feasibility Check
+                                <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <Cpu size={16} className="text-blue-400"/> Feasibility Check
                                 </h4>
                                 <p className="text-base leading-relaxed text-slate-200">{content.feasibility}</p>
                             </div>
                             <div className="grid grid-rows-2 gap-3">
                                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                     <div>
-                                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">MVP Setup Cost</span>
+                                        <span className="block text-sm font-bold text-slate-800 mb-1">MVP Setup Cost</span>
                                         <span className="text-lg font-serif text-slate-900">{content.est_mvp_cost}</span>
                                     </div>
                                     <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Layers size={16}/></div>
                                 </div>
                                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                     <div>
-                                        <span className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Time to Market</span>
+                                        <span className="block text-sm font-bold text-slate-800 mb-1">Time to Market</span>
                                         <span className="text-lg font-serif text-slate-900">{content.est_timeline}</span>
                                     </div>
                                     <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Clock size={16}/></div>
@@ -640,8 +638,8 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         </div>
 
                         <div className="pt-4 border-t border-slate-100">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-2">
-                                <Cpu size={14} /> Tech Stack Needs
+                            <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <Cpu size={16} /> Tech Stack Needs
                             </h4>
                             <div className="flex flex-wrap gap-2">
                                 {content.tech_needs?.map((tech, i) => (
@@ -744,7 +742,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 if (['chart_data', 'radar_data', 'isPlaceholder'].includes(key)) return null;
                                 return (
                                     <div key={i} className="p-4 rounded-md bg-white border border-slate-200 shadow-sm">
-                                        <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2">{key.replace(/_/g, ' ')}</h4>
+                                        <h4 className="text-sm font-bold text-slate-800 mb-2">{key.replace(/_/g, ' ')}</h4>
                                         <div className="text-sm text-slate-700 leading-relaxed">
                                             {Array.isArray(val) ? (
                                                 <ul className="space-y-1">
@@ -826,18 +824,18 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         </button>
                     </div>
 
-                    <div className="h-20 bg-white/80 backdrop-blur-md flex items-center justify-center px-8 z-20 shrink-0 border-t border-slate-200">
-                        <div className="flex items-center justify-center gap-3 overflow-x-auto no-scrollbar py-2 w-full">
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 max-w-[90vw]">
+                        <div className="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar p-1.5 bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full w-full">
                             {pages.map((p, idx) => (
                                 <button
                                     key={p.id}
                                     onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                    className={`h-10 px-5 flex items-center justify-center gap-2 transition-all relative overflow-hidden border rounded-lg ${activePageIndex === idx ? 'bg-slate-50 border-indigo-200 shadow-sm opacity-100 text-indigo-700 font-bold' : 'bg-transparent border-transparent opacity-60 hover:opacity-100 hover:bg-slate-50 text-slate-600'}`}
+                                    className={`h-9 px-5 flex items-center justify-center gap-2 transition-all relative overflow-hidden rounded-full font-bold text-[13px] ${activePageIndex === idx ? 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-md' : 'bg-transparent opacity-70 hover:opacity-100 hover:bg-white text-slate-600'}`}
                                 >
                                     {p.isPlaceholder && (
-                                        <div className="w-3 h-3 rounded-full border-2 border-current border-t-transparent animate-spin opacity-70" />
+                                        <div className={`w-3.5 h-3.5 rounded-full border-2 border-t-transparent animate-spin ${activePageIndex === idx ? 'border-white' : 'border-slate-400'}`} />
                                     )}
-                                    <span className="text-[11px] uppercase tracking-widest whitespace-nowrap">{p.shortTitle}</span>
+                                    <span className="whitespace-nowrap tracking-wide">{p.shortTitle}</span>
                                 </button>
                             ))}
                         </div>
@@ -876,22 +874,23 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             </div>
                         )}
 
-                        <div className="p-4 rounded-xl bg-white border border-slate-100 shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-5 pointer-events-none">
-                                <Target size={48} />
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-accent-hover)] shadow-md relative overflow-hidden text-white">
+                            <div className="absolute top-0 right-0 p-3 opacity-10 pointer-events-none">
+                                <Target size={48} className="text-white" />
                             </div>
-                            <h3 className="text-[13px] font-bold text-slate-900 mb-1 relative z-10">Execution Phase</h3>
-                            <p className="text-[10px] text-slate-500 mb-3 relative z-10 leading-relaxed pr-4">Turn strategic insights into an actionable roadmap.</p>
+                            <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px] pointer-events-none" />
+                            
+                            <h3 className="text-[13px] font-bold text-white mb-1 relative z-10">Execution Phase</h3>
+                            <p className="text-[10px] text-blue-100 mb-3 relative z-10 leading-relaxed pr-4">Turn strategic insights into an actionable roadmap.</p>
                             
                             <button
                                 onClick={handleInitiatePlan}
                                 disabled={planLoading || reportLoading || pages.some(p => p.isPlaceholder)}
-                                className="relative group overflow-hidden w-full py-3 px-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-[12px] font-bold tracking-wide transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-lg border border-white/20 shadow-md z-10"
+                                className="relative group overflow-hidden w-full py-3 px-3 bg-white/95 backdrop-blur-sm text-[var(--brand-accent)] text-[12px] font-bold tracking-wide transition-all duration-300 hover:bg-white hover:shadow-lg active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-lg border border-white/60 shadow-sm z-10"
                             >
-                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <span className="relative z-10 flex items-center justify-center gap-1.5">
                                     {planLoading ? (
-                                        <><div className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" /> Compiling...</>
+                                        <><div className="w-3.5 h-3.5 rounded-full border-2 border-[var(--brand-accent)] border-t-transparent animate-spin" /> Compiling...</>
                                     ) : hasPlan ? (
                                         <>Go to 60-days plan <ArrowRight size={14} /></>
                                     ) : (
