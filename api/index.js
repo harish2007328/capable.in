@@ -136,8 +136,8 @@ const setRefreshCookie = (res, rawToken) => {
     // cross-site and same-site scenarios.
     const cookieOptions = {
         httpOnly: true,
-        secure: true, 
-        sameSite: 'none',
+        secure: isProduction, 
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
         path: '/'
     };
