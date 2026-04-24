@@ -886,15 +886,18 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             <button
                                 onClick={handleInitiatePlan}
                                 disabled={planLoading || reportLoading || pages.some(p => p.isPlaceholder)}
-                                className="w-full py-3.5 px-4 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-[13px] font-bold tracking-wide hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl relative z-10"
+                                className="relative group overflow-hidden w-full py-3.5 px-4 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-[13px] font-bold tracking-wide transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/30 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl border border-white/20 shadow-md z-10"
                             >
-                                {planLoading ? (
-                                    <><div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Compiling...</>
-                                ) : hasPlan ? (
-                                    <>Go to 60-days plan <ArrowRight size={16} /></>
-                                ) : (
-                                    <>Generate a 60-days plan <ArrowRight size={16} /></>
-                                )}
+                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    {planLoading ? (
+                                        <><div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" /> Compiling...</>
+                                    ) : hasPlan ? (
+                                        <>Go to 60-days plan <ArrowRight size={16} /></>
+                                    ) : (
+                                        <>Generate a 60-days plan <ArrowRight size={16} /></>
+                                    )}
+                                </span>
                             </button>
                         </div>
 
