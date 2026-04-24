@@ -450,23 +450,23 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><AlertTriangle size={16} className="text-rose-400"/> The Pain</h4>
-                                <p className="text-base text-slate-700 leading-relaxed font-light">{content.problem}</p>
+                                <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2"><AlertTriangle size={16} className="text-rose-400"/> The Pain</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.problem}</p>
                             </div>
                             <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={16} className="text-emerald-400"/> The Solution</h4>
-                                <p className="text-base text-slate-700 leading-relaxed font-light">{content.solution}</p>
+                                <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={16} className="text-emerald-400"/> The Solution</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.solution}</p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+                            <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
                                 <Target size={16} className="text-blue-400"/> Target Audience
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {content.target_users?.map((user, i) => (
                                     <div key={i} className="p-4 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors">
-                                        <div className="text-sm font-bold text-indigo-600 mb-2">{user.segment}</div>
+                                        <div className="text-base font-bold text-indigo-700 mb-2">{user.segment}</div>
                                         <p className="text-sm text-slate-700 leading-relaxed">{user.description}</p>
                                     </div>
                                 ))}
@@ -475,14 +475,14 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         {content.why_now && (
                             <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Clock size={16} className="text-amber-400"/> Why Now?</h4>
-                                <p className="text-base text-slate-700 leading-relaxed font-light">{content.why_now}</p>
+                                <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2"><Clock size={16} className="text-amber-400"/> Why Now?</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed font-light">{content.why_now}</p>
                             </div>
                         )}
                         
                         {content.chart_data && content.chart_data.length > 0 && (
                             <div className="pt-4 border-t border-slate-100">
-                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+                                <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-4">
                                     <TrendingUp size={16} className="text-indigo-400"/> Demand Projection
                                 </h4>
                                 <div className="h-48 w-full">
@@ -500,14 +500,14 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 <div className="absolute top-0 right-0 p-4 opacity-10">
                                     <Globe size={60} />
                                 </div>
-                                <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2 relative z-10">
+                                <h4 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2 relative z-10">
                                     Market Sizing
                                 </h4>
                                 <p className="text-xl font-serif leading-snug relative z-10">{content.market_size}</p>
                             </div>
                             
                             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <h4 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
                                     <Activity size={16} className="text-emerald-500"/> Growth Signals
                                 </h4>
                                 <ul className="space-y-2">
@@ -522,7 +522,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         </div>
 
                         <div className="space-y-4">
-                            <h4 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">Competitive Landscape</h4>
+                            <h4 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">Competitive Landscape</h4>
                             <div className="grid grid-cols-1 gap-3">
                                 {content.competitors?.map((comp, i) => (
                                     <div key={i} className="p-4 rounded-xl bg-white border border-slate-100 flex flex-col md:flex-row gap-4 items-start hover:shadow-sm transition-all group">
@@ -544,12 +544,12 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Zap size={16} className="text-amber-400"/> Unique Edge</h4>
-                                <p className="text-base text-slate-700 leading-relaxed">{content.unique_edge}</p>
+                                <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2"><Zap size={16} className="text-amber-400"/> Unique Edge</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed">{content.unique_edge}</p>
                             </div>
                             <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={16} className="text-indigo-400"/> The Moat</h4>
-                                <p className="text-base text-slate-700 leading-relaxed">{content.differentiation}</p>
+                                <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2"><Shield size={16} className="text-indigo-400"/> The Moat</h4>
+                                <p className="text-sm text-slate-600 leading-relaxed">{content.differentiation}</p>
                             </div>
                         </div>
                         
@@ -570,7 +570,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                 return (
                     <div className="space-y-6">
                         <div className="space-y-4">
-                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+                            <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
                                 <Layers size={16} className="text-indigo-500"/> Sequence of Operations
                             </h4>
                             <div className="relative">
@@ -582,7 +582,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                                 {step.step || i + 1}
                                             </div>
                                             <div className="pt-2">
-                                                <p className="text-base text-slate-800">{step.action}</p>
+                                                <p className="text-sm text-slate-600">{step.action}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -592,13 +592,13 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <h4 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
                                     <Target size={16} className="text-rose-400"/> Business Model
                                 </h4>
-                                <p className="text-base text-slate-800 leading-relaxed">{content.business_model}</p>
+                                <p className="text-sm text-slate-600 leading-relaxed">{content.business_model}</p>
                             </div>
                             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100">
-                                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <h4 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
                                     <BarChart3 size={16} className="text-emerald-500"/> Revenue Streams
                                 </h4>
                                 <ul className="space-y-2">
@@ -614,7 +614,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
                             <div className="p-5 rounded-2xl bg-slate-900 text-white flex flex-col justify-between">
-                                <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <h4 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                                     <Cpu size={16} className="text-blue-400"/> Feasibility Check
                                 </h4>
                                 <p className="text-base leading-relaxed text-slate-200">{content.feasibility}</p>
@@ -622,14 +622,14 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             <div className="grid grid-rows-2 gap-3">
                                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                     <div>
-                                        <span className="block text-sm font-bold text-slate-800 mb-1">MVP Setup Cost</span>
+                                        <span className="block text-base font-bold text-slate-900 mb-1">MVP Setup Cost</span>
                                         <span className="text-lg font-serif text-slate-900">{content.est_mvp_cost}</span>
                                     </div>
                                     <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Layers size={16}/></div>
                                 </div>
                                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                     <div>
-                                        <span className="block text-sm font-bold text-slate-800 mb-1">Time to Market</span>
+                                        <span className="block text-base font-bold text-slate-900 mb-1">Time to Market</span>
                                         <span className="text-lg font-serif text-slate-900">{content.est_timeline}</span>
                                     </div>
                                     <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-300"><Clock size={16}/></div>
@@ -638,7 +638,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                         </div>
 
                         <div className="pt-4 border-t border-slate-100">
-                            <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <h4 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
                                 <Cpu size={16} /> Tech Stack Needs
                             </h4>
                             <div className="flex flex-wrap gap-2">
@@ -794,7 +794,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                                         <header className="mb-6 pb-6 border-b border-slate-100 flex justify-between items-end shrink-0">
                                             <div>
-                                                <h2 className="text-2xl font-serif text-slate-900 tracking-tight leading-none">
+                                                <h2 className="text-2xl font-bold text-slate-900 tracking-tight leading-none">
                                                     {p.shortTitle}
                                                 </h2>
                                             </div>
@@ -827,25 +827,25 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                 </div>
 
-                <div className="w-72 shrink-0 bg-white/80 backdrop-blur-md flex flex-col p-5 border-l border-slate-200 z-30">
-                    <div className="flex flex-col h-full gap-4">
+                <div className="w-72 shrink-0 bg-white/80 backdrop-blur-md flex flex-col p-4 border-l border-slate-200 z-30">
+                    <div className="flex flex-col h-full gap-3">
                         <div className="mb-1 border-b border-slate-100 pb-3">
-                            <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-tight mb-1">
+                            <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight mb-1">
                                 {report.project_name || "Venture Strategy"}
                             </h1>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Generated {new Date(report.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                             </p>
                         </div>
 
-                        <div className="flex-1 flex flex-col gap-2 overflow-y-auto no-scrollbar py-2">
+                        <div className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar py-1">
                             {pages.map((p, idx) => (
                                 <button
                                     key={p.id}
                                     onClick={() => { setPage([idx, idx > activePageIndex ? 1 : -1]); setActivePageIndex(idx); }}
-                                    className={`w-full py-3.5 px-4 flex items-center justify-between transition-all rounded-xl border group ${activePageIndex === idx ? 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-md border-transparent' : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-indigo-200'}`}
+                                    className={`w-full py-2.5 px-3 flex items-center justify-between transition-all rounded-xl border group ${activePageIndex === idx ? 'bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white shadow-sm border-transparent' : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-indigo-200'}`}
                                 >
-                                    <span className={`text-[11px] font-black uppercase tracking-widest truncate ${activePageIndex === idx ? 'text-white' : 'group-hover:text-indigo-600'}`}>{p.shortTitle}</span>
+                                    <span className={`text-sm font-semibold truncate ${activePageIndex === idx ? 'text-white' : 'group-hover:text-indigo-600'}`}>{p.shortTitle}</span>
                                     {p.isPlaceholder ? (
                                         <div className={`w-3.5 h-3.5 rounded-full border-2 border-t-transparent animate-spin shrink-0 ${activePageIndex === idx ? 'border-white' : 'border-[var(--brand-accent)]'}`} />
                                     ) : (
@@ -855,18 +855,14 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                             ))}
                         </div>
 
-                        <div className="p-6 rounded-2xl bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-accent-hover)] shadow-lg relative overflow-hidden text-white mt-4">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                                <Target size={56} className="text-white" />
-                            </div>
-                            
-                            <h3 className="text-sm font-bold text-white mb-2 relative z-10">Execution Phase</h3>
-                            <p className="text-[11px] text-blue-100 mb-4 relative z-10 leading-relaxed pr-4">Turn strategic insights into an actionable roadmap.</p>
+                        <div className="p-5 rounded-2xl bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-accent-hover)] shadow-md relative overflow-hidden text-white mt-3">
+                            <h3 className="text-sm font-bold text-white mb-1.5">Execution Phase</h3>
+                            <p className="text-xs text-blue-100 mb-4 leading-relaxed pr-2">Turn strategic insights into an actionable roadmap.</p>
                             
                             <button
                                 onClick={handleInitiatePlan}
                                 disabled={planLoading || reportLoading || pages.some(p => p.isPlaceholder)}
-                                className="relative group overflow-hidden w-full py-3.5 px-4 bg-white/95 backdrop-blur-md text-[var(--brand-accent)] text-[12px] font-bold tracking-wide transition-all duration-300 hover:bg-white hover:shadow-xl active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl border border-white/60 shadow-md z-10"
+                                className="relative group overflow-hidden w-full py-2.5 px-4 bg-white text-[var(--brand-accent)] text-sm font-bold tracking-wide transition-all duration-300 hover:shadow-lg active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 rounded-xl border border-white/60 shadow-sm"
                             >
                                 <span className="relative z-10 flex items-center justify-center gap-1.5">
                                     {planLoading ? (
@@ -882,20 +878,20 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
 
                         <div className="flex flex-col gap-2 mt-auto">
                             <button onClick={handleCopy}
-                                className={`w-full py-2.5 px-3 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-between border rounded-lg ${copied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 shadow-sm'}`}>
-                                {copied ? 'Copied' : 'Copy Report'} <FileText size={14} />
+                                className={`w-full py-2 px-3 text-sm font-semibold transition-all flex items-center justify-between border rounded-lg ${copied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900 shadow-sm'}`}>
+                                <span>{copied ? 'Copied' : 'Copy Report'}</span> <FileText size={14} className={copied ? 'text-emerald-500' : 'text-slate-400'} />
                             </button>
                             
                             <button onClick={handleExportPDF}
-                                className="w-full py-2.5 px-3 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 shadow-sm rounded-lg transition-all flex items-center justify-between group">
-                                {exporting === 'pdf' ? 'Preparing PDF...' : 'Download PDF'} 
-                                {limits.canExportPDF ? <Download size={14} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={14} className="text-slate-400" />}
+                                className="w-full py-2 px-3 bg-white border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 shadow-sm rounded-lg transition-all flex items-center justify-between group">
+                                <span>{exporting === 'pdf' ? 'Preparing PDF...' : 'Download PDF'}</span> 
+                                {limits.canExportPDF ? <Download size={14} className="text-slate-400 group-hover:text-indigo-500 group-hover:-translate-y-0.5 transition-all"/> : <Lock size={14} className="text-slate-300" />}
                             </button>
                             
                             <button onClick={handleExportDocx}
-                                className="w-full py-2.5 px-3 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 shadow-sm rounded-lg transition-all flex items-center justify-between group">
-                                {exporting === 'docx' ? 'Preparing Docx...' : 'Download Docx'} 
-                                {limits.canExportDocx ? <Download size={14} className="group-hover:-translate-y-0.5 transition-transform"/> : <Lock size={14} className="text-slate-400" />}
+                                className="w-full py-2 px-3 bg-white border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 shadow-sm rounded-lg transition-all flex items-center justify-between group">
+                                <span>{exporting === 'docx' ? 'Preparing Docx...' : 'Download Docx'}</span> 
+                                {limits.canExportDocx ? <Download size={14} className="text-slate-400 group-hover:text-indigo-500 group-hover:-translate-y-0.5 transition-all"/> : <Lock size={14} className="text-slate-300" />}
                             </button>
                         </div>
                     </div>
@@ -932,7 +928,7 @@ const AnalysisReport = ({ report, onAccept, planLoading = false, reportLoading =
                                 <header className="mb-12 flex justify-between items-start">
                                     <div className="space-y-2">
                                         <div className="text-[10px] font-black text-blue-500 uppercase tracking-widest">IMMERSED VIEW</div>
-                                        <h2 className="text-5xl font-semibold text-slate-900 tracking-tight">{pages[activePageIndex].title}</h2>
+                                        <h2 className="text-4xl font-bold text-slate-900 tracking-tight">{pages[activePageIndex].title}</h2>
                                     </div>
                                 </header>
                                 <main>
