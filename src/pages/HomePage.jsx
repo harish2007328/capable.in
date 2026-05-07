@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb, AlertCircle, ShieldAlert, Loader2 } from 'lucide-react';
+import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb, AlertCircle, ShieldAlert, Loader2, LineChart, Target, Route, Globe2, Zap, Crosshair } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
@@ -480,17 +480,21 @@ const HomePage = () => {
 
                     <div className="max-w-[1400px] mx-auto px-4">
                         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }} variants={staggerContainer} className="flex flex-wrap xl:flex-nowrap items-center justify-center gap-3 sm:gap-4 xl:gap-0">
-                            {['Idea Validation', 'Market Analysis', 'Competitor Intelligence', 'Custom Roadmaps', 'Go-To-Market Strategy'].map((item, idx, arr) => (
+                            {[
+                                { label: 'Idea Validation', icon: Lightbulb },
+                                { label: 'Market Analysis', icon: LineChart },
+                                { label: 'Competitor Intelligence', icon: Target },
+                                { label: 'Custom Roadmaps', icon: Route },
+                                { label: 'Go-To-Market Strategy', icon: Rocket }
+                            ].map((item, idx, arr) => (
                                 <React.Fragment key={idx}>
-                                    <motion.div variants={fadeUp} className="relative p-1 rounded-[22px] bg-white/20 backdrop-blur-md border border-white/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-default group z-10">
-                                        <div className="bg-white rounded-[18px] py-3 px-6 flex items-center justify-center gap-3">
-                                            <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform"><Sparkles className="w-3.5 h-3.5 text-blue-600" /></div>
-                                            <span className="text-[12px] font-bold text-gray-900 tracking-tight uppercase tracking-widest text-center whitespace-nowrap">{item}</span>
-                                        </div>
+                                    <motion.div variants={fadeUp} className="relative py-2.5 px-5 rounded-full bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-default group z-10 flex items-center justify-center gap-2.5 border border-blue-400/30">
+                                        <item.icon className="w-4 h-4 text-white/80 group-hover:text-white transition-colors duration-300" strokeWidth={2} />
+                                        <span className="text-[13px] font-bold text-white/90 group-hover:text-white transition-colors whitespace-nowrap tracking-wide">{item.label}</span>
                                     </motion.div>
                                     {idx < arr.length - 1 && (
-                                        <motion.div variants={fadeUp} className="hidden xl:flex items-center w-10 -mx-1 z-0 relative">
-                                            <motion.div variants={{ hidden: { scaleX: 0 }, visible: { scaleX: 1, transition: { duration: 0.4, delay: 1.6 + (idx * 0.2), ease: "easeOut" } } }} className="w-full h-[3px] bg-gradient-to-r from-blue-200 to-blue-400 rounded-full origin-left"></motion.div>
+                                        <motion.div variants={fadeUp} className="hidden xl:flex items-center w-8 -mx-1 z-0 relative">
+                                            <motion.div variants={{ hidden: { scaleX: 0 }, visible: { scaleX: 1, transition: { duration: 0.4, delay: 1.6 + (idx * 0.2), ease: "easeOut" } } }} className="w-full h-[2px] bg-blue-100 rounded-full origin-left"></motion.div>
                                         </motion.div>
                                     )}
                                 </React.Fragment>
@@ -510,9 +514,8 @@ const HomePage = () => {
                             variants={fadeUp}
                             className="mb-8 md:mb-12 max-w-4xl"
                         >
-                            <h2 className="text-3xl sm:text-4xl md:text-7xl font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
-                                Smarter research,<br />faster
-                                <span className="text-[var(--brand-accent)] font-display italic"> launch</span>
+                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
+                                Smarter research, faster <span className="text-[var(--brand-accent)] font-display italic">launch</span>
                             </h2>
                         </motion.div>
 
@@ -573,58 +576,48 @@ const HomePage = () => {
                         </div>
 
                         {/* Bottom Section: CTA & Stats */}
-                        <div className="flex flex-col lg:flex-row items-end justify-between gap-20">
-                            {/* Stats Cluster */}
-                            <motion.div
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, amount: 0.3 }}
-                                variants={staggerContainer}
-                                className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20"
-                            >
-                                {[
-                                    { number: '150+', label: 'Global Founders', desc: 'Trusted by entrepreneurs around the world.' },
-                                    { number: '40%', label: 'Launch Readiness', desc: 'Increase in speed to market implementation.' },
-                                    { number: '95%', label: 'Market Accuracy', desc: 'Highest precision rate in trend analysis.' }
-                                ].map((stat, idx) => (
-                                    <motion.div variants={fadeUp} key={idx} className="flex flex-col group py-1 md:py-0">
-                                        <div className="relative p-1 rounded-[24px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg mb-6 max-w-xs transition-all duration-300 group-hover:shadow-2xl">
-                                            <div className="bg-white rounded-[20px] p-8 flex flex-col gap-4">
-                                                <div className="flex items-center justify-between">
-                                                    <p className="text-4xl md:text-5xl font-display font-normal text-gray-900 leading-none tracking-tightest">{stat.number}</p>
-                                                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
-                                                        <Sparkles className="w-5 h-5 text-sky-500" />
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <p className="text-gray-900 font-bold text-[11px] uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-                                                    <p className="text-[13px] text-gray-500 font-sans leading-relaxed">{stat.desc}</p>
-                                                </div>
+                        {/* Bottom Section: Unified Grid for Stats & CTA */}
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.3 }}
+                            variants={fadeUp}
+                            className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-white border border-gray-200 rounded-3xl shadow-sm divide-y md:divide-y-0 md:divide-x divide-gray-100 overflow-hidden"
+                        >
+                            {[
+                                { number: '150+', label: 'Global Founders', desc: 'Trusted by entrepreneurs worldwide.', icon: Globe2 },
+                                { number: '40%', label: 'Launch Readiness', desc: 'Increase in speed to market implementation.', icon: Zap },
+                                { number: '95%', label: 'Market Accuracy', desc: 'Highest precision rate in trend analysis.', icon: Crosshair }
+                            ].map((stat, idx) => (
+                                <div key={idx} className="p-8 lg:p-10 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors">
+                                    <div className="flex flex-col gap-6">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-4xl lg:text-5xl font-display font-normal text-gray-900 leading-none tracking-tightest">{stat.number}</p>
+                                            <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-50 transition-all duration-300">
+                                                <stat.icon className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors duration-300" />
                                             </div>
                                         </div>
-                                    </motion.div>
-                                ))}
-                            </motion.div>
+                                        <div>
+                                            <p className="text-gray-900 font-bold text-[11px] uppercase tracking-[0.2em] mb-2">{stat.label}</p>
+                                            <p className="text-[13px] text-gray-500 font-sans leading-relaxed">{stat.desc}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
 
-                            {/* CTA Unit */}
-                            <motion.div
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, amount: 0.3 }}
-                                variants={fadeUp}
-                                className="flex flex-col items-center lg:items-end gap-6"
-                            >
-                                <button className="relative group overflow-hidden bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-4 rounded-xl font-bold text-[14px] tracking-tight hover:shadow-2xl hover:shadow-blue-500/30 active:scale-[0.98] transition-all duration-300 flex items-center gap-3">
-                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <Sparkles className="w-4 h-4" />
-                                    <span className="relative z-10">Request a demo</span>
-                                </button>
-                                <Link to="/plans" className="group flex items-center gap-2 text-gray-700 hover:text-[var(--brand-accent)] font-bold text-[14px] tracking-tight transition-all pb-0.5 uppercase">
-                                    <span>Explore pricing</span>
-                                    <div className="w-6 h-[1px] bg-gray-300 group-hover:bg-[var(--brand-accent)] group-hover:w-8 transition-all"></div>
+                            {/* CTA Unit embedded in the grid */}
+                            <div className="p-8 lg:p-10 flex flex-col justify-center items-center bg-gray-50 text-center group">
+                                <div className="mb-6 w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                    <Sparkles className="w-5 h-5 text-[var(--brand-accent)]" />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-2">Ready to validate?</h3>
+                                <p className="text-[13px] text-gray-500 mb-6">Start turning ideas into actionable roadmaps.</p>
+                                
+                                <Link to="/pricing" className="w-full py-3.5 bg-gray-900 hover:bg-[var(--brand-accent)] text-white rounded-xl font-bold text-[14px] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] shadow-sm">
+                                    Explore pricing
                                 </Link>
-                            </motion.div>
-                        </div>
+                            </div>
+                        </motion.div>
                     </div>
                 </section>
 
