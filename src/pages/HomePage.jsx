@@ -519,105 +519,109 @@ const HomePage = () => {
                             </h2>
                         </motion.div>
 
-                        {/* Content Grid: Staggered Image & Text */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 lg:gap-24 mb-20 items-start">
+                        {/* Content Grid: Staggered Image & Stats Grid */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16 items-stretch">
                             {/* Left: Premium Image Container */}
                             <motion.div
                                 initial="hidden"
                                 whileInView="visible"
                                 viewport={{ once: true, amount: 0.3 }}
                                 variants={scaleUp}
-                                className="lg:col-span-7"
+                                className="lg:col-span-7 flex"
                             >
-                                <div className="relative group">
-                                    <div className="rounded-[14px] overflow-hidden aspect-[4/3] sm:aspect-[16/10] bg-gray-100 relative shadow-2xl">
+                                <div className="relative group w-full flex">
+                                    <div className="w-full rounded-[24px] overflow-hidden bg-gray-100 relative shadow-xl border border-gray-200/50">
                                         <img
                                             src="/mobile/hero-poster.webp"
                                             srcSet="/mobile/hero-poster.webp 640w, /mobile/hero-poster.webp 1200w"
                                             sizes="(max-width: 640px) 100vw, 800px"
                                             loading="lazy"
                                             alt="Market Analysis Workflow"
-                                            className="w-full h-full object-cover"
+                                            className="absolute inset-0 w-full h-full object-cover"
                                         />
                                         <div className="absolute inset-0 bg-blue-600/5"></div>
 
-                                        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 p-1 sm:p-1.5 rounded-[14px] shadow-2xl border border-white/30">
-                                            <div className="bg-white rounded-[12px] py-2.5 sm:py-4 flex items-center justify-center">
-                                                <span className="text-[10px] sm:text-[13px] font-bold text-gray-900 tracking-tight uppercase tracking-widest text-center px-2">Intelligent Market Analysis Workflow</span>
+                                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 p-1.5 rounded-[16px] shadow-2xl border border-white/30 backdrop-blur-sm">
+                                            <div className="bg-white rounded-[12px] py-3 flex items-center justify-center">
+                                                <span className="text-[11px] sm:text-[13px] font-bold text-gray-900 tracking-widest uppercase text-center px-2">Intelligent Market Analysis Workflow</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </motion.div>
 
-                            {/* Right: Editorial Narrative */}
+                            {/* Right: 2x2 Unified Grid for Stats & CTA */}
                             <motion.div
                                 initial="hidden"
                                 whileInView="visible"
                                 viewport={{ once: true, amount: 0.3 }}
-                                variants={staggerContainer}
-                                className="lg:col-span-5 pt-8"
+                                variants={fadeUp}
+                                className="lg:col-span-5 flex"
                             >
-                                <div className="space-y-10">
-                                    <div className="space-y-6">
-                                        <motion.p variants={fadeUp} className="text-gray-900 font-sans text-lg sm:text-xl leading-relaxed font-normal">
-                                            Launching is traditionally <span className="italic font-display">complex and resource-intensive</span>. We've optimized the process from the ground up.
-                                        </motion.p>
-                                        <motion.p variants={fadeUp} className="text-gray-700 font-sans text-base sm:text-lg leading-relaxed">
-                                            By seamlessly merging smart technology with market expertise, we enable founders to make faster, more confident decisions without sacrificing clarity or conviction.
-                                        </motion.p>
+                                <div className="w-full grid grid-cols-1 sm:grid-cols-2 bg-white border border-gray-200 rounded-[24px] shadow-xl overflow-hidden">
+                                    
+                                    {/* Stat 1: Global Founders */}
+                                    <div className="p-6 sm:p-8 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b sm:border-r border-gray-100">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">150+</p>
+                                                <Globe2 className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Global Founders</p>
+                                                <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Trusted by entrepreneurs worldwide.</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <motion.div variants={fadeUp} className="pt-8 border-t border-gray-100 w-fit">
-                                        <p className="text-gray-900 font-bold text-[11px] tracking-widest mb-2">OUR PHILOSOPHY</p>
-                                        <p className="text-gray-900 font-sans text-base italic">"Execution is nothing without validation."</p>
-                                    </motion.div>
+
+                                    {/* Stat 2: Launch Readiness */}
+                                    <div className="p-6 sm:p-8 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b border-gray-100">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">40%</p>
+                                                <Zap className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Launch Readiness</p>
+                                                <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Increase in speed to market implementation.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Stat 3: Market Accuracy */}
+                                    <div className="p-6 sm:p-8 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b sm:border-b-0 sm:border-r border-gray-100">
+                                         <div className="flex flex-col gap-4">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">95%</p>
+                                                    <Crosshair className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Market Accuracy</p>
+                                                    <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Highest precision rate in trend analysis.</p>
+                                                </div>
+                                            </div>
+                                    </div>
+
+                                    {/* CTA Unit embedded in the grid */}
+                                    <div className="relative p-6 sm:p-8 flex flex-col justify-between overflow-hidden bg-gradient-to-br from-[var(--brand-accent)] to-[#096aca] group">
+                                        <div className="absolute -top-4 -right-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                                            <Sparkles className="w-32 h-32 text-white" />
+                                        </div>
+                                        <div className="relative z-10 flex flex-col gap-1 mt-1">
+                                            <h3 className="text-2xl font-display font-normal text-white leading-tight tracking-tightest">Ready to validate?</h3>
+                                            <p className="text-[12px] text-blue-100/90 font-sans leading-relaxed mt-1">Start turning ideas into actionable roadmaps.</p>
+                                        </div>
+                                        
+                                        <div className="relative z-10 mt-6">
+                                            <Link to="/pricing" className="w-full py-3 bg-white hover:bg-gray-50 text-[var(--brand-accent)] rounded-xl font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] shadow-xl shadow-black/10">
+                                                Explore pricing
+                                            </Link>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </motion.div>
                         </div>
-
-                        {/* Bottom Section: CTA & Stats */}
-                        {/* Bottom Section: Unified Grid for Stats & CTA */}
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.3 }}
-                            variants={fadeUp}
-                            className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-white border border-gray-200 rounded-3xl shadow-sm divide-y md:divide-y-0 md:divide-x divide-gray-100 overflow-hidden"
-                        >
-                            {[
-                                { number: '150+', label: 'Global Founders', desc: 'Trusted by entrepreneurs worldwide.', icon: Globe2 },
-                                { number: '40%', label: 'Launch Readiness', desc: 'Increase in speed to market implementation.', icon: Zap },
-                                { number: '95%', label: 'Market Accuracy', desc: 'Highest precision rate in trend analysis.', icon: Crosshair }
-                            ].map((stat, idx) => (
-                                <div key={idx} className="p-8 lg:p-10 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors">
-                                    <div className="flex flex-col gap-6">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-4xl lg:text-5xl font-display font-normal text-gray-900 leading-none tracking-tightest">{stat.number}</p>
-                                            <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-50 transition-all duration-300">
-                                                <stat.icon className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors duration-300" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-900 font-bold text-[11px] uppercase tracking-[0.2em] mb-2">{stat.label}</p>
-                                            <p className="text-[13px] text-gray-500 font-sans leading-relaxed">{stat.desc}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {/* CTA Unit embedded in the grid */}
-                            <div className="p-8 lg:p-10 flex flex-col justify-center items-center bg-gray-50 text-center group">
-                                <div className="mb-6 w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                                    <Sparkles className="w-5 h-5 text-[var(--brand-accent)]" />
-                                </div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">Ready to validate?</h3>
-                                <p className="text-[13px] text-gray-500 mb-6">Start turning ideas into actionable roadmaps.</p>
-                                
-                                <Link to="/pricing" className="w-full py-3.5 bg-gray-900 hover:bg-[var(--brand-accent)] text-white rounded-xl font-bold text-[14px] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] shadow-sm">
-                                    Explore pricing
-                                </Link>
-                            </div>
-                        </motion.div>
                     </div>
                 </section>
 
