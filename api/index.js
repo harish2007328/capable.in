@@ -457,7 +457,16 @@ app.get('/api/auth/google/callback', async (req, res) => {
             };
 
             const { data: signUpData, error: signUpError } = await insforge.auth.signUp({
-                email: email, password: password, name: name
+                email: email, password: password,
+                options: {
+                    data: {
+                        name: name,
+                        full_name: name,
+                        avatar_url: picture,
+                        picture: picture,
+                        google_sub: googleId
+                    }
+                }
             });
 
             if (signUpData?.accessToken) {
@@ -483,7 +492,16 @@ app.get('/api/auth/google/callback', async (req, res) => {
                             await new Promise(r => setTimeout(r, 1000));
 
                             const { data: newData } = await insforge.auth.signUp({
-                                email: email, password: password, name: name
+                                email: email, password: password,
+                                options: {
+                                    data: {
+                                        name: name,
+                                        full_name: name,
+                                        avatar_url: picture,
+                                        picture: picture,
+                                        google_sub: googleId
+                                    }
+                                }
                             });
 
                             if (newData?.accessToken) {
@@ -505,19 +523,26 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
         const accessToken = authData.accessToken;
 
-        // Update profile (including google_sub for token refresh)
+        // Update profile metadata (including google_sub for token refresh)
         try {
             if (authData.user?.id) {
-                const profileUpdate = {};
-                if (picture) profileUpdate.avatar_url = picture;
-                if (name) profileUpdate.name = name;
-                if (googleId) profileUpdate.google_sub = googleId;
+                const metaUpdate = {};
+                if (picture) { metaUpdate.avatar_url = picture; metaUpdate.picture = picture; }
+                if (name) { metaUpdate.name = name; metaUpdate.full_name = name; }
+                if (googleId) metaUpdate.google_sub = googleId;
                 
-                await axios.patch(`${process.env.VITE_INSFORGE_URL}/api/auth/profiles/current`, {
-                    profile: profileUpdate
-                }, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` } });
+                // Use InsForge's auth/v1/user endpoint to update user metadata
+                await axios.put(`${process.env.VITE_INSFORGE_URL}/auth/v1/user`, {
+                    data: metaUpdate
+                }, { 
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${accessToken}`,
+                        'apikey': process.env.VITE_INSFORGE_ANON_KEY || process.env.INSFORGE_API_KEY
+                    } 
+                });
             }
-        } catch (e) { }
+        } catch (e) { console.error("Failed to update user metadata", e.response?.data || e.message); }
 
         // Generate + store a refresh token (standard rotation pattern)
         const refreshToken = generateRefreshToken();
