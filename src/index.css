@@ -217,7 +217,12 @@
     background-size: 200% 200%;
     animation: line-flow-x 2s linear infinite;
   }
+
+  .font-instrument-serif {
+    font-family: "Instrument Serif", serif !important;
+  }
 }
+
 
 /* Custom Scrollbar - Minimal & Light */
 ::-webkit-scrollbar {

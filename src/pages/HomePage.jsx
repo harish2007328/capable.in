@@ -8,6 +8,8 @@ import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
 import { getUserLimits } from '../config/planConfig';
 import PricingModal from '../components/PricingModal';
+import Lottie from 'lottie-react';
+import loaderAnimation from '../../public/loader.json';
 // Hero Assets (Moved to public/ for preloading)
 const heroVideo = "/hero-bg2-compressed.mp4";
 const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
@@ -47,13 +49,13 @@ const staggerContainer = {
 };
 
 const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const scaleUp = {
-    hidden: { opacity: 0, scale: 0.95, filter: 'blur(8px)' },
-    visible: { opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, scale: 0.98 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const HomePage = () => {
@@ -68,6 +70,17 @@ const HomePage = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [placeholder, setPlaceholder] = useState('');
     const videoRef = useRef(null);
+    const lottieRef = useRef(null);
+
+    // Increase loader animation speed
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (lottieRef.current) {
+                lottieRef.current.setSpeed(1.8);
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Optimize video performance and slow down playback
     useEffect(() => {
@@ -127,7 +140,7 @@ const HomePage = () => {
     // Quick client-side check (server has the full check)
     const checkContent = (text) => {
         const normalized = text.toLowerCase().trim();
-        
+
         // 1. Check for illegal terms
         for (const term of CLIENT_BLOCKED_TERMS) {
             if (normalized.includes(term)) {
@@ -143,7 +156,7 @@ const HomePage = () => {
         // 2. Check for empty or very short input/greetings/random words
         const words = normalized.split(/\s+/).filter(w => w.length > 0);
         const isGreeting = words.length <= 2 && GREETINGS.some(g => normalized.includes(g));
-        
+
         if (words.length < 3 || isGreeting) {
             setContentWarning({
                 title: "We couldn't understand that",
@@ -177,7 +190,7 @@ const HomePage = () => {
 
         // Content moderation check (client-side quick check)
         if (!checkContent(idea)) return;
-        
+
         setIsGenerating(true);
 
         // Redirect to login if not authenticated
@@ -244,7 +257,7 @@ const HomePage = () => {
         <>
             <div className="relative w-full bg-white clip-path-bounds">
                 {/* --- HERO SECTION --- */}
-            <section className="relative w-full h-[100dvh] min-h-[600px] flex flex-col items-center overflow-hidden">
+                <section className="relative w-full h-[100dvh] min-h-[600px] flex flex-col items-center overflow-hidden">
                     {/* 1. Contained Video Background */}
                     <div className="absolute inset-0 z-0 pt-[84px] px-2 md:px-3 pb-2 md:pb-3 pointer-events-none">
                         <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden">
@@ -338,11 +351,10 @@ const HomePage = () => {
                                                     exit={{ height: 0, opacity: 0 }}
                                                     className={`mx-4 mb-2 overflow-hidden`}
                                                 >
-                                                    <div className={`p-3 rounded-xl border flex items-start gap-3 ${
-                                                        contentWarning.type === 'illegal' 
-                                                        ? 'bg-red-50 border-red-100 text-red-700' 
+                                                    <div className={`p-3 rounded-xl border flex items-start gap-3 ${contentWarning.type === 'illegal'
+                                                        ? 'bg-red-50 border-red-100 text-red-700'
                                                         : 'bg-blue-50 border-blue-100 text-blue-700'
-                                                    }`}>
+                                                        }`}>
                                                         <AlertCircle size={16} className="mt-0.5 shrink-0" />
                                                         <div className="text-[13px] leading-tight font-medium">
                                                             <span className="font-bold block mb-0.5">{contentWarning.title}</span>
@@ -359,7 +371,7 @@ const HomePage = () => {
                                                 <button
                                                     className={`group relative flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-300 ${isEnhancing
                                                         ? 'bg-blue-50 border-blue-100 text-blue-500 shadow-sm'
-                                                        : 'bg-white border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:shadow-md'
+                                                        : 'bg-white border-gray-300 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:shadow-md'
                                                         }`}
                                                     onClick={handleEnhance}
                                                     disabled={isEnhancing}
@@ -391,18 +403,17 @@ const HomePage = () => {
                                     </div>
                                     {contentWarning && ReactDOM.createPortal(
                                         <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/30 backdrop-blur-sm px-4 pb-4 sm:pb-0" onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }}>
-                                            <motion.div 
+                                            <motion.div
                                                 initial={{ opacity: 0, y: 12, scale: 0.98 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 12, scale: 0.98 }}
                                                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                                                className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+                                                className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-300 overflow-hidden"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
                                                 <div className="p-5 flex items-start gap-3.5">
-                                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                                                        contentWarning.type === 'illegal' ? 'bg-amber-50' : 'bg-blue-50'
-                                                    }`}>
+                                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${contentWarning.type === 'illegal' ? 'bg-amber-50' : 'bg-blue-50'
+                                                        }`}>
                                                         {contentWarning.type === 'illegal' ? (
                                                             <AlertCircle className="w-[18px] h-[18px] text-amber-500" />
                                                         ) : (
@@ -419,14 +430,14 @@ const HomePage = () => {
                                                     </div>
                                                 </div>
                                                 <div className="px-5 pb-4 flex gap-2">
-                                                    <button 
-                                                        onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }} 
+                                                    <button
+                                                        onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }}
                                                         className="flex-1 py-2.5 bg-gray-900 text-white rounded-xl text-[13px] font-bold hover:bg-gray-800 transition-colors active:scale-[0.98]"
                                                     >
                                                         Got it
                                                     </button>
-                                                    <button 
-                                                        onClick={() => setContentWarning(null)} 
+                                                    <button
+                                                        onClick={() => setContentWarning(null)}
                                                         className="px-4 py-2.5 text-gray-400 text-[13px] font-bold hover:text-gray-600 transition-colors"
                                                     >
                                                         Dismiss
@@ -473,38 +484,10 @@ const HomePage = () => {
                     </motion.div>
                 </section>
 
-                {/* === CORE CAPABILITIES / TAGS === */}
-                <section className="w-full bg-white py-10 md:py-14 border-b border-gray-50 overflow-hidden relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-                    <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
-                    <div className="max-w-[1400px] mx-auto px-4">
-                        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }} variants={staggerContainer} className="flex flex-wrap xl:flex-nowrap items-center justify-center gap-3 sm:gap-4 xl:gap-0">
-                            {[
-                                { label: 'Idea Validation', icon: Lightbulb },
-                                { label: 'Market Analysis', icon: LineChart },
-                                { label: 'Competitor Intelligence', icon: Target },
-                                { label: 'Custom Roadmaps', icon: Route },
-                                { label: 'Go-To-Market Strategy', icon: Rocket }
-                            ].map((item, idx, arr) => (
-                                <React.Fragment key={idx}>
-                                    <motion.div variants={fadeUp} className="relative py-2.5 px-5 rounded-full bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-default group z-10 flex items-center justify-center gap-2.5 border border-blue-400/30">
-                                        <item.icon className="w-4 h-4 text-white/80 group-hover:text-white transition-colors duration-300" strokeWidth={2} />
-                                        <span className="text-[13px] font-bold text-white/90 group-hover:text-white transition-colors whitespace-nowrap tracking-wide">{item.label}</span>
-                                    </motion.div>
-                                    {idx < arr.length - 1 && (
-                                        <motion.div variants={fadeUp} className="hidden xl:flex items-center w-8 -mx-1 z-0 relative">
-                                            <motion.div variants={{ hidden: { scaleX: 0 }, visible: { scaleX: 1, transition: { duration: 0.4, delay: 1.6 + (idx * 0.2), ease: "easeOut" } } }} className="w-full h-[2px] bg-blue-100 rounded-full origin-left"></motion.div>
-                                        </motion.div>
-                                    )}
-                                </React.Fragment>
-                            ))}
-                        </motion.div>
-                    </div>
-                </section>
 
                 {/* === BETTER UNDERWRITES / FEATURE SHOWCASE === */}
-                <section className="w-full bg-[#f9f9f9] py-20 md:py-24">
+                <section className="w-full bg-white py-16 md:py-20">
                     <div className="max-w-7xl mx-auto px-6">
                         {/* Header: Large Editorial Headline */}
                         <motion.div
@@ -519,109 +502,161 @@ const HomePage = () => {
                             </h2>
                         </motion.div>
 
-                        {/* Content Grid: Staggered Image & Stats Grid */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 lg:gap-16 items-stretch">
+                        {/* Content Grid: Unified Master Bento Box */}
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.3 }}
+                            variants={fadeUp}
+                            className="w-full grid grid-cols-1 lg:grid-cols-12 bg-white border border-gray-300 rounded-2xl overflow-hidden"
+                        >
                             {/* Left: Premium Image Container */}
-                            <motion.div
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, amount: 0.3 }}
-                                variants={scaleUp}
-                                className="lg:col-span-7 flex"
-                            >
-                                <div className="relative group w-full flex">
-                                    <div className="w-full rounded-[24px] overflow-hidden bg-gray-100 relative shadow-xl border border-gray-200/50">
-                                        <img
-                                            src="/mobile/hero-poster.webp"
-                                            srcSet="/mobile/hero-poster.webp 640w, /mobile/hero-poster.webp 1200w"
-                                            sizes="(max-width: 640px) 100vw, 800px"
-                                            loading="lazy"
-                                            alt="Market Analysis Workflow"
-                                            className="absolute inset-0 w-full h-full object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-blue-600/5"></div>
+                            <div className="lg:col-span-7 relative group flex border-b lg:border-b-0 lg:border-r border-gray-300 overflow-hidden">
+                                <div className="w-full relative bg-gray-100 aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto h-full">
+                                    <img
+                                        src="/mobile/hero-poster.webp"
+                                        srcSet="/mobile/hero-poster.webp 640w, /mobile/hero-poster.webp 1200w"
+                                        sizes="(max-width: 640px) 100vw, 800px"
+                                        loading="lazy"
+                                        alt="Market Analysis Workflow"
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-blue-600/5"></div>
 
-                                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] bg-white/25 p-1.5 rounded-[16px] shadow-2xl border border-white/30 backdrop-blur-sm">
-                                            <div className="bg-white rounded-[12px] py-3 flex items-center justify-center">
-                                                <span className="text-[11px] sm:text-[13px] font-bold text-gray-900 tracking-widest uppercase text-center px-2">Intelligent Market Analysis Workflow</span>
+                                    {/* Embedded Core Capabilities Hub (Smaller & White-themed) */}
+                                    <div className="absolute inset-x-0 top-0 bottom-[180px] sm:bottom-[200px] flex items-center justify-center z-10 px-4 md:px-12 pointer-events-none">
+                                        <div className="flex flex-col md:flex-row items-stretch justify-between w-full relative max-w-3xl mx-auto">
+
+                                            {/* Mobile Vertical Line */}
+                                            <div className="absolute left-1/2 top-[5%] bottom-[5%] w-[1px] border-l border-dashed border-white/40 -translate-x-1/2 z-0 md:hidden opacity-50"></div>
+
+                                            {/* Left Tags */}
+                                            <div className="flex flex-col justify-between gap-6 sm:gap-10 w-full md:w-[28%] shrink-0 z-10 py-2">
+                                                <motion.div variants={fadeUp} className="relative py-2.5 px-4 sm:px-5 rounded-full bg-white/15 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.25)] flex items-center gap-2.5 w-fit mx-auto md:ml-auto md:mr-0 border border-white/30 z-10 pointer-events-auto hover:bg-white/25 transition-colors">
+                                                    <Lightbulb className="w-4 h-4 text-white drop-shadow-md" strokeWidth={2.5} />
+                                                    <span className="text-[11px] sm:text-[12px] font-bold text-white tracking-wide pr-1 drop-shadow-md whitespace-nowrap">Idea Validation</span>
+                                                </motion.div>
+                                                <motion.div variants={fadeUp} className="relative py-2.5 px-4 sm:px-5 rounded-full bg-white/15 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.25)] flex items-center gap-2.5 w-fit mx-auto md:ml-auto md:mr-0 border border-white/30 z-10 pointer-events-auto hover:bg-white/25 transition-colors">
+                                                    <LineChart className="w-4 h-4 text-white drop-shadow-md" strokeWidth={2.5} />
+                                                    <span className="text-[11px] sm:text-[12px] font-bold text-white tracking-wide pr-1 drop-shadow-md whitespace-nowrap">Market Analysis</span>
+                                                </motion.div>
+                                            </div>
+
+                                            {/* Left Connectors */}
+                                            <div className="hidden md:block flex-1 relative z-0 -mx-1">
+                                                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible pointer-events-none">
+                                                    <path d="M 100 50 C 40 50 60 20 0 20" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+                                                    <path d="M 100 50 C 40 50 60 80 0 80" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+                                                </svg>
+                                            </div>
+
+                                            {/* Center Loader */}
+                                            <motion.div variants={fadeUp} className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center shrink-0 z-20 mx-auto self-center pointer-events-auto">
+                                                <div className="bg-white/15 backdrop-blur-xl border border-white/30 rounded-full w-full h-full p-3 flex items-center justify-center relative shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+                                                    <Lottie lottieRef={lottieRef} animationData={loaderAnimation} loop={true} className="w-full h-full invert brightness-200 scale-125 drop-shadow-xl" />
+                                                </div>
+                                            </motion.div>
+
+                                            {/* Right Connectors */}
+                                            <div className="hidden md:block flex-1 relative z-0 -mx-1">
+                                                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible pointer-events-none">
+                                                    <path d="M 0 50 C 60 50 40 20 100 20" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+                                                    <path d="M 0 50 C 60 50 40 80 100 80" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+                                                </svg>
+                                            </div>
+
+                                            {/* Right Tags */}
+                                            <div className="flex flex-col justify-between gap-6 sm:gap-10 w-full md:w-[28%] shrink-0 z-10 py-2">
+                                                <motion.div variants={fadeUp} className="relative py-2.5 px-4 sm:px-5 rounded-full bg-white/15 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.25)] flex items-center gap-2.5 w-fit mx-auto md:mr-auto md:ml-0 border border-white/30 z-10 pointer-events-auto hover:bg-white/25 transition-colors">
+                                                    <Target className="w-4 h-4 text-white drop-shadow-md" strokeWidth={2.5} />
+                                                    <span className="text-[11px] sm:text-[12px] font-bold text-white tracking-wide pr-1 drop-shadow-md whitespace-nowrap">Competitor Intel</span>
+                                                </motion.div>
+                                                <motion.div variants={fadeUp} className="relative py-2.5 px-4 sm:px-5 rounded-full bg-white/15 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.25)] flex items-center gap-2.5 w-fit mx-auto md:mr-auto md:ml-0 border border-white/30 z-10 pointer-events-auto hover:bg-white/25 transition-colors">
+                                                    <Route className="w-4 h-4 text-white drop-shadow-md" strokeWidth={2.5} />
+                                                    <span className="text-[11px] sm:text-[12px] font-bold text-white tracking-wide pr-1 drop-shadow-md whitespace-nowrap">Custom Roadmaps</span>
+                                                </motion.div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="absolute bottom-6 sm:bottom-8 left-6 right-6 lg:left-10 lg:right-10 bg-white/40 p-1.5 rounded-2xl border border-white/50 backdrop-blur-md z-10">
+                                        <div className="bg-white/95 backdrop-blur-xl rounded-xl p-5 sm:p-6 border border-gray-300/50">
+                                            <div className="text-gray-600 text-[13px] sm:text-[14px] leading-relaxed">
+                                                <h4 className="font-instrument-serif text-2xl font-normal text-gray-900 leading-none tracking-tightest flex items-center gap-3 mb-4">
+                                                    <span className="font-instrument-serif">Execution is nothing without <span className="font-instrument-serif text-[var(--brand-accent)] italic pr-1">validation.</span></span>
+                                                </h4>
+                                                Launching is traditionally complex and resource-intensive. We've seamlessly merged smart technology with market expertise to optimize the entire process from the ground up, enabling founders to make faster decisions.
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
 
                             {/* Right: 2x2 Unified Grid for Stats & CTA */}
-                            <motion.div
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, amount: 0.3 }}
-                                variants={fadeUp}
-                                className="lg:col-span-5 flex"
-                            >
-                                <div className="w-full grid grid-cols-1 sm:grid-cols-2 bg-white border border-gray-200 rounded-[24px] shadow-xl overflow-hidden">
-                                    
-                                    {/* Stat 1: Global Founders */}
-                                    <div className="p-6 sm:p-8 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b sm:border-r border-gray-100">
-                                        <div className="flex flex-col gap-4">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">150+</p>
-                                                <Globe2 className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
-                                            </div>
-                                            <div>
-                                                <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Global Founders</p>
-                                                <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Trusted by entrepreneurs worldwide.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 bg-white h-full">
 
-                                    {/* Stat 2: Launch Readiness */}
-                                    <div className="p-6 sm:p-8 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b border-gray-100">
-                                        <div className="flex flex-col gap-4">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">40%</p>
-                                                <Zap className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
-                                            </div>
-                                            <div>
-                                                <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Launch Readiness</p>
-                                                <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Increase in speed to market implementation.</p>
-                                            </div>
+                                {/* Stat 1: Global Founders */}
+                                <div className="p-8 sm:p-10 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b sm:border-r border-gray-300">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">150+</p>
+                                            <Globe2 className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Global Founders</p>
+                                            <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Trusted by entrepreneurs worldwide.</p>
                                         </div>
                                     </div>
-                                    
-                                    {/* Stat 3: Market Accuracy */}
-                                    <div className="p-6 sm:p-8 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b sm:border-b-0 sm:border-r border-gray-100">
-                                         <div className="flex flex-col gap-4">
-                                                <div className="flex items-center justify-between">
-                                                    <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">95%</p>
-                                                    <Crosshair className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Market Accuracy</p>
-                                                    <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Highest precision rate in trend analysis.</p>
-                                                </div>
-                                            </div>
-                                    </div>
-
-                                    {/* CTA Unit embedded in the grid */}
-                                    <div className="relative p-6 sm:p-8 flex flex-col justify-between overflow-hidden bg-gradient-to-br from-[var(--brand-accent)] to-[#096aca] group">
-                                        <div className="absolute -top-4 -right-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-                                            <Sparkles className="w-32 h-32 text-white" />
-                                        </div>
-                                        <div className="relative z-10 flex flex-col gap-1 mt-1">
-                                            <h3 className="text-2xl font-display font-normal text-white leading-tight tracking-tightest">Ready to validate?</h3>
-                                            <p className="text-[12px] text-blue-100/90 font-sans leading-relaxed mt-1">Start turning ideas into actionable roadmaps.</p>
-                                        </div>
-                                        
-                                        <div className="relative z-10 mt-6">
-                                            <Link to="/pricing" className="w-full py-3 bg-white hover:bg-gray-50 text-[var(--brand-accent)] rounded-xl font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] shadow-xl shadow-black/10">
-                                                Explore pricing
-                                            </Link>
-                                        </div>
-                                    </div>
-
                                 </div>
-                            </motion.div>
-                        </div>
+
+                                {/* Stat 2: Launch Readiness */}
+                                <div className="p-8 sm:p-10 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b border-gray-300">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">40%</p>
+                                            <Zap className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Launch Readiness</p>
+                                            <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Increase in speed to market implementation.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Stat 3: Market Accuracy */}
+                                <div className="p-8 sm:p-10 flex flex-col justify-between group hover:bg-gray-50/50 transition-colors border-b sm:border-b-0 sm:border-r border-gray-300">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-3xl lg:text-4xl font-display font-normal text-gray-900 leading-none tracking-tightest">95%</p>
+                                            <Crosshair className="w-6 h-6 text-gray-300 group-hover:text-blue-600 group-hover:scale-110 transition-all duration-300" strokeWidth={1.5} />
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-900 font-bold text-[10px] uppercase tracking-[0.2em] mb-1.5">Market Accuracy</p>
+                                            <p className="text-[12px] text-gray-500 font-sans leading-relaxed">Highest precision rate in trend analysis.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* CTA Unit embedded in the grid */}
+                                <div className="p-8 sm:p-10 flex flex-col justify-between bg-gradient-to-br from-[var(--brand-accent)] to-[#096aca] group">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-2xl font-display font-normal text-white leading-none tracking-tightest">Ready to validate?</h3>
+                                        </div>
+                                        <div>
+                                            <p className="text-[12px] text-blue-100/90 font-sans leading-relaxed">Start turning ideas into actionable roadmaps.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6">
+                                        <Link to="/pricing" className="w-full py-3.5 bg-white hover:bg-gray-50 text-[var(--brand-accent)] rounded-xl font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]">
+                                            Explore pricing
+                                        </Link>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </motion.div>
                     </div>
                 </section>
 
@@ -629,6 +664,8 @@ const HomePage = () => {
                 <React.Suspense fallback={<div className="h-96 w-full bg-white animate-pulse" />}>
                     <ServicesSection />
                 </React.Suspense>
+
+
 
                 <React.Suspense fallback={<div className="h-96 w-full bg-white animate-pulse" />}>
                     {/* === ADJUSTABLE RULES SECTION === */}
@@ -648,7 +685,7 @@ const HomePage = () => {
                 </React.Suspense>
 
                 {/* === FOOTER === */}
-                <footer className="w-full bg-white py-12 border-t border-gray-100">
+                <footer className="w-full bg-white py-12 border-t border-gray-300">
                     <div className="max-w-7xl mx-auto px-6">
                         <motion.div
                             initial="hidden"

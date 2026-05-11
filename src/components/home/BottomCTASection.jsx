@@ -1,75 +1,71 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.2, delayChildren: 0.1 } }
-};
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
-};
-
-const scaleIn = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const BottomCTASection = () => (
-    <section className="w-full bg-white py-20 md:py-24">
+    <section className="w-full bg-white py-16 md:py-20 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
-            <motion.div 
+            <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.3 }}
-                variants={staggerContainer}
-                className="rounded-[24px] bg-[#FAFBFF] border border-gray-100 p-8 md:p-16 lg:p-24 relative overflow-hidden group shadow-soft"
+                variants={fadeUp}
+                className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] p-10 sm:p-16 lg:p-20"
             >
-                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[var(--brand-accent)]/5 rounded-full blur-[100px] -mr-48 -mt-48 transition-all duration-1000 group-hover:bg-[var(--brand-accent)]/10"></div>
-                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-400/5 rounded-full blur-[80px] -ml-40 -mb-40"></div>
+                {/* Background texture */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl translate-x-1/2 -translate-y-1/2" />
+                    <div className="absolute bottom-0 left-1/3 w-[300px] h-[300px] rounded-full bg-[#073B99]/60 blur-3xl" />
+                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
-                    <motion.div variants={fadeUp}>
-                        <h2 className="text-3xl md:text-6xl lg:text-7xl font-display font-normal text-gray-900 leading-tight mb-8 tracking-tightest">
-                            Ready to accelerate <br className="hidden md:block" /> your <span className="font-display italic text-[var(--brand-accent)]">business success?</span>
+                <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12">
+
+                    {/* Left: Headline */}
+                    <div className="max-w-2xl">
+                        {/* Badge */}
+                        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-8">
+                            <Sparkles className="w-3 h-3 text-blue-200" strokeWidth={2} />
+                            <span className="text-blue-100/80 text-[10px] font-bold uppercase tracking-[0.2em]">AI-Powered</span>
+                        </div>
+
+                        <h2 className="font-display font-normal text-white leading-[1.05] tracking-tightest mb-5 text-4xl sm:text-5xl lg:text-[60px]">
+                            Ready to accelerate your{' '}
+                            <span className="font-instrument-serif italic text-blue-200 block sm:inline">business success?</span>
                         </h2>
-                        <p className="text-gray-700 font-sans leading-relaxed text-lg max-w-lg mb-12">
+                        <p className="text-blue-100/60 font-sans leading-relaxed text-base max-w-lg">
                             Join thousands of entrepreneurs who've transformed their ideas into actionable plans with Capable.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-5">
-                            <Link to="/dashboard" className="relative group overflow-hidden bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-10 py-5 rounded-2xl font-bold text-[16px] tracking-tight hover:shadow-[0_20px_50px_rgba(59,130,246,0.3)] active:scale-[0.98] transition-all duration-300 text-center">
-                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <span className="relative z-10">Start Building — It's Free</span>
-                            </Link>
-                            <button className="bg-white text-gray-900 px-10 py-5 rounded-2xl font-bold text-[16px] tracking-tight border border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:shadow-xl active:scale-[0.98] transition-all duration-300 text-center">
-                                Learn more →
-                            </button>
-                        </div>
-                    </motion.div>
+                    </div>
 
-                    <motion.div variants={scaleIn} className="rounded-[24px] border border-gray-100 bg-white shadow-soft overflow-hidden group-hover:shadow-card transition-all duration-700">
-                        <div className="w-full aspect-[4/3] relative overflow-hidden">
-                            <img src="/hero-poster.webp" loading="lazy" alt="Strategy Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="bg-white/25 backdrop-blur-md p-1 rounded-[14px] shadow-xl border border-white/30">
-                                    <div className="bg-white rounded-[10px] py-3 px-6 text-center">
-                                        <span className="text-[11px] font-bold text-gray-900 tracking-widest uppercase">Premium Strategy Preview</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="p-5 sm:p-8 bg-gray-900 text-white flex items-center justify-between group-hover:bg-black transition-colors duration-700">
-                            <div>
-                                <p className="text-xs sm:text-sm font-bold mb-1 tracking-tight">Access Premium Packages</p>
-                                <p className="text-[9px] sm:text-[11px] text-white/70 uppercase tracking-widest font-bold">Scaling made simple</p>
-                            </div>
-                            <button className="bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-[10px] text-[10px] sm:text-xs font-bold hover:shadow-soft transition-all active:scale-95">
-                                View Plans
-                            </button>
-                        </div>
-                    </motion.div>
+                    {/* Right: Buttons + social proof */}
+                    <div className="flex flex-col gap-3 shrink-0 w-full lg:w-auto">
+                        <Link
+                            to="/"
+                            onClick={(e) => {
+                                if (window.location.pathname === '/') {
+                                    e.preventDefault();
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+                            }}
+                            className="inline-flex items-center justify-center gap-2 bg-white text-[var(--brand-accent)] px-8 py-4 rounded-xl font-bold text-[14px] tracking-tight hover:bg-blue-50 active:scale-[0.98] transition-all duration-200 whitespace-nowrap shadow-lg shadow-black/10"
+                        >
+                            Start Building — It's Free
+                            <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+                        </Link>
+                        <Link
+                            to="/pricing"
+                            className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-xl font-semibold text-[14px] tracking-tight hover:bg-white/20 active:scale-[0.98] transition-all duration-200 whitespace-nowrap"
+                        >
+                            View Plans
+                        </Link>
+                        <p className="text-blue-200/40 text-[11px] font-sans text-center mt-1">No credit card required</p>
+                    </div>
                 </div>
             </motion.div>
         </div>

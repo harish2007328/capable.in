@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
-};
-
 const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
-const scaleIn = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } }
+const stagger = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.08 } }
 };
 
 const FAQWithStatsSection = () => {
@@ -22,116 +17,86 @@ const FAQWithStatsSection = () => {
     const faqs = [
         {
             question: "What data sources does Capable actually use?",
-            answer: "We scrape search engine results for market validation and pull community discussions for social signals. Then our AI model analyzes everything to generate your strategic report and 60-day plan."
+            answer: "We scrape search engine results for market validation and pull community discussions for social signals. Our AI model then analyzes everything to generate your strategic report."
         },
         {
             question: "Where is my data stored?",
-            answer: "Your data is secured with enterprise-grade encryption. There's no backend database or external servers. Your project data, reports, and action plans are kept private."
+            answer: "Your data is secured with enterprise-grade encryption. There's no backend database or external servers. Your project data, reports, and action plans are kept entirely private."
         },
         {
-            question: "How does the adaptive question wizard work?",
-            answer: "After scraping signals, our AI generates 5-7 questions tailored to your specific idea. It detects if you're local or global, and adapts based on your business model."
+            question: "How does the adaptive wizard work?",
+            answer: "After scraping signals, our AI generates 5-7 questions tailored to your specific idea. It detects if you're local or global, and adapts dynamically based on your business model."
         },
         {
             question: "Can the AI mentor help during execution?",
-            answer: "Yes. The mentor chat knows your original idea, your full action plan, and your progress. It provides context-aware guidance, not generic advice."
+            answer: "Yes. The mentor chat knows your original idea, your full action plan, and your progress. It provides context-aware, highly specific guidance instead of generic advice."
         }
     ];
 
     return (
-        <section className="w-full py-20 bg-[#FAFBFF]">
+        <section className="w-full bg-white py-16 md:py-20">
             <div className="max-w-7xl mx-auto px-6">
-                <motion.div 
+
+                <motion.div
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.3 }}
-                    variants={fadeUp}
-                    className="mb-12 md:mb-20 pt-16 border-t border-gray-100/50"
+                    viewport={{ once: true, amount: 0.2 }}
+                    variants={stagger}
+                    className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start pt-12 border-t border-gray-300/50 mb-10 sm:mb-16"
                 >
-                    <h2 className="text-4xl md:text-[84px] font-display font-normal text-gray-900 leading-[1] tracking-tightest">
-                        Got questions? <br className="md:hidden" /> We've got <span className="font-display italic text-[var(--brand-accent)]">clarity</span>
-                    </h2>
-                </motion.div>
+                    {/* LEFT COLUMN: Sticky Header & Stats */}
+                    <motion.div variants={fadeUp} className="w-full lg:w-5/12 lg:sticky lg:top-32">
+                        <h2 className="text-4xl md:text-5xl lg:text-[64px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-6">
+                            Got questions? <br/> We've got <span className="font-display italic text-[var(--brand-accent)]">clarity</span>
+                        </h2>
+                        <p className="text-gray-600 text-lg font-sans leading-relaxed mb-12">
+                            Everything you need to know about how Capable handles your data, validates ideas, and generates roadmaps.
+                        </p>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-                    <motion.div 
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.2 }}
-                        variants={staggerContainer}
-                        className="divide-y divide-gray-100"
-                    >
+                        <div className="flex gap-4">
+                            <div className="flex-1 rounded-2xl bg-gradient-to-br from-[#0066CC] to-[#073B99] p-6 sm:p-8 flex flex-col justify-center items-start">
+                                <p className="text-4xl sm:text-5xl font-display font-normal text-white mb-2 tracking-tight">75%</p>
+                                <p className="text-[11px] font-bold text-white uppercase tracking-widest opacity-90">Faster Decisions</p>
+                            </div>
+                            <div className="flex-1 rounded-2xl bg-white border border-gray-300 p-6 sm:p-8 flex flex-col justify-center items-start">
+                                <p className="text-4xl sm:text-5xl font-display font-normal text-gray-900 mb-2 tracking-tight">50%</p>
+                                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Cost Reduction</p>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* RIGHT COLUMN: Accordion */}
+                    <motion.div variants={fadeUp} className="w-full lg:w-7/12 flex flex-col pt-4">
                         {faqs.map((faq, idx) => (
-                            <motion.div variants={fadeUp} key={idx} className="group overflow-hidden">
+                            <div key={idx} className="border-b border-gray-300 group">
                                 <button
                                     onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                                    className={`w-full py-8 flex items-center gap-6 text-left transition-all duration-500 ${openIndex === idx ? 'pb-4' : ''}`}
+                                    className="w-full py-8 flex items-center justify-between text-left focus:outline-none"
                                 >
-                                    <div className="flex-1 min-w-0">
-                                        <span className={`font-display text-lg md:text-2xl transition-colors duration-500 leading-none ${openIndex === idx ? 'text-[var(--brand-accent)]' : 'text-gray-900 group-hover:text-gray-600'}`}>
-                                            {faq.question}
-                                        </span>
-                                    </div>
-                                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 border ${openIndex === idx
-                                        ? 'bg-[var(--brand-accent)] border-transparent rotate-180 shadow-soft'
-                                        : 'bg-white border-gray-100 group-hover:border-gray-200 group-hover:scale-110'
-                                        }`}>
+                                    <span className={`font-display text-xl sm:text-2xl tracking-tight transition-colors duration-300 pr-8 ${openIndex === idx ? 'text-[var(--brand-accent)]' : 'text-gray-900 group-hover:text-[var(--brand-accent)]'}`}>
+                                        {faq.question}
+                                    </span>
+                                    <span className={`shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-colors ${openIndex === idx ? 'bg-[var(--brand-accent)] text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-blue-50 group-hover:text-[var(--brand-accent)]'}`}>
                                         <svg
-                                            className={`w-4 h-4 transition-colors duration-500 ${openIndex === idx ? 'text-white' : 'text-gray-500'}`}
+                                            className={`w-4 h-4 transition-transform duration-300 ${openIndex === idx ? 'rotate-45' : 'rotate-0'}`}
                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
                                         >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                         </svg>
-                                    </div>
+                                    </span>
                                 </button>
-                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === idx ? 'max-h-64 opacity-100 pb-8' : 'max-h-0 opacity-0 pointer-events-none'}`}>
-                                    <p className="text-gray-700 leading-relaxed font-sans text-lg pr-16">
+                                <div
+                                    className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === idx ? 'max-h-64 opacity-100 pb-8' : 'max-h-0 opacity-0'}`}
+                                >
+                                    <p className="text-gray-500 text-base sm:text-lg leading-relaxed font-sans pr-8 sm:pr-16">
                                         {faq.answer}
                                     </p>
                                 </div>
-                            </motion.div>
+                            </div>
                         ))}
                     </motion.div>
+                </motion.div>
 
-                    <motion.div 
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, amount: 0.2 }}
-                        variants={staggerContainer}
-                        className="space-y-8"
-                    >
-                        <div className="grid grid-cols-2 gap-6">
-                            <motion.div variants={scaleIn} className="relative p-1 rounded-[24px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg group cursor-default hover:shadow-xl transition-all duration-300">
-                                <div className="bg-[var(--brand-accent)] rounded-[20px] p-8 text-center shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
-                                    <p className="text-4xl md:text-5xl font-display font-normal text-white mb-3">75%</p>
-                                    <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none opacity-80">Faster Decisions</p>
-                                </div>
-                            </motion.div>
-                            <motion.div variants={scaleIn} className="relative p-1 rounded-[24px] bg-white/20 backdrop-blur-md border border-white/30 shadow-lg group cursor-default hover:shadow-xl transition-all duration-300">
-                                <div className="bg-gray-900 rounded-[20px] p-8 text-center shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
-                                    <p className="text-4xl md:text-5xl font-display font-normal text-white mb-3">50%</p>
-                                    <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none opacity-80">Cost Reduction</p>
-                                </div>
-                            </motion.div>
-                        </div>
-
-                        <motion.div variants={fadeUp} className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-soft group hover:shadow-card transition-all duration-700">
-                            <div className="relative group">
-                                <div className="rounded-[40px] overflow-hidden aspect-[16/10] bg-gray-900 shadow-2xl relative">
-                                    <img
-                                        src="/mobile/feature_ai.webp"
-                                        srcSet="/mobile/feature_ai.webp 640w, /feature_ai.webp 1200w"
-                                        sizes="(max-width: 640px) 100vw, 40vw"
-                                        loading="lazy"
-                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                                        alt="AI Guidance"
-                                    />
-                                    <div className="absolute inset-0 bg-blue-600/10 pointer-events-none group-hover:opacity-0 transition-opacity duration-1000"></div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                </div>
             </div>
         </section>
     );
