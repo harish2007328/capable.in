@@ -17,18 +17,18 @@ const staggerContainer = {
 };
 
 const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const fadeLeft = {
-    hidden: { opacity: 0, x: -30 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, x: -12 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const fadeRight = {
-    hidden: { opacity: 0, x: 30 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, x: 12 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const PricingPage = () => {
@@ -125,10 +125,10 @@ const PricingPage = () => {
                     initial="hidden"
                     animate="visible"
                     variants={staggerContainer}
-                    className="relative z-30 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 px-6 md:px-12 xl:px-24 max-w-[1400px] mx-auto w-full h-full pt-[100px] pb-10"
+                    className="relative z-30 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-8 px-4 sm:px-6 md:px-12 xl:px-24 max-w-[1400px] mx-auto w-full h-full pt-20 sm:pt-[100px] pb-6 sm:pb-10"
                 >
                     {/* --- LEFT SIDE: TITLE & COPY --- */}
-                    <div className="w-full lg:w-5/12 flex flex-col items-center lg:items-start text-center lg:text-left mt-8 lg:mt-0">
+                    <div className="w-full lg:w-5/12 flex flex-col items-center lg:items-start text-center lg:text-left mt-0 lg:mt-0">
                         <motion.div variants={fadeLeft} className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.1)] cursor-default">
                             <span className="flex h-2 w-2 relative">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
@@ -173,11 +173,11 @@ const PricingPage = () => {
                         </motion.div>
 
                         {/* Cards Wrapper */}
-                        <motion.div variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 w-full max-w-[640px] items-stretch">
+                        <motion.div variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 w-full max-w-[640px] items-start">
 
                             {/* --- FREE PLAN --- */}
-                            <motion.div variants={fadeRight} className="relative p-2 rounded-[36px] bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_32px_120px_rgba(0,0,0,0.3)] transition-transform duration-500 hover:-translate-y-2 flex flex-col h-[480px]">
-                                <div className="h-full rounded-[28px] bg-white p-8 pb-10 flex flex-col justify-start overflow-hidden relative shadow-sm">
+                            <motion.div variants={fadeRight} className="relative p-2 rounded-[36px] bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_32px_120px_rgba(0,0,0,0.3)] transition-transform duration-500 hover:-translate-y-1 flex flex-col">
+                                <div className="rounded-[28px] bg-white p-6 sm:p-8 pb-16 sm:pb-20 flex flex-col justify-start overflow-hidden relative shadow-sm">
                                     <div className="flex justify-between items-center mb-6">
                                         <h3 className="text-2xl font-display text-gray-900">Free Plan</h3>
                                     </div>
@@ -218,10 +218,10 @@ const PricingPage = () => {
                             </motion.div>
 
                             {/* --- PRO PLAN --- */}
-                            <motion.div variants={fadeRight} className="relative p-2 rounded-[36px] bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_32px_120px_rgba(9,106,202,0.5)] transition-transform duration-500 hover:-translate-y-2 flex flex-col h-[480px] group">
+                            <motion.div variants={fadeRight} className="relative p-2 rounded-[36px] bg-white/10 backdrop-blur-2xl border border-white/20 shadow-[0_32px_120px_rgba(9,106,202,0.5)] transition-transform duration-500 hover:-translate-y-1 flex flex-col group">
                                 <div className="absolute inset-0 bg-blue-500/10 blur-2xl group-hover:bg-blue-400/20 transition-colors pointer-events-none rounded-[36px]"></div>
 
-                                <div className="h-full rounded-[28px] bg-gradient-to-b from-[#0c1428]/95 to-[#0b1b3d]/95 p-8 pb-10 flex flex-col justify-start overflow-hidden relative shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                                <div className="rounded-[28px] bg-gradient-to-b from-[#0c1428]/95 to-[#0b1b3d]/95 p-6 sm:p-8 pb-16 sm:pb-20 flex flex-col justify-start overflow-hidden relative shadow-[0_0_20px_rgba(0,0,0,0.5)]">
                                     {/* Neon Backlight inside the card */}
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--brand-accent)] rounded-full blur-[60px] opacity-40 -mr-10 -mt-10 pointer-events-none"></div>
 

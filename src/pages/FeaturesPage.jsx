@@ -45,11 +45,11 @@ const FeaturesPage = () => {
                         <motion.p variants={fadeUp} className="text-gray-400 font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-6">
                             Platform Capabilities
                         </motion.p>
-                        <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-normal text-gray-900 leading-[1.0] tracking-tightest mb-8">
-                            Everything you need to <br />
+                        <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-6">
+                            Everything you need to <br className="hidden sm:block" />
                             <span className="font-display italic text-[var(--brand-accent)]">build with confidence.</span>
                         </motion.h1>
-                        <motion.p variants={fadeUp} className="text-lg md:text-xl text-gray-500 max-w-2xl font-sans leading-relaxed">
+                        <motion.p variants={fadeUp} className="text-base sm:text-lg md:text-xl text-gray-500 max-w-2xl font-sans leading-relaxed">
                             We've combined deep market research, strategic planning, and AI guidance into a single, cohesive workflow for founders.
                         </motion.p>
                     </motion.div>
@@ -120,7 +120,7 @@ const FeaturesPage = () => {
                         </motion.div>
 
                         {/* Right: image card */}
-                        <motion.div variants={fadeUp} className="rounded-2xl overflow-hidden border border-gray-300 relative group aspect-square md:aspect-auto md:h-[500px]">
+                        <motion.div variants={fadeUp} className="rounded-2xl overflow-hidden border border-gray-300 relative group h-[300px] sm:h-[400px] md:h-[500px]">
                             <img src="/market_analysis_vector.webp" alt="Market analysis" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent" />
                             <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-xl border border-white/20 p-5 rounded-2xl">

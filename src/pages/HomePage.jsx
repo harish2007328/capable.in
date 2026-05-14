@@ -512,7 +512,7 @@ const HomePage = () => {
                         >
                             {/* Left: Premium Image Container */}
                             <div className="lg:col-span-7 relative group flex border-b lg:border-b-0 lg:border-r border-gray-300 overflow-hidden">
-                                <div className="w-full relative bg-gray-100 aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto h-full">
+                                <div className="w-full relative bg-gray-100 min-h-[300px] sm:min-h-[360px] md:min-h-0 aspect-auto md:aspect-[4/3] lg:aspect-auto lg:h-full">
                                     <img
                                         src="/mobile/hero-poster.webp"
                                         srcSet="/mobile/hero-poster.webp 640w, /mobile/hero-poster.webp 1200w"
@@ -523,8 +523,8 @@ const HomePage = () => {
                                     />
                                     <div className="absolute inset-0 bg-blue-600/5"></div>
 
-                                    {/* Embedded Core Capabilities Hub (Smaller & White-themed) */}
-                                    <div className="absolute inset-x-0 top-0 bottom-[180px] sm:bottom-[200px] flex items-center justify-center z-10 px-4 md:px-12 pointer-events-none">
+                                    {/* Embedded Core Capabilities Hub — desktop only */}
+                                    <div className="absolute inset-x-0 top-0 bottom-[180px] sm:bottom-[200px] hidden md:flex items-center justify-center z-10 px-4 md:px-12 pointer-events-none">
                                         <div className="flex flex-col md:flex-row items-stretch justify-between w-full relative max-w-3xl mx-auto">
 
                                             {/* Mobile Vertical Line */}
@@ -578,18 +578,18 @@ const HomePage = () => {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
 
                                     <div className="absolute bottom-6 sm:bottom-8 left-6 right-6 lg:left-10 lg:right-10 bg-white/40 p-1.5 rounded-2xl border border-white/50 backdrop-blur-md z-10">
                                         <div className="bg-white/95 backdrop-blur-xl rounded-xl p-5 sm:p-6 border border-gray-300/50">
                                             <div className="text-gray-600 text-[13px] sm:text-[14px] leading-relaxed">
-                                                <h4 className="font-instrument-serif text-2xl font-normal text-gray-900 leading-none tracking-tightest flex items-center gap-3 mb-4">
+                                                <h4 className="font-instrument-serif text-xl sm:text-2xl font-normal text-gray-900 leading-tight tracking-tightest flex items-center gap-3 mb-3">
                                                     <span className="font-instrument-serif">Execution is nothing without <span className="font-instrument-serif text-[var(--brand-accent)] italic pr-1">validation.</span></span>
                                                 </h4>
                                                 Launching is traditionally complex and resource-intensive. We've seamlessly merged smart technology with market expertise to optimize the entire process from the ground up, enabling founders to make faster decisions.
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                             </div>
 
                             {/* Right: 2x2 Unified Grid for Stats & CTA */}
