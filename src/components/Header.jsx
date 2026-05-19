@@ -71,9 +71,9 @@ const Header = () => {
 
     return (
         <motion.header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${showShrink ? 'pt-4 px-4 md:px-8' : 'pt-0 px-0'}`}
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${showShrink ? 'pt-3 px-4 md:px-8' : 'pt-0 px-0'}`}
         >
-            <div className={`relative mx-auto flex items-center justify-between border-b transition-all duration-500 ${showShrink ? 'max-w-5xl px-6 py-4 bg-white/70 backdrop-blur-md border-white/20 rounded-lg shadow-md border-slate-200/50' : `max-w-full w-full px-8 py-5 ${isHomePage ? 'bg-transparent border-transparent' : 'bg-white/80 backdrop-blur-md border-slate-100'} rounded-none`}`}>
+            <div className={`relative mx-auto flex items-center justify-between transition-all duration-500 ${showShrink ? 'max-w-5xl px-6 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm' : `max-w-full w-full px-8 py-5 border-b ${isHomePage ? 'bg-transparent border-transparent' : 'bg-white border-gray-100'} rounded-none`}`}>
 
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">
