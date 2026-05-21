@@ -6,7 +6,6 @@ const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const VenturePage = React.lazy(() => import('./pages/VenturePage'));
 const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
-const DocsPage = React.lazy(() => import('./pages/DocsPage'));
 const FeaturesPage = React.lazy(() => import('./pages/FeaturesPage'));
 const CheckoutResult = React.lazy(() => import('./pages/CheckoutResult'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
@@ -41,7 +40,6 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/docs" element={<DocsPage />} />
               <Route path="/features" element={<FeaturesPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />

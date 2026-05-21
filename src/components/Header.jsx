@@ -82,9 +82,9 @@ const Header = () => {
 
                 {/* Desktop Nav - Absolutely Centered */}
                 <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+                    <Link to="/" className="text-sm font-semibold text-gray-800 hover:text-[var(--brand-accent)] transition-colors font-sans">Home</Link>
                     <Link to="/features" className="text-sm font-semibold text-gray-800 hover:text-[var(--brand-accent)] transition-colors font-sans">Features</Link>
                     <Link to="/pricing" className="text-sm font-semibold text-gray-800 hover:text-[var(--brand-accent)] transition-colors font-sans">Pricing</Link>
-                    <Link to="/docs" className="text-sm font-semibold text-gray-800 hover:text-[var(--brand-accent)] transition-colors font-sans">Docs</Link>
                 </nav>
 
                 {/* Action Buttons */}
@@ -207,8 +207,7 @@ const Header = () => {
                         <nav className="flex flex-col gap-8 text-center mt-12">
                             <Link to="/" className="text-4xl font-normal text-brand-black font-display border-b border-gray-100 pb-4">Home</Link>
                             <Link to="/features" className="text-4xl font-normal text-brand-black font-display border-b border-gray-100 pb-4">Features</Link>
-                            <Link to="/pricing" className="text-4xl font-normal text-brand-black font-display border-b border-gray-100 pb-4">Pricing</Link>
-                            <Link to="/docs" className="text-4xl font-normal text-brand-black font-display">Docs</Link>
+                            <Link to="/pricing" className="text-4xl font-normal text-brand-black font-display">Pricing</Link>
                         </nav>
 
                         <div className="mt-auto flex flex-col gap-4">
