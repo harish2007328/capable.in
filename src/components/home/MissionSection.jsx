@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Sparkles, Rocket, Lightbulb } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import heroVideo from '../../assets/hero-bg2-compressed.mp4';
 
 const ScrollWord = ({ children, progress, range, className }) => {
     // Opacity interpolates from 0.15 to 1 based on the global scroll progress of the section
@@ -86,7 +87,7 @@ const AnimatedParagraph = ({ scrollYProgress }) => {
     );
 };
 
-const MissionSection = ({ heroVideo }) => {
+const MissionSection = () => {
     const textRef = useRef(null);
 
     // Track the scroll progress specifically as the *text block* moves through the screen

@@ -76,28 +76,13 @@ const PricingPage = () => {
     };
 
     return (
-        <div className="relative w-full bg-white">
+        <div className="relative w-full bg-transparent">
 
             {/* ============ MOBILE LAYOUT (< lg) ============ */}
             <div className="lg:hidden relative w-full">
                 {/* Mobile Hero — title only over video */}
                 <div className="relative h-[52vh] min-h-[280px] flex flex-col items-center justify-center overflow-hidden">
-                    {/* Video background */}
-                    <div className="absolute inset-0 z-0 pt-[84px] px-2 pb-2 pointer-events-none">
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
-                            <video
-                                ref={videoRef}
-                                autoPlay loop muted playsInline preload="none"
-                                poster={heroPoster}
-                                className="h-full w-full object-cover scale-[1.05]"
-                                style={{ backfaceVisibility: 'hidden', willChange: 'transform', transform: 'translateZ(0)', backgroundColor: '#0c1428', filter: 'brightness(0.95)' }}
-                            >
-                                <source src={heroVideo} type="video/mp4" />
-                            </video>
-                            <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(rgba(41,145,248,0.45), rgba(9,106,202,0.45))' }}></div>
-                            <div className="absolute inset-0 z-10 bg-black/10"></div>
-                        </div>
-                    </div>
+
 
                     {/* Title content */}
                     <motion.div
@@ -203,22 +188,7 @@ const PricingPage = () => {
 
             {/* ============ DESKTOP LAYOUT (lg+) ============ */}
             <section className="hidden lg:flex relative w-full h-[100dvh] flex-col items-center overflow-hidden">
-                {/* Video Background */}
-                <div className="absolute inset-0 z-0 pt-[84px] px-3 pb-3 pointer-events-none">
-                    <div className="relative w-full h-full rounded-[24px] overflow-hidden shadow-2xl">
-                        <video
-                            ref={videoRef}
-                            autoPlay loop muted playsInline preload="none"
-                            poster={heroPoster}
-                            className="h-full w-full object-cover scale-[1.05]"
-                            style={{ backfaceVisibility: 'hidden', willChange: 'transform', transform: 'translateZ(0)', backgroundColor: '#0c1428', filter: 'brightness(0.95)' }}
-                        >
-                            <source src={heroVideo} type="video/mp4" />
-                        </video>
-                        <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(rgba(41,145,248,0.45), rgba(9,106,202,0.45))' }}></div>
-                        <div className="absolute inset-0 z-10 bg-black/10"></div>
-                    </div>
-                </div>
+
 
                 <motion.div
                     initial="hidden" animate="visible" variants={staggerContainer}

@@ -10,9 +10,6 @@ import { getUserLimits } from '../config/planConfig';
 import PricingModal from '../components/PricingModal';
 import Lottie from 'lottie-react';
 import loaderAnimation from '../loader.json';
-// Hero Assets (Moved to public/ for preloading)
-const heroVideo = "/hero-bg2-compressed.mp4";
-const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
 
 // Import Home Components
 const ServicesSection = React.lazy(() => import('../components/home/ServicesSection'));
@@ -69,7 +66,6 @@ const HomePage = () => {
     const [contentWarning, setContentWarning] = useState(null); // { title: string, message: string, type: 'illegal' | 'vague' }
     const [isGenerating, setIsGenerating] = useState(false);
     const [placeholder, setPlaceholder] = useState('');
-    const videoRef = useRef(null);
     const lottieRef = useRef(null);
 
     // Increase loader animation speed
@@ -80,15 +76,6 @@ const HomePage = () => {
             }
         }, 100);
         return () => clearTimeout(timer);
-    }, []);
-
-    // Optimize video performance and slow down playback
-    useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.playbackRate = 0.75;
-            // Immediate hardware acceleration hint
-            videoRef.current.style.transform = 'translateZ(0)';
-        }
     }, []);
 
     // Animated Placeholder Logic
@@ -255,36 +242,9 @@ const HomePage = () => {
 
     return (
         <>
-            <div className="relative w-full bg-white clip-path-bounds">
+            <div className="relative w-full bg-transparent clip-path-bounds">
                 {/* --- HERO SECTION --- */}
                 <section className="relative w-full h-[100dvh] min-h-[600px] flex flex-col items-center overflow-hidden">
-                    {/* 1. Contained Video Background */}
-                    <div className="absolute inset-0 z-0 pt-[84px] px-2 md:px-3 pb-2 md:pb-3 pointer-events-none">
-                        <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden">
-                            <video
-                                ref={videoRef}
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                preload="none"
-                                poster={heroPoster}
-                                fetchPriority="high"
-                                className="h-full w-full object-cover"
-                                style={{
-                                    backfaceVisibility: 'hidden',
-                                    willChange: 'transform',
-                                    transform: 'translateZ(0)',
-                                    backgroundColor: '#0c1428',
-                                    filter: 'brightness(0.9)'
-                                }}
-                            >
-                                <source src={heroVideo} type="video/mp4" />
-                                <track kind="captions" srcLang="en" label="English" />
-                            </video>
-                            <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(rgba(41, 145, 248, 0.5), rgba(9, 106, 202, 0.5))' }}></div>
-                        </div>
-                    </div>
 
                     <motion.div
                         initial="hidden"
@@ -672,7 +632,7 @@ const HomePage = () => {
                     <AdjustableRulesSection />
 
                     {/* === MISSION / ABOUT EDITORIAL BLOCK === */}
-                    <MissionSection heroVideo={heroVideo} />
+                    <MissionSection />
 
                     {/* === TESTIMONIAL + 3 STEPS === */}
                     <TestimonialStepsSection />

@@ -1,10 +1,12 @@
 import React from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import GlobalHeroVideo from './GlobalHeroVideo';
 import { useLocation } from 'react-router-dom';
 
 const Layout = ({ children }) => {
     const location = useLocation();
+    const isHeroPage = ['/', '/features', '/pricing'].includes(location.pathname);
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
     // Listen for toggle-sidebar events from page headers
@@ -58,7 +60,8 @@ const Layout = ({ children }) => {
                 // --- LANDING LAYOUT (Header) ---
                 <>
                     <Header />
-                    <main className="relative z-10 w-full flex-grow flex flex-col">
+                    {isHeroPage && <GlobalHeroVideo />}
+                    <main className="relative z-10 w-full flex-grow flex flex-col bg-transparent">
                         {children}
                     </main>
                 </>
