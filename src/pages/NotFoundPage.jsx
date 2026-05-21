@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { Search, Instagram, Github, Twitter, Linkedin } from 'lucide-react';
+import { Search } from 'lucide-react';
 import Logo from '../components/Logo';
 import glass404Image from '../assets/glass_404_render.png';
 
@@ -78,12 +78,12 @@ const NotFoundPage = () => {
         animate="visible"
         className="flex-grow flex flex-col items-center justify-center text-center px-6 py-6 relative z-10 max-w-xl mx-auto w-full my-auto"
       >
-        {/* Main 404 Image with Glass Effect Sphere */}
+        {/* Main 404 Image with Glass Effect Sphere - Multiplied to blend seamlessly */}
         <motion.div variants={itemVariants} className="w-full flex justify-center mb-2">
           <img 
             src={glass404Image} 
             alt="404 - Page Not Found" 
-            className="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[420px] h-auto select-none pointer-events-none object-contain"
+            className="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[420px] h-auto select-none pointer-events-none object-contain mix-blend-multiply"
           />
         </motion.div>
 
@@ -117,29 +117,8 @@ const NotFoundPage = () => {
         </motion.div>
       </motion.div>
 
-      {/* Footer */}
-      <footer className="w-full py-6 px-6 md:px-12 flex items-center justify-between border-t border-slate-100 bg-white select-none">
-        {/* Left: Social Icons */}
-        <div className="flex items-center gap-4 text-slate-400">
-          <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-slate-600 transition-colors">
-            <Instagram size={16} />
-          </a>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-slate-600 transition-colors">
-            <Github size={16} />
-          </a>
-          <a href="https://twitter.com" target="_blank" rel="noreferrer" className="hover:text-slate-600 transition-colors">
-            <Twitter size={16} />
-          </a>
-          <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-slate-600 transition-colors">
-            <Linkedin size={16} />
-          </a>
-        </div>
-
-        {/* Right: Copyright */}
-        <div className="text-[11px] font-semibold text-slate-400 tracking-wider">
-          © 2026 - All Rights reserved
-        </div>
-      </footer>
+      {/* Spacer to push content down and keep layout centered, replacing the footer */}
+      <div className="h-16 w-full select-none pointer-events-none"></div>
 
     </div>
   );
