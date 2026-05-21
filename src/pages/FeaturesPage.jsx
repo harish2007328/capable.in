@@ -21,76 +21,86 @@ const stagger = {
 };
 
 
-/* ─── Animated Globe Component ────────────────────────── */
-const nodes = [
-    { cx: 120, cy: 50,  r: 4,   delay: '0s',   dur: '3s'   },
-    { cx: 220, cy: 80,  r: 3,   delay: '0.4s', dur: '3.5s' },
-    { cx: 60,  cy: 140, r: 3.5, delay: '0.8s', dur: '4s'   },
-    { cx: 240, cy: 150, r: 4,   delay: '0.2s', dur: '2.8s' },
-    { cx: 160, cy: 180, r: 3,   delay: '1s',   dur: '3.2s' },
-    { cx: 80,  cy: 200, r: 4,   delay: '0.6s', dur: '3.8s' },
-    { cx: 200, cy: 220, r: 3.5, delay: '0.3s', dur: '4.2s' },
-    { cx: 140, cy: 100, r: 3,   delay: '1.2s', dur: '3.4s' },
+/* ─── Real 3D Globe Component (globe.gl) ─────────────── */
+const ARCS = [
+    { startLat: 40.7128, startLng: -74.006,  endLat: 51.5074, endLng: -0.1278  }, // NY → London
+    { startLat: 51.5074, startLng: -0.1278,  endLat: 35.6762, endLng: 139.6503 }, // London → Tokyo
+    { startLat: 35.6762, startLng: 139.6503, endLat: 19.0760, endLng: 72.8777  }, // Tokyo → Mumbai
+    { startLat: 19.0760, startLng: 72.8777,  endLat: -33.8688,endLng: 151.2093 }, // Mumbai → Sydney
+    { startLat: -33.8688,endLng: 151.2093,   endLat: -23.5505,endLng: -46.6333 }, // Sydney → São Paulo
+    { startLat: -23.5505,startLng: -46.6333, endLat: 40.7128, endLng: -74.006  }, // São Paulo → NY
+    { startLat: 48.8566, startLng: 2.3522,   endLat: 1.3521,  endLng: 103.8198 }, // Paris → Singapore
+    { startLat: 37.7749, startLng: -122.4194,endLat: 48.8566, endLng: 2.3522   }, // SF → Paris
 ];
-const edges = [
-    [0,1],[1,3],[3,4],[4,6],[6,5],[5,2],[2,7],[7,0],[1,7],[4,5]
+const POINTS = [
+    { lat: 40.7128,  lng: -74.006,   label: 'New York'   },
+    { lat: 51.5074,  lng: -0.1278,   label: 'London'     },
+    { lat: 35.6762,  lng: 139.6503,  label: 'Tokyo'      },
+    { lat: 19.0760,  lng: 72.8777,   label: 'Mumbai'     },
+    { lat: -33.8688, lng: 151.2093,  label: 'Sydney'     },
+    { lat: -23.5505, lng: -46.6333,  label: 'São Paulo'  },
+    { lat: 48.8566,  lng: 2.3522,    label: 'Paris'      },
+    { lat: 37.7749,  lng: -122.4194, label: 'San Francisco' },
+    { lat: 1.3521,   lng: 103.8198,  label: 'Singapore'  },
+    { lat: 55.7558,  lng: 37.6173,   label: 'Moscow'     },
 ];
 
-const GlobeViz = () => (
-    <div className="relative flex items-center justify-center" style={{ width: 280, height: 260 }}>
-        <svg width="280" height="260" viewBox="0 0 280 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Orbit rings */}
-            <ellipse cx="140" cy="130" rx="110" ry="110" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-            <ellipse cx="140" cy="130" rx="85"  ry="38"  stroke="rgba(255,255,255,0.12)" strokeWidth="1" strokeDasharray="4 4">
-                <animateTransform attributeName="transform" type="rotate" from="0 140 130" to="360 140 130" dur="12s" repeatCount="indefinite" />
-            </ellipse>
-            <ellipse cx="140" cy="130" rx="60"  ry="110" stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3 5">
-                <animateTransform attributeName="transform" type="rotate" from="0 140 130" to="-360 140 130" dur="18s" repeatCount="indefinite" />
-            </ellipse>
+const GlobeViz = () => {
+    const containerRef = useRef(null);
+    const globeRef = useRef(null);
 
-            {/* Globe circle */}
-            <circle cx="140" cy="130" r="90" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+    useEffect(() => {
+        let globe = null;
+        let cancelled = false;
 
-            {/* Connecting lines */}
-            {edges.map(([a, b], i) => (
-                <line key={i}
-                    x1={nodes[a].cx} y1={nodes[a].cy}
-                    x2={nodes[b].cx} y2={nodes[b].cy}
-                    stroke="rgba(147,197,253,0.35)" strokeWidth="1"
-                >
-                    <animate attributeName="opacity" values="0.2;0.8;0.2" dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" />
-                </line>
-            ))}
+        import('globe.gl').then(({ default: Globe }) => {
+            if (cancelled || !containerRef.current) return;
+            const el = containerRef.current;
+            const size = Math.min(el.offsetWidth || 280, 320);
 
-            {/* Orbiting nodes */}
-            {nodes.map((n, i) => (
-                <g key={i}>
-                    {/* Pulse ring */}
-                    <circle cx={n.cx} cy={n.cy} r={n.r + 6} fill="none" stroke="rgba(147,197,253,0.3)" strokeWidth="1">
-                        <animate attributeName="r" values={`${n.r};${n.r + 10};${n.r}`} dur={n.dur} begin={n.delay} repeatCount="indefinite" />
-                        <animate attributeName="opacity" values="0.6;0;0.6" dur={n.dur} begin={n.delay} repeatCount="indefinite" />
-                    </circle>
-                    {/* Core dot */}
-                    <circle cx={n.cx} cy={n.cy} r={n.r} fill="white" opacity="0.9">
-                        <animate attributeName="opacity" values="0.6;1;0.6" dur={n.dur} begin={n.delay} repeatCount="indefinite" />
-                    </circle>
-                </g>
-            ))}
+            globe = Globe()(el);
+            globeRef.current = globe;
 
-            {/* Centre beacon */}
-            <circle cx="140" cy="130" r="16" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-            <circle cx="140" cy="130" r="8"  fill="white" opacity="0.9">
-                <animate attributeName="r" values="8;11;8" dur="2.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.9;0.5;0.9" dur="2.5s" repeatCount="indefinite" />
-            </circle>
-            {/* Outer pulse */}
-            <circle cx="140" cy="130" r="24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1">
-                <animate attributeName="r" values="16;36;16" dur="3s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite" />
-            </circle>
-        </svg>
-    </div>
-);
+            globe
+                .width(size).height(size)
+                .backgroundColor('rgba(0,0,0,0)')
+                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+                .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+                .showAtmosphere(true)
+                .atmosphereColor('#4dabf7')
+                .atmosphereAltitude(0.18)
+                .arcsData(ARCS)
+                .arcColor(() => ['rgba(255,255,255,0.6)', 'rgba(100,180,255,0.9)'])
+                .arcDashLength(0.4)
+                .arcDashGap(0.15)
+                .arcDashAnimateTime(2200)
+                .arcStroke(0.5)
+                .pointsData(POINTS)
+                .pointColor(() => '#ffffff')
+                .pointAltitude(0.01)
+                .pointRadius(0.35)
+                .pointsMerge(true);
+
+            // Auto-rotate
+            globe.controls().autoRotate = true;
+            globe.controls().autoRotateSpeed = 0.6;
+            globe.controls().enableZoom = false;
+            globe.controls().enablePan = false;
+
+            // Initial camera angle
+            globe.pointOfView({ lat: 20, lng: 0, altitude: 2.0 });
+        });
+
+        return () => {
+            cancelled = true;
+            if (globeRef.current) {
+                try { globeRef.current._destructor?.(); } catch (_) {}
+            }
+        };
+    }, []);
+
+    return <div ref={containerRef} style={{ width: '100%', height: 300 }} />;
+};
 
 const FeaturesPage = () => {
 
