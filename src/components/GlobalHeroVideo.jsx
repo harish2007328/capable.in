@@ -11,8 +11,8 @@ const GlobalHeroVideo = () => {
 
     const isPricingPage = cleanPath === '/pricing';
     const videoHeightClass = isPricingPage 
-        ? "h-[52vh] min-h-[280px] lg:h-screen" 
-        : "h-screen";
+        ? "h-[52vh] min-h-[280px] lg:h-[100dvh]" 
+        : "h-[100dvh] min-h-[600px] md:min-h-[620px]";
 
     useEffect(() => {
         if (videoRef.current) {
@@ -29,8 +29,8 @@ const GlobalHeroVideo = () => {
     const heroPoster = "/hero-poster.webp";
 
     return (
-        <div className={`absolute top-0 left-0 right-0 z-0 pt-[84px] px-3 pb-3 pointer-events-none select-none transition-all duration-500 ${videoHeightClass}`}>
-            <div className="relative w-full h-full rounded-[24px] overflow-hidden shadow-2xl">
+        <div className={`absolute top-0 left-0 right-0 z-0 pt-[84px] px-2 md:px-3 pb-2 md:pb-3 pointer-events-none select-none transition-all duration-500 ${videoHeightClass}`}>
+            <div className="relative w-full h-full rounded-2xl md:rounded-[24px] overflow-hidden shadow-2xl">
                 <video
                     ref={videoRef}
                     autoPlay
