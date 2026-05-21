@@ -1,10 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Home } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import Logo from '../components/Logo';
-import ParticleBackground from '../components/ParticleBackground';
 
 const NotFoundPage = () => {
   const { user } = useAuth();
@@ -24,13 +21,12 @@ const NotFoundPage = () => {
   };
 
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.96, y: 15 },
+    hidden: { opacity: 0, y: 10 },
     visible: {
       opacity: 1,
-      scale: 1,
       y: 0,
       transition: {
-        duration: 0.8,
+        duration: 0.6,
         ease: [0.16, 1, 0.3, 1],
         staggerChildren: 0.1,
         delayChildren: 0.1
@@ -39,91 +35,76 @@ const NotFoundPage = () => {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
+    hidden: { opacity: 0, y: 8 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
     }
   };
 
   return (
-    <div className="relative min-h-[92vh] w-full flex flex-col items-center justify-center pt-[130px] pb-[80px] px-6 overflow-hidden bg-gradient-to-br from-[#051F5F] via-[#004A9E] to-[#0066CC]">
+    <div className="relative min-h-[85vh] w-full flex flex-col items-center justify-center pt-[150px] pb-[90px] px-6 overflow-hidden bg-transparent text-slate-900">
       
-      {/* 3D Wave Particle Background */}
-      <ParticleBackground />
-
-      {/* Decorative Aura / Glowing Ambient Light */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-400/20 rounded-full blur-[140px] pointer-events-none -z-0"></div>
+      {/* Subtle light ambient glow behind card */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-blue-50/30 rounded-full blur-[80px] pointer-events-none -z-10"></div>
       
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="w-full max-w-xl bg-white/10 backdrop-blur-2xl border border-white/15 rounded-3xl p-10 md:p-12 text-center shadow-2xl relative flex flex-col items-center z-10"
-        style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+        className="w-full max-w-sm text-center flex flex-col items-center z-10"
       >
-        {/* Glowing top line decorator */}
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-sky-400 via-white to-blue-400 rounded-t-3xl"></div>
-
-        {/* Brand Logo inside card */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <Logo color="white" showText={true} className="scale-[1.1]" />
-        </motion.div>
-
-        {/* Massive 404 Typography */}
-        <motion.h1 
-          variants={itemVariants}
-          className="text-8xl sm:text-[130px] font-sans font-extralight text-white tracking-tighter leading-none mb-2 select-none cursor-default"
-          style={{ textShadow: '0 4px 20px rgba(0,0,0,0.15)' }}
-        >
-          404
-        </motion.h1>
-
-        {/* Subtitle category */}
-        <motion.span 
-          variants={itemVariants}
-          className="text-[10px] font-black uppercase tracking-[0.3em] text-sky-200/80 mb-6 block"
-        >
-          Error Code: Page Not Found
-        </motion.span>
-
-        {/* Elegant headline */}
-        <motion.h2 
-          variants={itemVariants}
-          className="text-2xl sm:text-3xl font-sans font-normal text-white leading-tight tracking-tightest mb-4"
-        >
-          We can’t find this page, <br />
-          but we can build your <span className="font-instrument-serif italic text-sky-200">venture.</span>
-        </motion.h2>
-
-        {/* Descriptive paragraph */}
-        <motion.p 
-          variants={itemVariants}
-          className="text-white/70 font-sans text-sm leading-relaxed max-w-sm mx-auto mb-8 font-medium"
-        >
-          The page you are looking for might have been moved, deleted, or is temporarily unavailable. Let’s get you back on track.
-        </motion.p>
-
-        {/* Premium action buttons */}
+        {/* Premium glossy glassmorphic card for the 404 text */}
         <motion.div 
           variants={itemVariants}
-          className="flex flex-col sm:flex-row items-center gap-3.5 justify-center w-full max-w-sm mx-auto"
+          className="relative px-12 py-8 bg-white/20 backdrop-blur-xl border border-white/50 rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.03)] flex items-center justify-center mb-8 overflow-hidden group"
+          style={{
+            boxShadow: '0 20px 40px -15px rgba(0, 102, 204, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)'
+          }}
+        >
+          {/* Subtle glossy highlight gradient */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/30 pointer-events-none"></div>
+          
+          {/* Big minimal 404 typography */}
+          <span className="text-8xl sm:text-9xl font-sans font-light tracking-tighter text-slate-800/90 leading-none select-none cursor-default">
+            404
+          </span>
+        </motion.div>
+
+        {/* Minimal heading */}
+        <motion.h2 
+          variants={itemVariants}
+          className="text-2xl sm:text-3xl font-sans font-normal text-slate-900 mb-3 tracking-tight"
+        >
+          Page not <span className="font-instrument-serif italic text-brand-blue">found.</span>
+        </motion.h2>
+
+        {/* Client-friendly paragraph */}
+        <motion.p 
+          variants={itemVariants}
+          className="text-slate-400 text-sm font-sans mb-8 max-w-[280px] mx-auto leading-relaxed"
+        >
+          The page you followed may have been moved, deleted, or doesn't exist.
+        </motion.p>
+
+        {/* Minimal actions */}
+        <motion.div 
+          variants={itemVariants}
+          className="flex items-center gap-3.5 justify-center w-full"
         >
           <button
             onClick={handleGoBack}
-            className="w-full sm:w-auto px-6 py-3 border border-white/20 hover:border-white/30 hover:bg-white/10 text-white font-sans font-semibold text-xs uppercase tracking-wider rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+            className="px-5 py-2.5 border border-slate-200 hover:border-slate-300 text-slate-600 font-sans font-semibold text-xs uppercase tracking-wider rounded-xl transition-all duration-200"
           >
-            <ArrowLeft size={14} />
-            <span>Go Back</span>
+            Go Back
           </button>
 
           <Link
             to={user ? "/dashboard" : "/"}
-            className="w-full sm:w-auto px-7 py-3 bg-white text-slate-900 hover:bg-slate-50 font-sans font-bold text-xs uppercase tracking-wider rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-black/10"
+            className="px-6 py-2.5 bg-brand-black text-white hover:bg-slate-800 font-sans font-bold text-xs uppercase tracking-wider rounded-xl transition-all duration-200 shadow-sm"
           >
-            <Home size={14} />
-            <span>{user ? "Go to Dashboard" : "Return to Home"}</span>
+            {user ? "Dashboard" : "Home"}
           </Link>
         </motion.div>
       </motion.div>
