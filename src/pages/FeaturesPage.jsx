@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -26,6 +26,7 @@ const FeaturesPage = () => {
 
     useEffect(() => { window.scrollTo(0, 0); }, []);
     const videoRef = useRef(null);
+    const [activeEcosystemTab, setActiveEcosystemTab] = useState('developers');
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.playbackRate = 0.75;
@@ -585,6 +586,235 @@ const FeaturesPage = () => {
                             ))}
                         </div>
                     </motion.div>
+                </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════════
+                ECOSYSTEM & WORKFLOW HUB — WHITE (70%)
+            ════════════════════════════════════════════════ */}
+            <section className="w-full bg-[#FAFAFA] py-20 md:py-28 border-t border-b border-gray-200/80 relative overflow-hidden">
+                {/* Background accents */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-blue-500/5 blur-3xl" />
+                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-indigo-500/5 blur-3xl" />
+                </div>
+
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                        
+                        {/* Left Side: Info & Tabs */}
+                        <div className="lg:col-span-5 flex flex-col justify-center">
+                            <span className="text-[11px] font-sans font-bold text-[var(--brand-accent)] uppercase tracking-[0.2em] mb-4">
+                                Deep Integrations
+                            </span>
+                            <h2 className="text-4xl md:text-5xl font-display font-normal text-gray-900 leading-[1.1] tracking-tightest mb-6">
+                                Plugs into your workflow. <br />
+                                <span className="font-display italic text-[var(--brand-accent)]">Automatically.</span>
+                            </h2>
+                            <p className="text-gray-500 text-base md:text-lg leading-relaxed mb-8">
+                                Connect Capable to your repositories, task boards, and communication channels. Streamline validation and keep your execution strategy perfectly updated.
+                            </p>
+
+                            {/* Dynamic Tabs */}
+                            <div className="flex flex-col gap-3">
+                                {[
+                                    {
+                                        id: 'developers',
+                                        label: 'Developer Stack',
+                                        desc: 'GitHub, Linear, Vercel, Slack'
+                                    },
+                                    {
+                                        id: 'intelligence',
+                                        label: 'Market & AI Engines',
+                                        desc: 'Google Scraper, OpenAI, Perplexity'
+                                    },
+                                    {
+                                        id: 'marketing',
+                                        label: 'Growth & Analytics',
+                                        desc: 'Stripe, HubSpot, Segment, GA4'
+                                    },
+                                    {
+                                        id: 'operations',
+                                        label: 'Productivity & Ops',
+                                        desc: 'Notion, Discord, Figma, Linear'
+                                    }
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveEcosystemTab(tab.id)}
+                                        className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
+                                            activeEcosystemTab === tab.id
+                                                ? 'bg-white border-blue-500/40 shadow-lg shadow-blue-500/5 text-gray-900 translate-x-2'
+                                                : 'bg-transparent border-transparent hover:border-gray-300 text-gray-400 hover:text-gray-700'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className={`text-[15px] font-bold transition-colors ${
+                                                activeEcosystemTab === tab.id ? 'text-[var(--brand-accent)]' : 'text-gray-800'
+                                            }`}>
+                                                {tab.label}
+                                            </span>
+                                            <ArrowRight className={`w-4 h-4 transition-transform duration-300 ${
+                                                activeEcosystemTab === tab.id ? 'translate-x-1 text-[var(--brand-accent)]' : 'opacity-0'
+                                            }`} />
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-1 font-sans font-medium">{tab.desc}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Right Side: Interactive Mock Pipeline Visual */}
+                        <div className="lg:col-span-7">
+                            <div className="bg-gray-900 rounded-3xl border border-gray-850 p-6 sm:p-8 font-mono text-xs text-gray-400 relative overflow-hidden shadow-2xl shadow-blue-900/10">
+                                
+                                {/* Mock UI Header */}
+                                <div className="flex items-center justify-between border-b border-gray-800 pb-4 mb-6">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="w-3 h-3 rounded-full bg-rose-500/80" />
+                                        <span className="w-3 h-3 rounded-full bg-amber-500/80" />
+                                        <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
+                                    </div>
+                                    <div className="px-3 py-1 rounded bg-gray-800 text-[10px] text-gray-500 border border-gray-850">
+                                        api.capable.in/v1/workflows/sync
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-emerald-400">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                        CONNECTED
+                                    </div>
+                                </div>
+
+                                {/* Pipeline Graphic */}
+                                <div className="grid grid-cols-3 gap-4 items-center justify-center py-6 mb-6 border-b border-gray-800/80 relative">
+                                    
+                                    {/* Animation Connection Lines */}
+                                    <div className="absolute top-[48%] left-[25%] right-[25%] h-0.5 bg-gray-850 pointer-events-none">
+                                        <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse w-1/2" />
+                                    </div>
+
+                                    {/* Left Node: Input Source */}
+                                    <div className="flex flex-col items-center gap-3 z-10">
+                                        <div className="w-14 h-14 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105">
+                                            {activeEcosystemTab === 'developers' && (
+                                                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                                                </svg>
+                                            )}
+                                            {activeEcosystemTab === 'intelligence' && (
+                                                <Globe className="w-7 h-7 text-blue-400" />
+                                            )}
+                                            {activeEcosystemTab === 'marketing' && (
+                                                <BarChart3 className="w-7 h-7 text-indigo-400" />
+                                            )}
+                                            {activeEcosystemTab === 'operations' && (
+                                                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12.23 14.5c.3 0 .5-.2.5-.5V8.5c0-.3-.2-.5-.5-.5H8.7c-.3 0-.5.2-.5.5v5.5c0 .3.2.5.5.5h3.53zM21.5 5.5v13c0 1.66-1.34 3-3 3h-13c-1.66 0-3-1.34-3-3v-13c0-1.66 1.34-3 3-3h13c1.66 0 3 1.34 3 3zm-2 0c0-.55-.45-1-1-1h-13c-.55 0-1 .45-1 1v13c0 .55.45 1 1 1h13c.55 0 1-.45 1-1v-13z"/>
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-[10px] text-gray-500 font-sans uppercase font-bold tracking-widest">Source Input</p>
+                                            <p className="text-white text-xs font-bold mt-0.5">
+                                                {activeEcosystemTab === 'developers' && 'GitHub Repo'}
+                                                {activeEcosystemTab === 'intelligence' && 'Global Signals'}
+                                                {activeEcosystemTab === 'marketing' && 'Stripe Dashboard'}
+                                                {activeEcosystemTab === 'operations' && 'Notion Hub'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Center Node: Capable Core */}
+                                    <div className="flex flex-col items-center gap-3 z-10">
+                                        <div className="w-16 h-16 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-blue-400 relative">
+                                            <div className="absolute inset-0 rounded-full border border-blue-500/20 animate-ping pointer-events-none" />
+                                            <Cpu className="w-8 h-8 text-[var(--brand-accent)]" style={{ animation: 'spin 12s linear infinite' }} />
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-[10px] text-gray-500 font-sans uppercase font-bold tracking-widest">Capable Agent</p>
+                                            <p className="text-white text-xs font-bold mt-0.5">Intelligence Engine</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Node: Outputs */}
+                                    <div className="flex flex-col items-center gap-3 z-10">
+                                        <div className="w-14 h-14 rounded-2xl bg-gray-800 border border-gray-700 flex items-center justify-center text-white shadow-lg transition-transform hover:scale-105">
+                                            {activeEcosystemTab === 'developers' && (
+                                                <Workflow className="w-7 h-7 text-emerald-400" />
+                                            )}
+                                            {activeEcosystemTab === 'intelligence' && (
+                                                <BrainCircuit className="w-7 h-7 text-indigo-400" />
+                                            )}
+                                            {activeEcosystemTab === 'marketing' && (
+                                                <TrendingUp className="w-7 h-7 text-blue-400" />
+                                            )}
+                                            {activeEcosystemTab === 'operations' && (
+                                                <Layers className="w-7 h-7 text-purple-400" />
+                                            )}
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-[10px] text-gray-500 font-sans uppercase font-bold tracking-widest">Target Sync</p>
+                                            <p className="text-white text-xs font-bold mt-0.5">
+                                                {activeEcosystemTab === 'developers' && 'Linear Tasks'}
+                                                {activeEcosystemTab === 'intelligence' && 'Strategy Report'}
+                                                {activeEcosystemTab === 'marketing' && 'Growth Strategy'}
+                                                {activeEcosystemTab === 'operations' && 'Team Alignment'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Code Terminal Output block */}
+                                <div className="bg-gray-950 rounded-xl p-4 border border-gray-850 font-mono text-[11px] text-gray-300">
+                                    <p className="text-gray-500 mb-2">// Active Workflow Sync Logs</p>
+                                    
+                                    {activeEcosystemTab === 'developers' && (
+                                        <div className="space-y-1">
+                                            <p><span className="text-blue-400">info</span> Connecting to GitHub hook: <span className="text-emerald-400">repository/main/commits</span></p>
+                                            <p><span className="text-blue-400">info</span> Mapping code changes against verified target specs</p>
+                                            <p><span className="text-emerald-400">success</span> Sync complete: linear.app/capable-workspace</p>
+                                            <p className="text-gray-400 mt-2 font-bold text-xs border-t border-gray-850 pt-2 text-white">
+                                                ⚡ 1 Issue created in Linear, GitHub Branch sync active
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {activeEcosystemTab === 'intelligence' && (
+                                        <div className="space-y-1">
+                                            <p><span className="text-blue-400">info</span> Executing deep-query web scraper for pricing validation</p>
+                                            <p><span className="text-blue-400">info</span> OpenAI Engine parsing 1,482 search signals</p>
+                                            <p><span className="text-emerald-400">success</span> Strategic pivot matrix updated at 99.8% confidence</p>
+                                            <p className="text-gray-400 mt-2 font-bold text-xs border-t border-gray-850 pt-2 text-white">
+                                                ⚡ 4 Competitor pricing insights extracted, report compiled
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {activeEcosystemTab === 'marketing' && (
+                                        <div className="space-y-1">
+                                            <p><span className="text-blue-400">info</span> Polling Stripe metrics for real-time validation tracking</p>
+                                            <p><span className="text-blue-400">info</span> Formulating Customer Acquisition Cost (CAC) model</p>
+                                            <p><span className="text-emerald-400">success</span> Strategic spend recommendations calibrated with HubSpot CRM</p>
+                                            <p className="text-gray-400 mt-2 font-bold text-xs border-t border-gray-850 pt-2 text-white">
+                                                ⚡ Ad budget efficiency index calculated: +12.4% ROI optimization
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {activeEcosystemTab === 'operations' && (
+                                        <div className="space-y-1">
+                                            <p><span className="text-blue-400">info</span> Formatting Notion roadmap board updates for the team</p>
+                                            <p><span className="text-blue-400">info</span> Preparing Slack payload for Slack App workspace delivery</p>
+                                            <p><span className="text-emerald-400">success</span> Team ping sent: #strategy-alerts (8 watchers active)</p>
+                                            <p className="text-gray-400 mt-2 font-bold text-xs border-t border-gray-850 pt-2 text-white">
+                                                ⚡ Notion Master Board updated to version 2.4, Slack webhook active
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </section>
 
