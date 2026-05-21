@@ -21,133 +21,6 @@ const stagger = {
 };
 
 
-/* ─── Premium SVG Global Intelligence Hub Visual ────────────────────────── */
-const GlobeViz = () => {
-    return (
-        <div className="relative w-full h-[260px] flex items-center justify-center overflow-hidden bg-black/15 rounded-xl border border-white/10 shadow-inner">
-            {/* Concentric Radar Grid */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {/* Outer scanning circle */}
-                <div className="absolute w-[200px] h-[200px] rounded-full border border-white/5 animate-[ping_4s_infinite]" />
-                <div className="absolute w-[160px] h-[160px] rounded-full border border-white/10" />
-                <div className="absolute w-[100px] h-[100px] rounded-full border border-white/15" />
-                <div className="absolute w-[40px] h-[40px] rounded-full border border-white/20" />
-                
-                {/* Crosshairs */}
-                <div className="absolute w-[220px] h-px bg-white/5" />
-                <div className="absolute h-[220px] w-px bg-white/5" />
-                
-                {/* Angled lines */}
-                <div className="absolute w-[220px] h-px bg-white/5 rotate-45" />
-                <div className="absolute w-[220px] h-px bg-white/5 -rotate-45" />
-            </div>
-
-            {/* SVG Network Visual */}
-            <svg width="280" height="220" viewBox="0 0 280 220" className="relative z-10 w-full h-full">
-                <defs>
-                    <linearGradient id="link-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="rgba(255,255,255,0.8)" />
-                        <stop offset="100%" stopColor="rgba(147,197,253,0.2)" />
-                    </linearGradient>
-                    <linearGradient id="link-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="rgba(255,255,255,0.8)" />
-                        <stop offset="100%" stopColor="rgba(147,197,253,0.1)" />
-                    </linearGradient>
-                </defs>
-
-                {/* Connecting Web Lines */}
-                <path d="M 50 110 L 140 60" stroke="url(#link-grad-1)" strokeWidth="1.5" strokeDasharray="3 3">
-                    <animate attributeName="strokeDashoffset" values="30;0" dur="2s" repeatCount="indefinite" />
-                </path>
-                <path d="M 140 60 L 230 110" stroke="url(#link-grad-1)" strokeWidth="1.5" strokeDasharray="4 4">
-                    <animate attributeName="strokeDashoffset" values="0;40" dur="2.5s" repeatCount="indefinite" />
-                </path>
-                <path d="M 230 110 L 140 160" stroke="url(#link-grad-2)" strokeWidth="1.5" />
-                <path d="M 140 160 L 50 110" stroke="url(#link-grad-2)" strokeWidth="1.5" />
-                
-                <path d="M 140 60 L 140 160" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-                <path d="M 50 110 L 230 110" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-
-                {/* Satellite Beams / Signals */}
-                <circle r="4" fill="#ffffff">
-                    <animateMotion dur="3s" repeatCount="indefinite" path="M 50 110 L 140 60 L 230 110" />
-                </circle>
-                <circle r="3" fill="#93c5fd">
-                    <animateMotion dur="4s" repeatCount="indefinite" path="M 230 110 L 140 160 L 50 110" />
-                </circle>
-
-                {/* Major Nodes / Beacons */}
-                {/* Node 1: NYC */}
-                <g transform="translate(50, 110)">
-                    <circle r="12" fill="rgba(255,255,255,0.08)" />
-                    <circle r="6" fill="rgba(255,255,255,0.2)">
-                        <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite" />
-                    </circle>
-                    <circle r="3" fill="#ffffff" />
-                    <text x="-8" y="-14" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">NYC</text>
-                </g>
-
-                {/* Node 2: LDN */}
-                <g transform="translate(140, 60)">
-                    <circle r="12" fill="rgba(255,255,255,0.08)" />
-                    <circle r="6" fill="rgba(255,255,255,0.2)">
-                        <animate attributeName="r" values="6;10;6" dur="2.4s" repeatCount="indefinite" />
-                    </circle>
-                    <circle r="3" fill="#ffffff" />
-                    <text x="-10" y="-14" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">LDN</text>
-                </g>
-
-                {/* Node 3: TKY */}
-                <g transform="translate(230, 110)">
-                    <circle r="12" fill="rgba(255,255,255,0.08)" />
-                    <circle r="6" fill="rgba(255,255,255,0.2)">
-                        <animate attributeName="r" values="6;10;6" dur="1.8s" repeatCount="indefinite" />
-                    </circle>
-                    <circle r="3" fill="#ffffff" />
-                    <text x="-8" y="-14" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">TKY</text>
-                </g>
-
-                {/* Node 4: SGP */}
-                <g transform="translate(140, 160)">
-                    <circle r="12" fill="rgba(255,255,255,0.08)" />
-                    <circle r="6" fill="rgba(255,255,255,0.2)">
-                        <animate attributeName="r" values="6;10;6" dur="2.2s" repeatCount="indefinite" />
-                    </circle>
-                    <circle r="3" fill="#ffffff" />
-                    <text x="-10" y="20" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">SGP</text>
-                </g>
-            </svg>
-
-            {/* Glowing Scan Line Effect */}
-            <div className="absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-r from-white/20 to-transparent pointer-events-none animate-[scan_6s_linear_infinite]" style={{
-                animationName: 'scan',
-                animationTimingFunction: 'linear',
-                animationIterationCount: 'infinite'
-            }} />
-
-            {/* CSS Animation for Scanline */}
-            <style dangerouslySetInnerHTML={{__html: `
-                @keyframes scan {
-                    0% { transform: translateX(-50px); opacity: 0; }
-                    10% { opacity: 0.8; }
-                    90% { opacity: 0.8; }
-                    100% { transform: translateX(330px); opacity: 0; }
-                }
-            `}} />
-            
-            {/* Live Terminal Overlay (Micro data feed) */}
-            <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-md border border-white/5 font-mono text-[9px] text-blue-200/90 pointer-events-none max-w-[150px] leading-tight">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="uppercase tracking-wider font-bold">Signal scan</span>
-                </div>
-                <div className="truncate opacity-60">SYS: ACTIVE_STREAM...</div>
-                <div className="truncate text-white font-bold opacity-85">98.4% SIG STRENGTH</div>
-            </div>
-        </div>
-    );
-};
-
 const FeaturesPage = () => {
 
     useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -565,103 +438,88 @@ const FeaturesPage = () => {
             {/* ═══════════════════════════════════════════════
                 DELIVERABLES — WHITE (70%)
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-16 md:py-20">
+            <section className="w-full bg-white py-16 md:py-24 border-t border-gray-200">
                 <div className="max-w-7xl mx-auto px-6">
+                    {/* Centered Header */}
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <p className="text-[var(--brand-accent)] font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-4">What You Receive</p>
+                        <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-display font-normal text-gray-900 leading-tight tracking-tightest mb-6">
+                            Two high-value assets,
+                            <br />
+                            <span className="font-display italic text-[var(--brand-accent)]">instantly delivered.</span>
+                        </h2>
+                        <p className="text-gray-500 font-sans leading-relaxed text-base">
+                            Every completed analysis session produces two concrete deliverables — each designed to move you from thinking into doing, as fast as possible.
+                        </p>
+                    </div>
+
+                    {/* 2-Column Balanced Deliverables Grid */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={stagger}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-start pt-12 border-t border-gray-300/50"
+                        className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16"
                     >
-                        {/* Left */}
-                        <motion.div variants={fadeUp}>
-                            <p className="text-[var(--brand-accent)] font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-6">What You Receive</p>
-                            <h2 className="text-3xl sm:text-4xl lg:text-[54px] font-display font-normal text-gray-900 leading-none tracking-tightest mb-6">
-                                Two high-value assets,
-                                <br />
-                                <span className="font-display italic text-[var(--brand-accent)]">instantly delivered.</span>
-                            </h2>
-                            <p className="text-gray-500 font-sans leading-relaxed text-base mb-10">
-                                Every completed analysis session produces two concrete deliverables — each designed to move you from thinking into doing, as fast as possible.
-                            </p>
-                            <div className="flex flex-col gap-4">
-                                {[
-                                    {
-                                        title: "The Venture Report",
-                                        desc: "A comprehensive 8-section analysis: market opportunity, competitor landscape, customer segments, revenue models, risk assessment, and more.",
-                                        tag: "Digital Dashboard",
-                                        detail: "Interactive, shareable, exportable"
-                                    },
-                                    {
-                                        title: "60-Day Action Map",
-                                        desc: "A surgical week-by-week execution board covering brand foundation, product build, go-to-market, and first customer acquisition milestones.",
-                                        tag: "Live Board",
-                                        detail: "Track progress as you execute"
-                                    },
-                                ].map((item, i) => (
-                                    <div key={i} className="flex gap-5 border border-gray-300 bg-white p-7 rounded-2xl hover:border-[var(--brand-accent)]/40 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group">
-                                        <div className="mt-1 flex-shrink-0">
-                                            <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[var(--brand-accent)] group-hover:bg-[var(--brand-accent)] group-hover:text-white transition-all duration-300">
-                                                <CheckCircle2 className="w-4 h-4" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                                                <h4 className="font-display font-normal text-xl text-gray-900 tracking-tight group-hover:text-[var(--brand-accent)] transition-colors">{item.title}</h4>
-                                                <span className="text-[10px] w-fit bg-gray-100 border border-gray-200 text-gray-500 px-2 py-0.5 rounded-md uppercase font-bold tracking-wider">{item.tag}</span>
-                                            </div>
-                                            <p className="text-[14px] text-gray-500 leading-relaxed mb-2">{item.desc}</p>
-                                            <p className="text-[12px] text-[var(--brand-accent)] font-bold">{item.detail}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </motion.div>
-
-                        {/* Right — animated globe */}
-                        <motion.div variants={fadeUp} className="flex flex-col gap-4">
-
-                            {/* Globe card */}
-                            <div className="rounded-2xl border border-gray-300 bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] overflow-hidden relative" style={{ minHeight: 340 }}>
-                                {/* Glow */}
-                                <div className="absolute inset-0 pointer-events-none">
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-blue-400/20 blur-3xl" />
-                                </div>
-                                <div className="relative flex flex-col items-center justify-center p-6">
-                                    <GlobeViz />
-                                    <div className="mt-4 grid grid-cols-3 gap-3 w-full">
-                                        {[
-                                            { n: '150+', l: 'Markets' },
-                                            { n: '1M+', l: 'Signals/run' },
-                                            { n: '95%', l: 'Accuracy' },
-                                        ].map((s, i) => (
-                                            <div key={i} className="text-center bg-white/10 border border-white/15 rounded-xl py-3 px-2">
-                                                <p className="text-xl font-display text-white leading-none mb-0.5">{s.n}</p>
-                                                <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest">{s.l}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="px-6 pb-6">
-                                    <p className="text-white font-display text-lg tracking-tight mb-1">Global Intelligence Network</p>
-                                    <p className="text-blue-100/60 text-[13px] font-sans leading-relaxed">Real-time market signals processed across 150+ countries — every time you run an analysis.</p>
-                                </div>
-                            </div>
-
-                            {/* CTA nudge */}
-                            <div className="rounded-2xl border border-gray-300 bg-white p-7 flex flex-col gap-4">
+                        {[
+                            {
+                                title: "The Venture Report",
+                                desc: "A comprehensive 8-section analysis: market opportunity, competitor landscape, customer segments, revenue models, risk assessment, and more.",
+                                tag: "Digital Dashboard",
+                                detail: "Interactive, shareable, exportable",
+                                features: ["Market sizing & whitespace", "Direct competitor pricing maps", "Customer persona breakdowns", "Multi-scenario financial runs"]
+                            },
+                            {
+                                title: "60-Day Action Map",
+                                desc: "A surgical week-by-week execution board covering brand foundation, product build, go-to-market, and first customer acquisition milestones.",
+                                tag: "Live Board",
+                                detail: "Track progress as you execute",
+                                features: ["Surgical week-by-week schedule", "Brand & positioning checksheets", "No-code & code build specs", "GTM channel prioritization"]
+                            },
+                        ].map((item, i) => (
+                            <motion.div key={i} variants={fadeUp} className="flex flex-col justify-between border border-gray-300 bg-white p-8 rounded-2xl hover:border-[var(--brand-accent)]/40 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 group">
                                 <div>
-                                    <p className="text-gray-900 font-bold text-base mb-1">Ready to see it in action?</p>
-                                    <p className="text-gray-500 text-[14px] leading-relaxed">Start free — no credit card required. Your first analysis is on us.</p>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[var(--brand-accent)] group-hover:bg-[var(--brand-accent)] group-hover:text-white transition-all duration-300">
+                                            <CheckCircle2 className="w-5 h-5" />
+                                        </div>
+                                        <span className="text-[10px] bg-gray-100 border border-gray-200 text-gray-500 px-2.5 py-1 rounded-md uppercase font-bold tracking-wider">{item.tag}</span>
+                                    </div>
+                                    <h3 className="font-display font-normal text-2xl text-gray-900 tracking-tight mb-3 group-hover:text-[var(--brand-accent)] transition-colors">{item.title}</h3>
+                                    <p className="text-[15px] text-gray-500 leading-relaxed mb-6">{item.desc}</p>
+                                    
+                                    {/* Mini feature list */}
+                                    <div className="border-t border-gray-100 pt-6 mb-6">
+                                        <p className="text-[11px] font-sans font-bold uppercase tracking-wider text-gray-400 mb-3">Key Highlights</p>
+                                        <ul className="flex flex-col gap-2">
+                                            {item.features.map((feat, idx) => (
+                                                <li key={idx} className="flex items-center gap-2 text-[13px] text-gray-600">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                                    {feat}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div className="flex gap-3">
-                                    <Link to="/login" state={{ mode: 'signup' }} className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-5 py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300">
-                                        Get Started Free
-                                    </Link>
-                                    <Link to="/pricing" className="inline-flex items-center justify-center gap-2 border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all duration-300">
-                                        Pricing
-                                    </Link>
-                                </div>
-                            </div>
-                        </motion.div>
+                                <p className="text-[13px] text-[var(--brand-accent)] font-bold">{item.detail}</p>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+
+                    {/* Centered CTA Nudge */}
+                    <motion.div
+                        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp}
+                        className="max-w-2xl mx-auto rounded-2xl border border-gray-300 bg-white p-8 md:p-10 text-center flex flex-col items-center gap-6"
+                    >
+                        <div>
+                            <h3 className="text-gray-900 font-display text-2xl tracking-tight mb-2">Ready to see it in action?</h3>
+                            <p className="text-gray-500 text-sm leading-relaxed max-w-md mx-auto">Start free — no credit card required. Your first analysis is on us.</p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            <Link to="/login" state={{ mode: 'signup' }} className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 min-w-[180px]">
+                                Get Started Free
+                            </Link>
+                            <Link to="/pricing" className="inline-flex items-center justify-center gap-2 border border-gray-200 bg-white text-gray-700 px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all duration-300 min-w-[180px]">
+                                Pricing
+                            </Link>
+                        </div>
                     </motion.div>
                 </div>
             </section>
