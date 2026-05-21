@@ -7,7 +7,8 @@ const heroPoster = typeof window !== 'undefined' && window.innerWidth < 768 ? '/
 import {
     ArrowRight, Zap, BarChart3, ShieldCheck, Globe,
     Target, Layers, Search, Workflow, Cpu, Route as RouteIcon,
-    CheckCircle2, TrendingUp, BrainCircuit, Lock, Clock
+    CheckCircle2, TrendingUp, BrainCircuit, Lock, Clock,
+    Sparkles, XCircle, Plus, Play, FileText, Check
 } from 'lucide-react';
 import BottomCTASection from '../components/home/BottomCTASection';
 
@@ -136,15 +137,16 @@ const FeaturesPage = () => {
             {/* ═══════════════════════════════════════════════
                 CAPABILITIES GRID — WHITE (70%)
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-16 md:py-20">
+            <section className="w-full bg-white py-20 md:py-28">
                 <div className="max-w-7xl mx-auto px-6">
 
                     {/* Section header — exact ServicesSection pattern */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={stagger}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-10 sm:mb-16 items-start pt-12 border-t border-gray-300/50"
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-16 sm:mb-20 items-start pt-12 border-t border-gray-300/50"
                     >
                         <motion.div variants={fadeUp}>
+                            <p className="text-[var(--brand-accent)] font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-4">Capabilities</p>
                             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[72px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
                                 Built for the way founders{' '}
                                 <span className="font-display italic text-[var(--brand-accent)]">actually work.</span>
@@ -157,51 +159,168 @@ const FeaturesPage = () => {
                         </motion.div>
                     </motion.div>
 
-                    {/* 3-col feature cards */}
+                    {/* 3-col feature cards with custom micro-UI visuals */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={stagger}
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
                         {[
                             {
                                 icon: <Search className="w-5 h-5" />,
                                 title: "Live Market Intelligence",
-                                desc: "Scans thousands of real-time market signals to surface demand clusters, whitespace opportunities, and where competitors are falling short."
+                                desc: "Scans thousands of real-time market signals to surface demand clusters, whitespace opportunities, and where competitors are falling short.",
+                                visual: (
+                                    <div className="h-32 bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col justify-between overflow-hidden relative font-mono text-[10px]">
+                                        <div className="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                                            <span className="text-gray-400">SIGNAL SCANNER</span>
+                                            <span className="text-[var(--brand-accent)] font-bold animate-pulse">● LIVE</span>
+                                        </div>
+                                        <div className="flex items-end justify-between h-14 pt-2">
+                                            {[40, 25, 60, 45, 80, 55, 95, 70, 85].map((h, i) => (
+                                                <div key={i} className="w-[10%] bg-blue-100 border-t-2 border-blue-500 rounded-t-sm transition-all duration-300 hover:bg-blue-600" style={{ height: `${h}%` }} />
+                                            ))}
+                                        </div>
+                                        <div className="flex justify-between text-[9px] text-gray-400 mt-1">
+                                            <span>DEMAND CLUSTERS SURFACED: +14</span>
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 icon: <BrainCircuit className="w-5 h-5" />,
-                                title: "First-Principles AI Reasoning",
-                                desc: "Goes beyond keyword matching. Our AI stress-tests your core business model using structured logic — not generic templates."
+                                title: "First-Principles Reasoning",
+                                desc: "Goes beyond simple keyword matching. Our AI stress-tests your core business model using structured logic — not generic templates.",
+                                visual: (
+                                    <div className="h-32 bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col justify-between relative font-mono text-[9px]">
+                                        <div className="flex items-center justify-between text-gray-400 border-b border-gray-200/60 pb-2">
+                                            <span>LOGIC PIPELINE</span>
+                                            <span className="text-emerald-600 font-bold">100% VALIDATED</span>
+                                        </div>
+                                        <div className="flex flex-col gap-2 my-2">
+                                            <div className="flex items-center justify-between bg-white px-2.5 py-1 rounded border border-gray-200">
+                                                <span className="text-gray-500">Hypothesis validation</span>
+                                                <span className="text-emerald-500 font-bold">PASS</span>
+                                            </div>
+                                            <div className="flex items-center justify-between bg-white px-2.5 py-1 rounded border border-gray-200">
+                                                <span className="text-gray-500">Revenue model stress</span>
+                                                <span className="text-emerald-500 font-bold">PASS</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 icon: <Workflow className="w-5 h-5" />,
-                                title: "60-Day Execution Roadmap",
-                                desc: "A week-by-week action plan that takes you from zero to first customer — covering brand, product, marketing, and revenue milestones."
+                                title: "60-Day Action Roadmap",
+                                desc: "A week-by-week action plan that takes you from zero to first customer — covering brand, product, marketing, and revenue milestones.",
+                                visual: (
+                                    <div className="h-32 bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col justify-between relative font-sans">
+                                        <div className="flex items-center justify-between text-[9px] font-mono text-gray-400 border-b border-gray-200/60 pb-2">
+                                            <span>EXECUTION TRACKER</span>
+                                            <span className="text-gray-500">WEEK 3 OF 8</span>
+                                        </div>
+                                        <div className="flex gap-2 py-1 overflow-x-hidden">
+                                            {[
+                                                { label: "W1: Brand Setup", done: true },
+                                                { label: "W2: Landing Page", done: true },
+                                                { label: "W3: Beta Signup", active: true },
+                                                { label: "W4: GTM Kickoff", done: false }
+                                            ].map((w, idx) => (
+                                                <div key={idx} className={`flex-1 shrink-0 p-2 rounded-lg text-[9px] font-bold border text-center ${w.done ? 'bg-blue-50 border-blue-200 text-[var(--brand-accent)]' : w.active ? 'bg-blue-600 border-blue-700 text-white animate-pulse' : 'bg-white border-gray-200 text-gray-400'}`}>
+                                                    {w.label}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                                            <div className="bg-blue-600 h-full w-[65%]" />
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 icon: <BarChart3 className="w-5 h-5" />,
                                 title: "Financial Viability Models",
-                                desc: "Auto-generated CAC, LTV, and break-even estimates so you can assess profitability before writing a single line of code."
+                                desc: "Auto-generated CAC, LTV, and break-even estimates so you can assess profitability before writing a single line of code.",
+                                visual: (
+                                    <div className="h-32 bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col justify-between font-mono text-[10px]">
+                                        <div className="flex items-center justify-between border-b border-gray-200/60 pb-2 text-gray-400">
+                                            <span>VIABILITY SCORE</span>
+                                            <span className="text-blue-600 font-bold">8.4 / 10</span>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2 my-2 text-center">
+                                            <div className="bg-white p-2 rounded border border-gray-200">
+                                                <p className="text-[8px] text-gray-400 leading-none mb-1">EST LTV</p>
+                                                <p className="font-bold text-gray-800 text-[11px]">$480</p>
+                                            </div>
+                                            <div className="bg-white p-2 rounded border border-gray-200">
+                                                <p className="text-[8px] text-gray-400 leading-none mb-1">TARGET CAC</p>
+                                                <p className="font-bold text-gray-800 text-[11px]">$95</p>
+                                            </div>
+                                            <div className="bg-white p-2 rounded border border-gray-200">
+                                                <p className="text-[8px] text-gray-400 leading-none mb-1">LTV:CAC</p>
+                                                <p className="font-bold text-emerald-600 text-[11px]">5.1x</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 icon: <Lock className="w-5 h-5" />,
                                 title: "Private Venture Vaults",
-                                desc: "Each project lives in its own encrypted scope. Your IP, strategy, and data never touch a shared infrastructure layer."
+                                desc: "Each project lives in its own encrypted scope. Your IP, strategy, and data never touch a shared infrastructure layer.",
+                                visual: (
+                                    <div className="h-32 bg-gray-50 rounded-xl border border-gray-200 p-4 flex items-center justify-center relative">
+                                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-transparent to-transparent pointer-events-none" />
+                                        <div className="flex flex-col items-center text-center">
+                                            <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-[var(--brand-accent)] mb-2 shadow-sm">
+                                                <ShieldCheck className="w-5 h-5" />
+                                            </div>
+                                            <p className="font-mono text-[9px] text-gray-500 uppercase tracking-widest font-bold">Encrypted Scope Isolated</p>
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 icon: <Target className="w-5 h-5" />,
                                 title: "Competitor Deconstruction",
-                                desc: "Deep analysis of who's already in your space — their positioning, weaknesses, and the gaps you can own from day one."
+                                desc: "Deep analysis of who's already in your space — their positioning, weaknesses, and the gaps you can own from day one.",
+                                visual: (
+                                    <div className="h-32 bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col justify-between font-mono text-[9px]">
+                                        <div className="flex items-center justify-between border-b border-gray-200/60 pb-2 text-gray-400">
+                                            <span>COMPETITOR MAP</span>
+                                            <span className="text-[var(--brand-accent)] font-bold">3 ANALYSIS METRICS</span>
+                                        </div>
+                                        <div className="flex flex-col gap-1.5 my-1">
+                                            <div className="flex justify-between items-center text-gray-600">
+                                                <span>Price Gap</span>
+                                                <span className="font-bold text-gray-800">45% Opportunity</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 h-1 rounded-full">
+                                                <div className="bg-blue-500 h-full w-[45%]" />
+                                            </div>
+                                            <div className="flex justify-between items-center text-gray-600">
+                                                <span>Feature Gap</span>
+                                                <span className="font-bold text-gray-800">High Whitespace</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 h-1 rounded-full">
+                                                <div className="bg-emerald-500 h-full w-[75%]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
                             },
                         ].map((f, idx) => (
                             <motion.div key={idx} variants={fadeUp}
-                                className="rounded-2xl bg-white border border-gray-300 p-8 sm:p-10 flex flex-col group hover:border-[var(--brand-accent)]/40 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
+                                className="rounded-2xl bg-white border border-gray-300 p-6 sm:p-8 flex flex-col group hover:border-[var(--brand-accent)]/40 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300"
                             >
-                                <div className="w-[32px] h-[32px] shrink-0 mb-6 rounded-full bg-[var(--brand-accent)] text-white flex items-center justify-center">
+                                <div className="w-10 h-10 shrink-0 mb-6 rounded-xl bg-blue-50 border border-blue-100 text-[var(--brand-accent)] flex items-center justify-center group-hover:bg-[var(--brand-accent)] group-hover:text-white transition-all duration-300">
                                     {f.icon}
                                 </div>
-                                <h3 className="text-2xl sm:text-3xl font-display text-gray-900 mb-4 tracking-tight">{f.title}</h3>
-                                <p className="text-gray-500 text-[15px] sm:text-[16px] leading-relaxed mt-auto">{f.desc}</p>
+                                <h3 className="text-xl sm:text-2xl font-display text-gray-900 mb-3 tracking-tight group-hover:text-[var(--brand-accent)] transition-colors">{f.title}</h3>
+                                <p className="text-gray-500 text-[14px] leading-relaxed mb-6">{f.desc}</p>
+                                <div className="mt-auto">
+                                    {f.visual}
+                                </div>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -212,7 +331,7 @@ const FeaturesPage = () => {
                 HOW IT WORKS — BLUE (30%)
                 Full-bleed dark blue section
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] py-16 md:py-20 relative overflow-hidden">
+            <section className="w-full bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] py-20 md:py-28 relative overflow-hidden">
                 {/* Glow accents */}
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-[#0066CC]/30 blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#003d7a]/60 blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
@@ -222,11 +341,12 @@ const FeaturesPage = () => {
                     {/* Header */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={stagger}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-10 sm:mb-16 items-start border-b border-white/15 pb-10 sm:pb-16"
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-16 sm:mb-20 items-start border-b border-white/15 pb-12 sm:pb-16"
                     >
                         <motion.div variants={fadeUp}>
-                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-8">
-                                <span className="text-blue-100/80 text-[10px] font-bold uppercase tracking-[0.2em]">The Process</span>
+                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/25 rounded-full px-4 py-1.5 mb-8">
+                                <Sparkles className="w-3.5 h-3.5 text-blue-200" />
+                                <span className="text-blue-100/90 text-[10px] font-bold uppercase tracking-[0.2em]">The Process</span>
                             </div>
                             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[60px] font-display font-normal text-white leading-[1.05] tracking-tightest">
                                 From idea to roadmap{' '}
@@ -240,45 +360,107 @@ const FeaturesPage = () => {
                         </motion.div>
                     </motion.div>
 
-                    {/* 4 steps grid */}
+                    {/* 4 steps grid with custom mock UIs inside the cards */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={stagger}
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                        className="grid grid-cols-1 lg:grid-cols-4 gap-6"
                     >
                         {[
                             {
                                 step: '01',
                                 title: 'Idea Refinement',
-                                desc: 'Describe your concept. Our Semantic Engine turns raw input into a high-conviction mission statement with clear scope boundaries.',
-                                icon: <Zap className="w-4 h-4" />
+                                desc: 'Describe your concept. Our Semantic Engine turns raw input into a high-conviction mission statement.',
+                                detail: "10-second processing time",
+                                ui: (
+                                    <div className="bg-black/30 border border-white/10 rounded-xl p-4 font-mono text-[9px] text-white/90 flex flex-col justify-between h-28">
+                                        <div className="text-white/40">USER INPUT:</div>
+                                        <div className="bg-white/5 border border-white/10 rounded p-1.5 italic text-white/80 line-clamp-2">
+                                            "B2B product to track supply chain carbon credits..."
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-blue-300 font-bold">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                                            REFINING CONCEPT STRUCTURE...
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 step: '02',
-                                title: 'Strategic Questioning',
-                                desc: 'You answer a set of high-stakes founder questions designed to surface market friction, customer pain, and hidden assumptions.',
-                                icon: <Search className="w-4 h-4" />
+                                title: 'Strategic Audit',
+                                desc: 'You answer a set of high-stakes founder questions designed to surface market friction and assumptions.',
+                                detail: "Adaptive custom queries",
+                                ui: (
+                                    <div className="bg-black/30 border border-white/10 rounded-xl p-4 text-[9px] text-white/90 flex flex-col justify-between h-28">
+                                        <div className="font-mono text-white/40 uppercase">Venture Question:</div>
+                                        <div className="font-sans font-bold leading-snug line-clamp-2">
+                                            How will you acquire your first 10 corporate accounts?
+                                        </div>
+                                        <div className="flex gap-1.5">
+                                            <span className="bg-blue-600/40 border border-blue-500/50 text-blue-200 px-2 py-0.5 rounded font-bold">Direct Sales</span>
+                                            <span className="bg-white/5 border border-white/10 text-white/60 px-2 py-0.5 rounded">Cold Outreach</span>
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 step: '03',
-                                title: 'Deep Synthesis Audit',
-                                desc: 'A multi-lens analysis covering market size, competition, positioning, revenue mechanics, and execution risk.',
-                                icon: <BarChart3 className="w-4 h-4" />
+                                title: 'Synthesis Audit',
+                                desc: 'A multi-lens analysis covering market size, competition, positioning, and execution risk.',
+                                detail: "Over 1M data points evaluated",
+                                ui: (
+                                    <div className="bg-black/30 border border-white/10 rounded-xl p-4 font-mono text-[9px] text-white/90 flex flex-col justify-between h-28">
+                                        <div className="text-white/40 uppercase">RUNNING BENCHMARKS:</div>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex justify-between text-emerald-400">
+                                                <span>✓ Competitor mapping</span>
+                                                <span>READY</span>
+                                            </div>
+                                            <div className="flex justify-between text-emerald-400">
+                                                <span>✓ Financial pricing scenarios</span>
+                                                <span>READY</span>
+                                            </div>
+                                            <div className="flex justify-between text-blue-400">
+                                                <span>⟳ CAC viability forecast</span>
+                                                <span>RUNNING</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
                             },
                             {
                                 step: '04',
                                 title: 'Roadmap Delivery',
-                                desc: 'A full Venture Report and surgical 60-day action plan delivered to your dashboard — ready to execute from day one.',
-                                icon: <RouteIcon className="w-4 h-4" />
+                                desc: 'A full Venture Report and surgical 60-day action plan delivered to your dashboard.',
+                                detail: "Full Trello & Notion export",
+                                ui: (
+                                    <div className="bg-black/30 border border-white/10 rounded-xl p-4 text-[9px] text-white/90 flex flex-col justify-between h-28">
+                                        <div className="font-mono text-white/40 uppercase">DELIVERABLES:</div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <div className="bg-white/10 border border-white/15 px-2 py-1 rounded flex items-center justify-between">
+                                                <span className="font-bold">Venture_Report.pdf</span>
+                                                <span className="text-blue-300 font-bold uppercase tracking-wider text-[8px]">Download</span>
+                                            </div>
+                                            <div className="bg-white/10 border border-white/15 px-2 py-1 rounded flex items-center justify-between">
+                                                <span className="font-bold">60_Day_Board.csv</span>
+                                                <span className="text-blue-300 font-bold uppercase tracking-wider text-[8px]">Export</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
                             },
                         ].map((item, idx) => (
                             <motion.div key={idx} variants={fadeUp}
-                                className="rounded-2xl bg-white/10 border border-white/20 p-8 sm:p-10 flex flex-col hover:bg-white/15 transition-all duration-300"
+                                className="rounded-2xl bg-white/5 border border-white/15 p-6 sm:p-8 flex flex-col hover:bg-white/10 hover:border-white/25 transition-all duration-300 group"
                             >
-                                <div className="w-[32px] h-[32px] shrink-0 mb-6 rounded-full bg-white text-[var(--brand-accent)] flex items-center justify-center font-bold text-[14px]">
+                                <div className="w-10 h-10 shrink-0 mb-6 rounded-xl bg-white text-[var(--brand-accent)] flex items-center justify-center font-bold text-sm tracking-tight shadow-sm">
                                     {item.step}
                                 </div>
-                                <h3 className="text-2xl sm:text-3xl font-display text-white mb-4 tracking-tight">{item.title}</h3>
-                                <p className="text-blue-100/70 text-[15px] sm:text-[16px] leading-relaxed mt-auto">{item.desc}</p>
+                                <h3 className="text-xl sm:text-2xl font-display text-white mb-3 tracking-tight group-hover:text-blue-200 transition-colors">{item.title}</h3>
+                                <p className="text-blue-100/70 text-[14px] leading-relaxed mb-6">{item.desc}</p>
+                                <div className="mb-6">
+                                    {item.ui}
+                                </div>
+                                <p className="text-[12px] font-sans font-bold uppercase tracking-wider text-blue-300/80 mt-auto">{item.detail}</p>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -287,238 +469,120 @@ const FeaturesPage = () => {
 
             {/* ═══════════════════════════════════════════════
                 WHY CAPABLE — WHITE (70%)
+                Premium Comparison Table & Visual checklist
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-16 md:py-20">
+            <section className="w-full bg-white py-20 md:py-28">
                 <div className="max-w-7xl mx-auto px-6">
-                    <motion.div
-                        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={stagger}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-start pt-12 border-t border-gray-300/50"
-                    >
-                        {/* Left col */}
-                        <motion.div variants={fadeUp}>
-                            <p className="text-[var(--brand-accent)] font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-6">Why Capable</p>
-                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-10">
-                                The unfair advantage{' '}
-                                <span className="font-display italic text-[var(--brand-accent)]">smart founders use.</span>
-                            </h2>
+                    {/* Header */}
+                    <div className="max-w-3xl mb-16 md:mb-20">
+                        <p className="text-[var(--brand-accent)] font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-4">Why Capable</p>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
+                            The unfair advantage{' '}
+                            <span className="font-display italic text-[var(--brand-accent)]">smart founders use.</span>
+                        </h2>
+                    </div>
 
-                            <div className="flex flex-col gap-4">
-                                {[
-                                    {
-                                        icon: <Globe className="w-5 h-5" />,
-                                        title: "150+ Global Markets",
-                                        desc: "Our research engine understands local nuances, regulations, and consumer behaviour across 150+ countries — not just Western markets."
-                                    },
-                                    {
-                                        icon: <Clock className="w-5 h-5" />,
-                                        title: "75% Faster Than Traditional Research",
-                                        desc: "What would take a consultant team weeks to deliver, Capable produces in minutes — without sacrificing depth or accuracy."
-                                    },
-                                    {
-                                        icon: <TrendingUp className="w-5 h-5" />,
-                                        title: "Validated, Not Just Analysed",
-                                        desc: "We don't just show data — we pressure-test your assumptions against real market signals to tell you if your idea actually works."
-                                    },
-                                    {
-                                        icon: <Layers className="w-5 h-5" />,
-                                        title: "Your Data Stays Yours",
-                                        desc: "Isolated project scopes mean your sensitive business strategy is never pooled with other users' data. Full stop."
-                                    },
-                                ].map((item, i) => (
-                                    <div key={i} className="flex gap-5 group p-5 rounded-2xl border border-gray-200 hover:border-blue-100 hover:bg-blue-50/30 transition-all duration-300">
-                                        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-[var(--brand-accent)] group-hover:bg-[var(--brand-accent)] group-hover:text-white group-hover:border-[var(--brand-accent)] transition-all duration-300">
-                                            {item.icon}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-display font-normal text-lg text-gray-900 mb-1 tracking-tight">{item.title}</h4>
-                                            <p className="text-gray-500 leading-relaxed font-sans text-[14px]">{item.desc}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </motion.div>
-
-                        {/* Right col — image + overlay card */}
-                        <motion.div variants={fadeUp} className="flex flex-col gap-4">
-                            <div className="rounded-2xl overflow-hidden border border-gray-300 relative group h-[280px] sm:h-[360px]">
-                                <img
-                                    src="/market_analysis_vector.webp"
-                                    alt="Market analysis dashboard"
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#003d7a]/80 via-[#0052a3]/20 to-transparent" />
-                                <div className="absolute bottom-5 left-5 right-5 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-xl">
-                                    <div className="flex items-center gap-3 text-white">
-                                        <ShieldCheck className="w-5 h-5 text-blue-200 shrink-0" />
-                                        <div>
-                                            <p className="font-bold text-sm leading-none mb-0.5">Privacy First Architecture</p>
-                                            <p className="text-xs text-white/60 uppercase tracking-widest font-bold">End-to-end encrypted</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Checklist card */}
-                            <div className="rounded-2xl border border-gray-300 bg-white p-7">
-                                <p className="text-gray-900 font-bold text-[11px] uppercase tracking-[0.2em] mb-5">What you get on day one</p>
-                                <div className="flex flex-col gap-3">
+                    {/* Comparison Board Layout */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+                        {/* Table Block */}
+                        <div className="lg:col-span-2 overflow-x-auto border border-gray-300 rounded-2xl bg-white">
+                            <table className="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr className="border-b border-gray-200 bg-gray-50/70">
+                                        <th className="p-5 font-sans font-bold text-xs uppercase tracking-wider text-gray-400">Capability</th>
+                                        <th className="p-5 font-sans font-bold text-xs uppercase tracking-wider text-[var(--brand-accent)]">Capable Platform</th>
+                                        <th className="p-5 font-sans font-bold text-xs uppercase tracking-wider text-gray-400">Traditional Agency</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200 text-sm">
                                     {[
-                                        "Full market opportunity analysis",
-                                        "Competitive landscape breakdown",
-                                        "Revenue model validation",
-                                        "60-day week-by-week action map",
-                                        "AI mentor for ongoing guidance",
-                                    ].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-3">
-                                            <CheckCircle2 className="w-4 h-4 text-[var(--brand-accent)] shrink-0" />
-                                            <span className="text-gray-700 text-[14px] font-sans">{item}</span>
-                                        </div>
+                                        { cap: "Delivery Speed", capVal: "15 Minutes", tradVal: "4 - 6 Weeks" },
+                                        { cap: "Total Research Points", capVal: "1M+ Signals", tradVal: "Manual interviews only" },
+                                        { cap: "Execution Strategy", capVal: "Actionable 60-Day Map", tradVal: "Static 80-Slide PDF Deck" },
+                                        { cap: "Cost Scale", capVal: "Fraction of a desk cost", tradVal: "$15K - $50K Retainers" },
+                                        { cap: "IP Protection", capVal: "Encrypted Isolated Vaults", tradVal: "No technical guardrails" },
+                                    ].map((row, i) => (
+                                        <tr key={i} className="hover:bg-gray-50/55 transition-colors">
+                                            <td className="p-5 font-bold text-gray-800">{row.cap}</td>
+                                            <td className="p-5 text-[var(--brand-accent)] font-bold flex items-center gap-2">
+                                                <CheckCircle2 className="w-4 h-4 text-[var(--brand-accent)]" /> {row.capVal}
+                                            </td>
+                                            <td className="p-5 text-gray-500 font-sans">{row.tradVal}</td>
+                                        </tr>
                                     ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Security Card / Checklist */}
+                        <div className="flex flex-col gap-6">
+                            <div className="rounded-2xl border border-gray-300 bg-white p-8 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-24 h-24 rounded-full bg-blue-500/5 blur-xl group-hover:scale-150 transition-all duration-700" />
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-[var(--brand-accent)] flex items-center justify-center mb-6">
+                                    <ShieldCheck className="w-5 h-5" />
+                                </div>
+                                <h3 className="font-display text-xl text-gray-900 mb-3 tracking-tight">Security & Privacy First</h3>
+                                <p className="text-gray-500 text-sm leading-relaxed mb-6">
+                                    Your strategies, data and generated market roadmap belong to you. We insulate your data inside sandbox silos, never pooling it to train open LLM models.
+                                </p>
+                                <div className="border-t border-gray-100 pt-6">
+                                    <p className="text-[10px] font-sans font-bold text-gray-400 uppercase tracking-widest mb-3">Enterprise Standards</p>
+                                    <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                        ISO-27001 COMPLIANT ARCHITECTURE
+                                    </div>
                                 </div>
                             </div>
-                        </motion.div>
-                    </motion.div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             {/* ═══════════════════════════════════════════════
                 TESTIMONIAL — BLUE (30%)
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-16 md:py-20">
+            <section className="w-full bg-white py-12">
                 <div className="max-w-7xl mx-auto px-6">
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={fadeUp}
-                        className="rounded-2xl bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] p-10 sm:p-16 lg:p-20 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12 relative overflow-hidden"
+                        className="rounded-3xl bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] p-8 sm:p-14 lg:p-20 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden"
                     >
-                        {/* bg texture — exact BottomCTASection pattern */}
+                        {/* bg texture */}
                         <div className="absolute inset-0 pointer-events-none">
                             <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl translate-x-1/2 -translate-y-1/2" />
                             <div className="absolute bottom-0 left-1/3 w-[300px] h-[300px] rounded-full bg-[#073B99]/60 blur-3xl" />
                         </div>
-                        {/* Left: quote */}
-                        <div className="relative z-10 max-w-2xl">
+
+                        {/* Quote Block */}
+                        <div className="relative z-10 max-w-2xl text-center lg:text-left">
                             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-8">
-                                <span className="text-blue-100/80 text-[10px] font-bold uppercase tracking-[0.2em]">Founder Story</span>
+                                <span className="text-blue-100/90 text-[10px] font-bold uppercase tracking-[0.2em]">Founder Case Study</span>
                             </div>
-                            <h2 className="font-display font-normal text-white leading-[1.05] tracking-tightest mb-5 text-2xl sm:text-3xl lg:text-[40px]">
+                            <blockquote className="font-display font-normal text-white leading-tight tracking-tightest mb-6 text-2xl sm:text-3xl lg:text-[38px]">
                                 "Capable didn't just validate my idea — it showed me exactly where I was wrong, and gave me a smarter path forward."
-                            </h2>
-                            <p className="text-blue-100/60 font-sans leading-relaxed text-base max-w-lg mb-6">
-                                We went from zero to launch in 6 weeks — 3× faster than any previous attempt.
-                            </p>
-                            <div className="flex items-center gap-3">
+                            </blockquote>
+                            <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
                                 <div className="w-9 h-9 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold text-sm">P</div>
                                 <div>
                                     <p className="text-white font-bold text-[14px]">Priya K.</p>
-                                    <p className="text-white/50 font-sans text-[11px] font-bold tracking-widest uppercase">Founder, Niche Commerce</p>
+                                    <p className="text-blue-200/60 font-sans text-[11px] font-bold tracking-widest uppercase">Founder, Niche Commerce</p>
                                 </div>
                             </div>
                         </div>
-                        {/* Right: CTA */}
-                        <div className="relative z-10 flex flex-col gap-3 shrink-0 w-full lg:w-auto">
-                            <Link
-                                to="/login"
-                                state={{ mode: 'signup' }}
-                                className="inline-flex items-center justify-center gap-2 bg-white text-[var(--brand-accent)] px-8 py-4 rounded-xl font-bold text-[14px] tracking-tight hover:bg-blue-50 active:scale-[0.98] transition-all duration-200 whitespace-nowrap shadow-lg shadow-black/10"
-                            >
-                                Start Building — It's Free <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
-                            </Link>
-                            <Link
-                                to="/pricing"
-                                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-xl font-semibold text-[14px] tracking-tight hover:bg-white/20 active:scale-[0.98] transition-all duration-200 whitespace-nowrap"
-                            >
-                                View Plans
-                            </Link>
-                            <p className="text-blue-200/40 text-[11px] font-sans text-center mt-1">No credit card required</p>
-                        </div>
-                    </motion.div>
-                </div>
-            </section>
 
-            {/* ═══════════════════════════════════════════════
-                DELIVERABLES — WHITE (70%)
-            ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-16 md:py-24 border-t border-gray-200">
-                <div className="max-w-7xl mx-auto px-6">
-                    {/* Centered Header */}
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <p className="text-[var(--brand-accent)] font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-4">What You Receive</p>
-                        <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-display font-normal text-gray-900 leading-tight tracking-tightest mb-6">
-                            Two high-value assets,
-                            <br />
-                            <span className="font-display italic text-[var(--brand-accent)]">instantly delivered.</span>
-                        </h2>
-                        <p className="text-gray-500 font-sans leading-relaxed text-base">
-                            Every completed analysis session produces two concrete deliverables — each designed to move you from thinking into doing, as fast as possible.
-                        </p>
-                    </div>
-
-                    {/* 2-Column Balanced Deliverables Grid */}
-                    <motion.div
-                        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={stagger}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16"
-                    >
-                        {[
-                            {
-                                title: "The Venture Report",
-                                desc: "A comprehensive 8-section analysis: market opportunity, competitor landscape, customer segments, revenue models, risk assessment, and more.",
-                                tag: "Digital Dashboard",
-                                detail: "Interactive, shareable, exportable",
-                                features: ["Market sizing & whitespace", "Direct competitor pricing maps", "Customer persona breakdowns", "Multi-scenario financial runs"]
-                            },
-                            {
-                                title: "60-Day Action Map",
-                                desc: "A surgical week-by-week execution board covering brand foundation, product build, go-to-market, and first customer acquisition milestones.",
-                                tag: "Live Board",
-                                detail: "Track progress as you execute",
-                                features: ["Surgical week-by-week schedule", "Brand & positioning checksheets", "No-code & code build specs", "GTM channel prioritization"]
-                            },
-                        ].map((item, i) => (
-                            <motion.div key={i} variants={fadeUp} className="flex flex-col justify-between border border-gray-300 bg-white p-8 rounded-2xl hover:border-[var(--brand-accent)]/40 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 group">
-                                <div>
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[var(--brand-accent)] group-hover:bg-[var(--brand-accent)] group-hover:text-white transition-all duration-300">
-                                            <CheckCircle2 className="w-5 h-5" />
-                                        </div>
-                                        <span className="text-[10px] bg-gray-100 border border-gray-200 text-gray-500 px-2.5 py-1 rounded-md uppercase font-bold tracking-wider">{item.tag}</span>
-                                    </div>
-                                    <h3 className="font-display font-normal text-2xl text-gray-900 tracking-tight mb-3 group-hover:text-[var(--brand-accent)] transition-colors">{item.title}</h3>
-                                    <p className="text-[15px] text-gray-500 leading-relaxed mb-6">{item.desc}</p>
-                                    
-                                    {/* Mini feature list */}
-                                    <div className="border-t border-gray-100 pt-6 mb-6">
-                                        <p className="text-[11px] font-sans font-bold uppercase tracking-wider text-gray-400 mb-3">Key Highlights</p>
-                                        <ul className="flex flex-col gap-2">
-                                            {item.features.map((feat, idx) => (
-                                                <li key={idx} className="flex items-center gap-2 text-[13px] text-gray-600">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                                                    {feat}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
+                        {/* Outcomes Cards */}
+                        <div className="relative z-10 grid grid-cols-2 gap-4 w-full lg:w-auto shrink-0">
+                            {[
+                                { num: "6 Weeks", label: "To Launch" },
+                                { num: "3x", label: "Velocity" },
+                                { num: "Zero", label: "Code Waste" },
+                                { num: "100%", label: "Strategy Clarity" }
+                            ].map((o, idx) => (
+                                <div key={idx} className="bg-white/10 border border-white/15 rounded-2xl p-6 text-center backdrop-blur-md min-w-[120px] sm:min-w-[150px]">
+                                    <p className="text-2xl sm:text-3xl font-display font-normal text-white leading-none mb-1">{o.num}</p>
+                                    <p className="text-blue-200/50 text-[10px] uppercase font-bold tracking-widest">{o.label}</p>
                                 </div>
-                                <p className="text-[13px] text-[var(--brand-accent)] font-bold">{item.detail}</p>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-
-                    {/* Centered CTA Nudge */}
-                    <motion.div
-                        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp}
-                        className="max-w-2xl mx-auto rounded-2xl border border-gray-300 bg-white p-8 md:p-10 text-center flex flex-col items-center gap-6"
-                    >
-                        <div>
-                            <h3 className="text-gray-900 font-display text-2xl tracking-tight mb-2">Ready to see it in action?</h3>
-                            <p className="text-gray-500 text-sm leading-relaxed max-w-md mx-auto">Start free — no credit card required. Your first analysis is on us.</p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                            <Link to="/login" state={{ mode: 'signup' }} className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 min-w-[180px]">
-                                Get Started Free
-                            </Link>
-                            <Link to="/pricing" className="inline-flex items-center justify-center gap-2 border border-gray-200 bg-white text-gray-700 px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all duration-300 min-w-[180px]">
-                                Pricing
-                            </Link>
+                            ))}
                         </div>
                     </motion.div>
                 </div>
