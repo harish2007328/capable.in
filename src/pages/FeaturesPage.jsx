@@ -21,85 +21,190 @@ const stagger = {
 };
 
 
-/* ─── Real 3D Globe Component (globe.gl) ─────────────── */
-const ARCS = [
-    { startLat: 40.7128, startLng: -74.006,  endLat: 51.5074, endLng: -0.1278  }, // NY → London
-    { startLat: 51.5074, startLng: -0.1278,  endLat: 35.6762, endLng: 139.6503 }, // London → Tokyo
-    { startLat: 35.6762, startLng: 139.6503, endLat: 19.0760, endLng: 72.8777  }, // Tokyo → Mumbai
-    { startLat: 19.0760, startLng: 72.8777,  endLat: -33.8688,endLng: 151.2093 }, // Mumbai → Sydney
-    { startLat: -33.8688,endLng: 151.2093,   endLat: -23.5505,endLng: -46.6333 }, // Sydney → São Paulo
-    { startLat: -23.5505,startLng: -46.6333, endLat: 40.7128, endLng: -74.006  }, // São Paulo → NY
-    { startLat: 48.8566, startLng: 2.3522,   endLat: 1.3521,  endLng: 103.8198 }, // Paris → Singapore
-    { startLat: 37.7749, startLng: -122.4194,endLat: 48.8566, endLng: 2.3522   }, // SF → Paris
-];
-const POINTS = [
-    { lat: 40.7128,  lng: -74.006,   label: 'New York'   },
-    { lat: 51.5074,  lng: -0.1278,   label: 'London'     },
-    { lat: 35.6762,  lng: 139.6503,  label: 'Tokyo'      },
-    { lat: 19.0760,  lng: 72.8777,   label: 'Mumbai'     },
-    { lat: -33.8688, lng: 151.2093,  label: 'Sydney'     },
-    { lat: -23.5505, lng: -46.6333,  label: 'São Paulo'  },
-    { lat: 48.8566,  lng: 2.3522,    label: 'Paris'      },
-    { lat: 37.7749,  lng: -122.4194, label: 'San Francisco' },
-    { lat: 1.3521,   lng: 103.8198,  label: 'Singapore'  },
-    { lat: 55.7558,  lng: 37.6173,   label: 'Moscow'     },
-];
-
+/* ─── Premium Canvas-based 3D Globe Component (Zero Network Dependencies) ─── */
 const GlobeViz = () => {
-    const containerRef = useRef(null);
-    const globeRef = useRef(null);
+    const canvasRef = useRef(null);
+    const rotationRef = useRef(0);
+    const pointsRef = useRef([]);
+
+    // Generate coordinates for continents roughly mapped onto a sphere
+    if (pointsRef.current.length === 0) {
+        const radius = 90;
+        // Standard latitude/longitude grids to approximate landmasses
+        for (let lat = -60; lat <= 60; lat += 12) {
+            const radLat = (lat * Math.PI) / 180;
+            const cosLat = Math.cos(radLat);
+            const sinLat = Math.sin(radLat);
+            
+            // Add points on different longitudes, denser around center
+            for (let lng = -180; lng < 180; lng += 18) {
+                // Simple procedural land mask (approximate continents)
+                const noise = Math.sin(lng * 0.05) * Math.cos(lat * 0.05) + Math.sin(lng * 0.02);
+                if (noise > -0.25) {
+                    const radLng = (lng * Math.PI) / 180;
+                    pointsRef.current.push({
+                        x: radius * cosLat * Math.sin(radLng),
+                        y: radius * sinLat,
+                        z: radius * cosLat * Math.cos(radLng),
+                        isNode: Math.random() > 0.94 // occasional prominent node
+                    });
+                }
+            }
+        }
+    }
 
     useEffect(() => {
-        let globe = null;
-        let cancelled = false;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-        import('globe.gl').then(({ default: Globe }) => {
-            if (cancelled || !containerRef.current) return;
-            const el = containerRef.current;
-            const size = Math.min(el.offsetWidth || 280, 320);
+        let animationFrameId;
+        const radius = 90;
+        const width = 280;
+        const height = 260;
+        const points = pointsRef.current;
 
-            globe = Globe()(el);
-            globeRef.current = globe;
+        // Arcs connecting prominent nodes
+        const activeConnections = [
+            { from: 12, to: 55, progress: 0, speed: 0.008 },
+            { from: 35, to: 88, progress: 0.3, speed: 0.006 },
+            { from: 60, to: 120, progress: 0.6, speed: 0.007 },
+            { from: 90, to: 145, progress: 0.1, speed: 0.009 },
+        ];
 
-            globe
-                .width(size).height(size)
-                .backgroundColor('rgba(0,0,0,0)')
-                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-                .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-                .showAtmosphere(true)
-                .atmosphereColor('#4dabf7')
-                .atmosphereAltitude(0.18)
-                .arcsData(ARCS)
-                .arcColor(() => ['rgba(255,255,255,0.6)', 'rgba(100,180,255,0.9)'])
-                .arcDashLength(0.4)
-                .arcDashGap(0.15)
-                .arcDashAnimateTime(2200)
-                .arcStroke(0.5)
-                .pointsData(POINTS)
-                .pointColor(() => '#ffffff')
-                .pointAltitude(0.01)
-                .pointRadius(0.35)
-                .pointsMerge(true);
+        const render = () => {
+            ctx.clearRect(0, 0, width, height);
+            const cx = width / 2;
+            const cy = height / 2;
 
-            // Auto-rotate
-            globe.controls().autoRotate = true;
-            globe.controls().autoRotateSpeed = 0.6;
-            globe.controls().enableZoom = false;
-            globe.controls().enablePan = false;
+            // Increment rotation angle
+            rotationRef.current += 0.006;
+            const cosRot = Math.cos(rotationRef.current);
+            const sinRot = Math.sin(rotationRef.current);
 
-            // Initial camera angle
-            globe.pointOfView({ lat: 20, lng: 0, altitude: 2.0 });
-        });
+            // Rotate and project points
+            const projected = points.map((p, idx) => {
+                // Rotate around Y-axis
+                const rx = p.x * cosRot - p.z * sinRot;
+                const ry = p.y;
+                const rz = p.x * sinRot + p.z * cosRot;
+
+                // Simple 3D projection scale factor
+                const scale = (rz + radius * 2) / (radius * 3);
+                
+                return {
+                    x: cx + rx,
+                    y: cy + ry,
+                    z: rz,
+                    scale,
+                    isNode: p.isNode,
+                    originalIndex: idx
+                };
+            });
+
+            // Draw atmosphere glow
+            const glowGrad = ctx.createRadialGradient(cx, cy, radius - 20, cx, cy, radius + 25);
+            glowGrad.addColorStop(0, 'rgba(0, 102, 204, 0)');
+            glowGrad.addColorStop(0.7, 'rgba(0, 102, 204, 0.18)');
+            glowGrad.addColorStop(1, 'rgba(0, 102, 204, 0)');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius + 25, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw globe sphere outline
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Draw projected points
+            projected.forEach(p => {
+                // Only render front-facing side of sphere (positive Z)
+                if (p.z < -10) return;
+
+                const size = p.isNode ? 3.5 * p.scale : 1.5 * p.scale;
+                const alpha = Math.min(1, Math.max(0.1, (p.z + radius) / (radius * 2)));
+
+                ctx.fillStyle = p.isNode 
+                    ? `rgba(255, 255, 255, ${alpha * 0.95})` 
+                    : `rgba(255, 255, 255, ${alpha * 0.35})`;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (p.isNode) {
+                    // Pulsing node ring
+                    ctx.strokeStyle = `rgba(147, 197, 253, ${alpha * 0.6 * (1 - (Date.now() % 1500) / 1500)})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, size + 6 * ((Date.now() % 1500) / 1500), 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+
+            // Draw connection arcs
+            activeConnections.forEach(conn => {
+                const p1 = projected[conn.from % projected.length];
+                const p2 = projected[conn.to % projected.length];
+
+                // Render only if both points are in front
+                if (p1.z < 0 || p2.z < 0) return;
+
+                // Bezier arc helper
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+
+                // Control point pulled outwards from sphere center
+                const midX = (p1.x + p2.x) / 2;
+                const midY = (p1.y + p2.y) / 2;
+                const dist = Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2);
+                
+                // Pull control point outwards
+                const dx = midX - cx;
+                const dy = midY - cy;
+                const length = Math.sqrt(dx * dx + dy * dy) || 1;
+                const cpx = midX + (dx / length) * (dist * 0.25);
+                const cpy = midY + (dy / length) * (dist * 0.25);
+
+                ctx.quadraticCurveTo(cpx, cpy, p2.x, p2.y);
+                ctx.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Animate signal dot along the path
+                conn.progress += conn.speed;
+                if (conn.progress > 1) conn.progress = 0;
+
+                const t = conn.progress;
+                // Quadratic bezier formula
+                const dotX = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * cpx + t * t * p2.x;
+                const dotY = (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * cpy + t * t * p2.y;
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            animationFrameId = requestAnimationFrame(render);
+        };
+
+        render();
 
         return () => {
-            cancelled = true;
-            if (globeRef.current) {
-                try { globeRef.current._destructor?.(); } catch (_) {}
-            }
+            cancelAnimationFrame(animationFrameId);
         };
     }, []);
 
-    return <div ref={containerRef} style={{ width: '100%', height: 300 }} />;
+    return (
+        <div className="relative flex items-center justify-center" style={{ width: 280, height: 260 }}>
+            <canvas ref={canvasRef} width="280" height="260" className="block" />
+        </div>
+    );
 };
 
 const FeaturesPage = () => {
