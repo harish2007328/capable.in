@@ -21,188 +21,129 @@ const stagger = {
 };
 
 
-/* ─── Premium Canvas-based 3D Globe Component (Zero Network Dependencies) ─── */
+/* ─── Premium SVG Global Intelligence Hub Visual ────────────────────────── */
 const GlobeViz = () => {
-    const canvasRef = useRef(null);
-    const rotationRef = useRef(0);
-    const pointsRef = useRef([]);
-
-    // Generate coordinates for continents roughly mapped onto a sphere
-    if (pointsRef.current.length === 0) {
-        const radius = 90;
-        // Standard latitude/longitude grids to approximate landmasses
-        for (let lat = -60; lat <= 60; lat += 12) {
-            const radLat = (lat * Math.PI) / 180;
-            const cosLat = Math.cos(radLat);
-            const sinLat = Math.sin(radLat);
-            
-            // Add points on different longitudes, denser around center
-            for (let lng = -180; lng < 180; lng += 18) {
-                // Simple procedural land mask (approximate continents)
-                const noise = Math.sin(lng * 0.05) * Math.cos(lat * 0.05) + Math.sin(lng * 0.02);
-                if (noise > -0.25) {
-                    const radLng = (lng * Math.PI) / 180;
-                    pointsRef.current.push({
-                        x: radius * cosLat * Math.sin(radLng),
-                        y: radius * sinLat,
-                        z: radius * cosLat * Math.cos(radLng),
-                        isNode: Math.random() > 0.94 // occasional prominent node
-                    });
-                }
-            }
-        }
-    }
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        let animationFrameId;
-        const radius = 90;
-        const width = 280;
-        const height = 260;
-        const points = pointsRef.current;
-
-        // Arcs connecting prominent nodes
-        const activeConnections = [
-            { from: 12, to: 55, progress: 0, speed: 0.008 },
-            { from: 35, to: 88, progress: 0.3, speed: 0.006 },
-            { from: 60, to: 120, progress: 0.6, speed: 0.007 },
-            { from: 90, to: 145, progress: 0.1, speed: 0.009 },
-        ];
-
-        const render = () => {
-            ctx.clearRect(0, 0, width, height);
-            const cx = width / 2;
-            const cy = height / 2;
-
-            // Increment rotation angle
-            rotationRef.current += 0.006;
-            const cosRot = Math.cos(rotationRef.current);
-            const sinRot = Math.sin(rotationRef.current);
-
-            // Rotate and project points
-            const projected = points.map((p, idx) => {
-                // Rotate around Y-axis
-                const rx = p.x * cosRot - p.z * sinRot;
-                const ry = p.y;
-                const rz = p.x * sinRot + p.z * cosRot;
-
-                // Simple 3D projection scale factor
-                const scale = (rz + radius * 2) / (radius * 3);
-                
-                return {
-                    x: cx + rx,
-                    y: cy + ry,
-                    z: rz,
-                    scale,
-                    isNode: p.isNode,
-                    originalIndex: idx
-                };
-            });
-
-            // Draw atmosphere glow
-            const glowGrad = ctx.createRadialGradient(cx, cy, radius - 20, cx, cy, radius + 25);
-            glowGrad.addColorStop(0, 'rgba(0, 102, 204, 0)');
-            glowGrad.addColorStop(0.7, 'rgba(0, 102, 204, 0.18)');
-            glowGrad.addColorStop(1, 'rgba(0, 102, 204, 0)');
-            ctx.fillStyle = glowGrad;
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius + 25, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Draw globe sphere outline
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // Draw projected points
-            projected.forEach(p => {
-                // Only render front-facing side of sphere (positive Z)
-                if (p.z < -10) return;
-
-                const size = p.isNode ? 3.5 * p.scale : 1.5 * p.scale;
-                const alpha = Math.min(1, Math.max(0.1, (p.z + radius) / (radius * 2)));
-
-                ctx.fillStyle = p.isNode 
-                    ? `rgba(255, 255, 255, ${alpha * 0.95})` 
-                    : `rgba(255, 255, 255, ${alpha * 0.35})`;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-                ctx.fill();
-
-                if (p.isNode) {
-                    // Pulsing node ring
-                    ctx.strokeStyle = `rgba(147, 197, 253, ${alpha * 0.6 * (1 - (Date.now() % 1500) / 1500)})`;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, size + 6 * ((Date.now() % 1500) / 1500), 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            });
-
-            // Draw connection arcs
-            activeConnections.forEach(conn => {
-                const p1 = projected[conn.from % projected.length];
-                const p2 = projected[conn.to % projected.length];
-
-                // Render only if both points are in front
-                if (p1.z < 0 || p2.z < 0) return;
-
-                // Bezier arc helper
-                ctx.beginPath();
-                ctx.moveTo(p1.x, p1.y);
-
-                // Control point pulled outwards from sphere center
-                const midX = (p1.x + p2.x) / 2;
-                const midY = (p1.y + p2.y) / 2;
-                const dist = Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2);
-                
-                // Pull control point outwards
-                const dx = midX - cx;
-                const dy = midY - cy;
-                const length = Math.sqrt(dx * dx + dy * dy) || 1;
-                const cpx = midX + (dx / length) * (dist * 0.25);
-                const cpy = midY + (dy / length) * (dist * 0.25);
-
-                ctx.quadraticCurveTo(cpx, cpy, p2.x, p2.y);
-                ctx.strokeStyle = 'rgba(147, 197, 253, 0.4)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                // Animate signal dot along the path
-                conn.progress += conn.speed;
-                if (conn.progress > 1) conn.progress = 0;
-
-                const t = conn.progress;
-                // Quadratic bezier formula
-                const dotX = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * cpx + t * t * p2.x;
-                const dotY = (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * cpy + t * t * p2.y;
-
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            animationFrameId = requestAnimationFrame(render);
-        };
-
-        render();
-
-        return () => {
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, []);
-
     return (
-        <div className="relative flex items-center justify-center" style={{ width: 280, height: 260 }}>
-            <canvas ref={canvasRef} width="280" height="260" className="block" />
+        <div className="relative w-full h-[260px] flex items-center justify-center overflow-hidden bg-black/15 rounded-xl border border-white/10 shadow-inner">
+            {/* Concentric Radar Grid */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {/* Outer scanning circle */}
+                <div className="absolute w-[200px] h-[200px] rounded-full border border-white/5 animate-[ping_4s_infinite]" />
+                <div className="absolute w-[160px] h-[160px] rounded-full border border-white/10" />
+                <div className="absolute w-[100px] h-[100px] rounded-full border border-white/15" />
+                <div className="absolute w-[40px] h-[40px] rounded-full border border-white/20" />
+                
+                {/* Crosshairs */}
+                <div className="absolute w-[220px] h-px bg-white/5" />
+                <div className="absolute h-[220px] w-px bg-white/5" />
+                
+                {/* Angled lines */}
+                <div className="absolute w-[220px] h-px bg-white/5 rotate-45" />
+                <div className="absolute w-[220px] h-px bg-white/5 -rotate-45" />
+            </div>
+
+            {/* SVG Network Visual */}
+            <svg width="280" height="220" viewBox="0 0 280 220" className="relative z-10 w-full h-full">
+                <defs>
+                    <linearGradient id="link-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="rgba(255,255,255,0.8)" />
+                        <stop offset="100%" stopColor="rgba(147,197,253,0.2)" />
+                    </linearGradient>
+                    <linearGradient id="link-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="rgba(255,255,255,0.8)" />
+                        <stop offset="100%" stopColor="rgba(147,197,253,0.1)" />
+                    </linearGradient>
+                </defs>
+
+                {/* Connecting Web Lines */}
+                <path d="M 50 110 L 140 60" stroke="url(#link-grad-1)" strokeWidth="1.5" strokeDasharray="3 3">
+                    <animate attributeName="strokeDashoffset" values="30;0" dur="2s" repeatCount="indefinite" />
+                </path>
+                <path d="M 140 60 L 230 110" stroke="url(#link-grad-1)" strokeWidth="1.5" strokeDasharray="4 4">
+                    <animate attributeName="strokeDashoffset" values="0;40" dur="2.5s" repeatCount="indefinite" />
+                </path>
+                <path d="M 230 110 L 140 160" stroke="url(#link-grad-2)" strokeWidth="1.5" />
+                <path d="M 140 160 L 50 110" stroke="url(#link-grad-2)" strokeWidth="1.5" />
+                
+                <path d="M 140 60 L 140 160" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+                <path d="M 50 110 L 230 110" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+
+                {/* Satellite Beams / Signals */}
+                <circle r="4" fill="#ffffff">
+                    <animateMotion dur="3s" repeatCount="indefinite" path="M 50 110 L 140 60 L 230 110" />
+                </circle>
+                <circle r="3" fill="#93c5fd">
+                    <animateMotion dur="4s" repeatCount="indefinite" path="M 230 110 L 140 160 L 50 110" />
+                </circle>
+
+                {/* Major Nodes / Beacons */}
+                {/* Node 1: NYC */}
+                <g transform="translate(50, 110)">
+                    <circle r="12" fill="rgba(255,255,255,0.08)" />
+                    <circle r="6" fill="rgba(255,255,255,0.2)">
+                        <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite" />
+                    </circle>
+                    <circle r="3" fill="#ffffff" />
+                    <text x="-8" y="-14" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">NYC</text>
+                </g>
+
+                {/* Node 2: LDN */}
+                <g transform="translate(140, 60)">
+                    <circle r="12" fill="rgba(255,255,255,0.08)" />
+                    <circle r="6" fill="rgba(255,255,255,0.2)">
+                        <animate attributeName="r" values="6;10;6" dur="2.4s" repeatCount="indefinite" />
+                    </circle>
+                    <circle r="3" fill="#ffffff" />
+                    <text x="-10" y="-14" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">LDN</text>
+                </g>
+
+                {/* Node 3: TKY */}
+                <g transform="translate(230, 110)">
+                    <circle r="12" fill="rgba(255,255,255,0.08)" />
+                    <circle r="6" fill="rgba(255,255,255,0.2)">
+                        <animate attributeName="r" values="6;10;6" dur="1.8s" repeatCount="indefinite" />
+                    </circle>
+                    <circle r="3" fill="#ffffff" />
+                    <text x="-8" y="-14" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">TKY</text>
+                </g>
+
+                {/* Node 4: SGP */}
+                <g transform="translate(140, 160)">
+                    <circle r="12" fill="rgba(255,255,255,0.08)" />
+                    <circle r="6" fill="rgba(255,255,255,0.2)">
+                        <animate attributeName="r" values="6;10;6" dur="2.2s" repeatCount="indefinite" />
+                    </circle>
+                    <circle r="3" fill="#ffffff" />
+                    <text x="-10" y="20" fill="rgba(255,255,255,0.5)" fontSize="9" fontWeight="bold" letterSpacing="1">SGP</text>
+                </g>
+            </svg>
+
+            {/* Glowing Scan Line Effect */}
+            <div className="absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-r from-white/20 to-transparent pointer-events-none animate-[scan_6s_linear_infinite]" style={{
+                animationName: 'scan',
+                animationTimingFunction: 'linear',
+                animationIterationCount: 'infinite'
+            }} />
+
+            {/* CSS Animation for Scanline */}
+            <style dangerouslySetInnerHTML={{__html: `
+                @keyframes scan {
+                    0% { transform: translateX(-50px); opacity: 0; }
+                    10% { opacity: 0.8; }
+                    90% { opacity: 0.8; }
+                    100% { transform: translateX(330px); opacity: 0; }
+                }
+            `}} />
+            
+            {/* Live Terminal Overlay (Micro data feed) */}
+            <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-md border border-white/5 font-mono text-[9px] text-blue-200/90 pointer-events-none max-w-[150px] leading-tight">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="uppercase tracking-wider font-bold">Signal scan</span>
+                </div>
+                <div className="truncate opacity-60">SYS: ACTIVE_STREAM...</div>
+                <div className="truncate text-white font-bold opacity-85">98.4% SIG STRENGTH</div>
+            </div>
         </div>
     );
 };
