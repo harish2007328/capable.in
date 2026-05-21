@@ -20,7 +20,80 @@ const stagger = {
     visible: { transition: { staggerChildren: 0.09 } }
 };
 
+
+/* ─── Animated Globe Component ────────────────────────── */
+const nodes = [
+    { cx: 120, cy: 50,  r: 4,   delay: '0s',   dur: '3s'   },
+    { cx: 220, cy: 80,  r: 3,   delay: '0.4s', dur: '3.5s' },
+    { cx: 60,  cy: 140, r: 3.5, delay: '0.8s', dur: '4s'   },
+    { cx: 240, cy: 150, r: 4,   delay: '0.2s', dur: '2.8s' },
+    { cx: 160, cy: 180, r: 3,   delay: '1s',   dur: '3.2s' },
+    { cx: 80,  cy: 200, r: 4,   delay: '0.6s', dur: '3.8s' },
+    { cx: 200, cy: 220, r: 3.5, delay: '0.3s', dur: '4.2s' },
+    { cx: 140, cy: 100, r: 3,   delay: '1.2s', dur: '3.4s' },
+];
+const edges = [
+    [0,1],[1,3],[3,4],[4,6],[6,5],[5,2],[2,7],[7,0],[1,7],[4,5]
+];
+
+const GlobeViz = () => (
+    <div className="relative flex items-center justify-center" style={{ width: 280, height: 260 }}>
+        <svg width="280" height="260" viewBox="0 0 280 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Orbit rings */}
+            <ellipse cx="140" cy="130" rx="110" ry="110" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+            <ellipse cx="140" cy="130" rx="85"  ry="38"  stroke="rgba(255,255,255,0.12)" strokeWidth="1" strokeDasharray="4 4">
+                <animateTransform attributeName="transform" type="rotate" from="0 140 130" to="360 140 130" dur="12s" repeatCount="indefinite" />
+            </ellipse>
+            <ellipse cx="140" cy="130" rx="60"  ry="110" stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="3 5">
+                <animateTransform attributeName="transform" type="rotate" from="0 140 130" to="-360 140 130" dur="18s" repeatCount="indefinite" />
+            </ellipse>
+
+            {/* Globe circle */}
+            <circle cx="140" cy="130" r="90" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+
+            {/* Connecting lines */}
+            {edges.map(([a, b], i) => (
+                <line key={i}
+                    x1={nodes[a].cx} y1={nodes[a].cy}
+                    x2={nodes[b].cx} y2={nodes[b].cy}
+                    stroke="rgba(147,197,253,0.35)" strokeWidth="1"
+                >
+                    <animate attributeName="opacity" values="0.2;0.8;0.2" dur={`${2.5 + i * 0.3}s`} repeatCount="indefinite" />
+                </line>
+            ))}
+
+            {/* Orbiting nodes */}
+            {nodes.map((n, i) => (
+                <g key={i}>
+                    {/* Pulse ring */}
+                    <circle cx={n.cx} cy={n.cy} r={n.r + 6} fill="none" stroke="rgba(147,197,253,0.3)" strokeWidth="1">
+                        <animate attributeName="r" values={`${n.r};${n.r + 10};${n.r}`} dur={n.dur} begin={n.delay} repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.6;0;0.6" dur={n.dur} begin={n.delay} repeatCount="indefinite" />
+                    </circle>
+                    {/* Core dot */}
+                    <circle cx={n.cx} cy={n.cy} r={n.r} fill="white" opacity="0.9">
+                        <animate attributeName="opacity" values="0.6;1;0.6" dur={n.dur} begin={n.delay} repeatCount="indefinite" />
+                    </circle>
+                </g>
+            ))}
+
+            {/* Centre beacon */}
+            <circle cx="140" cy="130" r="16" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+            <circle cx="140" cy="130" r="8"  fill="white" opacity="0.9">
+                <animate attributeName="r" values="8;11;8" dur="2.5s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.9;0.5;0.9" dur="2.5s" repeatCount="indefinite" />
+            </circle>
+            {/* Outer pulse */}
+            <circle cx="140" cy="130" r="24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1">
+                <animate attributeName="r" values="16;36;16" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite" />
+            </circle>
+        </svg>
+    </div>
+);
+
 const FeaturesPage = () => {
+
     useEffect(() => { window.scrollTo(0, 0); }, []);
     const videoRef = useRef(null);
     useEffect(() => {
@@ -445,8 +518,9 @@ const FeaturesPage = () => {
                         {/* Left */}
                         <motion.div variants={fadeUp}>
                             <p className="text-[var(--brand-accent)] font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-6">What You Receive</p>
-                            <h2 className="text-3xl sm:text-4xl lg:text-[54px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest mb-6">
-                                Two high-value assets,{' '}
+                            <h2 className="text-3xl sm:text-4xl lg:text-[54px] font-display font-normal text-gray-900 leading-none tracking-tightest mb-6">
+                                Two high-value assets,
+                                <br />
                                 <span className="font-display italic text-[var(--brand-accent)]">instantly delivered.</span>
                             </h2>
                             <p className="text-gray-500 font-sans leading-relaxed text-base mb-10">
@@ -486,51 +560,47 @@ const FeaturesPage = () => {
                             </div>
                         </motion.div>
 
-                        {/* Right — tech stack */}
+                        {/* Right — animated globe */}
                         <motion.div variants={fadeUp} className="flex flex-col gap-4">
-                            <div className="rounded-2xl border border-gray-300 bg-white p-8 sm:p-10">
-                                <div className="flex items-center justify-between pb-6 mb-6 border-b border-gray-200">
-                                    <h3 className="font-display font-normal text-2xl text-gray-900 tracking-tight">System Architecture</h3>
-                                    <div className="w-9 h-9 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-center">
-                                        <Layers className="w-4 h-4 text-gray-400" />
+
+                            {/* Globe card */}
+                            <div className="rounded-2xl border border-gray-300 bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] overflow-hidden relative" style={{ minHeight: 340 }}>
+                                {/* Glow */}
+                                <div className="absolute inset-0 pointer-events-none">
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-blue-400/20 blur-3xl" />
+                                </div>
+                                <div className="relative flex flex-col items-center justify-center p-6">
+                                    <GlobeViz />
+                                    <div className="mt-4 grid grid-cols-3 gap-3 w-full">
+                                        {[
+                                            { n: '150+', l: 'Markets' },
+                                            { n: '1M+', l: 'Signals/run' },
+                                            { n: '95%', l: 'Accuracy' },
+                                        ].map((s, i) => (
+                                            <div key={i} className="text-center bg-white/10 border border-white/15 rounded-xl py-3 px-2">
+                                                <p className="text-xl font-display text-white leading-none mb-0.5">{s.n}</p>
+                                                <p className="text-white/50 text-[10px] font-bold uppercase tracking-widest">{s.l}</p>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                                <div className="flex flex-col gap-3">
-                                    {[
-                                        { lbl: "FE", title: "React 18 + Vite", desc: "Instant UI — no lag, no waiting.", col: "bg-blue-50 text-blue-600 border-blue-100" },
-                                        { lbl: "BE", title: "Node Orchestrator", desc: "Streaming JSON logic engine for real-time output.", col: "bg-purple-50 text-purple-600 border-purple-100" },
-                                        { lbl: "DB", title: "Isolated Postgres", desc: "Per-project encrypted database scopes.", col: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-                                        { lbl: "AI", title: "Multi-Agent Inference", desc: "Layered reasoning across specialised AI models.", col: "bg-orange-50 text-orange-600 border-orange-100" },
-                                    ].map((tech, i) => (
-                                        <div key={i} className="flex gap-4 items-center p-4 rounded-xl border border-gray-100 hover:bg-gray-50 transition-colors">
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs border shrink-0 ${tech.col}`}>{tech.lbl}</div>
-                                            <div>
-                                                <p className="font-bold text-[14px] text-gray-900">{tech.title}</p>
-                                                <p className="text-[13px] text-gray-500 mt-0.5">{tech.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div className="px-6 pb-6">
+                                    <p className="text-white font-display text-lg tracking-tight mb-1">Global Intelligence Network</p>
+                                    <p className="text-blue-100/60 text-[13px] font-sans leading-relaxed">Real-time market signals processed across 150+ countries — every time you run an analysis.</p>
                                 </div>
                             </div>
 
-                            {/* Pricing nudge card */}
-                            <div className="rounded-2xl border border-gray-300 bg-gradient-to-br from-gray-50 to-white p-7 flex flex-col gap-5">
+                            {/* CTA nudge */}
+                            <div className="rounded-2xl border border-gray-300 bg-white p-7 flex flex-col gap-4">
                                 <div>
                                     <p className="text-gray-900 font-bold text-base mb-1">Ready to see it in action?</p>
                                     <p className="text-gray-500 text-[14px] leading-relaxed">Start free — no credit card required. Your first analysis is on us.</p>
                                 </div>
                                 <div className="flex gap-3">
-                                    <Link
-                                        to="/login"
-                                        state={{ mode: 'signup' }}
-                                        className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-5 py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
-                                    >
+                                    <Link to="/login" state={{ mode: 'signup' }} className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-5 py-3 rounded-xl font-bold text-sm hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300">
                                         Get Started Free
                                     </Link>
-                                    <Link
-                                        to="/pricing"
-                                        className="inline-flex items-center justify-center gap-2 border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all duration-300"
-                                    >
+                                    <Link to="/pricing" className="inline-flex items-center justify-center gap-2 border border-gray-200 bg-white text-gray-700 px-5 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all duration-300">
                                         Pricing
                                     </Link>
                                 </div>
