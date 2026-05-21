@@ -5,7 +5,11 @@ const GlobalHeroVideo = () => {
     const location = useLocation();
     const videoRef = useRef(null);
 
-    const isPricingPage = location.pathname === '/pricing';
+    const cleanPath = location.pathname.endsWith('/') && location.pathname.length > 1
+        ? location.pathname.slice(0, -1)
+        : location.pathname;
+
+    const isPricingPage = cleanPath === '/pricing';
     const videoHeightClass = isPricingPage 
         ? "h-[52vh] min-h-[280px] lg:h-screen" 
         : "h-screen";
@@ -19,7 +23,7 @@ const GlobalHeroVideo = () => {
                 // Ignore autoplay block errors
             });
         }
-    }, [location.pathname]);
+    }, [cleanPath]);
 
     const heroVideo = "/hero-bg2-compressed.mp4";
     const heroPoster = "/hero-poster.webp";

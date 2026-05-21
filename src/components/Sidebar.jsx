@@ -60,7 +60,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <p className="px-4 mb-4 text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Navigation Stage</p>
                 {links.map((item) => {
                     const hash = item.path.split('#')[1];
-                    const isActive = location.pathname === '/dashboard' && currentHash === hash;
+                    const cleanPath = location.pathname.endsWith('/') && location.pathname.length > 1
+                        ? location.pathname.slice(0, -1)
+                        : location.pathname;
+                    const isActive = cleanPath === '/dashboard' && currentHash === hash;
 
                     return (
                         <Link

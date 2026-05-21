@@ -66,7 +66,11 @@ const Header = () => {
         }
     };
 
-    const isHeroPage = ['/', '/features', '/pricing'].includes(location.pathname);
+    const cleanPath = location.pathname.endsWith('/') && location.pathname.length > 1
+        ? location.pathname.slice(0, -1)
+        : location.pathname;
+
+    const isHeroPage = ['/', '/features', '/pricing'].includes(cleanPath);
     const showShrink = isHeroPage && scrolled;
 
     return (

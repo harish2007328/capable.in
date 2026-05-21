@@ -6,7 +6,10 @@ import { useLocation } from 'react-router-dom';
 
 const Layout = ({ children }) => {
     const location = useLocation();
-    const isHeroPage = ['/', '/features', '/pricing'].includes(location.pathname);
+    const cleanPath = location.pathname.endsWith('/') && location.pathname.length > 1
+        ? location.pathname.slice(0, -1)
+        : location.pathname;
+    const isHeroPage = ['/', '/features', '/pricing'].includes(cleanPath);
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
     // Listen for toggle-sidebar events from page headers
