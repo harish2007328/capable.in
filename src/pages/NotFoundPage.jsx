@@ -76,14 +76,14 @@ const NotFoundPage = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex-grow flex flex-col items-center justify-center text-center px-6 py-6 relative z-10 max-w-xl mx-auto w-full my-auto"
+        className="flex-grow flex flex-col items-center justify-center text-center px-6 py-4 relative z-10 max-w-2xl mx-auto w-full my-auto"
       >
-        {/* Main 404 Image with Glass Effect Sphere - Multiplied to blend seamlessly */}
-        <motion.div variants={itemVariants} className="w-full flex justify-center mb-2">
+        {/* Main 404 Image with Transparent BG and 16:9 Ratio */}
+        <motion.div variants={itemVariants} className="w-full flex justify-center mb-1">
           <img 
             src={glass404Image} 
             alt="404 - Page Not Found" 
-            className="w-full max-w-[280px] sm:max-w-[360px] md:max-w-[420px] h-auto select-none pointer-events-none object-contain mix-blend-multiply"
+            className="w-full max-w-[320px] sm:max-w-[460px] md:max-w-[560px] h-auto select-none pointer-events-none object-contain"
           />
         </motion.div>
 
@@ -117,7 +117,7 @@ const NotFoundPage = () => {
         </motion.div>
       </motion.div>
 
-      {/* Spacer to push content down and keep layout centered, replacing the footer */}
+      {/* Spacer to push content down and keep layout centered */}
       <div className="h-16 w-full select-none pointer-events-none"></div>
 
     </div>
