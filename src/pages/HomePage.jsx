@@ -9,7 +9,7 @@ import { ProjectStorage } from '../services/projectStorage';
 import { getUserLimits } from '../config/planConfig';
 import PricingModal from '../components/PricingModal';
 import Lottie from 'lottie-react';
-import loaderAnimation from './loader.json';
+import loaderAnimation from '../loader.json';
 // Hero Assets (Moved to public/ for preloading)
 const heroVideo = "/hero-bg2-compressed.mp4";
 const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
