@@ -10,6 +10,7 @@ const FeaturesPage = React.lazy(() => import('./pages/FeaturesPage'));
 const CheckoutResult = React.lazy(() => import('./pages/CheckoutResult'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AuthCallbackPage = React.lazy(() => import('./pages/AuthCallbackPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './index.css';
@@ -73,6 +74,9 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              
+              {/* Catch-all 404 Route */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </React.Suspense>
         </Layout>
