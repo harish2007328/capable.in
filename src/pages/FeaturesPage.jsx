@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+
+const heroVideo = '/hero-bg2-compressed.mp4';
+const heroPoster = typeof window !== 'undefined' && window.innerWidth < 768 ? '/mobile/hero-poster.webp' : '/hero-poster.webp';
 import {
     ArrowRight, Zap, BarChart3, ShieldCheck, Globe,
     Target, Layers, Search, Workflow, Cpu, Route as RouteIcon,
@@ -18,7 +21,14 @@ const stagger = {
 };
 
 const FeaturesPage = () => {
-    React.useEffect(() => { window.scrollTo(0, 0); }, []);
+    useEffect(() => { window.scrollTo(0, 0); }, []);
+    const videoRef = useRef(null);
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.playbackRate = 0.75;
+            videoRef.current.style.transform = 'translateZ(0)';
+        }
+    }, []);
 
     return (
         <div className="relative w-full bg-white">
@@ -29,17 +39,31 @@ const FeaturesPage = () => {
             ════════════════════════════════════════════════ */}
             <section className="relative w-full h-[100dvh] min-h-[620px] flex flex-col items-center overflow-hidden">
 
-                {/* Contained rounded panel — same as homepage */}
+                {/* Exact same video container as homepage hero */}
                 <div className="absolute inset-0 z-0 pt-[84px] px-2 md:px-3 pb-2 md:pb-3 pointer-events-none">
                     <div className="relative w-full h-full rounded-2xl md:rounded-3xl overflow-hidden">
-                        {/* Deep navy base */}
-                        <div className="absolute inset-0" style={{ backgroundColor: '#0c1428' }} />
-                        {/* Blue gradient overlay — same as homepage */}
-                        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,82,163,0.9) 0%, rgba(7,59,153,0.85) 50%, rgba(0,20,60,0.95) 100%)' }} />
-                        {/* Subtle radial glow */}
-                        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(41,145,248,0.25) 0%, transparent 70%)' }} />
-                        {/* Grid texture */}
-                        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+                        <video
+                            ref={videoRef}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="none"
+                            poster={heroPoster}
+                            className="h-full w-full object-cover"
+                            style={{
+                                backfaceVisibility: 'hidden',
+                                willChange: 'transform',
+                                transform: 'translateZ(0)',
+                                backgroundColor: '#0c1428',
+                                filter: 'brightness(0.9)'
+                            }}
+                        >
+                            <source src={heroVideo} type="video/mp4" />
+                            <track kind="captions" srcLang="en" label="English" />
+                        </video>
+                        {/* Same blue overlay as homepage */}
+                        <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(rgba(41, 145, 248, 0.5), rgba(9, 106, 202, 0.5))' }} />
                     </div>
                 </div>
 
@@ -48,7 +72,7 @@ const FeaturesPage = () => {
                     initial="hidden"
                     animate="visible"
                     variants={stagger}
-                    className="relative z-30 flex flex-col items-center justify-center px-4 max-w-7xl mx-auto w-full flex-1 pt-[100px] md:pt-[120px] pb-8"
+                    className="relative z-30 flex flex-col items-center justify-center px-4 max-w-7xl mx-auto w-full flex-1 pt-[90px] md:pt-[115px] pb-4 md:pb-8"
                 >
                     {/* Badge — identical to homepage */}
                     <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 shadow-sm">
