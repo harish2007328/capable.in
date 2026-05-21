@@ -134,22 +134,22 @@ const FeaturesPage = () => {
             {/* ═══════════════════════════════════════════════
                 CAPABILITIES GRID — WHITE (70%)
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-20 md:py-28">
+            <section className="w-full bg-white py-16 md:py-20">
                 <div className="max-w-7xl mx-auto px-6">
 
-                    {/* Section header — 2-col split like ServicesSection */}
+                    {/* Section header — exact ServicesSection pattern */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={stagger}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-16 items-start pt-12 border-t border-gray-300/50"
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-10 sm:mb-16 items-start pt-12 border-t border-gray-300/50"
                     >
                         <motion.div variants={fadeUp}>
-                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[64px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
+                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[72px] font-display font-normal text-gray-900 leading-[1.05] tracking-tightest">
                                 Built for the way founders{' '}
                                 <span className="font-display italic text-[var(--brand-accent)]">actually work.</span>
                             </h2>
                         </motion.div>
-                        <motion.div variants={fadeUp} className="pt-2 lg:pt-4">
-                            <p className="text-gray-700 text-base sm:text-lg font-sans leading-relaxed border-l-2 border-blue-500/10 pl-6 sm:pl-8">
+                        <motion.div variants={fadeUp} className="flex flex-col">
+                            <p className="text-gray-700 text-base sm:text-lg font-sans leading-relaxed max-w-lg mb-0 pt-2 border-l-2 border-blue-500/10 pl-6 sm:pl-8">
                                 Every feature in Capable was designed around a single question: what does a founder need to go from raw idea to funded, validated business — without wasting time or money?
                             </p>
                         </motion.div>
@@ -193,13 +193,13 @@ const FeaturesPage = () => {
                             },
                         ].map((f, idx) => (
                             <motion.div key={idx} variants={fadeUp}
-                                className="rounded-2xl bg-white border border-gray-300 p-8 sm:p-10 flex flex-col group hover:border-[var(--brand-accent)]/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+                                className="rounded-2xl bg-white border border-gray-300 p-8 sm:p-10 flex flex-col group hover:border-[var(--brand-accent)]/40 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
                             >
-                                <div className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-6 text-[var(--brand-accent)] group-hover:bg-[var(--brand-accent)] group-hover:text-white group-hover:border-[var(--brand-accent)] transition-all duration-300">
+                                <div className="w-[32px] h-[32px] shrink-0 mb-6 rounded-full bg-[var(--brand-accent)] text-white flex items-center justify-center">
                                     {f.icon}
                                 </div>
-                                <h3 className="text-xl font-display font-normal text-gray-900 mb-3 tracking-tight">{f.title}</h3>
-                                <p className="text-gray-500 text-[15px] leading-relaxed">{f.desc}</p>
+                                <h3 className="text-2xl sm:text-3xl font-display text-gray-900 mb-4 tracking-tight">{f.title}</h3>
+                                <p className="text-gray-500 text-[15px] sm:text-[16px] leading-relaxed mt-auto">{f.desc}</p>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -210,7 +210,7 @@ const FeaturesPage = () => {
                 HOW IT WORKS — BLUE (30%)
                 Full-bleed dark blue section
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-[#0052a3] py-20 md:py-28 relative overflow-hidden">
+            <section className="w-full bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] py-16 md:py-20 relative overflow-hidden">
                 {/* Glow accents */}
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-[#0066CC]/30 blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#003d7a]/60 blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
@@ -220,16 +220,18 @@ const FeaturesPage = () => {
                     {/* Header */}
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={stagger}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-16 items-end border-b border-white/15 pb-12"
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 mb-10 sm:mb-16 items-start border-b border-white/15 pb-10 sm:pb-16"
                     >
                         <motion.div variants={fadeUp}>
-                            <p className="text-blue-300 font-sans text-[11px] font-bold uppercase tracking-[0.2em] mb-6">The Process</p>
+                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-8">
+                                <span className="text-blue-100/80 text-[10px] font-bold uppercase tracking-[0.2em]">The Process</span>
+                            </div>
                             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[60px] font-display font-normal text-white leading-[1.05] tracking-tightest">
                                 From idea to roadmap{' '}
                                 <span className="font-display italic text-blue-200">in four steps.</span>
                             </h2>
                         </motion.div>
-                        <motion.div variants={fadeUp}>
+                        <motion.div variants={fadeUp} className="lg:pt-4">
                             <p className="text-blue-100/70 text-base sm:text-lg font-sans leading-relaxed border-l-2 border-white/20 pl-6 sm:pl-8">
                                 Capable follows a linear four-phase sequence. Each phase builds on the last — moving your abstract concept through rigorous analysis and into a concrete, executable plan.
                             </p>
@@ -268,16 +270,13 @@ const FeaturesPage = () => {
                             },
                         ].map((item, idx) => (
                             <motion.div key={idx} variants={fadeUp}
-                                className="rounded-2xl bg-white/10 border border-white/15 p-8 flex flex-col backdrop-blur-sm hover:bg-white/15 transition-all duration-300 group"
+                                className="rounded-2xl bg-white/10 border border-white/20 p-8 sm:p-10 flex flex-col hover:bg-white/15 transition-all duration-300"
                             >
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-9 h-9 rounded-full bg-white text-[var(--brand-accent)] flex items-center justify-center font-bold text-[13px] shrink-0">
-                                        {item.step}
-                                    </div>
-                                    <div className="h-px flex-1 bg-white/20" />
+                                <div className="w-[32px] h-[32px] shrink-0 mb-6 rounded-full bg-white text-[var(--brand-accent)] flex items-center justify-center font-bold text-[14px]">
+                                    {item.step}
                                 </div>
-                                <h3 className="text-xl font-display font-normal text-white mb-3 tracking-tight">{item.title}</h3>
-                                <p className="text-blue-100/70 text-[15px] leading-relaxed">{item.desc}</p>
+                                <h3 className="text-2xl sm:text-3xl font-display text-white mb-4 tracking-tight">{item.title}</h3>
+                                <p className="text-blue-100/70 text-[15px] sm:text-[16px] leading-relaxed mt-auto">{item.desc}</p>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -287,7 +286,7 @@ const FeaturesPage = () => {
             {/* ═══════════════════════════════════════════════
                 WHY CAPABLE — WHITE (70%)
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-20 md:py-28">
+            <section className="w-full bg-white py-16 md:py-20">
                 <div className="max-w-7xl mx-auto px-6">
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={stagger}
@@ -383,44 +382,52 @@ const FeaturesPage = () => {
             {/* ═══════════════════════════════════════════════
                 TESTIMONIAL — BLUE (30%)
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-0 pb-20 md:pb-28">
+            <section className="w-full bg-white py-16 md:py-20">
                 <div className="max-w-7xl mx-auto px-6">
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={fadeUp}
-                        className="rounded-2xl bg-gradient-to-br from-[#0066CC] via-[#0052a3] to-[#073B99] p-10 sm:p-14 lg:p-16 flex flex-col lg:flex-row gap-10 items-center justify-between relative overflow-hidden"
+                        className="rounded-2xl bg-gradient-to-br from-[#0057C2] via-[#0066CC] to-[#073B99] p-10 sm:p-16 lg:p-20 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-12 relative overflow-hidden"
                     >
-                        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-                        <div className="relative w-full lg:w-7/12">
-                            <p className="text-2xl sm:text-3xl font-display text-white leading-[1.4] tracking-tight mb-6">
-                                "Capable didn't just validate my idea — it showed me exactly where I was wrong, and gave me a smarter path forward. We launched in 6 weeks."
+                        {/* bg texture — exact BottomCTASection pattern */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl translate-x-1/2 -translate-y-1/2" />
+                            <div className="absolute bottom-0 left-1/3 w-[300px] h-[300px] rounded-full bg-[#073B99]/60 blur-3xl" />
+                        </div>
+                        {/* Left: quote */}
+                        <div className="relative z-10 max-w-2xl">
+                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-8">
+                                <span className="text-blue-100/80 text-[10px] font-bold uppercase tracking-[0.2em]">Founder Story</span>
+                            </div>
+                            <h2 className="font-display font-normal text-white leading-[1.05] tracking-tightest mb-5 text-2xl sm:text-3xl lg:text-[40px]">
+                                "Capable didn't just validate my idea — it showed me exactly where I was wrong, and gave me a smarter path forward."
+                            </h2>
+                            <p className="text-blue-100/60 font-sans leading-relaxed text-base max-w-lg mb-6">
+                                We went from zero to launch in 6 weeks — 3× faster than any previous attempt.
                             </p>
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold text-sm">
-                                    P
-                                </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold text-sm">P</div>
                                 <div>
-                                    <p className="text-white font-bold text-[15px]">Priya K.</p>
-                                    <p className="text-white/50 font-sans text-[12px] font-bold tracking-widest uppercase">Founder, Niche Commerce</p>
+                                    <p className="text-white font-bold text-[14px]">Priya K.</p>
+                                    <p className="text-white/50 font-sans text-[11px] font-bold tracking-widest uppercase">Founder, Niche Commerce</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="relative w-full lg:w-4/12 border-t lg:border-t-0 lg:border-l border-white/20 pt-8 lg:pt-0 lg:pl-12 flex flex-col gap-6">
-                            {[
-                                { n: '6 weeks', l: 'From idea to launch' },
-                                { n: '3×', l: 'Faster than expected' },
-                            ].map((s, i) => (
-                                <div key={i}>
-                                    <p className="text-3xl font-display font-normal text-white leading-none tracking-tightest mb-1">{s.n}</p>
-                                    <p className="text-blue-200/60 text-[12px] font-bold uppercase tracking-widest">{s.l}</p>
-                                </div>
-                            ))}
+                        {/* Right: CTA */}
+                        <div className="relative z-10 flex flex-col gap-3 shrink-0 w-full lg:w-auto">
                             <Link
                                 to="/login"
                                 state={{ mode: 'signup' }}
-                                className="mt-2 inline-flex items-center justify-center gap-2 bg-white text-[var(--brand-accent)] px-6 py-3 rounded-xl font-bold text-sm tracking-tight hover:bg-blue-50 active:scale-[0.98] transition-all duration-200"
+                                className="inline-flex items-center justify-center gap-2 bg-white text-[var(--brand-accent)] px-8 py-4 rounded-xl font-bold text-[14px] tracking-tight hover:bg-blue-50 active:scale-[0.98] transition-all duration-200 whitespace-nowrap shadow-lg shadow-black/10"
                             >
-                                Start Free Today <ArrowRight className="w-4 h-4" />
+                                Start Building — It's Free <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
                             </Link>
+                            <Link
+                                to="/pricing"
+                                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-xl font-semibold text-[14px] tracking-tight hover:bg-white/20 active:scale-[0.98] transition-all duration-200 whitespace-nowrap"
+                            >
+                                View Plans
+                            </Link>
+                            <p className="text-blue-200/40 text-[11px] font-sans text-center mt-1">No credit card required</p>
                         </div>
                     </motion.div>
                 </div>
@@ -429,11 +436,11 @@ const FeaturesPage = () => {
             {/* ═══════════════════════════════════════════════
                 DELIVERABLES — WHITE (70%)
             ════════════════════════════════════════════════ */}
-            <section className="w-full bg-white py-20 md:py-28 border-t border-gray-200">
+            <section className="w-full bg-white py-16 md:py-20">
                 <div className="max-w-7xl mx-auto px-6">
                     <motion.div
                         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={stagger}
-                        className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start"
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-start pt-12 border-t border-gray-300/50"
                     >
                         {/* Left */}
                         <motion.div variants={fadeUp}>
