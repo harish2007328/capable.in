@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
-import { Sparkles, LineChart, Target, Route, Globe2, Zap, Crosshair } from 'lucide-react';
+import { Sparkles, LineChart, Target, Route, Globe2, Zap, Crosshair, Lightbulb } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ProjectStorage } from '../services/projectStorage';
 import { getUserLimits } from '../config/planConfig';
