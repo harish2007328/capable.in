@@ -19,7 +19,7 @@ const PricingModal = ({ isOpen, onClose }) => {
 
     const handleCheckout = async (planKey) => {
         if (planKey === 'free') {
-            navigate('/dashboard');
+            navigate('/project');
             onClose();
             return;
         }

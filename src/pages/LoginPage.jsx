@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowRight, Mail, Lock, Loader2, Sparkles, ChevronLeft, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import Logo from '../components/Logo';
 import FullScreenLoader from '../components/FullScreenLoader';
 import ParticleBackground from '../components/ParticleBackground';
@@ -33,12 +33,20 @@ const LoginPage = () => {
                     if (!isMounted) return;
                     
                     if (projects && projects.length > 0) {
-                        navigate(location.state?.from?.pathname || '/dashboard', { replace: true });
+                        const target = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard') 
+                            ? location.state.from.pathname 
+                            : `/project/${projects[0].id}`;
+                        navigate(target, { replace: true });
                     } else {
                         navigate('/', { replace: true });
                     }
-                } catch (err) {
-                    if (isMounted) navigate(location.state?.from?.pathname || '/dashboard', { replace: true });
+                } catch {
+                    if (isMounted) {
+                        const target = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard') 
+                            ? location.state.from.pathname 
+                            : '/project';
+                        navigate(target, { replace: true });
+                    }
                 }
             }
         };
@@ -60,7 +68,9 @@ const LoginPage = () => {
         }
     }, [location.state]);
 
-    const from = location.state?.from?.pathname || '/dashboard';
+    const from = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard') 
+        ? location.state.from.pathname 
+        : '/project';
 
     const [verificationMode, setVerificationMode] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
@@ -70,11 +80,14 @@ const LoginPage = () => {
             await ProjectStorage.init();
             const projects = await ProjectStorage.getAll();
             if (projects && projects.length > 0) {
-                navigate(from, { replace: true });
+                const target = (from && from !== '/dashboard' && from !== '/project') 
+                    ? from 
+                    : `/project/${projects[0].id}`;
+                navigate(target, { replace: true });
             } else {
                 navigate('/', { replace: true });
             }
-        } catch (err) {
+        } catch {
             navigate(from, { replace: true });
         }
     };

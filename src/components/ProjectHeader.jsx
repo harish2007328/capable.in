@@ -1,15 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react'; // eslint-disable-line no-unused-vars
 import {
-    ChevronDown,
     Share2,
     LogOut,
-    Settings,
-    LayoutDashboard,
-    Home,
     Zap,
     Crown
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { isPro } from '../config/planConfig';
@@ -17,12 +13,10 @@ import PricingModal from './PricingModal';
 import logoIconSrc from '../assets/LOGO ICON.svg';
 
 const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleLoading, disableStrategy }) => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showComingSoon, setShowComingSoon] = useState(false);
     const [isPricingOpen, setIsPricingOpen] = useState(false);
 
-    const menuRef = useRef(null);
     const userMenuRef = useRef(null);
 
     const { user, logout } = useAuth();
@@ -30,9 +24,6 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setIsMenuOpen(false);
-            }
             if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
                 setIsUserMenuOpen(false);
             }
@@ -61,43 +52,12 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-50">
             {/* Logo and Project Title */}
             <div className="flex items-center gap-4">
-                <div className="relative" ref={menuRef}>
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="flex items-center gap-2 p-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all border border-slate-200 shadow-sm group"
-                    >
-                        <img src={logoIconSrc} alt="Logo" className="w-5 h-5 group-hover:scale-110 transition-transform" style={{ filter: "brightness(0)" }} />
-                        <ChevronDown size={14} className={`text-slate-500 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    <AnimatePresence>
-                        {isMenuOpen && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10, x: -10 }}
-                                animate={{ opacity: 1, y: 6, x: -5 }}
-                                exit={{ opacity: 0, y: 10, x: -10 }}
-                                className="absolute left-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50"
-                            >
-                                <Link
-                                    to="/"
-                                    className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    <Home size={16} />
-                                    Home
-                                </Link>
-                                <Link
-                                    to="/dashboard#projects"
-                                    className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors border-t border-slate-50"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    <LayoutDashboard size={16} />
-                                    Dashboard
-                                </Link>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
+                <Link
+                    to="/"
+                    className="flex items-center gap-2 p-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all border border-slate-200 shadow-sm group"
+                >
+                    <img src={logoIconSrc} alt="Logo" className="w-5 h-5 group-hover:scale-110 transition-transform" style={{ filter: "brightness(0)" }} />
+                </Link>
 
                 <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-[var(--brand-accent)] uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded">Project</span>
@@ -213,14 +173,7 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
                                     <p className="text-[10px] text-slate-500 truncate">{user?.email || 'No email'}</p>
                                 </div>
 
-                                <Link
-                                    to="/dashboard#settings"
-                                    className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                                    onClick={() => setIsUserMenuOpen(false)}
-                                >
-                                    <Settings size={14} />
-                                    Settings
-                                </Link>
+
 
                                 <button
                                     onClick={handleLogout}

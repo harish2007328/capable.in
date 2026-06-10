@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { Check, X, Zap, Sparkles, Loader2, ZapIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PLANS, isPro } from '../config/planConfig';
 import axios from 'axios';
 
 // Pricing Assets
-const heroVideo = "/hero-bg2-compressed.mp4";
-const heroPoster = window.innerWidth < 768 ? "/mobile/hero-poster.webp" : "/hero-poster.webp";
 
 // Animations
 const staggerContainer = {
@@ -50,7 +48,7 @@ const PricingPage = () => {
     }, []);
 
     const handleCheckout = async (planName, price) => {
-        if (price === 0) { navigate('/dashboard'); return; }
+        if (price === 0) { navigate('/project'); return; }
         if (!user) { navigate('/login', { state: { from: { pathname: '/pricing' } } }); return; }
 
         setLoadingPlan(planName);

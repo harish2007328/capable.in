@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb, AlertCircle, ShieldAlert, Loader2, LineChart, Target, Route, Globe2, Zap, Crosshair } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
@@ -50,15 +50,28 @@ const fadeUp = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
-const scaleUp = {
-    hidden: { opacity: 0, scale: 0.98 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
-};
+
 
 const HomePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, loading } = useAuth();
+
+    // Redirect logged-in users who already have an active project to their project page
+    useEffect(() => {
+        const checkExistingProject = async () => {
+            if (!loading && user) {
+                await ProjectStorage.init();
+                const existingProjects = await ProjectStorage.getAll();
+                if (existingProjects && existingProjects.length > 0) {
+                    ProjectStorage.setActiveId(existingProjects[0].id);
+                    navigate(`/project/${existingProjects[0].id}`, { replace: true });
+                }
+            }
+        };
+        checkExistingProject();
+    }, [user, loading, navigate]);
+
     const [idea, setIdea] = useState(() => {
         return location.state?.idea || sessionStorage.getItem('capable_draft_idea') || '';
     });

@@ -67,7 +67,7 @@ const AdminDashboard = () => {
     };
 
     if (!isAdmin) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to="/project" replace />;
     }
 
     const filteredUsers = usersList.filter(u => 

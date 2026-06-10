@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ProjectHeader from '../components/ProjectHeader';
 import Questionnaire from '../components/Questionnaire';
 import OnboardSummary from '../components/OnboardSummary';
 import AnalysisReport from '../components/AnalysisReport';
 import TaskView from '../components/TaskView';
 import SkeletonReport from '../components/SkeletonReport';
-import { generateAnalysisQuestions, generateAnalysisReport, generatePlanStructure, generatePhaseTasks, generateReportStructure, generateReportSection } from '../services/ai';
+import { generateAnalysisQuestions, generatePlanStructure, generatePhaseTasks, generateReportStructure, generateReportSection } from '../services/ai';
 import { ProjectStorage } from '../services/projectStorage';
 import FullScreenLoader from '../components/FullScreenLoader';
 
 const VenturePage = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
-    const location = useLocation();
 
     // Project ID handling
     const currentId = projectId || ProjectStorage.getActiveId();
@@ -37,7 +36,6 @@ const VenturePage = () => {
 
     // Operational Refs
     const isMounted = useRef(true);
-    const hasInitialized = useRef(false);
 
 
 
@@ -71,7 +69,7 @@ const VenturePage = () => {
         const loadProjectData = async () => {
             const p = await ProjectStorage.getById(currentId);
             if (!p) {
-                navigate('/dashboard#projects');
+                navigate('/');
                 return;
             }
 
@@ -112,11 +110,11 @@ const VenturePage = () => {
 
             // Fetch questions if missing and we have an idea
             if (!data.questions && data.idea) {
-                fetchQuestions(data.idea);
+                fetchQuestions(data.idea, p);
             }
         };
 
-        const fetchQuestions = async (idea) => {
+        const fetchQuestions = async (idea, pObject) => {
             setWizardLoading(true);
             setIsTitleGenerating(true);
             try {
@@ -124,7 +122,7 @@ const VenturePage = () => {
                 if (result?.questions && isMounted.current) {
                     await ProjectStorage.updateData(currentId, {
                         questions: result.questions,
-                        projectTitle: result.projectTitle || p?.title,
+                        projectTitle: result.projectTitle || pObject?.title,
                         projectDescription: result.projectDescription
                     });
                     setQuestions(result.questions);
@@ -455,10 +453,10 @@ const VenturePage = () => {
                                                             Try a New Idea
                                                         </button>
                                                         <button
-                                                            onClick={() => navigate('/dashboard')}
+                                                            onClick={() => navigate('/project')}
                                                             className="flex-1 px-5 py-3 bg-gray-50 text-gray-600 rounded-lg font-bold text-sm hover:bg-gray-100 transition-all active:scale-95 border border-gray-200"
                                                         >
-                                                            Dashboard
+                                                            My Project
                                                         </button>
                                                     </div>
 

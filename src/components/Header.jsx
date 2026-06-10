@@ -104,8 +104,8 @@ const Header = () => {
                         </>
                     ) : (
                         <>
-                            <Link to="/dashboard" className={btnClassName}>
-                                Dashboard
+                            <Link to="/project" className={btnClassName}>
+                                My Project
                             </Link>
                             <div className="relative h-full flex items-center" ref={userMenuRef}>
                                 <button
@@ -145,9 +145,7 @@ const Header = () => {
                                             </div>
 
                                             <div className="space-y-1">
-                                                <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-blue-50 hover:text-[var(--brand-accent)] rounded-xl transition-all group">
-                                                    <Settings size={18} className="text-slate-300 group-hover:text-[var(--brand-accent)] transition-colors" /> Settings
-                                                </Link>
+
                                                 <button
                                                     onClick={handlePortal}
                                                     disabled={loadingPortal}
@@ -217,7 +215,7 @@ const Header = () => {
                         <div className="mt-auto flex flex-col gap-4">
                             {user ? (
                                 <>
-                                    <Link to="/dashboard" className={btnClassName}>Dashboard</Link>
+                                    <Link to="/project" className={btnClassName}>My Project</Link>
                                     <button
                                         onClick={() => {
                                             logout();

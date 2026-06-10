@@ -20,8 +20,8 @@ const Layout = ({ children }) => {
     }, []);
 
     // Define "App" routes that should use the Sidebar layout
-    const appRoutes = ['/dashboard', '/settings', '/metrics'];
-    const isAppPage = appRoutes.some(route => location.pathname.startsWith(route));
+    const appRoutes = [];
+    const isAppPage = false;
 
     // Focus Pages (No Sidebar, No Header)
     const focusRoutes = ['/task', '/wizard', '/report', '/project', '/login', '/checkout-result'];

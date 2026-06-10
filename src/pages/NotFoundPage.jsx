@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { useAuth } from '../context/AuthContext';
 import { Search } from 'lucide-react';
 import Logo from '../components/Logo';
@@ -8,7 +8,6 @@ import glass404Image from '../assets/glass_404_render.png';
 
 const NotFoundPage = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Page Not Found | Capable";
@@ -60,8 +59,8 @@ const NotFoundPage = () => {
           <Link to="/" className="hover:text-slate-800 transition-colors">Home</Link>
           <Link to="/features" className="hover:text-slate-800 transition-colors">Features</Link>
           <Link to="/pricing" className="hover:text-slate-800 transition-colors">Pricing</Link>
-          <Link to={user ? "/dashboard" : "/login"} className="hover:text-slate-800 transition-colors">
-            {user ? "Dashboard" : "Sign In"}
+          <Link to={user ? "/project" : "/login"} className="hover:text-slate-800 transition-colors">
+            {user ? "My Project" : "Sign In"}
           </Link>
         </nav>
 
@@ -109,7 +108,7 @@ const NotFoundPage = () => {
           className="flex items-center justify-center w-full"
         >
           <Link
-            to={user ? "/dashboard" : "/"}
+            to={user ? "/project" : "/"}
             className="px-8 py-3 bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] rounded-full font-sans font-semibold text-xs tracking-wider uppercase transition-colors duration-200 shadow-md shadow-blue-500/10"
           >
             Go Home

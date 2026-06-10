@@ -4,7 +4,6 @@ import Layout from './components/Layout';
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const VenturePage = React.lazy(() => import('./pages/VenturePage'));
-const DashboardPage = React.lazy(() => import('./pages/DashboardPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const FeaturesPage = React.lazy(() => import('./pages/FeaturesPage'));
 const CheckoutResult = React.lazy(() => import('./pages/CheckoutResult'));
@@ -56,16 +55,9 @@ function App() {
               <Route path="/task/:id" element={<Navigate to="/project" replace />} />
 
               {/* Protected Routes - Only for registered users */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/settings" element={<Navigate to="/dashboard#settings" replace />} />
-              <Route path="/metrics" element={<Navigate to="/dashboard#metrics" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/project" replace />} />
+              <Route path="/settings" element={<Navigate to="/project" replace />} />
+              <Route path="/metrics" element={<Navigate to="/project" replace />} />
               <Route 
                 path="/admin" 
                 element={

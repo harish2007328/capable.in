@@ -27,7 +27,8 @@ const AuthCallbackPage = () => {
         // InsForge SDK will detect the token from localStorage.
         refreshSession().then(async (user) => {
             if (user) {
-                const from = sessionStorage.getItem('auth_redirect_to') || '/dashboard';
+                const sessionRedirect = sessionStorage.getItem('auth_redirect_to');
+                const from = (sessionRedirect && sessionRedirect !== '/dashboard') ? sessionRedirect : '/project';
                 sessionStorage.removeItem('auth_redirect_to');
                 
                 try {
@@ -39,7 +40,8 @@ const AuthCallbackPage = () => {
                     
                     const projects = await ProjectStorage.getAll();
                     if (projects && projects.length > 0) {
-                        navigate(from, { replace: true });
+                        const target = (from && from !== '/dashboard' && from !== '/project') ? from : `/project/${projects[0].id}`;
+                        navigate(target, { replace: true });
                     } else {
                         navigate('/', { replace: true });
                     }
