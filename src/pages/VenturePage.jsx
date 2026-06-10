@@ -9,8 +9,43 @@ import SkeletonReport from '../components/SkeletonReport';
 import { generateAnalysisQuestions, generatePlanStructure, generatePhaseTasks, generateReportStructure, generateReportSection } from '../services/ai';
 import { ProjectStorage } from '../services/projectStorage';
 import FullScreenLoader from '../components/FullScreenLoader';
-import OnboardingWizard from '../components/OnboardingWizard';
 import { useAuth } from '../context/AuthContext';
+
+const ONBOARDING_QUESTIONS = [
+    {
+        id: 'name',
+        type: 'text',
+        text: 'First, what should we call you?',
+        placeholder: 'Your name',
+        description: "We'll personalize your roadmap and onboarding reports using your name."
+    },
+    {
+        id: 'role',
+        type: 'role',
+        text: 'Which best describes you?',
+        description: 'Select your primary role or background to help us tailor recommendations.'
+    },
+    {
+        id: 'greeting',
+        type: 'greeting',
+        text: (name) => `Hi ${name || 'there'}!`,
+        description: "You're about to map out the strategy and action plan for your venture. Let's design your roadmap together."
+    },
+    {
+        id: 'companyName',
+        type: 'text',
+        text: 'What is your company or project name?',
+        placeholder: 'e.g. Acme Corp, SolarFlow, local bakery',
+        description: "If you haven't decided on one yet, a working title is perfectly fine."
+    },
+    {
+        id: 'idea',
+        type: 'textarea',
+        text: 'Describe your idea or company',
+        placeholder: 'e.g. A marketplace connecting local bakeries with customers who want custom wedding cakes, including delivery tracking and review systems...',
+        description: 'Tell us what you want to build. The more context you provide, the better questions our AI can generate for you.'
+    }
+];
 
 const VenturePage = () => {
     const { projectId } = useParams();
@@ -27,7 +62,7 @@ const VenturePage = () => {
     // Business Logic State
     const [isNewProjectFlow, setIsNewProjectFlow] = useState(!currentId);
     const [questions, setQuestions] = useState([]);
-    const [wizardLoading, setWizardLoading] = useState(true);
+    const [wizardLoading, setWizardLoading] = useState(!!currentId);
     const [isTitleGenerating, setIsTitleGenerating] = useState(false);
     const [showSummary, setShowSummary] = useState(false);
     const [completedAnswers, setCompletedAnswers] = useState(null);
@@ -170,7 +205,7 @@ const VenturePage = () => {
     }, [currentId, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnboardingComplete = async (onboardingData) => {
-        setLoading(true);
+        setWizardLoading(true);
         try {
             const { name, role, companyName, idea } = onboardingData;
 
@@ -194,12 +229,34 @@ const VenturePage = () => {
                 }
             }
 
+            // 4. Generate AI discovery questions in the background
+            setIsTitleGenerating(true);
+            const companyNameVal = companyName || '';
+            const roleVal = role || '';
+            const nameVal = name || '';
+
+            let enrichedIdea = idea;
+            if (companyNameVal || roleVal) {
+                enrichedIdea = `Company/Project Name: ${companyNameVal}\nFounder Role: ${roleVal}\nFounder Name: ${nameVal}\nBusiness Idea Details: ${idea}`;
+            }
+
+            const result = await generateAnalysisQuestions(enrichedIdea);
+            if (result?.questions) {
+                await ProjectStorage.updateData(newId, {
+                    questions: result.questions,
+                    projectTitle: result.projectTitle || companyName,
+                    projectDescription: result.projectDescription
+                });
+            }
+
             setIsNewProjectFlow(false);
             navigate(`/project/${newId}`);
         } catch (error) {
             console.error("Onboarding failed:", error);
             alert("Failed to initialize project. Please try again.");
-            setLoading(false);
+            setWizardLoading(false);
+        } finally {
+            setIsTitleGenerating(false);
         }
     };
 
@@ -455,9 +512,11 @@ const VenturePage = () => {
 
                 {/* CONTENT STAGE */}
                 <main className="flex-1 relative overflow-hidden flex flex-col min-h-0">
-                    <OnboardingWizard
-                        onComplete={handleOnboardingComplete}
-                        onBackToHome={() => navigate('/')}
+                    <Questionnaire
+                        questions={ONBOARDING_QUESTIONS}
+                        onOnboardingSubmit={handleOnboardingComplete}
+                        onBack={() => navigate('/')}
+                        isLoading={wizardLoading}
                     />
                 </main>
             </div>

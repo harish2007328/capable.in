@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const ANALYSIS_STEPS = [
     { text: "Agent searching the internet...", icon: <Globe size={18} /> },
@@ -16,40 +18,96 @@ const SOURCE_DOTS = [
     { name: "Gemini", bg: "bg-indigo-500" },
 ];
 
-const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack, isLoading = false }) => {
+const ROLES = [
+  { id: 'founder', label: 'Founder / Entrepreneur' },
+  { id: 'engineering', label: 'Software Engineer' },
+  { id: 'product', label: 'Product Manager' },
+  { id: 'designer', label: 'Designer / Creative' },
+  { id: 'sales', label: 'Sales representative' },
+  { id: 'marketing', label: 'Marketing specialist' },
+  { id: 'operations', label: 'Operations lead' },
+  { id: 'finance', label: 'Finance / Investor' },
+  { id: 'consultant', label: 'Business Consultant' },
+  { id: 'other', label: 'Other' }
+];
+
+const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReadonly = false, onBack, isLoading = false }) => {
+    const { user } = useAuth();
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [answers, setAnswers] = useState(new Array(questions.length).fill([]));
+    const [answers, setAnswers] = useState([]);
     const [showFinalCta, setShowFinalCta] = useState(false);
     const [isManual, setIsManual] = useState(false);
-
-    useEffect(() => {
-        setIsManual(false);
-    }, [currentIndex]);
 
     const currentQuestion = questions[currentIndex];
     const isLastStep = currentIndex === questions.length - 1;
 
+    // Dynamically fetch and prefill name if questions change
+    const authName = user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || '';
+    const currentAnswer = answers[currentIndex];
+
+    const questionText = currentQuestion ? (typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text) : '';
+    const isLocationQuestion = questionText ? ((questionText.toLowerCase().includes('focusing') ||
+        questionText.toLowerCase().includes('location') ||
+        questionText.toLowerCase().includes('situated') ||
+        questionText.toLowerCase().includes('country') ||
+        questionText.toLowerCase().includes('city')) &&
+        !questionText.toLowerCase().includes('money')) : false;
+
+    // Derive location parts statelessly
+    const parts = (typeof currentAnswer === 'string' && currentAnswer !== 'Globally') 
+        ? currentAnswer.split(',').map(p => p.trim()) 
+        : [];
+    const country = parts[0] || '';
+    const state = parts[1] || '';
+    const district = parts[2] || '';
+
+    const handleLocationChange = (countryVal, stateVal, districtVal) => {
+        const combined = `${countryVal}, ${stateVal}, ${districtVal}`;
+        const isEmpty = !/[a-zA-Z0-9]/.test(combined);
+        handleManualSubmit(isEmpty ? '' : combined);
+    };
+
     const handleOptionSelect = (option) => {
         if (isReadonly) return;
-        const newAnswers = [...answers];
-        const currentSelected = Array.isArray(newAnswers[currentIndex]) ? newAnswers[currentIndex] : [];
-
-        if (currentSelected.includes(option)) {
-            newAnswers[currentIndex] = currentSelected.filter(item => item !== option);
-        } else {
-            newAnswers[currentIndex] = [...currentSelected, option];
-        }
-        setAnswers(newAnswers);
+        setIsManual(false);
+        setAnswers(prev => {
+            const next = [...prev];
+            while (next.length <= currentIndex) {
+                next.push([]);
+            }
+            const currentSelected = Array.isArray(next[currentIndex]) ? next[currentIndex] : [];
+            if (currentSelected.includes(option)) {
+                next[currentIndex] = currentSelected.filter(item => item !== option);
+            } else {
+                next[currentIndex] = [...currentSelected, option];
+            }
+            return next;
+        });
     };
 
     const handleManualSubmit = (text) => {
-        const newAnswers = [...answers];
-        newAnswers[currentIndex] = text;
-        setAnswers(newAnswers);
+        setIsManual(true);
+        setAnswers(prev => {
+            const next = [...prev];
+            while (next.length <= currentIndex) {
+                next.push([]);
+            }
+            next[currentIndex] = text;
+            return next;
+        });
     };
 
     const handleNext = () => {
-        if (isLastStep) {
+        setIsManual(false);
+        if (currentQuestion && currentQuestion.id === 'idea' && onOnboardingSubmit) {
+            const onboardingData = {
+                name: answers[0] !== undefined ? answers[0] : authName,
+                role: answers[1],
+                companyName: answers[3],
+                idea: answers[4]
+            };
+            onOnboardingSubmit(onboardingData);
+        } else if (isLastStep) {
             if (isValidAnswer(answers[currentIndex])) setShowFinalCta(true);
         } else {
             setCurrentIndex(prev => prev + 1);
@@ -57,12 +115,18 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
     };
 
     const handlePrev = () => {
+        setIsManual(false);
         if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
     };
 
     const isValidAnswer = (answer) => {
-        if (Array.isArray(answer)) return answer.length > 0;
-        return typeof answer === 'string' && answer.trim().length > 0;
+        if (currentQuestion && currentQuestion.type === 'greeting') return true;
+        if (currentQuestion && currentQuestion.id === 'name' && authName) return true;
+        
+        // Use default fallback if answer is undefined
+        const actualAnswer = answer !== undefined ? answer : '';
+        if (Array.isArray(actualAnswer)) return actualAnswer.length > 0;
+        return typeof actualAnswer === 'string' && actualAnswer.trim().length > 0;
     };
 
     const handleFinalSubmit = () => {
@@ -85,37 +149,8 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
 
     if (!isLoading && (!questions || questions.length === 0)) return null;
 
-    const questionText = currentQuestion ? (typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text) : '';
-    const isLocationQuestion = questionText ? ((questionText.toLowerCase().includes('focusing') ||
-        questionText.toLowerCase().includes('location') ||
-        questionText.toLowerCase().includes('situated') ||
-        questionText.toLowerCase().includes('country') ||
-        questionText.toLowerCase().includes('city')) &&
-        !questionText.toLowerCase().includes('money')) : false;
-
     const options = (currentQuestion && currentQuestion.options) ? currentQuestion.options : [];
-    const currentAnswer = answers[currentIndex];
     const hasValidAnswer = isValidAnswer(currentAnswer);
-
-    const [locationData, setLocationData] = useState({ country: '', state: '', district: '' });
-
-    useEffect(() => {
-        if (isLocationQuestion && typeof currentAnswer === 'string' && currentAnswer.includes(',')) {
-            const parts = currentAnswer.split(',').map(p => p.trim());
-            setLocationData({
-                country: parts[0] || '',
-                state: parts[1] || '',
-                district: parts[2] || ''
-            });
-        }
-    }, [currentIndex, isLocationQuestion]);
-
-    const handleLocationChange = (field, value) => {
-        const newData = { ...locationData, [field]: value };
-        setLocationData(newData);
-        const combined = `${newData.country}, ${newData.state}, ${newData.district}`.replace(/^[ ,]+|[ ,]+$/g, '');
-        handleManualSubmit(combined);
-    };
 
     return (
         <div className="w-full h-full flex overflow-hidden bg-white">
@@ -216,19 +251,99 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                                 transition={{ duration: 0.2 }}
                                 className="max-w-xl mx-auto w-full"
                             >
-                                <h1 className="text-3xl font-medium text-slate-900 leading-tight tracking-tight mb-8">
-                                    {typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text}
+                                <h1 className="text-3xl font-medium text-slate-900 leading-tight tracking-tight mb-2">
+                                    {typeof currentQuestion === 'string' 
+                                        ? currentQuestion 
+                                        : (typeof currentQuestion.text === 'function' 
+                                            ? currentQuestion.text(answers[0]) 
+                                            : currentQuestion.text)}
                                 </h1>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {isLocationQuestion ? (
+                                {currentQuestion.description && (
+                                    <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+                                        {currentQuestion.description}
+                                    </p>
+                                )}
+
+                                <div className={currentQuestion.type === 'greeting' || currentQuestion.type === 'textarea' || currentQuestion.type === 'text' ? "w-full animate-in fade-in duration-300" : "grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in duration-300"}>
+                                    {currentQuestion.type === 'text' ? (
+                                        <div className="w-full">
+                                            <input
+                                                type="text"
+                                                value={currentAnswer !== undefined ? currentAnswer : (currentQuestion.id === 'name' ? authName : '')}
+                                                onChange={(e) => handleManualSubmit(e.target.value)}
+                                                placeholder={currentQuestion.placeholder || 'Enter your answer...'}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && hasValidAnswer && !isReadonly) {
+                                                        handleNext();
+                                                    }
+                                                }}
+                                                className="w-full px-5 py-4 border border-slate-200 rounded-2xl text-lg outline-none transition-all focus:border-[var(--brand-accent)] focus:ring-1 focus:ring-[var(--brand-accent)] text-slate-800 placeholder:text-slate-300"
+                                                autoFocus
+                                            />
+                                        </div>
+                                    ) : currentQuestion.type === 'textarea' ? (
+                                        <div className="w-full">
+                                            <textarea
+                                                value={currentAnswer || ''}
+                                                onChange={(e) => handleManualSubmit(e.target.value)}
+                                                placeholder={currentQuestion.placeholder || 'Enter your answer...'}
+                                                className="w-full h-32 px-5 py-4 border border-slate-200 rounded-2xl text-base outline-none resize-none transition-all focus:border-[var(--brand-accent)] focus:ring-1 focus:ring-[var(--brand-accent)] custom-scrollbar text-slate-800 placeholder:text-slate-300"
+                                                autoFocus
+                                            />
+                                        </div>
+                                    ) : currentQuestion.type === 'role' ? (
+                                        <>
+                                            {ROLES.map((role) => {
+                                                const isSelected = currentAnswer === role.label;
+                                                return (
+                                                    <button
+                                                        key={role.id}
+                                                        onClick={() => {
+                                                            handleManualSubmit(role.label);
+                                                        }}
+                                                        className={`
+                                                            group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
+                                                            ${isSelected
+                                                                ? 'bg-slate-900 border-slate-900 text-white'
+                                                                : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
+                                                            }
+                                                        `}
+                                                    >
+                                                        <div className={`
+                                                            w-5 h-5 rounded-full flex items-center justify-center shrink-0 border transition-colors
+                                                            ${isSelected ? 'border-white/30 bg-white/10 text-white' : 'border-slate-200 bg-slate-50'}
+                                                        `}>
+                                                            {isSelected && <CheckCircle2 size={10} />}
+                                                        </div>
+                                                        <span className="text-sm font-semibold uppercase tracking-wider">
+                                                            {role.label}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </>
+                                    ) : currentQuestion.type === 'greeting' ? (
+                                        <div className="flex flex-col items-center text-center space-y-6 w-full py-4 animate-in fade-in duration-500">
+                                            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] flex items-center justify-center text-white shadow-lg shadow-blue-100 animate-[bounce_2s_infinite]">
+                                                <Sparkles size={28} />
+                                            </div>
+                                            <button
+                                                onClick={handleNext}
+                                                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-2xl font-bold text-[16px] shadow-lg shadow-blue-500/25 active:scale-98 transition-all flex items-center justify-center gap-2 mx-auto uppercase tracking-wider hover:shadow-xl hover:shadow-blue-200"
+                                            >
+                                                <span>Turn your idea into business</span>
+                                                <ChevronRight size={18} />
+                                            </button>
+                                        </div>
+                                    ) : isLocationQuestion ? (
                                         <>
                                             <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
                                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Country</span>
                                                 <input
                                                     type="text"
-                                                    value={locationData.country}
-                                                    onChange={(e) => handleLocationChange('country', e.target.value)}
+                                                    value={country}
+                                                    onChange={(e) => handleLocationChange(e.target.value, state, district)}
                                                     placeholder="e.g. USA"
                                                     className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
                                                 />
@@ -237,8 +352,8 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">State / Region</span>
                                                 <input
                                                     type="text"
-                                                    value={locationData.state}
-                                                    onChange={(e) => handleLocationChange('state', e.target.value)}
+                                                    value={state}
+                                                    onChange={(e) => handleLocationChange(country, e.target.value, district)}
                                                     placeholder="e.g. California"
                                                     className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
                                                 />
@@ -247,8 +362,8 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">District / City</span>
                                                 <input
                                                     type="text"
-                                                    value={locationData.district}
-                                                    onChange={(e) => handleLocationChange('district', e.target.value)}
+                                                    value={district}
+                                                    onChange={(e) => handleLocationChange(country, state, e.target.value)}
                                                     placeholder="e.g. San Francisco"
                                                     className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
                                                 />
@@ -256,7 +371,6 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                                             <button
                                                 onClick={() => {
                                                     handleManualSubmit("Globally");
-                                                    setLocationData({ country: '', state: '', district: '' });
                                                 }}
                                                 className={`
                                                     group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
@@ -304,7 +418,7 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                                                             {isSelected && !isManual && <CheckCircle2 size={10} />}
                                                         </div>
                                                          <span className="text-sm font-semibold uppercase tracking-wider">
-                                                            {option}
+                                                             {option}
                                                         </span>
                                                     </button>
                                                 );
@@ -370,20 +484,22 @@ const Questionnaire = ({ questions = [], onComplete, isReadonly = false, onBack,
                                 {currentIndex === 0 ? 'Exit' : 'Previous'}
                             </button>
 
-                            <button
-                                onClick={handleNext}
-                                disabled={!hasValidAnswer || isReadonly}
-                                className={`
-                                    group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest shadow-lg
-                                    ${hasValidAnswer && !isReadonly
-                                        ? 'bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] shadow-blue-500/20 active:scale-95'
-                                        : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'
-                                    }
-                                `}
-                            >
-                                {isLastStep ? 'Finalize' : 'Continue'}
-                                <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                            </button>
+                            {currentQuestion && (
+                                <button
+                                    onClick={handleNext}
+                                    disabled={!hasValidAnswer || isReadonly}
+                                    className={`
+                                        group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest shadow-lg
+                                        ${hasValidAnswer && !isReadonly
+                                            ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-blue-500/20 active:scale-95'
+                                            : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'
+                                        }
+                                    `}
+                                >
+                                    {isLastStep ? (onOnboardingSubmit ? 'Launch Setup' : 'Finalize') : 'Continue'}
+                                    <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            )}
                         </>
                     )}
                 </div>
