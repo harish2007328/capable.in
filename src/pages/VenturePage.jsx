@@ -112,6 +112,7 @@ const VenturePage = () => {
             const p = await ProjectStorage.getById(currentId);
             if (!p) {
                 setIsNewProjectFlow(true);
+                setWizardLoading(false);
                 setLoading(false);
                 return;
             }
@@ -122,6 +123,8 @@ const VenturePage = () => {
             // Sync States from Storage
             if (data.questions) {
                 setQuestions(data.questions);
+                setWizardLoading(false);
+            } else if (!data.idea) {
                 setWizardLoading(false);
             }
 
