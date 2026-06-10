@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
-import { Wand2, Maximize2, X, Sparkles, Rocket, Lightbulb, AlertCircle, ShieldAlert, Loader2, LineChart, Target, Route, Globe2, Zap, Crosshair } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion'; // eslint-disable-line no-unused-vars
+import { Sparkles, LineChart, Target, Route, Globe2, Zap, Crosshair } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import Logo from '../components/Logo';
 import { ProjectStorage } from '../services/projectStorage';
 import { getUserLimits } from '../config/planConfig';
 import PricingModal from '../components/PricingModal';
@@ -18,23 +16,6 @@ const MissionSection = React.lazy(() => import('../components/home/MissionSectio
 const TestimonialStepsSection = React.lazy(() => import('../components/home/TestimonialStepsSection'));
 const FAQWithStatsSection = React.lazy(() => import('../components/home/FAQWithStatsSection'));
 const BottomCTASection = React.lazy(() => import('../components/home/BottomCTASection'));
-
-// Client-side blocked terms (quick pre-check before hitting the server)
-const CLIENT_BLOCKED_TERMS = [
-    'drug dealing', 'drug trafficking', 'sell drugs', 'meth lab', 'cocaine', 'heroin',
-    'illegal weapons', 'gun trafficking', 'bomb making', 'human trafficking',
-    'money laundering', 'ponzi scheme', 'pyramid scheme', 'counterfeit',
-    'identity theft', 'credit card fraud', 'hacking service', 'ransomware',
-    'dark web', 'child exploitation', 'terrorism', 'hitman', 'contract killing',
-    'escort service', 'organ trafficking', 'tax evasion', 'insider trading',
-    'smuggling', 'kidnapping', 'stolen goods', 'scam', 'fraud', 'phishing',
-    'illegal gambling', 'bookmaking', 'money mule', 'straw man'
-];
-
-const GREETINGS = [
-    'hello', 'hi', 'hey', 'yo', 'sup', 'hola', 'namaste', 'greetings',
-    'how are you', 'howdy', 'what\'s up', 'morning', 'evening', 'afternoon'
-];
 
 // --- Animation Variants for Scroll Effects ---
 const staggerContainer = {
@@ -50,11 +31,8 @@ const fadeUp = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
-
-
 const HomePage = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const { user, loading } = useAuth();
 
     // Redirect logged-in users who already have an active project to their project page
@@ -72,13 +50,6 @@ const HomePage = () => {
         checkExistingProject();
     }, [user, loading, navigate]);
 
-    const [idea, setIdea] = useState(() => {
-        return location.state?.idea || sessionStorage.getItem('capable_draft_idea') || '';
-    });
-    const [isEnhancing, setIsEnhancing] = useState(false);
-    const [contentWarning, setContentWarning] = useState(null); // { title: string, message: string, type: 'illegal' | 'vague' }
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [placeholder, setPlaceholder] = useState('');
     const lottieRef = useRef(null);
 
     // Increase loader animation speed
@@ -91,117 +62,17 @@ const HomePage = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    // Animated Placeholder Logic
-    useEffect(() => {
-        const examples = [
-            "AI tutor for engineering students...",
-            "Local bakery subscription service...",
-            "Build an AI tool for farmers...",
-            "Start a niche coffee brand...",
-            "Marketplace for freelance designers..."
-        ];
-        let i = 0;
-        let j = 0;
-        let currentText = '';
-        let isDeleting = false;
-        let timeout;
-
-        const type = () => {
-            const currentExample = examples[i];
-
-            if (isDeleting) {
-                currentText = currentExample.substring(0, j - 1);
-                j--;
-            } else {
-                currentText = currentExample.substring(0, j + 1);
-                j++;
-            }
-
-            setPlaceholder(currentText);
-
-            let speed = isDeleting ? 40 : 80;
-
-            if (!isDeleting && j === currentExample.length) {
-                speed = 2000; // Pause at the end
-                isDeleting = true;
-            } else if (isDeleting && j === 0) {
-                isDeleting = false;
-                i = (i + 1) % examples.length;
-                speed = 500;
-            }
-
-            timeout = setTimeout(type, speed);
-        };
-
-        type();
-        return () => clearTimeout(timeout);
-    }, []);
-
-    // Quick client-side check (server has the full check)
-    const checkContent = (text) => {
-        const normalized = text.toLowerCase().trim();
-
-        // 1. Check for illegal terms
-        for (const term of CLIENT_BLOCKED_TERMS) {
-            if (normalized.includes(term)) {
-                setContentWarning({
-                    title: "Something doesn't look right",
-                    message: "It looks like there may be a typo or something suspicious in your input. Please double-check and try describing a different business idea.",
-                    type: 'illegal'
-                });
-                return false;
-            }
-        }
-
-        // 2. Check for empty or very short input/greetings/random words
-        const words = normalized.split(/\s+/).filter(w => w.length > 0);
-        const isGreeting = words.length <= 2 && GREETINGS.some(g => normalized.includes(g));
-
-        if (words.length < 3 || isGreeting) {
-            setContentWarning({
-                title: "We couldn't understand that",
-                message: "Try describing your business idea in a short sentence so our AI can help you out.",
-                type: 'vague'
-            });
-            return false;
-        }
-
-        setContentWarning(null);
-        return true;
-    };
-
-    // Sync idea from location state if it changes
-    useEffect(() => {
-        if (location.state?.idea) {
-            setIdea(location.state.idea);
-        }
-    }, [location.state?.idea]);
-
-    // Save idea to sessionStorage whenever it changes
-    useEffect(() => {
-        sessionStorage.setItem('capable_draft_idea', idea);
-    }, [idea]);
-
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const limits = getUserLimits(user);
 
-    const handleGenerate = async () => {
-        if (!idea.trim() || isEnhancing || isGenerating) return;
-
-        // Content moderation check (client-side quick check)
-        if (!checkContent(idea)) return;
-
-        setIsGenerating(true);
-
+    const handleGetStarted = async () => {
         // Redirect to login if not authenticated
         if (!user) {
             navigate('/login', {
                 state: {
-                    from: { pathname: '/' },
-                    idea: idea // Pass the idea so we can potentially restore it
+                    from: { pathname: '/project' }
                 }
             });
-            setIsGenerating(false);
             return;
         }
 
@@ -210,47 +81,10 @@ const HomePage = () => {
         const existingProjects = await ProjectStorage.getAll();
         if (existingProjects.length >= limits.maxProjects) {
             setShowUpgradeModal(true);
-            setIsGenerating(false);
             return;
         }
 
-        const newId = await ProjectStorage.create(idea);
-        setIsGenerating(false); // Should transition to next page anyway but safe to set
-        navigate(`/project/${newId}`);
-    };
-
-    const handleEnhance = async () => {
-        if (!idea.trim() || isEnhancing) return;
-
-        // Content moderation check (client-side quick check)
-        if (!checkContent(idea)) return;
-
-        setIsEnhancing(true);
-        try {
-            const res = await fetch('/api/enhance-idea', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idea })
-            });
-            const data = await res.json();
-            // Handle server-side blocked response
-            if (res.status === 403 && data.blocked) {
-                setContentWarning({
-                    title: "Something doesn't look right",
-                    message: "It looks like there may be a typo or something suspicious in your input. Please double-check and try again.",
-                    type: 'illegal'
-                });
-                return;
-            }
-            const enhanced = data.enhanced_idea || data.enhancedIdea;
-            if (enhanced) {
-                setIdea(enhanced);
-            }
-        } catch (error) {
-            console.error("Enhancement failed:", error);
-        } finally {
-            setIsEnhancing(false);
-        }
+        navigate('/project');
     };
 
     return (
@@ -287,142 +121,16 @@ const HomePage = () => {
                         </motion.p>
 
                         <motion.div variants={fadeUp} className="relative w-full max-w-6xl mx-auto mb-8 flex flex-col items-center z-40">
-                            <div className="relative w-full max-w-2xl group mb-0 z-10">
-                                <motion.div
-                                    layoutId="input-container"
-                                    className="relative bg-white/10 backdrop-blur-xl rounded-[32px] p-[10px] flex flex-col h-full border border-white/15 shadow-2xl shadow-black/40"
+                            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full max-w-md">
+                                <button
+                                    onClick={handleGetStarted}
+                                    className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-lg font-bold rounded-2xl hover:shadow-2xl hover:shadow-blue-500/35 transition-all duration-300 active:scale-95 flex items-center justify-center gap-3"
                                 >
-                                    <div className="relative bg-white/80 backdrop-blur-3xl rounded-[24px] flex flex-col shadow-inner overflow-hidden border border-white/20">
-                                        <div className="relative w-full p-4 pb-2">
-                                            <textarea
-                                                className={`w-full h-24 sm:h-28 p-4 text-lg sm:text-xl text-gray-900 placeholder:text-gray-400 bg-transparent border-none outline-none resize-none font-sans font-medium leading-relaxed rounded-md transition-all duration-300 custom-scrollbar-hero ${isEnhancing ? 'opacity-0' : 'opacity-100'}`}
-                                                placeholder={idea ? "" : placeholder}
-                                                value={idea}
-                                                onChange={(e) => { setIdea(e.target.value); if (contentWarning) setContentWarning(null); }}
-                                                disabled={isEnhancing}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                                        e.preventDefault();
-                                                        handleGenerate();
-                                                    }
-                                                }}
-                                            ></textarea>
-                                            {isEnhancing && (
-                                                <div className="absolute inset-0 p-8 flex flex-col gap-2 z-10 bg-white/60 backdrop-blur-sm rounded-2xl">
-                                                    <div className="h-4 bg-gray-200/50 rounded w-3/4 animate-pulse"></div>
-                                                    <div className="h-4 bg-gray-100/50 rounded w-1/2 animate-pulse delay-75"></div>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Inline Warning Box */}
-                                        <AnimatePresence>
-                                            {contentWarning && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    className={`mx-4 mb-2 overflow-hidden`}
-                                                >
-                                                    <div className={`p-3 rounded-xl border flex items-start gap-3 ${contentWarning.type === 'illegal'
-                                                        ? 'bg-red-50 border-red-100 text-red-700'
-                                                        : 'bg-blue-50 border-blue-100 text-blue-700'
-                                                        }`}>
-                                                        <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                                                        <div className="text-[13px] leading-tight font-medium">
-                                                            <span className="font-bold block mb-0.5">{contentWarning.title}</span>
-                                                            {contentWarning.message}
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-
-                                        <div className="flex justify-between items-center px-6 py-4 border-t border-black/5">
-                                            <div className="flex items-center gap-3">
-                                                {/* Enhance/AI Button */}
-                                                <button
-                                                    className={`group relative flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-300 ${isEnhancing
-                                                        ? 'bg-blue-50 border-blue-100 text-blue-500 shadow-sm'
-                                                        : 'bg-white border-gray-300 text-gray-600 hover:text-blue-600 hover:border-blue-200 hover:shadow-md'
-                                                        }`}
-                                                    onClick={handleEnhance}
-                                                    disabled={isEnhancing}
-                                                >
-                                                    <Wand2 size={16} className={`${isEnhancing ? "animate-spin" : "group-hover:rotate-12 transition-transform"}`} />
-                                                    <span className="text-[13px] font-bold uppercase tracking-widest hidden sm:inline-block">Enhance</span>
-                                                </button>
-                                            </div>
-
-                                            <div className="flex items-center gap-3">
-                                                {/* Generate Button */}
-                                                <button
-                                                    onClick={handleGenerate}
-                                                    disabled={isGenerating}
-                                                    className="relative group overflow-hidden bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white px-8 py-3 rounded-xl font-bold text-[15px] leading-none transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/30 active:scale-95 flex items-center gap-2.5 min-w-[140px] justify-center"
-                                                >
-                                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                                    <span className="relative z-10 tracking-tight">
-                                                        {isGenerating ? 'Generating...' : 'Generate'}
-                                                    </span>
-                                                    {isGenerating ? (
-                                                        <Loader2 className="relative z-10 w-4 h-4 text-white animate-spin" />
-                                                    ) : (
-                                                        <Sparkles className="relative z-10 w-4 h-4 text-white" />
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {contentWarning && ReactDOM.createPortal(
-                                        <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/30 backdrop-blur-sm px-4 pb-4 sm:pb-0" onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }}>
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 12, scale: 0.98 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: 12, scale: 0.98 }}
-                                                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                                                className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-300 overflow-hidden"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <div className="p-5 flex items-start gap-3.5">
-                                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${contentWarning.type === 'illegal' ? 'bg-amber-50' : 'bg-blue-50'
-                                                        }`}>
-                                                        {contentWarning.type === 'illegal' ? (
-                                                            <AlertCircle className="w-[18px] h-[18px] text-amber-500" />
-                                                        ) : (
-                                                            <AlertCircle className="w-[18px] h-[18px] text-blue-500" />
-                                                        )}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <h3 className="text-[15px] font-bold text-gray-900 mb-1 tracking-tight">
-                                                            {contentWarning.title}
-                                                        </h3>
-                                                        <p className="text-[13px] text-gray-500 leading-relaxed">
-                                                            {contentWarning.message}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="px-5 pb-4 flex gap-2">
-                                                    <button
-                                                        onClick={() => { setContentWarning(null); if (contentWarning.type === 'illegal') setIdea(''); }}
-                                                        className="flex-1 py-2.5 bg-gray-900 text-white rounded-xl text-[13px] font-bold hover:bg-gray-800 transition-colors active:scale-[0.98]"
-                                                    >
-                                                        Got it
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setContentWarning(null)}
-                                                        className="px-4 py-2.5 text-gray-400 text-[13px] font-bold hover:text-gray-600 transition-colors"
-                                                    >
-                                                        Dismiss
-                                                    </button>
-                                                </div>
-                                            </motion.div>
-                                        </div>,
-                                        document.body
-                                    )}
-
-                                </motion.div>
+                                    <span>Get Started</span>
+                                    <Sparkles className="w-5 h-5 text-white" />
+                                </button>
                             </div>
+                        </motion.div>
 
                             {/* SOCIAL PROOF SECTION */}
                             <motion.div
@@ -452,7 +160,6 @@ const HomePage = () => {
                                 <p className="text-white/80 text-[11px] font-bold uppercase tracking-[0.15em] whitespace-nowrap">
                                     Trusted by <span className="text-white">1000+ Entrepreneurs</span>
                                 </p>
-                            </motion.div>
                         </motion.div>
                     </motion.div>
                 </section>

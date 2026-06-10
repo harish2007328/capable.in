@@ -9,10 +9,13 @@ import SkeletonReport from '../components/SkeletonReport';
 import { generateAnalysisQuestions, generatePlanStructure, generatePhaseTasks, generateReportStructure, generateReportSection } from '../services/ai';
 import { ProjectStorage } from '../services/projectStorage';
 import FullScreenLoader from '../components/FullScreenLoader';
+import OnboardingWizard from '../components/OnboardingWizard';
+import { useAuth } from '../context/AuthContext';
 
 const VenturePage = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
+    const { user, updateUser } = useAuth();
 
     // Project ID handling
     const currentId = projectId || ProjectStorage.getActiveId();
@@ -22,6 +25,7 @@ const VenturePage = () => {
     const [project, setProject] = useState(null);
 
     // Business Logic State
+    const [isNewProjectFlow, setIsNewProjectFlow] = useState(!currentId);
     const [questions, setQuestions] = useState([]);
     const [wizardLoading, setWizardLoading] = useState(true);
     const [isTitleGenerating, setIsTitleGenerating] = useState(false);
@@ -62,14 +66,18 @@ const VenturePage = () => {
         isMounted.current = true;
 
         if (!currentId) {
-            navigate('/');
+            setIsNewProjectFlow(true);
+            setLoading(false);
             return;
         }
+
+        setIsNewProjectFlow(false);
 
         const loadProjectData = async () => {
             const p = await ProjectStorage.getById(currentId);
             if (!p) {
-                navigate('/');
+                setIsNewProjectFlow(true);
+                setLoading(false);
                 return;
             }
 
@@ -118,7 +126,17 @@ const VenturePage = () => {
             setWizardLoading(true);
             setIsTitleGenerating(true);
             try {
-                const result = await generateAnalysisQuestions(idea);
+                // Enrich idea description with onboarding profiling context for the AI questions
+                const companyName = pObject?.data?.companyName || pObject?.title || '';
+                const role = pObject?.data?.userRole || '';
+                const name = pObject?.data?.userName || '';
+
+                let enrichedIdea = idea;
+                if (companyName || role) {
+                    enrichedIdea = `Company/Project Name: ${companyName}\nFounder Role: ${role}\nFounder Name: ${name}\nBusiness Idea Details: ${idea}`;
+                }
+
+                const result = await generateAnalysisQuestions(enrichedIdea);
                 if (result?.questions && isMounted.current) {
                     await ProjectStorage.updateData(currentId, {
                         questions: result.questions,
@@ -149,14 +167,48 @@ const VenturePage = () => {
         return () => {
             isMounted.current = false;
         };
-    }, [currentId, navigate]);
+    }, [currentId, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const handleOnboardingComplete = async (onboardingData) => {
+        setLoading(true);
+        try {
+            const { name, role, companyName, idea } = onboardingData;
+
+            // 1. Create project using companyName as title
+            const newId = await ProjectStorage.create(idea, companyName);
+
+            // 2. Update project metadata
+            await ProjectStorage.updateData(newId, {
+                userName: name,
+                userRole: role,
+                companyName: companyName,
+                idea: idea
+            });
+
+            // 3. Sync name to profile if user is authenticated
+            if (user && name) {
+                try {
+                    await updateUser({ name, full_name: name });
+                } catch (e) {
+                    console.warn("Failed to sync name to profile:", e.message);
+                }
+            }
+
+            setIsNewProjectFlow(false);
+            navigate(`/project/${newId}`);
+        } catch (error) {
+            console.error("Onboarding failed:", error);
+            alert("Failed to initialize project. Please try again.");
+            setLoading(false);
+        }
+    };
 
     // 2. Report Generation Trigger
     useEffect(() => {
         if (activeTab === 'strategy' && !report && !reportLoading && completedAnswers) {
             fetchReport();
         }
-    }, [activeTab, report, reportLoading, completedAnswers]);
+    }, [activeTab, report, reportLoading, completedAnswers]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // --- ACTIONS ---
 
@@ -389,6 +441,28 @@ const VenturePage = () => {
 
 
     if (loading) return <FullScreenLoader />;
+
+    if (isNewProjectFlow) {
+        return (
+            <div className="flex flex-col h-screen w-full bg-[#FAFAFA] overflow-hidden selection:bg-indigo-100 selection:text-indigo-900">
+                {/* HEADER */}
+                <div className="flex-none z-50">
+                    <ProjectHeader
+                        projectTitle="Setup Venture"
+                        hideTabs={true}
+                    />
+                </div>
+
+                {/* CONTENT STAGE */}
+                <main className="flex-1 relative overflow-hidden flex flex-col min-h-0">
+                    <OnboardingWizard
+                        onComplete={handleOnboardingComplete}
+                        onBackToHome={() => navigate('/')}
+                    />
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-screen w-full bg-[#FAFAFA] overflow-hidden selection:bg-indigo-100 selection:text-indigo-900">

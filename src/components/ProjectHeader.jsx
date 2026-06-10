@@ -12,7 +12,7 @@ import { isPro } from '../config/planConfig';
 import PricingModal from './PricingModal';
 import logoIconSrc from '../assets/LOGO ICON.svg';
 
-const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleLoading, disableStrategy }) => {
+const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleLoading, disableStrategy, hideTabs = false }) => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [showComingSoon, setShowComingSoon] = useState(false);
     const [isPricingOpen, setIsPricingOpen] = useState(false);
@@ -72,30 +72,32 @@ const ProjectHeader = ({ activeTab, onTabChange, hasPlan, projectTitle, isTitleL
             </div>
 
             {/* Navigation Steps */}
-            <nav className="hidden lg:flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200">
-                {tabs.map((tab) => {
-                    const isActive = activeTab === tab.id;
-                    const isDisabled = tab.disabled;
+            {!hideTabs && (
+                <nav className="hidden lg:flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200">
+                    {tabs.map((tab) => {
+                        const isActive = activeTab === tab.id;
+                        const isDisabled = tab.disabled;
 
-                    return (
-                        <button
-                            key={tab.id}
-                            disabled={isDisabled}
-                            onClick={() => onTabChange(tab.id)}
-                            className={`
-                                flex items-center justify-center px-6 py-2 rounded-lg text-sm font-bold transition-all
-                                ${isActive
-                                    ? 'bg-white text-[var(--brand-accent)] shadow-sm'
-                                    : isDisabled
-                                        ? 'text-slate-300 cursor-not-allowed'
-                                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}
-                            `}
-                        >
-                            {tab.label}
-                        </button>
-                    );
-                })}
-            </nav>
+                        return (
+                            <button
+                                key={tab.id}
+                                disabled={isDisabled}
+                                onClick={() => onTabChange(tab.id)}
+                                className={`
+                                    flex items-center justify-center px-6 py-2 rounded-lg text-sm font-bold transition-all
+                                    ${isActive
+                                        ? 'bg-white text-[var(--brand-accent)] shadow-sm'
+                                        : isDisabled
+                                            ? 'text-slate-300 cursor-not-allowed'
+                                            : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}
+                                `}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </nav>
+            )}
 
             {/* Actions & User */}
             <div className="flex items-center gap-3 md:gap-4">
