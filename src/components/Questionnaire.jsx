@@ -45,7 +45,14 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
     const authName = user?.profile?.name || user?.user_metadata?.full_name || user?.user_metadata?.name || '';
     const currentAnswer = answers[currentIndex];
 
-    const questionText = currentQuestion ? (typeof currentQuestion === 'string' ? currentQuestion : currentQuestion.text) : '';
+    const userNameInput = answers[0] !== undefined ? answers[0] : authName;
+    const questionText = currentQuestion 
+        ? (typeof currentQuestion === 'string' 
+            ? currentQuestion 
+            : (typeof currentQuestion.text === 'function' 
+                ? currentQuestion.text(userNameInput) 
+                : currentQuestion.text)) 
+        : '';
     const isLocationQuestion = questionText ? ((questionText.toLowerCase().includes('focusing') ||
         questionText.toLowerCase().includes('location') ||
         questionText.toLowerCase().includes('situated') ||
