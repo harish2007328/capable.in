@@ -24,6 +24,14 @@ const saveLocalProjects = (projects) => {
 };
 
 export const ProjectStorage = {
+    isCached: (id) => {
+        return !!memoryCache.projects[id];
+    },
+
+    getCached: (id) => {
+        return memoryCache.projects[id] || null;
+    },
+
     init: async () => {
         // Migration logic from old individual keys
         const idea = localStorage.getItem('userIdea');

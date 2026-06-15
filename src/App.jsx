@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const VenturePage = React.lazy(() => import('./pages/VenturePage'));
+const OnboardPage = React.lazy(() => import('./pages/OnboardPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const FeaturesPage = React.lazy(() => import('./pages/FeaturesPage'));
 const CheckoutResult = React.lazy(() => import('./pages/CheckoutResult'));
@@ -45,7 +46,8 @@ function App() {
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/checkout-result" element={<CheckoutResult />} />
 
-              {/* Unified Venture Route - Public (Handles guests via localStorage) */}
+              {/* Onboarding and Unified Venture Routes */}
+              <Route path="/onboard" element={<OnboardPage />} />
               <Route path="/project" element={<VenturePage />} />
               <Route path="/project/:projectId" element={<VenturePage />} />
 

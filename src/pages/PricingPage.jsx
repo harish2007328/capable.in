@@ -146,7 +146,7 @@ const PricingPage = () => {
                             </div>
                             <button
                                 onClick={() => handleCheckout("Starter", 0)}
-                                className="w-full py-3 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-[13px] tracking-wider uppercase transition-all duration-300 active:scale-95"
+                                className="w-full btn-secondary text-[13px] py-3 uppercase tracking-wider font-bold"
                             >
                                 Start Free
                             </button>
@@ -174,9 +174,9 @@ const PricingPage = () => {
                             <button
                                 disabled={loadingPlan === 'Pro' || userIsPro}
                                 onClick={() => handleCheckout("Pro", isYearly ? PLANS.pro.price.annual * 12 : PLANS.pro.price.monthly)}
-                                className="relative w-full py-3 rounded-xl bg-white text-gray-900 font-bold text-[13px] tracking-wider uppercase transition-all duration-300 active:scale-95 inline-flex items-center justify-center gap-2 z-10"
+                                className="relative w-full btn-primary text-[13px] py-3 uppercase tracking-wider font-bold inline-flex items-center justify-center gap-2 z-10"
                             >
-                                {userIsPro ? '✓ Current Plan' : loadingPlan === 'Pro' ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing</> : <><ZapIcon className="w-4 h-4 fill-gray-900" /> {PLANS.pro.cta}</>}
+                                {userIsPro ? '✓ Current Plan' : loadingPlan === 'Pro' ? <><Loader2 className="w-4 h-4 animate-spin text-white" /> Processing</> : <><ZapIcon className="w-4 h-4 fill-white text-white" /> {PLANS.pro.cta}</>}
                             </button>
                         </div>
 
@@ -255,7 +255,7 @@ const PricingPage = () => {
                                 <div className="absolute -bottom-6 left-6 right-6">
                                     <button
                                         onClick={() => handleCheckout("Starter", 0)}
-                                        className="w-full py-4 rounded-[28px] bg-[#0c1428] hover:bg-[#1a2b54] text-white font-bold text-[13px] tracking-wider uppercase transition-all duration-300 active:scale-95 shadow-lg shadow-black/20 inline-flex items-center justify-center gap-2 border border-gray-800"
+                                        className="w-full btn-secondary text-[13px] py-4 uppercase tracking-wider font-bold inline-flex items-center justify-center gap-2"
                                     >
                                         Start Free
                                     </button>
@@ -288,10 +288,9 @@ const PricingPage = () => {
                                     <button
                                         disabled={loadingPlan === 'Pro' || userIsPro}
                                         onClick={() => handleCheckout("Pro", isYearly ? PLANS.pro.price.annual * 12 : PLANS.pro.price.monthly)}
-                                        className="relative w-full py-4 rounded-[28px] bg-white border border-gray-100 text-gray-900 font-bold text-[13px] tracking-wider uppercase transition-all duration-300 active:scale-95 shadow-[0_8px_30px_rgba(255,255,255,0.15)] inline-flex items-center justify-center gap-2 overflow-hidden group/btn hover:shadow-[0_8px_30px_rgba(255,255,255,0.3)]"
+                                        className="relative w-full btn-primary text-[13px] py-4 uppercase tracking-wider font-bold inline-flex items-center justify-center gap-2 overflow-hidden"
                                     >
-                                        <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.06)] to-transparent -translate-x-[150%] skew-x-12 group-hover/btn:translate-x-[50%] transition-transform duration-700 ease-out"></div>
-                                        {userIsPro ? <span className="z-10">✓ Current Plan</span> : loadingPlan === 'Pro' ? <><Loader2 className="w-4 h-4 animate-spin text-gray-900 z-10" /> <span className="z-10">Processing</span></> : <><ZapIcon className="w-4 h-4 fill-gray-900 text-gray-900 z-10" /> <span className="z-10">{PLANS.pro.cta}</span></>}
+                                        {userIsPro ? <span className="z-10 text-white">✓ Current Plan</span> : loadingPlan === 'Pro' ? <><Loader2 className="w-4 h-4 animate-spin text-white z-10" /> <span className="z-10 text-white">Processing</span></> : <><ZapIcon className="w-4 h-4 fill-white text-white z-10" /> <span className="z-10 text-white">{PLANS.pro.cta}</span></>}
                                     </button>
                                 </div>
                             </motion.div>

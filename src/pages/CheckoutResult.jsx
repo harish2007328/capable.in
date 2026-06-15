@@ -100,7 +100,7 @@ const CheckoutResult = () => {
 
                         <button
                             onClick={() => navigate('/project')}
-                            className="w-full py-3.5 bg-white text-slate-900 rounded-xl font-bold text-sm tracking-wide hover:bg-sky-50 transition-all flex items-center justify-center gap-2"
+                            className="w-full btn-primary text-sm py-3 flex items-center justify-center gap-2"
                         >
                             Go to Project
                             <ArrowRight className="w-4 h-4" />
@@ -119,13 +119,13 @@ const CheckoutResult = () => {
                         <div className="space-y-3">
                             <button
                                 onClick={() => navigate('/pricing')}
-                                className="w-full py-3.5 bg-white text-slate-900 rounded-xl font-bold text-sm tracking-wide hover:bg-slate-100 transition-all"
+                                className="w-full btn-primary text-sm py-3"
                             >
                                 Try Again
                             </button>
                             <button
                                 onClick={() => navigate('/')}
-                                className="w-full py-3 text-white/50 hover:text-white font-medium text-xs transition-all tracking-wider uppercase"
+                                className="w-full py-2 text-white/50 hover:text-white font-medium text-xs transition-all tracking-wider uppercase"
                             >
                                 Return to Home
                             </button>

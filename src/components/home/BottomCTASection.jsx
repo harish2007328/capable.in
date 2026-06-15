@@ -53,18 +53,18 @@ const BottomCTASection = () => (
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }
                             }}
-                            className="inline-flex items-center justify-center gap-2 bg-white text-[var(--brand-accent)] px-8 py-4 rounded-xl font-bold text-[14px] tracking-tight hover:bg-blue-50 active:scale-[0.98] transition-all duration-200 whitespace-nowrap shadow-lg shadow-black/10"
+                            className="btn-primary"
                         >
                             Start Building — It's Free
                             <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
                         </Link>
                         <Link
                             to="/pricing"
-                            className="inline-flex items-center justify-center gap-2 bg-white/10 text-white border border-white/20 px-8 py-4 rounded-xl font-semibold text-[14px] tracking-tight hover:bg-white/20 active:scale-[0.98] transition-all duration-200 whitespace-nowrap"
+                            className="btn-secondary"
                         >
                             View Plans
                         </Link>
-                        <p className="text-blue-200/40 text-[11px] font-sans text-center mt-1">No credit card required</p>
+                        <p className="text-black/40 text-[11px] font-sans text-center mt-1">No credit card required</p>
                     </div>
                 </div>
             </motion.div>

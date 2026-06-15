@@ -44,7 +44,7 @@ const LoginPage = () => {
                     if (isMounted) {
                         const target = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard') 
                             ? location.state.from.pathname 
-                            : '/project';
+                            : '/onboard';
                         navigate(target, { replace: true });
                     }
                 }
@@ -70,7 +70,7 @@ const LoginPage = () => {
 
     const from = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard') 
         ? location.state.from.pathname 
-        : '/project';
+        : '/onboard';
 
     const [verificationMode, setVerificationMode] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
@@ -169,7 +169,7 @@ const LoginPage = () => {
                         className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all group"
                     >
                         <ChevronLeft size={14} className="transition-transform group-hover:-translate-x-1" />
-                        Home
+                        Back to Home
                     </button>
                 </div>
 
@@ -220,21 +220,21 @@ const LoginPage = () => {
                                 )}
                             </AnimatePresence>
 
-                            {/* OAuth Section - 2x2 Grid with reduced radius */}
-                            <div className="w-full mb-5">
-                                <button
-                                    onClick={() => handleOAuth('google')}
-                                    className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-slate-100 rounded-lg hover:bg-slate-50 transition-all font-bold text-slate-700 text-xs shadow-sm active:scale-95 group"
-                                >
-                                    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-                                        <path fill="#4285F4" d="M23.7449 12.27C23.7449 11.48 23.6849 10.73 23.5549 10H12.2549V14.51H18.7249C18.4349 15.99 17.5849 17.24 16.3249 18.09V21.09H20.1849C22.4449 19.01 23.7449 15.92 23.7449 12.27Z" />
-                                        <path fill="#34A853" d="M12.2549 24C15.4949 24 18.2049 22.92 20.1849 21.09L16.3249 18.09C15.2449 18.81 13.8749 19.25 12.2549 19.25C9.12492 19.25 6.47492 17.14 5.52492 14.29H1.54492V17.38C3.51492 21.3 7.56492 24 12.2549 24Z" />
-                                        <path fill="#FBBC05" d="M5.52492 14.29C5.27492 13.57 5.14492 12.8 5.14492 12C5.14492 11.2 5.28492 10.43 5.52492 9.71V6.62H1.54492C0.724922 8.24 0.254918 10.06 0.254918 12C0.254918 13.94 0.724922 15.76 1.54492 17.38L5.52492 14.29Z" />
-                                        <path fill="#EA4335" d="M12.2549 4.75C14.0249 4.75 15.6049 5.36 16.8549 6.55L20.2749 3.13C18.2049 1.19 15.4949 0 12.2549 0C7.56492 0 3.51492 2.7 1.54492 6.62L5.52492 9.71C6.47492 6.86 9.12492 4.75 12.2549 4.75Z" />
-                                    </svg>
-                                    Continue with Google
-                                </button>
-                            </div>
+                             {/* OAuth Section - 2x2 Grid with reduced radius */}
+                             <div className="w-full mb-5">
+                                 <button
+                                     onClick={() => handleOAuth('google')}
+                                     className="w-full btn-secondary text-xs py-3 justify-center"
+                                 >
+                                     <svg className="w-5 h-5 shrink-0 animate-none" viewBox="0 0 24 24">
+                                         <path fill="#4285F4" d="M23.7449 12.27C23.7449 11.48 23.6849 10.73 23.5549 10H12.2549V14.51H18.7249C18.4349 15.99 17.5849 17.24 16.3249 18.09V21.09H20.1849C22.4449 19.01 23.7449 15.92 23.7449 12.27Z" />
+                                         <path fill="#34A853" d="M12.2549 24C15.4949 24 18.2049 22.92 20.1849 21.09L16.3249 18.09C15.2449 18.81 13.8749 19.25 12.2549 19.25C9.12492 19.25 6.47492 17.14 5.52492 14.29H1.54492V17.38C3.51492 21.3 7.56492 24 12.2549 24Z" />
+                                         <path fill="#FBBC05" d="M5.52492 14.29C5.27492 13.57 5.14492 12.8 5.14492 12C5.14492 11.2 5.28492 10.43 5.52492 9.71V6.62H1.54492C0.724922 8.24 0.254918 10.06 0.254918 12C0.254918 13.94 0.724922 15.76 1.54492 17.38L5.52492 14.29Z" />
+                                         <path fill="#EA4335" d="M12.2549 4.75C14.0249 4.75 15.6049 5.36 16.8549 6.55L20.2749 3.13C18.2049 1.19 15.4949 0 12.2549 0C7.56492 0 3.51492 2.7 1.54492 6.62L5.52492 9.71C6.47492 6.86 9.12492 4.75 12.2549 4.75Z" />
+                                     </svg>
+                                     Continue with Google
+                                 </button>
+                             </div>
 
                             {/* Divider - Minimal */}
                             <div className="w-full flex items-center gap-3 mb-5">
@@ -253,7 +253,7 @@ const LoginPage = () => {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="your@email.com"
-                                            className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
+                                            className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
                                             required
                                         />
                                     </div>
@@ -273,7 +273,7 @@ const LoginPage = () => {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
-                                                className="w-full h-10 px-4 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
+                                                className="w-full h-10 px-4 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
                                                 required
                                             />
                                             <button
@@ -296,7 +296,7 @@ const LoginPage = () => {
                                                     value={confirmPassword}
                                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                                     placeholder="••••••••"
-                                                    className="w-full h-10 px-4 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
+                                                    className="w-full h-10 px-4 pr-12 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none font-bold text-slate-900 text-xs"
                                                     required={mode === 'signup'}
                                                 />
                                                 <button
@@ -313,7 +313,7 @@ const LoginPage = () => {
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full h-11 bg-[var(--brand-accent)] hover:bg-[#0099ff] text-white rounded-lg font-black text-[10px] uppercase tracking-[0.25em] flex items-center justify-center transition-all shadow-lg shadow-blue-500/10 active:scale-[0.98] disabled:opacity-70 mt-2"
+                                        className="w-full h-11 btn-primary py-0 px-4 text-xs font-bold uppercase tracking-wider mt-2"
                                     >
                                         {isLoading ? <Loader2 className="animate-spin" size={18} /> : (mode === 'login' ? 'Sign In' : 'Create Account')}
                                     </button>
@@ -330,14 +330,14 @@ const LoginPage = () => {
                                             value={verificationCode}
                                             onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                             placeholder="0 0 0 0 0 0"
-                                            className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[var(--brand-accent)] transition-all outline-none font-bold text-slate-900 text-xl text-center tracking-[0.5em]"
+                                            className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-slate-400 transition-all outline-none font-bold text-slate-900 text-xl text-center tracking-[0.5em]"
                                             required
                                         />
                                     </div>
                                     <button
                                         type="submit"
                                         disabled={isLoading}
-                                        className="w-full h-11 bg-[var(--brand-accent)] hover:bg-[#0099ff] text-white rounded-lg font-black text-[10px] uppercase tracking-[0.25em] flex items-center justify-center transition-all shadow-lg shadow-blue-500/10 active:scale-[0.98] disabled:opacity-70"
+                                        className="w-full h-11 btn-primary py-0 px-4 text-xs font-bold uppercase tracking-wider"
                                     >
                                         {isLoading ? <Loader2 className="animate-spin" size={18} /> : 'Verify & Continue'}
                                     </button>

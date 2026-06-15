@@ -24,7 +24,7 @@ const Layout = ({ children }) => {
     const isAppPage = false;
 
     // Focus Pages (No Sidebar, No Header)
-    const focusRoutes = ['/task', '/wizard', '/report', '/project', '/login', '/checkout-result'];
+    const focusRoutes = ['/task', '/wizard', '/report', '/project', '/login', '/checkout-result', '/onboard'];
     const isFocusPage = focusRoutes.some(route => location.pathname.startsWith(route));
     
     if (isFocusPage) {

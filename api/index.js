@@ -16,6 +16,7 @@ import crypto from 'crypto';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '.env.local'), override: true });
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -36,7 +37,7 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://capable.website", "https://www.capable.website", "https://capable-website.onrender.com", "https://4aqgz7mw.us-east.insforge.app", "https://api.groq.com", "https://checkout.dodopayments.com", "https://api.dodopayments.com", "https://www.google-analytics.com", "https://www.googleapis.com", "https://overbridgenet.com", "https://vercel.live", "wss://*.pusher.com", "https://*.pusher.com"],
+            connectSrc: ["'self'", "https://capable.website", "https://www.capable.website", "https://capable-website.onrender.com", "https://4aqgz7mw.us-east.insforge.app", "https://api.groq.com", "https://checkout.dodopayments.com", "https://api.dodopayments.com", "https://www.google-analytics.com", "https://www.googleapis.com", "https://overbridgenet.com", "https://vercel.live", "wss://*.pusher.com", "https://*.pusher.com", "http://localhost:3001", "ws://localhost:3001", "http://localhost:3000", "ws://localhost:3000", "http://localhost:5173", "ws://localhost:5173"],
             frameSrc: ["'self'", "https://vercel.live"]
         }
     }
@@ -353,6 +354,9 @@ app.get('/api/auth/google', (req, res) => {
     const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
     const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
 
+    // Get the origin we came from (passed from client)
+    const from = req.query.from || req.headers.referer || '';
+
     // Use hardcoded production URL to match Google Console exactly
     const dynamicRedirectUri = protocol === 'https'
         ? 'https://capable.website/api/auth/google/callback'
@@ -364,19 +368,38 @@ app.get('/api/auth/google', (req, res) => {
         dynamicRedirectUri
     );
 
+    const stateObj = {
+        from: from,
+        cleanHost: cleanHost,
+        protocol: protocol
+    };
+    const state = Buffer.from(JSON.stringify(stateObj)).toString('base64');
+
     const url = client.generateAuthUrl({
         access_type: 'offline',
-        scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+        scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email'],
+        state: state
     });
     res.redirect(url);
 });
 
 app.get('/api/auth/google/callback', async (req, res) => {
     try {
-        const { code } = req.query;
-        const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+        const { code, state } = req.query;
+        let fromOrigin = '';
+        let stateObj = null;
+        if (state) {
+            try {
+                stateObj = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
+                fromOrigin = stateObj.from;
+            } catch (e) {
+                console.error("Failed to parse state:", e.message);
+            }
+        }
+
+        const protocol = stateObj?.protocol || req.headers['x-forwarded-proto'] || req.protocol || 'https';
         const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
-        const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
+        const cleanHost = stateObj?.cleanHost || (trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001');
 
         // Match the LOGIN REDIRECT logic exactly
         const dynamicRedirectUri = protocol === 'https'
@@ -422,7 +445,14 @@ app.get('/api/auth/google/callback', async (req, res) => {
             picture = userInfo.picture;
         } else {
             console.error("Google Auth Error: Neither id_token nor access_token returned.");
-            return res.redirect(`${protocol}://${cleanHost}/login?error=auth_failed_no_token`);
+            let errorRedirectUrl;
+            if (fromOrigin && (fromOrigin.includes('localhost') || ALLOWED_ORIGINS.some(o => fromOrigin.startsWith(o)))) {
+                const originBase = fromOrigin.replace(/\/$/, '');
+                errorRedirectUrl = `${originBase}/login?error=auth_failed_no_token`;
+            } else {
+                errorRedirectUrl = `${protocol}://${cleanHost}/login?error=auth_failed_no_token`;
+            }
+            return res.redirect(errorRedirectUrl);
         }
 
         const password = getInsForgePassword(googleId);
@@ -555,10 +585,27 @@ app.get('/api/auth/google/callback', async (req, res) => {
         if (cleanHost.includes('localhost:3001') || cleanHost.includes('localhost:3000')) {
             redirectHost = 'localhost:5173';
         }
+
+        let redirectUrl;
+        if (fromOrigin && (fromOrigin.includes('localhost') || ALLOWED_ORIGINS.some(o => fromOrigin.startsWith(o)))) {
+            const originBase = fromOrigin.replace(/\/$/, '');
+            redirectUrl = `${originBase}/auth/callback?access_token=${accessToken}`;
+        } else {
+            redirectUrl = `${protocol}://${redirectHost}/auth/callback?access_token=${accessToken}`;
+        }
+
         // Final Redirect: Send user back to the frontend on the correct dev server or prod host
-        res.redirect(`${protocol}://${redirectHost}/auth/callback?access_token=${accessToken}`);
+        res.redirect(redirectUrl);
     } catch (err) {
         console.error("GOOGLE AUTH ERROR:", err.message);
+        const { state } = req.query;
+        let fromOrigin = '';
+        if (state) {
+            try {
+                const stateObj = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
+                fromOrigin = stateObj.from;
+            } catch (e) {}
+        }
         const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
         const trueHost = req.headers['x-forwarded-host'] || req.headers.host;
         const cleanHost = trueHost ? trueHost.replace(/^www\./, '') : 'localhost:3001';
@@ -566,7 +613,15 @@ app.get('/api/auth/google/callback', async (req, res) => {
         if (cleanHost.includes('localhost:3001') || cleanHost.includes('localhost:3000')) {
             errorRedirectHost = 'localhost:5173';
         }
-        res.redirect(`${protocol}://${errorRedirectHost}/login?error=auth_failed`);
+        
+        let errorRedirectUrl;
+        if (fromOrigin && (fromOrigin.includes('localhost') || ALLOWED_ORIGINS.some(o => fromOrigin.startsWith(o)))) {
+            const originBase = fromOrigin.replace(/\/$/, '');
+            errorRedirectUrl = `${originBase}/login?error=auth_failed`;
+        } else {
+            errorRedirectUrl = `${protocol}://${errorRedirectHost}/login?error=auth_failed`;
+        }
+        res.redirect(errorRedirectUrl);
     }
 });
 

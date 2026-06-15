@@ -8,6 +8,7 @@ import { getUserLimits } from '../config/planConfig';
 import PricingModal from '../components/PricingModal';
 import Lottie from 'lottie-react';
 import loaderAnimation from '../loader.json';
+import { PrimaryButton, SecondaryButton } from '../components/Button';
 
 // Import Home Components
 const ServicesSection = React.lazy(() => import('../components/home/ServicesSection'));
@@ -70,7 +71,7 @@ const HomePage = () => {
         if (!user) {
             navigate('/login', {
                 state: {
-                    from: { pathname: '/project' }
+                    from: { pathname: '/onboard' }
                 }
             });
             return;
@@ -84,7 +85,7 @@ const HomePage = () => {
             return;
         }
 
-        navigate('/project');
+        navigate('/onboard');
     };
 
     return (
@@ -122,13 +123,13 @@ const HomePage = () => {
 
                         <motion.div variants={fadeUp} className="relative w-full max-w-6xl mx-auto mb-8 flex flex-col items-center z-40">
                             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full max-w-md">
-                                <button
+                                <PrimaryButton
                                     onClick={handleGetStarted}
-                                    className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white text-lg font-bold rounded-2xl hover:shadow-2xl hover:shadow-blue-500/35 transition-all duration-300 active:scale-95 flex items-center justify-center gap-3"
+                                    className="w-full sm:w-auto text-lg"
                                 >
                                     <span>Get Started</span>
-                                    <Sparkles className="w-5 h-5 text-white" />
-                                </button>
+                                    <Sparkles className="w-5 h-5" />
+                                </PrimaryButton>
                             </div>
                         </motion.div>
 

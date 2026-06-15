@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu, Plus, Send, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import MentorChat from './MentorChat';
+import heroPoster from '../assets/hero-poster.png';
 
 const ANALYSIS_STEPS = [
     { text: "Agent searching the internet...", icon: <Globe size={18} /> },
@@ -18,20 +20,28 @@ const SOURCE_DOTS = [
     { name: "Gemini", bg: "bg-indigo-500" },
 ];
 
+const getBadgeLabel = (q) => {
+    if (!q) return 'Your Answer';
+    if (q.id === 'name') return 'Your Name';
+    if (q.id === 'companyName') return 'Company Name';
+    if (q.id === 'idea') return 'Describe your idea';
+    return q.placeholder || 'Your Answer';
+};
+
 const ROLES = [
-  { id: 'founder', label: 'Founder / Entrepreneur' },
-  { id: 'engineering', label: 'Software Engineer' },
-  { id: 'product', label: 'Product Manager' },
-  { id: 'designer', label: 'Designer / Creative' },
-  { id: 'sales', label: 'Sales representative' },
-  { id: 'marketing', label: 'Marketing specialist' },
-  { id: 'operations', label: 'Operations lead' },
-  { id: 'finance', label: 'Finance / Investor' },
-  { id: 'consultant', label: 'Business Consultant' },
-  { id: 'other', label: 'Other' }
+    { id: 'founder', label: 'Founder / Entrepreneur' },
+    { id: 'engineering', label: 'Software Engineer' },
+    { id: 'product', label: 'Product Manager' },
+    { id: 'designer', label: 'Designer / Creative' },
+    { id: 'sales', label: 'Sales representative' },
+    { id: 'marketing', label: 'Marketing specialist' },
+    { id: 'operations', label: 'Operations lead' },
+    { id: 'finance', label: 'Finance / Investor' },
+    { id: 'consultant', label: 'Business Consultant' },
+    { id: 'other', label: 'Other' }
 ];
 
-const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReadonly = false, onBack, isLoading = false }) => {
+const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, onStageSubmit, isReadonly = false, onBack, isLoading = false, isStageSubmitting = false, isGeneratedPhase = false, originalIdea = '' }) => {
     const { user } = useAuth();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState([]);
@@ -46,12 +56,12 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
     const currentAnswer = answers[currentIndex];
 
     const userNameInput = answers[0] !== undefined ? answers[0] : authName;
-    const questionText = currentQuestion 
-        ? (typeof currentQuestion === 'string' 
-            ? currentQuestion 
-            : (typeof currentQuestion.text === 'function' 
-                ? currentQuestion.text(userNameInput) 
-                : currentQuestion.text)) 
+    const questionText = currentQuestion
+        ? (typeof currentQuestion === 'string'
+            ? currentQuestion
+            : (typeof currentQuestion.text === 'function'
+                ? currentQuestion.text(userNameInput)
+                : currentQuestion.text))
         : '';
     const isLocationQuestion = questionText ? ((questionText.toLowerCase().includes('focusing') ||
         questionText.toLowerCase().includes('location') ||
@@ -61,8 +71,8 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
         !questionText.toLowerCase().includes('money')) : false;
 
     // Derive location parts statelessly
-    const parts = (typeof currentAnswer === 'string' && currentAnswer !== 'Globally') 
-        ? currentAnswer.split(',').map(p => p.trim()) 
+    const parts = (typeof currentAnswer === 'string' && currentAnswer !== 'Globally')
+        ? currentAnswer.split(',').map(p => p.trim())
         : [];
     const country = parts[0] || '';
     const state = parts[1] || '';
@@ -106,13 +116,29 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
 
     const handleNext = () => {
         setIsManual(false);
-        if (currentQuestion && currentQuestion.id === 'idea' && onOnboardingSubmit) {
-            const onboardingData = {
-                name: answers[0] !== undefined ? answers[0] : authName,
-                role: answers[1],
-                companyName: answers[3],
-                idea: answers[4]
-            };
+        if (currentQuestion && currentQuestion.id === 'stage' && onStageSubmit) {
+            const onboardingData = {};
+            questions.forEach((q, idx) => {
+                if (q && q.id) {
+                    onboardingData[q.id] = answers[idx];
+                }
+            });
+            if (onboardingData.name === undefined || onboardingData.name === '') {
+                onboardingData.name = authName;
+            }
+            onStageSubmit(onboardingData, () => {
+                setCurrentIndex(prev => prev + 1);
+            });
+        } else if (currentQuestion && currentQuestion.id === 'idea' && onOnboardingSubmit) {
+            const onboardingData = {};
+            questions.forEach((q, idx) => {
+                if (q && q.id) {
+                    onboardingData[q.id] = answers[idx];
+                }
+            });
+            if (onboardingData.name === undefined || onboardingData.name === '') {
+                onboardingData.name = authName;
+            }
             onOnboardingSubmit(onboardingData);
         } else if (isLastStep) {
             if (isValidAnswer(answers[currentIndex])) setShowFinalCta(true);
@@ -129,7 +155,8 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
     const isValidAnswer = (answer) => {
         if (currentQuestion && currentQuestion.type === 'greeting') return true;
         if (currentQuestion && currentQuestion.id === 'name' && authName) return true;
-        
+        if (currentQuestion && currentQuestion.type === 'stage-slider') return true;
+
         // Use default fallback if answer is undefined
         const actualAnswer = answer !== undefined ? answer : '';
         if (Array.isArray(actualAnswer)) return actualAnswer.length > 0;
@@ -154,42 +181,86 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
         return () => clearInterval(interval);
     }, [isLoading]);
 
+    useEffect(() => {
+        if (currentQuestion && currentQuestion.type === 'stage-slider' && answers[currentIndex] === undefined) {
+            handleManualSubmit('MVP');
+        }
+    }, [currentIndex, currentQuestion]);
+
+    // Chat messages state for idea step
+    const [chatMessages, setChatMessages] = useState([
+        { role: 'assistant', content: 'Tell me about your idea' }
+    ]);
+    const [chatInput, setChatInput] = useState('');
+    const chatBottomRef = React.useRef(null);
+    useEffect(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chatMessages]);
+
     if (!isLoading && (!questions || questions.length === 0)) return null;
 
     const options = (currentQuestion && currentQuestion.options) ? currentQuestion.options : [];
     const hasValidAnswer = isValidAnswer(currentAnswer);
 
-    return (
-        <div className="w-full h-full flex overflow-hidden bg-white">
-            {/* Left Panel - Questions (3/5 = 60%) */}
-            <div className="w-full md:w-[60%] h-full flex flex-col relative border-r border-slate-100">
-                {/* Header */}
-                <div className="px-8 pt-8 pb-4 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-100 rounded-full shadow-sm">
-                        {isLoading ? (
-                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
-                                INITIALIZING PROJECT CORE
-                            </span>
-                        ) : (
-                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
-                                Discovery Phase {currentIndex + 1} / {questions.length}
-                            </span>
-                        )}
-                    </div>
-                    <div className="bg-blue-50/50 rounded-lg px-3 py-1 border border-blue-100/50 flex items-center gap-2">
-                        <Lock size={10} className="text-[var(--brand-accent)]" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-[var(--brand-accent)]">Ideas are encrypted & safe</span>
+    // ---- chat-idea step: full-screen, uses actual MentorChat component ----
+    if (!isLoading && currentQuestion && currentQuestion.type === 'chat-idea') {
+        return (
+            <div className="w-full h-full flex overflow-hidden bg-[#F5F5F5]">
+                {/* Left side flex-1: blank area for future content */}
+                <div className="hidden md:flex flex-1 h-full items-center justify-center">
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-slate-200/40">
+                        <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                            {(authName || 'U').charAt(0).toUpperCase()}{(authName || '').split(' ')[1]?.charAt(0)?.toUpperCase() || ''}
+                        </div>
                     </div>
                 </div>
 
-                {/* Content - Vertically Centered */}
-                <div className="flex-1 overflow-y-auto px-8 md:px-16 pb-32 custom-scrollbar flex flex-col items-center justify-center relative">
-                    {/* Subtle Background Glow & Scan line effect */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-50/30 rounded-full blur-[120px] pointer-events-none -z-10 animate-pulse"></div>
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
-                        <div className="w-full h-[1px] bg-[var(--brand-accent)] animate-[scan_4s_linear_infinite]"></div>
-                    </div>
+                {/* Right side 400px fixed: MentorChat */}
+                <div className="w-full md:w-[400px] shrink-0 h-full flex flex-col bg-transparent">
+                    <MentorChat
+                        initialMessage={
+                            typeof currentQuestion.text === 'function'
+                                ? currentQuestion.text(authName)
+                                : (currentQuestion.text || 'Tell me about your idea')
+                        }
+                        onUserMessage={(msg) => {
+                            handleManualSubmit(msg);
+                            setTimeout(() => {
+                                if (onOnboardingSubmit) {
+                                    const onboardingData = {};
+                                    questions.forEach((q, idx) => {
+                                        if (q && q.id) onboardingData[q.id] = idx === currentIndex ? msg : answers[idx];
+                                    });
+                                    if (!onboardingData.name) onboardingData.name = authName;
+                                    onOnboardingSubmit(onboardingData);
+                                }
+                            }, 400);
+                        }}
+                    />
+                </div>
+            </div>
+        );
+    }
 
+    return (
+        <div className={`w-full h-full flex overflow-hidden ${isGeneratedPhase ? 'bg-[#F5F5F5]' : 'bg-white'}`}>
+            {/* Left Panel - Questions */}
+            <div className={`w-full ${isGeneratedPhase ? 'md:flex-1 bg-transparent' : 'md:w-[50%] bg-white'} h-full flex flex-col relative z-10`}>
+                {/* Header */}
+                <div className="px-6 pt-6 pb-2 flex items-center shrink-0 gap-3">
+                    <button
+                        onClick={onBack || (() => window.location.href = '/')}
+                        className="onboarding-back-btn flex items-center gap-2"
+                    >
+                        <ChevronLeft size={14} />
+                        Back to Home
+                    </button>
+                </div>
+
+                {/* Content - Vertically Centered */}
+                <div className="flex-1 overflow-y-auto px-8 md:px-16 pb-12 flex flex-col items-center justify-center custom-scrollbar relative">
+                    {/* Subtle Background Glow & Scan line effect */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-slate-50 rounded-full blur-[120px] pointer-events-none -z-10 animate-pulse"></div>
 
                     {isLoading ? (
                         /* === MINIMALIST PREMIUM LOADING UI === */
@@ -223,7 +294,7 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                 </h2>
                                             </motion.div>
                                         </AnimatePresence>
-                                        
+
                                         <p className="text-slate-400 text-xs font-medium max-w-xs mx-auto leading-relaxed opacity-60">
                                             Curating 10 tailored questions for your discovery path
                                         </p>
@@ -256,25 +327,28 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.2 }}
-                                className="max-w-xl mx-auto w-full"
+                                className={currentQuestion.type === 'chat-idea' ? 'w-full max-w-[420px] h-full flex flex-col' : isGeneratedPhase ? 'max-w-2xl mx-auto w-full' : 'max-w-md mx-auto w-full'}
                             >
-                                <h1 className="text-3xl font-medium text-slate-900 leading-tight tracking-tight mb-2">
-                                    {typeof currentQuestion === 'string' 
-                                        ? currentQuestion 
-                                        : (typeof currentQuestion.text === 'function' 
-                                            ? currentQuestion.text(answers[0]) 
-                                            : currentQuestion.text)}
-                                </h1>
-
-                                {currentQuestion.description && (
-                                    <p className="text-slate-500 text-sm mb-8 leading-relaxed">
-                                        {currentQuestion.description}
-                                    </p>
+                                {currentQuestion.type !== 'chat-idea' && (
+                                    <h1 className={isGeneratedPhase
+                                        ? "text-base font-normal text-slate-700 leading-relaxed mb-6 text-left"
+                                        : "text-4xl font-medium text-slate-900 leading-tight tracking-tight mb-10 text-center whitespace-nowrap"
+                                    }>
+                                        {isGeneratedPhase && <span className="text-slate-400 text-sm mr-2">{currentIndex + 1}.</span>}
+                                        {typeof currentQuestion === 'string'
+                                            ? currentQuestion
+                                            : (typeof currentQuestion.text === 'function'
+                                                ? currentQuestion.text(answers[0])
+                                                : currentQuestion.text)}
+                                    </h1>
                                 )}
 
-                                <div className={currentQuestion.type === 'greeting' || currentQuestion.type === 'textarea' || currentQuestion.type === 'text' ? "w-full animate-in fade-in duration-300" : "grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in duration-300"}>
+                                <div className={currentQuestion.type === 'chat-idea' ? "w-full h-full flex flex-col animate-in fade-in duration-300" : currentQuestion.type === 'greeting' || currentQuestion.type === 'textarea' || currentQuestion.type === 'text' || currentQuestion.type === 'stage-slider' ? "w-full animate-in fade-in duration-300" : "grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in duration-300"}>
                                     {currentQuestion.type === 'text' ? (
-                                        <div className="w-full">
+                                        <div className="relative mt-0 w-full">
+                                            <div className="onboarding-badge">
+                                                {getBadgeLabel(currentQuestion)}
+                                            </div>
                                             <input
                                                 type="text"
                                                 value={currentAnswer !== undefined ? currentAnswer : (currentQuestion.id === 'name' ? authName : '')}
@@ -285,19 +359,200 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                         handleNext();
                                                     }
                                                 }}
-                                                className="w-full px-5 py-4 border border-slate-200 rounded-2xl text-lg outline-none transition-all focus:border-[var(--brand-accent)] focus:ring-1 focus:ring-[var(--brand-accent)] text-slate-800 placeholder:text-slate-300"
+                                                className="onboarding-input"
                                                 autoFocus
                                             />
+                                            {currentQuestion.description && (
+                                                <p className="mt-2 text-[11px] text-slate-400 font-normal text-center">
+                                                    {currentQuestion.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : currentQuestion.type === 'chat-idea' ? (
+                                        /* Full-height MentorChat-style idea chat */
+                                        <div className="w-full h-full flex flex-col bg-white border-l border-slate-100 animate-in fade-in duration-300">
+                                            {/* Chat Header */}
+                                            <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-7 h-7 rounded-full bg-[#303030] flex items-center justify-center">
+                                                        <Sparkles size={13} className="text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[12px] font-semibold text-slate-800 leading-tight">Capable AI</p>
+                                                        <p className="text-[10px] text-slate-400 leading-tight">Business Discovery</p>
+                                                    </div>
+                                                </div>
+                                                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-300 flex items-center gap-1.5">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                                    Online
+                                                </span>
+                                            </div>
+
+                                            {/* Messages */}
+                                            <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
+                                                {chatMessages.map((msg, i) => (
+                                                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                                        {msg.role === 'assistant' && (
+                                                            <div className="w-6 h-6 rounded-full bg-[#303030] flex items-center justify-center mr-2.5 mt-0.5 shrink-0">
+                                                                <Sparkles size={11} className="text-white" />
+                                                            </div>
+                                                        )}
+                                                        <div className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed shadow-sm ${msg.role === 'user'
+                                                                ? 'bg-[#303030] text-white rounded-2xl rounded-tr-sm'
+                                                                : 'bg-slate-50 text-slate-700 border border-slate-100 rounded-2xl rounded-tl-sm'
+                                                            }`}>
+                                                            {msg.content}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div ref={chatBottomRef} />
+                                            </div>
+
+                                            {/* Input */}
+                                            <div className="p-4 bg-white border-t border-slate-100 shrink-0">
+                                                <form
+                                                    onSubmit={(e) => {
+                                                        e.preventDefault();
+                                                        const val = chatInput.trim();
+                                                        if (!val || isReadonly) return;
+                                                        // Add user message
+                                                        setChatMessages(prev => [...prev, { role: 'user', content: val }]);
+                                                        setChatInput('');
+                                                        // Store answer and submit
+                                                        handleManualSubmit(val);
+                                                        // Trigger onboarding submit after brief visual delay
+                                                        setTimeout(() => {
+                                                            if (onOnboardingSubmit) {
+                                                                const onboardingData = {};
+                                                                questions.forEach((q, idx) => {
+                                                                    if (q && q.id) onboardingData[q.id] = idx === currentIndex ? val : answers[idx];
+                                                                });
+                                                                if (!onboardingData.name) onboardingData.name = authName;
+                                                                onOnboardingSubmit(onboardingData);
+                                                            }
+                                                        }, 400);
+                                                    }}
+                                                    className="relative flex items-end bg-white shadow-sm border border-slate-200 rounded-2xl focus-within:ring-2 focus-within:ring-slate-900/5 transition-all"
+                                                >
+                                                    <textarea
+                                                        value={chatInput}
+                                                        onChange={(e) => setChatInput(e.target.value)}
+                                                        placeholder={currentQuestion.placeholder || 'Describe your idea or business...'}
+                                                        rows={2}
+                                                        autoFocus
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                                e.preventDefault();
+                                                                e.target.form.requestSubmit();
+                                                            }
+                                                        }}
+                                                        className="flex-1 bg-transparent border-none py-3 pl-5 pr-14 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none resize-none"
+                                                    />
+                                                    <button
+                                                        type="submit"
+                                                        disabled={!chatInput.trim() || isReadonly}
+                                                        className="absolute right-2.5 bottom-2.5 p-2 bg-[#303030] text-white rounded-xl hover:bg-[#222] shadow-sm disabled:opacity-20 transition-all"
+                                                    >
+                                                        <Send size={14} />
+                                                    </button>
+                                                </form>
+                                                <p className="text-center text-[10px] text-slate-400 mt-2.5">Press Enter to send · Shift+Enter for new line</p>
+                                            </div>
                                         </div>
                                     ) : currentQuestion.type === 'textarea' ? (
-                                        <div className="w-full">
+                                        <div className="relative mt-0 w-full">
+                                            <div className="onboarding-badge">
+                                                {getBadgeLabel(currentQuestion)}
+                                            </div>
                                             <textarea
                                                 value={currentAnswer || ''}
                                                 onChange={(e) => handleManualSubmit(e.target.value)}
                                                 placeholder={currentQuestion.placeholder || 'Enter your answer...'}
-                                                className="w-full h-32 px-5 py-4 border border-slate-200 rounded-2xl text-base outline-none resize-none transition-all focus:border-[var(--brand-accent)] focus:ring-1 focus:ring-[var(--brand-accent)] custom-scrollbar text-slate-800 placeholder:text-slate-300"
+                                                className="onboarding-textarea"
                                                 autoFocus
                                             />
+                                            {currentQuestion.description && (
+                                                <p className="mt-2 text-[11px] text-slate-400 font-normal text-center">
+                                                    {currentQuestion.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : currentQuestion.type === 'stage-slider' ? (
+                                        <div className="relative mt-0 w-full flex flex-col items-center">
+                                            {/* Labels row */}
+                                            <div className="w-full flex justify-between select-none">
+                                                {options.map((opt) => {
+                                                    const isSelected = (currentAnswer || 'MVP') === opt;
+                                                    return (
+                                                        <button
+                                                            key={opt}
+                                                            type="button"
+                                                            onClick={() => handleManualSubmit(opt)}
+                                                            className={`px-3 py-1.5 text-[12px] md:text-[13px] whitespace-nowrap rounded-lg transition-all duration-300 text-center ${isSelected
+                                                                ? 'bg-[#006EDB]/10 text-[#006EDB] font-medium'
+                                                                : 'text-slate-400 hover:text-slate-600 font-normal'
+                                                                }`}
+                                                        >
+                                                            {opt}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            {/* Ruler/Ticks visualization */}
+                                            <div className="relative w-full pt-3 pb-6 flex flex-col items-center">
+                                                {/* Ticks container - same justify-between as labels, no extra padding */}
+                                                <div className="w-full flex items-end justify-between h-10 relative select-none">
+                                                    {Array.from({ length: 55 }).map((_, i) => {
+                                                        const selectedOptIdx = options.indexOf(currentAnswer || 'MVP');
+                                                        const targetTickIdx = selectedOptIdx * 9;
+                                                        const dist = Math.abs(i - targetTickIdx);
+
+                                                        const maxDist = 9;
+                                                        const factor = Math.max(0, 1 - dist / maxDist);
+
+                                                        const height = 12 + factor * 20;
+
+                                                        let style = { height: `${height}px`, transition: 'all 300ms ease' };
+
+                                                        if (factor > 0) {
+                                                            style.backgroundColor = '#006EDB';
+                                                            style.opacity = 0.3 + factor * 0.7;
+                                                        } else {
+                                                            style.backgroundColor = '#94A3B8';
+                                                            style.opacity = 0.4;
+                                                        }
+
+                                                        return (
+                                                            <div
+                                                                key={i}
+                                                                className="w-[2px] rounded-full"
+                                                                style={style}
+                                                            />
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                {/* Blue dot indicator */}
+                                                <div className="relative w-full h-4 mt-3">
+                                                    <div
+                                                        className="absolute w-2.5 h-2.5 bg-[#006EDB] rounded-full -translate-x-1/2 transition-all duration-300 ease-out"
+                                                        style={{
+                                                            left: `${(options.indexOf(currentAnswer || 'MVP') / (options.length - 1)) * 100}%`
+                                                        }}
+                                                    />
+                                                </div>
+
+                                                {/* Invisible range input for drag */}
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max={options.length - 1}
+                                                    value={options.indexOf(currentAnswer || 'MVP')}
+                                                    onChange={(e) => handleManualSubmit(options[parseInt(e.target.value)])}
+                                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                                />
+                                            </div>
                                         </div>
                                     ) : currentQuestion.type === 'role' ? (
                                         <>
@@ -309,35 +564,24 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                         onClick={() => {
                                                             handleManualSubmit(role.label);
                                                         }}
-                                                        className={`
-                                                            group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
-                                                            ${isSelected
-                                                                ? 'bg-slate-900 border-slate-900 text-white'
-                                                                : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
-                                                            }
-                                                        `}
+                                                        className={`onboarding-option-btn ${isSelected ? 'selected' : ''}`}
                                                     >
-                                                        <div className={`
-                                                            w-5 h-5 rounded-full flex items-center justify-center shrink-0 border transition-colors
-                                                            ${isSelected ? 'border-white/30 bg-white/10 text-white' : 'border-slate-200 bg-slate-50'}
-                                                        `}>
-                                                            {isSelected && <CheckCircle2 size={10} />}
+                                                        <div className="onboarding-option-circle">
+                                                            <div className="onboarding-option-dot" />
                                                         </div>
-                                                        <span className="text-sm font-semibold uppercase tracking-wider">
-                                                            {role.label}
-                                                        </span>
+                                                        <span>{role.label}</span>
                                                     </button>
                                                 );
                                             })}
                                         </>
                                     ) : currentQuestion.type === 'greeting' ? (
                                         <div className="flex flex-col items-center text-center space-y-6 w-full py-4 animate-in fade-in duration-500">
-                                            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] flex items-center justify-center text-white shadow-lg shadow-blue-100 animate-[bounce_2s_infinite]">
+                                            <div className="w-16 h-16 rounded-full bg-[#303030] flex items-center justify-center text-white shadow-lg shadow-black/10 animate-[bounce_2s_infinite]">
                                                 <Sparkles size={28} />
                                             </div>
                                             <button
                                                 onClick={handleNext}
-                                                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-accent-hover)] text-white rounded-2xl font-bold text-[16px] shadow-lg shadow-blue-500/25 active:scale-98 transition-all flex items-center justify-center gap-2 mx-auto uppercase tracking-wider hover:shadow-xl hover:shadow-blue-200"
+                                                className="px-8 py-3.5 btn-primary text-sm font-medium normal-case flex items-center gap-2"
                                             >
                                                 <span>Turn your idea into business</span>
                                                 <ChevronRight size={18} />
@@ -345,7 +589,7 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                         </div>
                                     ) : isLocationQuestion ? (
                                         <>
-                                            <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
+                                            <div className="bg-white border-2 border-slate-100 rounded-[10px] p-4 flex flex-col gap-1 focus-within:border-slate-400 transition-colors">
                                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Country</span>
                                                 <input
                                                     type="text"
@@ -355,7 +599,7 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                     className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
                                                 />
                                             </div>
-                                            <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
+                                            <div className="bg-white border-2 border-slate-100 rounded-[10px] p-4 flex flex-col gap-1 focus-within:border-slate-400 transition-colors">
                                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">State / Region</span>
                                                 <input
                                                     type="text"
@@ -365,7 +609,7 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                     className="bg-transparent border-none outline-none text-xs font-bold uppercase tracking-wider text-slate-800 placeholder:text-slate-300 w-full"
                                                 />
                                             </div>
-                                            <div className="bg-white border-2 border-slate-100 rounded-xl p-4 flex flex-col gap-1 focus-within:border-[var(--brand-accent)] transition-colors">
+                                            <div className="bg-white border-2 border-slate-100 rounded-[10px] p-4 flex flex-col gap-1 focus-within:border-slate-400 transition-colors">
                                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">District / City</span>
                                                 <input
                                                     type="text"
@@ -380,7 +624,7 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                     handleManualSubmit("Globally");
                                                 }}
                                                 className={`
-                                                    group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
+                                                    group relative p-4 rounded-[10px] text-left transition-all duration-200 border-2 w-full flex items-center gap-3
                                                     ${currentAnswer === "Globally"
                                                         ? 'bg-slate-900 border-slate-900 text-white'
                                                         : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
@@ -398,47 +642,40 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                 </span>
                                             </button>
                                         </>
-                                    ) : (
+                                    ) : isGeneratedPhase ? (
+                                        /* Raw unstyled text options for generated phase */
                                         <>
-                                            {options.map((option, idx) => {
-                                                const isSelected = Array.isArray(currentAnswer) && currentAnswer.includes(option);
-                                                return (
-                                                    <button
-                                                        key={`opt-${currentIndex}-${idx}`}
-                                                        onClick={() => {
-                                                            setIsManual(false);
-                                                            handleOptionSelect(option);
-                                                        }}
-                                                        disabled={isReadonly}
-                                                        className={`
-                                                            group relative p-4 rounded-xl text-left transition-all duration-200 border-2 w-full flex items-center gap-3
-                                                            ${isSelected && !isManual
-                                                                ? 'bg-slate-900 border-slate-900 text-white'
-                                                                : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-600'
-                                                            }
-                                                        `}
-                                                    >
-                                                        <div className={`
-                                                            w-5 h-5 rounded-full flex items-center justify-center shrink-0 border transition-colors
-                                                            ${isSelected && !isManual ? 'border-white/30 bg-white/10 text-white' : 'border-slate-200 bg-slate-50'}
-                                                        `}>
-                                                            {isSelected && !isManual && <CheckCircle2 size={10} />}
-                                                        </div>
-                                                         <span className="text-sm font-semibold uppercase tracking-wider">
-                                                             {option}
-                                                        </span>
-                                                    </button>
-                                                );
-                                            })}
+                                            <div className="space-y-2">
+                                                {options.map((option, idx) => {
+                                                    const isSelected = Array.isArray(currentAnswer) && currentAnswer.includes(option);
+                                                    return (
+                                                        <button
+                                                            key={`opt-${currentIndex}-${idx}`}
+                                                            onClick={() => {
+                                                                setIsManual(false);
+                                                                handleOptionSelect(option);
+                                                            }}
+                                                            disabled={isReadonly}
+                                                            className={`w-full text-left px-3 py-2 text-sm transition-colors rounded ${
+                                                                isSelected && !isManual
+                                                                    ? 'text-slate-900 bg-slate-100'
+                                                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                                            }`}
+                                                        >
+                                                            {option}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
 
                                             {/* Inline Manual Input */}
-                                            <div className="h-full">
+                                            <div className="mt-2">
                                                 {isManual ? (
                                                     <textarea
                                                         value={typeof currentAnswer === 'string' ? currentAnswer : ''}
                                                         onChange={(e) => handleManualSubmit(e.target.value)}
-                                                        placeholder="Specify your own answer..."
-                                                        className="w-full h-full min-h-[58px] p-4 rounded-xl bg-white border-2 border-[var(--brand-accent)] text-xs font-bold uppercase tracking-wider text-slate-800 focus:outline-none transition-all placeholder:text-slate-400"
+                                                        placeholder="Type your own answer..."
+                                                        className="w-full min-h-[48px] px-3 py-2 text-sm text-slate-800 border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400 resize-none placeholder:text-slate-400"
                                                         autoFocus
                                                     />
                                                 ) : (
@@ -451,7 +688,56 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                                                 return next;
                                                             });
                                                         }}
-                                                        className="w-full h-full p-4 rounded-xl border-2 border-dashed border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all flex items-center gap-3 group"
+                                                        className="w-full text-left px-3 py-2 text-sm text-slate-400 hover:text-slate-600 transition-colors rounded hover:bg-slate-50"
+                                                    >
+                                                        Other / Custom
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {options.map((option, idx) => {
+                                                const isSelected = Array.isArray(currentAnswer) && currentAnswer.includes(option);
+                                                return (
+                                                    <button
+                                                        key={`opt-${currentIndex}-${idx}`}
+                                                        onClick={() => {
+                                                            setIsManual(false);
+                                                            handleOptionSelect(option);
+                                                        }}
+                                                        disabled={isReadonly}
+                                                        className={`onboarding-option-btn ${isSelected && !isManual ? 'selected' : ''}`}
+                                                    >
+                                                        <div className="onboarding-option-circle">
+                                                            <div className="onboarding-option-dot" />
+                                                        </div>
+                                                        <span>{option}</span>
+                                                    </button>
+                                                );
+                                            })}
+
+                                            {/* Inline Manual Input */}
+                                            <div className="h-full">
+                                                {isManual ? (
+                                                    <textarea
+                                                        value={typeof currentAnswer === 'string' ? currentAnswer : ''}
+                                                        onChange={(e) => handleManualSubmit(e.target.value)}
+                                                        placeholder="Specify your own answer..."
+                                                        className="w-full h-full min-h-[58px] p-4 rounded-[10px] bg-white border-2 border-[var(--brand-accent)] text-xs font-bold uppercase tracking-wider text-slate-800 focus:outline-none transition-all placeholder:text-slate-400"
+                                                        autoFocus
+                                                    />
+                                                ) : (
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsManual(true);
+                                                            setAnswers(prev => {
+                                                                const next = [...prev];
+                                                                next[currentIndex] = '';
+                                                                return next;
+                                                            });
+                                                        }}
+                                                        className="w-full h-full p-4 rounded-[10px] border-2 border-dashed border-slate-100 hover:border-slate-300 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-all flex items-center gap-3 group"
                                                     >
                                                         <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 border border-slate-200 bg-slate-50 group-hover:border-slate-300 transition-colors">
                                                             <PenTool size={10} className="group-hover:scale-110 transition-transform" />
@@ -463,90 +749,52 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                                         </>
                                     )}
                                 </div>
+
+                                {currentQuestion.type !== 'greeting' && currentQuestion.type !== 'chat-idea' && (
+                                    <div className={`flex ${isGeneratedPhase ? 'justify-start' : 'justify-center'} items-center gap-3 mt-10 w-full`}>
+                                        {currentIndex > 0 && (
+                                            <button
+                                                onClick={handlePrev}
+                                                className="text-sm font-normal text-slate-500 hover:text-slate-950 underline transition-colors mr-2 cursor-pointer"
+                                            >
+                                                Back
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={handleNext}
+                                            disabled={!hasValidAnswer || isReadonly || (currentQuestion.type === 'stage-slider' && isStageSubmitting)}
+                                            className="btn-primary onboarding-btn normal-case disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                        >
+                                            {currentQuestion.type === 'stage-slider' && isStageSubmitting ? (
+                                                <>
+                                                    <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                isLastStep ? (onOnboardingSubmit ? 'Launch Setup' : 'Finalize') : 'Continue'
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
                             </motion.div>
                         </AnimatePresence>
                     )}
                 </div>
-
-                {/* Footer Navigation */}
-                <div className="absolute bottom-0 left-0 w-full px-8 py-6 bg-white border-t border-slate-100 flex items-center justify-between shrink-0">
-                    {isLoading ? (
-                        <>
-                            <button className="group flex items-center gap-2 px-4 py-2.5 text-[10px] font-black text-slate-300 bg-transparent rounded-xl uppercase tracking-widest cursor-not-allowed">
-                                <ChevronLeft size={16} />
-                                Exit
-                            </button>
-                            <button className="group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest bg-slate-100 text-slate-300 cursor-not-allowed shadow-none">
-                                Continue
-                                <ChevronRight size={16} />
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button
-                                onClick={currentIndex === 0 ? onBack : handlePrev}
-                                className="group flex items-center gap-2 px-4 py-2.5 text-[10px] font-black text-slate-400 hover:text-slate-900 bg-transparent hover:bg-slate-50 rounded-xl uppercase tracking-widest transition-all"
-                            >
-                                <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                                {currentIndex === 0 ? 'Exit' : 'Previous'}
-                            </button>
-
-                            {currentQuestion && (
-                                <button
-                                    onClick={handleNext}
-                                    disabled={!hasValidAnswer || isReadonly}
-                                    className={`
-                                        group flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest shadow-lg
-                                        ${hasValidAnswer && !isReadonly
-                                            ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-blue-500/20 active:scale-95'
-                                            : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'
-                                        }
-                                    `}
-                                >
-                                    {isLastStep ? (onOnboardingSubmit ? 'Launch Setup' : 'Finalize') : 'Continue'}
-                                    <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                                </button>
-                            )}
-                        </>
-                    )}
-                </div>
             </div>
 
-            {/* Right Panel - Illustration (2/5 = 40%) */}
-            <div className="hidden md:flex md:w-[40%] h-full bg-[#FAFBFF] items-center justify-center p-0 overflow-hidden relative border-none">
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(var(--brand-accent)_1px,transparent_1px)] [background-size:20px_20px]"></div>
-
-                <div className="relative z-10 w-full h-full">
-                    <img
-                        src="/bauhaus_last_gen.webp"
-                        alt="Strategic Bauhaus Geometry"
-                        className="w-full h-full object-cover pointer-events-none select-none"
-                        onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1550684847-75bdda21cc95?q=80&w=2070&auto=format&fit=crop';
-                        }}
+            {/* Right Panel */}
+            {isGeneratedPhase ? (
+                <div className="hidden md:flex md:w-[400px] shrink-0 h-full bg-transparent">
+                    <MentorChat
+                        initialMessage="Tell me about your idea"
+                        initialUserMessage={originalIdea}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent"></div>
                 </div>
-
-                {/* Refined Glass + White Box Design (Matches Reference Image) */}
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-20">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
-                        className="p-2 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[32px] shadow-[0_24px_80px_rgba(0,0,0,0.4)]"
-                    >
-                        <div className="bg-white rounded-[24px] p-6 md:p-8 flex flex-col items-center text-center">
-                            <h3 className="text-slate-900 text-[11px] font-black tracking-[0.2em] uppercase mb-4 opacity-80">
-                                Creating Your Plan
-                            </h3>
-                            <p className="text-slate-600 text-xs font-semibold leading-relaxed max-w-[280px]">
-                                We're turning your vision into a clear, step-by-step roadmap. Every answer you provide helps us refine your path to success.
-                            </p>
-                        </div>
-                    </motion.div>
+            ) : (
+                <div className="hidden md:flex md:w-[50%] h-full relative overflow-hidden bg-slate-50">
+                    <img src={heroPoster} alt="Onboarding illustration" className="w-full h-full object-cover" />
                 </div>
-            </div>
+            )}
 
             {/* Final CTA Overlay */}
             <AnimatePresence>
@@ -572,13 +820,13 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, isReado
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setShowFinalCta(false)}
-                                    className="flex-1 py-3 text-slate-400 font-bold hover:text-slate-600 transition-colors text-[10px] uppercase tracking-widest border border-slate-100 rounded-xl hover:bg-slate-50"
+                                    className="flex-1 py-3 btn-secondary text-[10px] uppercase tracking-widest"
                                 >
                                     Review
                                 </button>
                                 <button
                                     onClick={handleFinalSubmit}
-                                    className="flex-[2] py-3 bg-[var(--brand-accent)] text-white font-bold rounded-xl shadow-lg shadow-blue-500/10 hover:bg-[var(--brand-accent-hover)] transition-all text-[10px] uppercase tracking-widest active:scale-95"
+                                    className="flex-[2] py-3 btn-primary text-[10px] uppercase tracking-widest"
                                 >
                                     Generate Report
                                 </button>

@@ -296,8 +296,9 @@ export const AuthProvider = ({ children }) => {
             // The server handles Google sign-in and creates/logs into InsForge account
             const serverUrl = import.meta.env.PROD
                 ? '' // Same origin in production (server serves the frontend)
-                : 'http://localhost:3001';
-            window.location.href = `${serverUrl}/api/auth/google`;
+                : (import.meta.env.VITE_API_URL || 'http://localhost:3001');
+            const fromQuery = `?from=${encodeURIComponent(window.location.origin)}`;
+            window.location.href = `${serverUrl}/api/auth/google${fromQuery}`;
             return;
         }
         // Fallback for other providers (if any) - use InsForge's built-in OAuth

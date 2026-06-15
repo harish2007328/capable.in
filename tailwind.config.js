@@ -5,27 +5,19 @@ export default {
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
+        colors: {
+            transparent: 'transparent',
+            current: 'currentColor',
+            black: '#303030',
+            white: '#ffffff',
+            primary: '#303030',
+        },
         extend: {
-            colors: {
-                // Strict Palette
-                'brand-blue': '#0066CC', // Primary Blue (matches --brand-accent)
-                'brand-dark-blue': '#073B99', // Secondary Deep Blue
-                'brand-black': '#000000', // Pure Black
-                'brand-white': '#FFFFFF', // Pure White
-                // Neutral Grays for Hierarchy (Derived from black/white)
-                'gray-50': '#F9FAFB',
-                'gray-100': '#F3F4F6',
-                'gray-200': '#E5E7EB',
-                'gray-300': '#D1D5DB',
-                'gray-800': '#1F2937',
-                'gray-900': '#111827',
-                'brand-accent': 'var(--brand-accent)',
-                'brand-accent-hover': 'var(--brand-accent-hover)',
-            },
             fontFamily: {
-                sans: ['"Albert Sans"', 'sans-serif'],
-                display: ['"Instrument Serif"', 'serif'],
-                body: ['"Albert Sans"', 'sans-serif'],
+                sans: ['Helvetica', 'Arial', 'sans-serif'],
+                serif: ['"Myriad Pro"', 'Myriad', 'sans-serif'],
+                display: ['"Myriad Pro"', 'Myriad', 'sans-serif'],
+                body: ['Helvetica', 'Arial', 'sans-serif'],
             },
             letterSpacing: {
                 tightest: '-0.02em',
@@ -37,10 +29,10 @@ export default {
                 widest: '0.08em',
             },
             borderRadius: {
-                // Standardized Radii
-                'card': '0.5rem', // 8px (rounded-lg)
-                'button': '0.375rem', // 6px (rounded-md)
-                'input': '0.375rem', // 6px
+                // Configurable corner radius variables
+                'button': 'var(--radius-button)', 
+                'card': 'var(--radius-card)', 
+                'input': 'var(--radius-input)', 
             },
             boxShadow: {
                 'soft': '0 2px 10px rgba(0, 0, 0, 0.03)', // Very subtle
