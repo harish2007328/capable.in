@@ -33,9 +33,9 @@ const LoginPage = () => {
                     if (!isMounted) return;
                     
                     if (projects && projects.length > 0) {
-                        const target = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard') 
+                        const target = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard' && !location.state.from.pathname.startsWith('/project')) 
                             ? location.state.from.pathname 
-                            : `/project/${projects[0].id}`;
+                            : `/`;
                         navigate(target, { replace: true });
                     } else {
                         navigate('/', { replace: true });
@@ -68,7 +68,7 @@ const LoginPage = () => {
         }
     }, [location.state]);
 
-    const from = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard') 
+    const from = (location.state?.from?.pathname && location.state.from.pathname !== '/dashboard' && !location.state.from.pathname.startsWith('/project')) 
         ? location.state.from.pathname 
         : '/onboard';
 
@@ -80,9 +80,9 @@ const LoginPage = () => {
             await ProjectStorage.init();
             const projects = await ProjectStorage.getAll();
             if (projects && projects.length > 0) {
-                const target = (from && from !== '/dashboard' && from !== '/project') 
+                const target = (from && from !== '/dashboard' && !from.startsWith('/project')) 
                     ? from 
-                    : `/project/${projects[0].id}`;
+                    : `/`;
                 navigate(target, { replace: true });
             } else {
                 navigate('/', { replace: true });

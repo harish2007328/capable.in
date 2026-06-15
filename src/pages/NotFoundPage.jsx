@@ -59,8 +59,8 @@ const NotFoundPage = () => {
           <Link to="/" className="hover:text-slate-800 transition-colors">Home</Link>
           <Link to="/features" className="hover:text-slate-800 transition-colors">Features</Link>
           <Link to="/pricing" className="hover:text-slate-800 transition-colors">Pricing</Link>
-          <Link to={user ? "/project" : "/login"} className="hover:text-slate-800 transition-colors">
-            {user ? "My Project" : "Sign In"}
+          <Link to={user ? "/onboard" : "/login"} className="hover:text-slate-800 transition-colors">
+            {user ? "New Venture" : "Sign In"}
           </Link>
         </nav>
 
@@ -108,7 +108,7 @@ const NotFoundPage = () => {
           className="flex items-center justify-center w-full"
         >
           <Link
-            to={user ? "/project" : "/"}
+            to="/"
             className="px-8 py-3 bg-[var(--brand-accent)] text-white hover:bg-[var(--brand-accent-hover)] rounded-full font-sans font-semibold text-xs tracking-wider uppercase transition-colors duration-200 shadow-md shadow-blue-500/10"
           >
             Go Home

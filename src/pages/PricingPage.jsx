@@ -48,7 +48,7 @@ const PricingPage = () => {
     }, []);
 
     const handleCheckout = async (planName, price) => {
-        if (price === 0) { navigate('/project'); return; }
+        if (price === 0) { navigate('/onboard'); return; }
         if (!user) { navigate('/login', { state: { from: { pathname: '/pricing' } } }); return; }
 
         setLoadingPlan(planName);

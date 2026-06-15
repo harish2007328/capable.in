@@ -99,10 +99,10 @@ const CheckoutResult = () => {
                         <p className="text-white/60 text-sm mb-8">Your subscription is now active.</p>
 
                         <button
-                            onClick={() => navigate('/project')}
+                            onClick={() => navigate('/onboard')}
                             className="w-full btn-primary text-sm py-3 flex items-center justify-center gap-2"
                         >
-                            Go to Project
+                            Start Onboarding
                             <ArrowRight className="w-4 h-4" />
                         </button>
                     </>

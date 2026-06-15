@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Sparkles, Wand2, PenTool, Lock, Search, Globe, Cpu, Plus, Send, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import MentorChat from './MentorChat';
 import heroPoster from '../assets/hero-poster.png';
 
 const ANALYSIS_STEPS = [
@@ -129,17 +128,6 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, onStage
             onStageSubmit(onboardingData, () => {
                 setCurrentIndex(prev => prev + 1);
             });
-        } else if (currentQuestion && currentQuestion.id === 'idea' && onOnboardingSubmit) {
-            const onboardingData = {};
-            questions.forEach((q, idx) => {
-                if (q && q.id) {
-                    onboardingData[q.id] = answers[idx];
-                }
-            });
-            if (onboardingData.name === undefined || onboardingData.name === '') {
-                onboardingData.name = authName;
-            }
-            onOnboardingSubmit(onboardingData);
         } else if (isLastStep) {
             if (isValidAnswer(answers[currentIndex])) setShowFinalCta(true);
         } else {
@@ -187,60 +175,10 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, onStage
         }
     }, [currentIndex, currentQuestion]);
 
-    // Chat messages state for idea step
-    const [chatMessages, setChatMessages] = useState([
-        { role: 'assistant', content: 'Tell me about your idea' }
-    ]);
-    const [chatInput, setChatInput] = useState('');
-    const chatBottomRef = React.useRef(null);
-    useEffect(() => {
-        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [chatMessages]);
-
     if (!isLoading && (!questions || questions.length === 0)) return null;
 
     const options = (currentQuestion && currentQuestion.options) ? currentQuestion.options : [];
     const hasValidAnswer = isValidAnswer(currentAnswer);
-
-    // ---- chat-idea step: full-screen, uses actual MentorChat component ----
-    if (!isLoading && currentQuestion && currentQuestion.type === 'chat-idea') {
-        return (
-            <div className="w-full h-full flex overflow-hidden bg-[#F5F5F5]">
-                {/* Left side flex-1: blank area for future content */}
-                <div className="hidden md:flex flex-1 h-full items-center justify-center">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-slate-200/40">
-                        <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                            {(authName || 'U').charAt(0).toUpperCase()}{(authName || '').split(' ')[1]?.charAt(0)?.toUpperCase() || ''}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right side 400px fixed: MentorChat */}
-                <div className="w-full md:w-[400px] shrink-0 h-full flex flex-col bg-transparent">
-                    <MentorChat
-                        initialMessage={
-                            typeof currentQuestion.text === 'function'
-                                ? currentQuestion.text(authName)
-                                : (currentQuestion.text || 'Tell me about your idea')
-                        }
-                        onUserMessage={(msg) => {
-                            handleManualSubmit(msg);
-                            setTimeout(() => {
-                                if (onOnboardingSubmit) {
-                                    const onboardingData = {};
-                                    questions.forEach((q, idx) => {
-                                        if (q && q.id) onboardingData[q.id] = idx === currentIndex ? msg : answers[idx];
-                                    });
-                                    if (!onboardingData.name) onboardingData.name = authName;
-                                    onOnboardingSubmit(onboardingData);
-                                }
-                            }, 400);
-                        }}
-                    />
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className={`w-full h-full flex overflow-hidden ${isGeneratedPhase ? 'bg-[#F5F5F5]' : 'bg-white'}`}>
@@ -367,97 +305,6 @@ const Questionnaire = ({ questions = [], onComplete, onOnboardingSubmit, onStage
                                                     {currentQuestion.description}
                                                 </p>
                                             )}
-                                        </div>
-                                    ) : currentQuestion.type === 'chat-idea' ? (
-                                        /* Full-height MentorChat-style idea chat */
-                                        <div className="w-full h-full flex flex-col bg-white border-l border-slate-100 animate-in fade-in duration-300">
-                                            {/* Chat Header */}
-                                            <div className="h-14 px-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="w-7 h-7 rounded-full bg-[#303030] flex items-center justify-center">
-                                                        <Sparkles size={13} className="text-white" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[12px] font-semibold text-slate-800 leading-tight">Capable AI</p>
-                                                        <p className="text-[10px] text-slate-400 leading-tight">Business Discovery</p>
-                                                    </div>
-                                                </div>
-                                                <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-300 flex items-center gap-1.5">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                                    Online
-                                                </span>
-                                            </div>
-
-                                            {/* Messages */}
-                                            <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
-                                                {chatMessages.map((msg, i) => (
-                                                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                                        {msg.role === 'assistant' && (
-                                                            <div className="w-6 h-6 rounded-full bg-[#303030] flex items-center justify-center mr-2.5 mt-0.5 shrink-0">
-                                                                <Sparkles size={11} className="text-white" />
-                                                            </div>
-                                                        )}
-                                                        <div className={`max-w-[80%] px-4 py-3 text-sm leading-relaxed shadow-sm ${msg.role === 'user'
-                                                                ? 'bg-[#303030] text-white rounded-2xl rounded-tr-sm'
-                                                                : 'bg-slate-50 text-slate-700 border border-slate-100 rounded-2xl rounded-tl-sm'
-                                                            }`}>
-                                                            {msg.content}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                                <div ref={chatBottomRef} />
-                                            </div>
-
-                                            {/* Input */}
-                                            <div className="p-4 bg-white border-t border-slate-100 shrink-0">
-                                                <form
-                                                    onSubmit={(e) => {
-                                                        e.preventDefault();
-                                                        const val = chatInput.trim();
-                                                        if (!val || isReadonly) return;
-                                                        // Add user message
-                                                        setChatMessages(prev => [...prev, { role: 'user', content: val }]);
-                                                        setChatInput('');
-                                                        // Store answer and submit
-                                                        handleManualSubmit(val);
-                                                        // Trigger onboarding submit after brief visual delay
-                                                        setTimeout(() => {
-                                                            if (onOnboardingSubmit) {
-                                                                const onboardingData = {};
-                                                                questions.forEach((q, idx) => {
-                                                                    if (q && q.id) onboardingData[q.id] = idx === currentIndex ? val : answers[idx];
-                                                                });
-                                                                if (!onboardingData.name) onboardingData.name = authName;
-                                                                onOnboardingSubmit(onboardingData);
-                                                            }
-                                                        }, 400);
-                                                    }}
-                                                    className="relative flex items-end bg-white shadow-sm border border-slate-200 rounded-2xl focus-within:ring-2 focus-within:ring-slate-900/5 transition-all"
-                                                >
-                                                    <textarea
-                                                        value={chatInput}
-                                                        onChange={(e) => setChatInput(e.target.value)}
-                                                        placeholder={currentQuestion.placeholder || 'Describe your idea or business...'}
-                                                        rows={2}
-                                                        autoFocus
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter' && !e.shiftKey) {
-                                                                e.preventDefault();
-                                                                e.target.form.requestSubmit();
-                                                            }
-                                                        }}
-                                                        className="flex-1 bg-transparent border-none py-3 pl-5 pr-14 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none resize-none"
-                                                    />
-                                                    <button
-                                                        type="submit"
-                                                        disabled={!chatInput.trim() || isReadonly}
-                                                        className="absolute right-2.5 bottom-2.5 p-2 bg-[#303030] text-white rounded-xl hover:bg-[#222] shadow-sm disabled:opacity-20 transition-all"
-                                                    >
-                                                        <Send size={14} />
-                                                    </button>
-                                                </form>
-                                                <p className="text-center text-[10px] text-slate-400 mt-2.5">Press Enter to send · Shift+Enter for new line</p>
-                                            </div>
                                         </div>
                                     ) : currentQuestion.type === 'textarea' ? (
                                         <div className="relative mt-0 w-full">

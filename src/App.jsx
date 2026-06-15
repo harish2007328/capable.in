@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import Layout from './components/Layout';
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
-const VenturePage = React.lazy(() => import('./pages/VenturePage'));
 const OnboardPage = React.lazy(() => import('./pages/OnboardPage'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 const FeaturesPage = React.lazy(() => import('./pages/FeaturesPage'));
@@ -46,20 +45,18 @@ function App() {
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/checkout-result" element={<CheckoutResult />} />
 
-              {/* Onboarding and Unified Venture Routes */}
+              {/* Onboarding Routes */}
               <Route path="/onboard" element={<OnboardPage />} />
-              <Route path="/project" element={<VenturePage />} />
-              <Route path="/project/:projectId" element={<VenturePage />} />
 
               {/* Redirects for legacy routes */}
-              <Route path="/wizard" element={<Navigate to="/project" replace />} />
-              <Route path="/report" element={<Navigate to="/project" replace />} />
-              <Route path="/task/:id" element={<Navigate to="/project" replace />} />
+              <Route path="/wizard" element={<Navigate to="/" replace />} />
+              <Route path="/report" element={<Navigate to="/" replace />} />
+              <Route path="/task/:id" element={<Navigate to="/" replace />} />
 
               {/* Protected Routes - Only for registered users */}
-              <Route path="/dashboard" element={<Navigate to="/project" replace />} />
-              <Route path="/settings" element={<Navigate to="/project" replace />} />
-              <Route path="/metrics" element={<Navigate to="/project" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/" replace />} />
+              <Route path="/settings" element={<Navigate to="/" replace />} />
+              <Route path="/metrics" element={<Navigate to="/" replace />} />
               <Route 
                 path="/admin" 
                 element={
