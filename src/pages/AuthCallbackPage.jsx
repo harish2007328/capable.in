@@ -28,7 +28,7 @@ const AuthCallbackPage = () => {
         refreshSession().then(async (user) => {
             if (user) {
                 const sessionRedirect = sessionStorage.getItem('auth_redirect_to');
-                const from = (sessionRedirect && sessionRedirect !== '/dashboard' && !sessionRedirect.startsWith('/project')) ? sessionRedirect : '/onboard';
+                const from = (sessionRedirect && sessionRedirect !== '/dashboard') ? sessionRedirect : '/onboard';
                 sessionStorage.removeItem('auth_redirect_to');
                 
                 try {
@@ -40,7 +40,7 @@ const AuthCallbackPage = () => {
                     
                     const projects = await ProjectStorage.getAll();
                     if (projects && projects.length > 0) {
-                        const target = (from && from !== '/dashboard' && !from.startsWith('/project' ) && from !== '/onboard') ? from : `/`;
+                        const target = (from && from !== '/dashboard' && from !== '/project' && from !== '/onboard') ? from : `/project/${projects[0].id}`;
                         navigate(target, { replace: true });
                     } else {
                         navigate('/', { replace: true });

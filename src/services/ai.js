@@ -172,3 +172,42 @@ export const mentorChat = async (idea, plan, messages, completedDays = [], curre
         throw error;
     }
 };
+
+/**
+ * Generates a warm, punchy, professional co-founder greeting based on initial business idea.
+ */
+export const generateGreeting = async (idea) => {
+    try {
+        const response = await axios.post('/api/generate-greeting', { idea });
+        return response.data.greeting;
+    } catch (error) {
+        console.error('Error generating greeting:', error);
+        throw error;
+    }
+};
+
+/**
+ * Generates 5 onboarding MCQ questions based on initial business idea.
+ */
+export const generateOnboardingQuestions = async (idea) => {
+    try {
+        const response = await axios.post('/api/generate-onboarding-questions', { idea });
+        return response.data;
+    } catch (error) {
+        console.error('Error generating onboarding questions:', error);
+        throw error;
+    }
+};
+
+/**
+ * Generates a concise summary paragraph about the venture idea based on onboarding answers.
+ */
+export const generateSummary = async (idea, answers) => {
+    try {
+        const response = await axios.post('/api/generate-summary', { idea, answers });
+        return response.data.summary;
+    } catch (error) {
+        console.error('Error generating summary:', error);
+        throw error;
+    }
+};

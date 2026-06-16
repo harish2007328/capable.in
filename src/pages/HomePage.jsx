@@ -36,6 +36,21 @@ const HomePage = () => {
     const navigate = useNavigate();
     const { user, loading } = useAuth();
 
+    // Redirect logged-in users who already have an active project to their project page
+    useEffect(() => {
+        const checkExistingProject = async () => {
+            if (!loading && user) {
+                await ProjectStorage.init();
+                const existingProjects = await ProjectStorage.getAll();
+                if (existingProjects && existingProjects.length > 0) {
+                    ProjectStorage.setActiveId(existingProjects[0].id);
+                    navigate(`/project/${existingProjects[0].id}`, { replace: true });
+                }
+            }
+        };
+        checkExistingProject();
+    }, [user, loading, navigate]);
+
     const lottieRef = useRef(null);
 
     // Increase loader animation speed

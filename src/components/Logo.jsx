@@ -1,11 +1,12 @@
 import React from 'react';
 import logoIconSrc from '../assets/LOGO ICON.svg';
 
-export const LogoIcon = ({ className = "w-8 h-8" }) => (
+export const LogoIcon = ({ className = "w-8 h-8", ...props }) => (
     <img
         src={logoIconSrc}
         alt="Capable Logo"
         className={className}
+        {...props}
     />
 );
 

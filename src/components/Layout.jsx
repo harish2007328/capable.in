@@ -19,13 +19,27 @@ const Layout = ({ children }) => {
         return () => window.removeEventListener('toggle-sidebar', handler);
     }, []);
 
+    // Focus Pages (No Sidebar, No Header)
+    const focusRoutes = ['/project', '/task', '/wizard', '/report', '/login', '/checkout-result', '/onboard'];
+    const isFocusPage = focusRoutes.some(route => location.pathname.startsWith(route));
+
     // Define "App" routes that should use the Sidebar layout
     const appRoutes = [];
     const isAppPage = false;
 
-    // Focus Pages (No Sidebar, No Header)
-    const focusRoutes = ['/task', '/wizard', '/report', '/login', '/checkout-result', '/onboard'];
-    const isFocusPage = focusRoutes.some(route => location.pathname.startsWith(route));
+    React.useEffect(() => {
+        if (isFocusPage) {
+            document.documentElement.style.scrollbarGutter = 'auto';
+            document.body.style.scrollbarGutter = 'auto';
+        } else {
+            document.documentElement.style.scrollbarGutter = '';
+            document.body.style.scrollbarGutter = '';
+        }
+        return () => {
+            document.documentElement.style.scrollbarGutter = '';
+            document.body.style.scrollbarGutter = '';
+        };
+    }, [isFocusPage]);
     
     if (isFocusPage) {
         return (

@@ -64,8 +64,8 @@ const OnboardPage = () => {
                 }
             }
 
-            // Navigate to the home page (everything after stage selection is removed)
-            navigate('/');
+            // Navigate to the project page
+            navigate(`/project/${newId}`);
         } catch (error) {
             console.error('Failed to save stage selection:', error);
         } finally {

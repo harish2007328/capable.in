@@ -1622,9 +1622,7 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
             .replace(/\[REPLACE_TASKS\][\s\S]*?\[\/REPLACE_TASKS\]/g, '')
             .replace(/\[ADD_TASKS\][\s\S]*?\[\/ADD_TASKS\]/g, '')
             .replace(/\[DELETE_ALL\]/g, '')
-            .replace(/\[DELETE ALL\]/g, '')
-            // Strip chain-of-thought <think> tags from reasoning models
-            .replace(/<think>[\s\S]*?<\/think>/gi, '');
+            .replace(/\[DELETE ALL\]/g, '');
 
         if (usedFallback && replaceMatch) {
             // Remove the raw JSON we found
@@ -1807,6 +1805,121 @@ app.post('/api/portal', async (req, res) => {
         res.status(500).json({ error: "Failed to create portal session" });
     }
 });
+
+app.post('/api/generate-greeting', async (req, res) => {
+    const { idea } = req.body;
+    try {
+        const prompt = `
+            Write a very warm, punchy, professional co-founder greeting (exactly 10-15 words total) acknowledging and validating this business idea: "${idea}".
+            Do not output any surrounding tags, instructions, or other explanation. Output ONLY the greeting text.
+        `;
+
+        const completion = await getGroqClient().chat.completions.create({
+            messages: [
+                { role: "system", content: "You are a helpful co-founder. You output only the raw greeting text." },
+                { role: "user", content: prompt }
+            ],
+            model: MODEL
+        });
+
+        res.json({ greeting: completion.choices[0].message.content.trim() });
+    } catch (err) {
+        console.error("Error generating greeting:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-onboarding-questions', async (req, res) => {
+    const { idea } = req.body;
+    try {
+        const prompt = `
+            BUSINESS IDEA: "${idea}"
+            
+            TASK:
+            1. Generate exactly 5 high-impact questions to diagnose the idea. Each question must have exactly 4 specific, non-generic options.
+            2. Keep the option titles ('text' field) conceptually small, punchy, and short (only 1-3 words max, e.g., "Bootstrap", "VC Funding", "Pre-seed").
+            3. For each option, write a short, one-sentence description/explanation in the 'explanation' field to describe the option.
+            4. For each question, identify the most recommended/strategic path for this specific business idea, and provide that exact option 'text' string in the "recommendedOption" field.
+            
+            JSON SCHEMA:
+            {
+              "questions": [
+                {
+                  "id": 1,
+                  "text": "The question text",
+                  "options": [
+                    {
+                      "text": "Short Title A",
+                      "explanation": "One simple sentence explaining this option"
+                    },
+                    {
+                      "text": "Short Title B",
+                      "explanation": "One simple sentence explaining this option"
+                    },
+                    {
+                      "text": "Short Title C",
+                      "explanation": "One simple sentence explaining this option"
+                    },
+                    {
+                      "text": "Short Title D",
+                      "explanation": "One simple sentence explaining this option"
+                    }
+                  ],
+                  "recommendedOption": "Short Title A"
+                }
+              ]
+            }
+        `;
+
+        const completion = await getGroqClient().chat.completions.create({
+            messages: [
+                { role: "system", content: "You output valid JSON only. Every question must have exactly 4 options. Option titles ('text') must be extremely short (1-3 words). One of those 4 options' 'text' field must be exactly copied to the 'recommendedOption' field. Be specific to the user's idea." },
+                { role: "user", content: prompt }
+            ],
+            model: MODEL,
+            response_format: { type: "json_object" }
+        });
+
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
+    } catch (err) {
+        console.error("Error generating onboarding questions:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-summary', async (req, res) => {
+    const { idea, answers } = req.body;
+    try {
+        const answersStr = answers ? JSON.stringify(answers) : "No answers provided";
+        const prompt = `
+            BUSINESS IDEA: "${idea}"
+            FOUNDER ONBOARDING ANSWERS: ${answersStr}
+            
+            ROLE: Experienced startup co-founder and strategist.
+            TASK: Generate a concise, clear, co-founder-style summary paragraph (approx 40-60 words) summarizing the business idea based on the user's initial idea and their onboarding answers.
+            The summary should capture:
+            - What the product/service is
+            - Who it is for (target audience)
+            - The core value proposition or how it operates/makes money.
+            Keep the tone warm, punchy, and professional.
+            Do not output any introductory text, formatting tags, or preambles. Output ONLY the summary paragraph text.
+        `;
+
+        const completion = await getGroqClient().chat.completions.create({
+            messages: [
+                { role: "system", content: "You are a helpful co-founder. You output only the raw summary paragraph text." },
+                { role: "user", content: prompt }
+            ],
+            model: MODEL
+        });
+
+        res.json({ summary: completion.choices[0].message.content.trim() });
+    } catch (err) {
+        console.error("Error generating idea summary:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 
 // --- SERVE FRONTEND (Restored for Render) ---
 app.get(/.*/, (req, res) => {

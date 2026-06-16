@@ -14,10 +14,10 @@ export default {
         },
         extend: {
             fontFamily: {
-                sans: ['Helvetica', 'Arial', 'sans-serif'],
-                serif: ['"Myriad Pro"', 'Myriad', 'sans-serif'],
-                display: ['"Myriad Pro"', 'Myriad', 'sans-serif'],
-                body: ['Helvetica', 'Arial', 'sans-serif'],
+                sans: ['"Instrument Sans"', 'sans-serif'],
+                serif: ['"Instrument Sans"', 'sans-serif'],
+                display: ['"Instrument Sans"', 'sans-serif'],
+                body: ['"Instrument Sans"', 'sans-serif'],
             },
             letterSpacing: {
                 tightest: '-0.02em',

@@ -144,7 +144,37 @@ export const ProjectStorage = {
 
     updateData: async (id, updates) => {
         const { data: { session } } = await supabase.auth.getSession();
-        const titleUpdate = updates.projectTitle || updates.project_name;
+        
+        // Sync project/business name updates across all title representations
+        const titleUpdate = updates.companyName || updates.projectTitle || updates.project_name || updates.title;
+        if (titleUpdate) {
+            updates.companyName = titleUpdate;
+            updates.projectTitle = titleUpdate;
+            updates.project_name = titleUpdate;
+            updates.title = titleUpdate;
+        }
+
+        // Sync user name updates across metadata and Supabase profile
+        const userNameUpdate = updates.userName || updates.name || updates.full_name;
+        if (userNameUpdate) {
+            updates.userName = userNameUpdate;
+            updates.name = userNameUpdate;
+            updates.full_name = userNameUpdate;
+            
+            if (session) {
+                try {
+                    await supabase.auth.setProfile({ name: userNameUpdate });
+                    
+                    // Also update the database profiles table
+                    await supabase.database
+                        .from('profiles')
+                        .update({ name: userNameUpdate })
+                        .eq('id', session.user.id);
+                } catch (e) {
+                    console.warn("Failed to sync name to Supabase profile:", e.message);
+                }
+            }
+        }
 
         // Fetch current state to perform deep merge
         const current = await ProjectStorage.getById(id);

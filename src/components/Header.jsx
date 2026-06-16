@@ -104,8 +104,8 @@ const Header = () => {
                         </>
                     ) : (
                         <>
-                            <Link to="/onboard" className={btnClassName}>
-                                New Venture
+                            <Link to="/project" className={btnClassName}>
+                                My Project
                             </Link>
                             <div className="relative h-full flex items-center" ref={userMenuRef}>
                                 <button
@@ -215,7 +215,7 @@ const Header = () => {
                         <div className="mt-auto flex flex-col gap-4">
                             {user ? (
                                 <>
-                                    <Link to="/onboard" className={btnClassName}>New Venture</Link>
+                                    <Link to="/project" className={btnClassName}>My Project</Link>
                                     <button
                                         onClick={() => {
                                             logout();

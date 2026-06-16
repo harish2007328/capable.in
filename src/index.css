@@ -167,7 +167,7 @@
     color: #eaeaea;
     padding: 0.875rem 2rem;
     border-radius: var(--radius-button);
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: "Instrument Sans", sans-serif;
     font-weight: 500;
     font-size: 1.125rem;
     line-height: 1.5rem;
@@ -198,7 +198,7 @@
     color: #303030;
     padding: 0.875rem 2rem;
     border-radius: var(--radius-button);
-    font-family: "Myriad Pro", Myriad, sans-serif;
+    font-family: "Instrument Sans", sans-serif;
     font-weight: 500;
     font-size: 1.125rem;
     line-height: 1.5rem;
@@ -228,7 +228,7 @@
     color: #eaeaea;
     padding: 0.875rem 2rem;
     border-radius: var(--radius-button);
-    font-family: "Myriad Pro", Myriad, sans-serif;
+    font-family: "Instrument Sans", sans-serif;
     font-weight: 500;
     font-size: 1.125rem;
     line-height: 1.5rem;
@@ -260,7 +260,7 @@
     border: 1px solid rgba(48, 48, 48, 0.15);
     padding: 0.875rem 2rem;
     border-radius: var(--radius-button);
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: "Instrument Sans", sans-serif;
     font-weight: 500;
     display: inline-flex;
     align-items: center;
@@ -282,7 +282,7 @@
     padding: 1rem;
     border-radius: var(--radius-input);
     color: #303030;
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: "Instrument Sans", sans-serif;
     transition: all 0.2s ease;
   }
 
@@ -358,7 +358,7 @@
   }
 
   .font-instrument-serif {
-    font-family: "Myriad Pro", Myriad, sans-serif !important;
+    font-family: "Instrument Sans", sans-serif !important;
   }
 }
 
@@ -382,17 +382,21 @@
 
 /* Specific class for ultra-minimalist scrollbars (used in tables/drawers) */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(48, 48, 48, 0.15);
+  background-color: rgba(24, 24, 27, 0.2);
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(48, 48, 48, 0.3);
+  background-color: #18181B;
 }
 
 /* Hero Section Custom Scrollbar */
@@ -602,4 +606,23 @@ button:focus,
 .onboarding-option-btn:focus,
 .onboarding-back-btn:focus {
   outline: none;
+}
+
+@keyframes shine {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shine {
+  background: linear-gradient(90deg, #71717a 20%, #a1a1aa 45%, #e4e4e7 50%, #a1a1aa 55%, #71717a 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shine 1.6s infinite linear;
+  display: inline-block;
 }

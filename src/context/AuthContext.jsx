@@ -53,6 +53,22 @@ export const AuthProvider = ({ children }) => {
         if (sessionData?.session?.user) {
             let freshUser = sessionData.session.user;
             if (freshUser.metadata && !freshUser.user_metadata) freshUser.user_metadata = freshUser.metadata;
+            
+            // Sync with DB profiles table
+            if (payload.name) {
+                try {
+                    await supabase.database
+                        .from('profiles')
+                        .update({ name: payload.name })
+                        .eq('id', freshUser.id);
+                    if (freshUser.profile) {
+                        freshUser.profile.name = payload.name;
+                    }
+                } catch (dbErr) {
+                    console.warn("Failed to sync name to profiles table inside updateUser:", dbErr.message);
+                }
+            }
+
             setUser(freshUser);
             localStorage.setItem('capable_cached_user', JSON.stringify(freshUser));
         }
