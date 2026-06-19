@@ -775,6 +775,194 @@ app.post('/api/auth/logout', async (req, res) => {
 
 // --- API ENDPOINTS ---
 
+app.post('/api/generate-validation-report', async (req, res) => {
+    const { idea, answers, location } = req.body;
+    try {
+        const webSignals = await collectMarketSignals(idea, location);
+        const answersSummary = answers ? (typeof answers === 'string' ? answers.substring(0, 800) : JSON.stringify(answers).substring(0, 800)) : 'None provided';
+        
+        const prompt = `
+          ROLE: Expert Startup Advisor (Validator Agent).
+          IDEA: "${idea}"
+          MARKET SIGNALS: ${JSON.stringify(webSignals).substring(0, 1000)}
+          FOUNDER ANSWERS: ${answersSummary}
+
+          TASK: Generate a COMPLETE Validation Report for this idea.
+          Be brutally honest, specific, and tactical. No boilerplate advice.
+
+          You must return a single JSON object matching this EXACT schema:
+          {
+            "overview": {
+              "elevator_pitch": "1-sentence punchy elevator pitch",
+              "problem": "2-3 sentences describing the pain point clearly",
+              "solution": "2-3 sentences describing your unique solution",
+              "target_users": [
+                { "segment": "Primary Segment", "description": "Description of behaviors/demographics" },
+                { "segment": "Secondary Segment", "description": "Description of behaviors/demographics" }
+              ],
+              "why_now": "2-3 sentences on why now is the perfect time (trends, tech shifts)"
+            },
+            "market": {
+              "market_size": "1-2 sentences with logical market sizing estimation",
+              "growth_signals": [
+                "Growth signal 1 with data point/trend",
+                "Growth signal 2 with data point/trend"
+              ],
+              "competitors": [
+                { "name": "Competitor A", "what_they_do": "Description", "weakness": "Gap you exploit" },
+                { "name": "Competitor B", "what_they_do": "Description", "weakness": "Gap you exploit" }
+              ],
+              "unique_edge": "2-3 sentences on your competitive moat"
+            },
+            "execution": {
+              "how_it_works": [
+                { "step": 1, "action": "First key step in customer experience" },
+                { "step": 2, "action": "Second key step" },
+                { "step": 3, "action": "Third key step" },
+                { "step": 4, "action": "Fourth key step" }
+              ],
+              "business_model": "2-3 sentences on how the business monetizes",
+              "revenue_streams": ["Stream 1", "Stream 2"],
+              "feasibility": "2-3 sentences outlining the gut-check feasibility and technical build difficulty",
+              "est_mvp_cost": "Estimated cost range (e.g. $1,000 - $3,000)",
+              "est_timeline": "Estimated timeline (e.g. 2-4 weeks)"
+            },
+            "reality": {
+              "risks": [
+                { "category": "Market Risk", "description": "Specific risk detail", "severity": "High" },
+                { "category": "Technical Risk", "description": "Specific risk detail", "severity": "Medium" },
+                { "category": "Distribution Risk", "description": "Specific risk detail", "severity": "High" }
+              ],
+              "open_questions": [
+                "Critical unknown question 1",
+                "Critical unknown question 2",
+                "Critical unknown question 3",
+                "Critical unknown question 4",
+                "Critical unknown question 5"
+              ],
+              "validation_plan": [
+                { "step": 1, "action": "Cheapest, fastest action to test demand" },
+                { "step": 2, "action": "Next validation milestone" },
+                { "step": 3, "action": "Third validation milestone" }
+              ]
+            }
+          }
+        `;
+
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [
+                { role: "system", content: "You output valid JSON only. Be specific, honest, and direct." },
+                { role: "user", content: prompt }
+            ],
+            model: MODEL,
+            response_format: { type: "json_object" },
+            max_tokens: 4000
+        }));
+
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
+    } catch (err) {
+        console.error("Validation Report Generation failed:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/generate-6day-roadmap', async (req, res) => {
+    const { idea, answers } = req.body;
+    try {
+        const answersSummary = answers ? (typeof answers === 'string' ? answers.substring(0, 1000) : JSON.stringify(answers).substring(0, 1000)) : 'None provided';
+        
+        const prompt = `
+          ROLE: Elite Startup Operations Expert (Navigator Agent).
+          IDEA: "${idea}"
+          FOUNDER ONBOARDING ANSWERS: ${answersSummary}
+
+          TASK: Generate a 6-Day Validation Sprint Roadmap to test this idea.
+          Each day must focus on a single core objective, and include exactly 3 highly actionable, concrete, specific tasks.
+          
+          You must return a single JSON object matching this EXACT schema:
+          {
+            "title": "6-Day Validation Sprint",
+            "days": [
+              {
+                "day": 1,
+                "title": "Day 1 Focus (e.g. Persona Mapping)",
+                "objective": "Day 1 main objective statement",
+                "tasks": [
+                  { "id": "d1-t1", "text": "Concrete task 1", "completed": false },
+                  { "id": "d1-t2", "text": "Concrete task 2", "completed": false },
+                  { "id": "d1-t3", "text": "Concrete task 3", "completed": false }
+                ]
+              },
+              {
+                "day": 2,
+                "title": "Day 2 Focus",
+                "objective": "Day 2 main objective statement",
+                "tasks": [
+                  { "id": "d2-t1", "text": "Concrete task 1", "completed": false },
+                  { "id": "d2-t2", "text": "Concrete task 2", "completed": false },
+                  { "id": "d2-t3", "text": "Concrete task 3", "completed": false }
+                ]
+              },
+              {
+                "day": 3,
+                "title": "Day 3 Focus",
+                "objective": "Day 3 main objective statement",
+                "tasks": [
+                  { "id": "d3-t1", "text": "Concrete task 1", "completed": false },
+                  { "id": "d3-t2", "text": "Concrete task 2", "completed": false },
+                  { "id": "d3-t3", "text": "Concrete task 3", "completed": false }
+                ]
+              },
+              {
+                "day": 4,
+                "title": "Day 4 Focus",
+                "objective": "Day 4 main objective statement",
+                "tasks": [
+                  { "id": "d4-t1", "text": "Concrete task 1", "completed": false },
+                  { "id": "d4-t2", "text": "Concrete task 2", "completed": false },
+                  { "id": "d4-t3", "text": "Concrete task 3", "completed": false }
+                ]
+              },
+              {
+                "day": 5,
+                "title": "Day 5 Focus",
+                "objective": "Day 5 main objective statement",
+                "tasks": [
+                  { "id": "d5-t1", "text": "Concrete task 1", "completed": false },
+                  { "id": "d5-t2", "text": "Concrete task 2", "completed": false },
+                  { "id": "d5-t3", "text": "Concrete task 3", "completed": false }
+                ]
+              },
+              {
+                "day": 6,
+                "title": "Day 6 Focus",
+                "objective": "Day 6 main objective statement",
+                "tasks": [
+                  { "id": "d6-t1", "text": "Concrete task 1", "completed": false },
+                  { "id": "d6-t2", "text": "Concrete task 2", "completed": false },
+                  { "id": "d6-t3", "text": "Concrete task 3", "completed": false }
+                ]
+              }
+            ]
+          }
+        `;
+
+        const completion = await withRetry(() => getGroqClient().chat.completions.create({
+            messages: [
+                { role: "system", content: "You output valid JSON only. Keep tasks extremely specific and tactical." },
+                { role: "user", content: prompt }
+            ],
+            model: MODEL,
+            response_format: { type: "json_object" }
+        }));
+
+        res.json(cleanJSONResponse(completion.choices[0].message.content));
+    } catch (err) {
+        console.error("6-Day Roadmap Generation failed:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/api/enhance-idea', async (req, res) => {
     const { idea } = req.body;
     try {

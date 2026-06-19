@@ -211,3 +211,30 @@ export const generateSummary = async (idea, answers) => {
         throw error;
     }
 };
+
+/**
+ * Generates a complete startup idea validation report using collected market signals.
+ */
+export const generateValidationReport = async (idea, answers, location) => {
+    try {
+        const response = await axios.post('/api/generate-validation-report', { idea, answers, location });
+        return response.data;
+    } catch (error) {
+        console.error('Error generating validation report:', error);
+        throw error;
+    }
+};
+
+/**
+ * Generates a 6-day step-by-step validation roadmap.
+ */
+export const generate6DayRoadmap = async (idea, report) => {
+    try {
+        const response = await axios.post('/api/generate-6day-roadmap', { idea, report });
+        return response.data;
+    } catch (error) {
+        console.error('Error generating 6-day roadmap:', error);
+        throw error;
+    }
+};
+
