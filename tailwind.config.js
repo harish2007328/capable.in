@@ -5,14 +5,14 @@ export default {
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
-        colors: {
-            transparent: 'transparent',
-            current: 'currentColor',
-            black: '#303030',
-            white: '#ffffff',
-            primary: '#303030',
-        },
         extend: {
+            colors: {
+                transparent: 'transparent',
+                current: 'currentColor',
+                black: '#303030',
+                white: '#ffffff',
+                primary: '#303030',
+            },
             fontFamily: {
                 sans: ['"Instrument Sans"', 'sans-serif'],
                 serif: ['"Instrument Sans"', 'sans-serif'],

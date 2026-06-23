@@ -6,6 +6,7 @@ const anonKey = import.meta.env.VITE_INSFORGE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsI
 const client = createClient({ baseUrl, anonKey });
 
 // --- AUTH STATE NOTIFIER ---
+let hasAttemptedRefresh = false;
 let lastSessionId = null;
 const authListeners = new Set();
 const notifyListeners = (event, session) => {
@@ -175,16 +176,20 @@ client.auth.getSession = async () => {
         }
 
         // Step 2: Try custom proxy server cookie refresh (Google OAuth)
-        const proxyCheck = await refreshFromCookie();
-        if (proxyCheck.refreshed && proxyCheck.session) {
-            const session = proxyCheck.session;
-            localStorage.setItem('insforge_session_token', session.accessToken);
-            applyTokenToSDK(session.accessToken);
+        // Only attempt this once per page load for guest users (no token) to avoid infinite loops
+        if (!hasAttemptedRefresh) {
+            hasAttemptedRefresh = true;
+            const proxyCheck = await refreshFromCookie();
+            if (proxyCheck.refreshed && proxyCheck.session) {
+                const session = proxyCheck.session;
+                localStorage.setItem('insforge_session_token', session.accessToken);
+                applyTokenToSDK(session.accessToken);
 
-            if (session.user?.id !== lastSessionId) {
-                notifyListeners('SIGNED_IN', session);
+                if (session.user?.id !== lastSessionId) {
+                    notifyListeners('SIGNED_IN', session);
+                }
+                return { data: { session }, error: null };
             }
-            return { data: { session }, error: null };
         }
 
         // No valid token anywhere = no session
@@ -207,6 +212,25 @@ client.auth.onAuthStateChange = (callback) => {
             } 
         } 
     };
+};
+
+// Wrap auth methods to reset hasAttemptedRefresh on state changes
+const originalSignOut = client.auth.signOut;
+client.auth.signOut = async (...args) => {
+    hasAttemptedRefresh = false;
+    return originalSignOut.apply(client.auth, args);
+};
+
+const originalSignInWithPassword = client.auth.signInWithPassword;
+client.auth.signInWithPassword = async (...args) => {
+    hasAttemptedRefresh = false;
+    return originalSignInWithPassword.apply(client.auth, args);
+};
+
+const originalSignUp = client.auth.signUp;
+client.auth.signUp = async (...args) => {
+    hasAttemptedRefresh = false;
+    return originalSignUp.apply(client.auth, args);
 };
 
 export const supabase = client;

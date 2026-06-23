@@ -1547,9 +1547,9 @@ app.post('/api/chat', async (req, res) => {
         // Remove duplicates
         const uniqueTaskIds = [...new Set(mentionedTaskIds)];
 
-        const mentionedTasks = uniqueTaskIds.length > 0
+        const mentionedTasks = (plan && plan.days && uniqueTaskIds.length > 0)
             ? plan.days.filter(d => uniqueTaskIds.includes(d.day))
-            : (currentTaskId ? plan.days.filter(d => d.day === currentTaskId) : []);
+            : (plan && plan.days && currentTaskId ? plan.days.filter(d => d.day === currentTaskId) : []);
 
         // Detect edit intent
         const editPatterns = [
@@ -1629,10 +1629,15 @@ EXCEPTION: Warmly greet "hello/hi" and then pivot back.
 `;
 
         // Sanitize messages - only keep role and content (Groq API requirement)
-        const sanitizedMessages = messages.slice(-10).map(m => ({
-            role: m.role,
-            content: m.content
-        }));
+        // Filter out non-standard roles like 'tool_call' to prevent API request rejection
+        const allowedRoles = ['user', 'assistant', 'system'];
+        const sanitizedMessages = messages
+            .filter(m => allowedRoles.includes(m.role))
+            .slice(-10)
+            .map(m => ({
+                role: m.role,
+                content: m.content
+            }));
 
         // Detect strong intents to override/guide the AI
         const lastMsg = messages[messages.length - 1].content.toLowerCase();
